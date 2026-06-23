@@ -1,4 +1,4 @@
 [profile]
 name = "lucassantana"
-version = "0.1.0"
-description = "Coding fundamentals: clean CLAUDE.md rules, caveman (terse mode), ponytail (lazy/minimal design)"
+version = "0.2.0"
+description = "Lucas Santana's Claude Code workflow — operator CLAUDE.md (autonomy, model tiering, hard rules, caveman/ponytail defaults) + 55 portable skills (engineering, testing, refactor, frontend, research, prompting)"
