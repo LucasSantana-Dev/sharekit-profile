@@ -18,6 +18,10 @@ This previews the changes, backs up anything it overwrites, and mirrors into `~/
   - *frontend:* `frontend-design`, `tailwind-design-system`, `shadcn`, `webapp-testing`, `design-an-interface`
   - *process:* `changelog-update`, `version-bump`, `setup-pre-commit`, `using-git-worktrees`, `quality-gates`, `pr-merge-readiness`
 
+## Memory structure
+
+`claude/memory-structure/` is a convention for giving the agent a **persistent, file-based memory** that survives across sessions — `CORE.md` (tier-0), a `MEMORY.md` index, and one fact per file with typed frontmatter (`user`/`feedback`/`project`/`reference`). It's the *methodology + skeletons*, not anyone's actual memories. A few session/RAG skills that operate it are included (`session-bootstrap`, `context-save`, `adt-rag`); the deeper memory automation assumes a personal vault+retriever stack and is left out by design.
+
 ## Portable by design
 
 These skills are machine-independent — paths and identity flow through env vars (`${DEV_ROOT}`, `${GITHUB_USER}`, …) rather than hardcoded values. Set yours in `~/.claude/settings.local.json` under `"env"` (or your shell). No personal infrastructure, IPs, or secrets are included.
