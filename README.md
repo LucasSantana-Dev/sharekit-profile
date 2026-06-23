@@ -5,7 +5,7 @@ A clean, reusable Claude Code profile demonstrating coding fundamentals and help
 ## Install
 
 ```bash
-npx @lucassantana/sharekit install lucassantana
+npx @lucassantana/sharekit install LucasSantana-Dev
 ```
 
 This mirrors into:
