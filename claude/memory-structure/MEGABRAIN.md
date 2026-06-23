@@ -93,4 +93,14 @@ Megabrain works by hand, but small scripts make it durable:
 - a **committer** that syncs the vault across machines on a schedule,
 - a **RAG indexer** (wired to `MEMORY_RETRIEVER`) over `memory/` for semantic `recall`.
 
-Start with just `memory/` + `MEMORY.md`. Add Obsidian, then graphs, then RAG as megabrain grows — each is an independent upgrade.
+## Evaluating retrieval — catch silent rot
+
+Once megabrain has a retriever and hundreds of notes, recall degrades **silently**: a change makes the retriever surface worse notes and nothing warns you. Gate it (this is what the `memory-eval` skill does):
+
+1. **Golden set** — `query → expected note(s)`, either hand-labeled (~30–50) or **label-free / auto-mined** from the notes themselves (no maintenance).
+2. **Freeze a baseline** — `Hit@5 / Hit@1 / MRR` against the current retriever.
+3. **Gate on regression** — re-run after any change to memories, retriever, chunking, or embedder; block/flag if a metric drops past tolerance.
+
+This is the one thing no major agent-memory platform ships — *measurable* memory. **Honest caveat:** a label-free gate measures *retrievability change, not relevance* — it catches regressions, it doesn't prove recall is good. It's an advanced tier; the grep default needs none of it.
+
+Start with just `memory/` + `MEMORY.md`. Add Obsidian, then graphs, then RAG, then the eval gate as megabrain grows — each is an independent upgrade.

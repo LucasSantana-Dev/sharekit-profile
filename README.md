@@ -26,6 +26,7 @@ A **persistent, file-based memory** for the agent — and the skills that run it
 - **`sync-memories`** — capture a durable fact (one file + index update).
 - **`knowledge-loop`** — pair recall + capture around a task.
 - **`memory-prune`** — merge duplicates, drop stale facts.
+- **`memory-eval`** *(advanced)* — gate retrieval quality so a change can't silently degrade recall; label-free regression gate over a golden set. Needs a retriever; the grep default needs none of it.
 
 By default memory lives at `~/.claude/memory/` and recall is `grep`-based — nothing to install. Two optional upgrades via `settings.local.json` `env`: set **`BRAIN_ROOT`** to use a git repo (versioned, syncs across machines), and **`MEMORY_RETRIEVER`** to plug in any semantic/embedding search (falls back to `grep` when unset).
 
