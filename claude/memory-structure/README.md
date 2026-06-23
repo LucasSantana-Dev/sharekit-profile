@@ -71,3 +71,7 @@ Two optional upgrades, both via env vars in `~/.claude/settings.local.json` `env
 - **`MEMORY_RETRIEVER`** — a command template for semantic recall, e.g. `MEMORY_RETRIEVER="mytool query {} --top 5"` (the `{}` is replaced with the query). `recall` uses it when set and falls back to `grep` when unset. Wire it to any embedding search you like.
 
 Start with just `CORE.md` + `MEMORY.md` + a few fact files. The git repo and the retriever are optimizations, not requirements. See `examples/` for empty skeletons; the RAG-pipeline guide in the `rag` skill covers building a retriever if you want one.
+
+## Scaling up: Megabrain
+
+When you want *one* vault across **all** your projects — unified memory + decisions + knowledge graphs, browsable in Obsidian, versioned in git, retrievable by RAG — see **[MEGABRAIN.md](MEGABRAIN.md)**. It documents the full architecture: the 4-axis tag taxonomy (flat notes, tags-not-folders), the edit-in-place discipline for cross-machine sync, decision/ADR conventions, retention, and the optional tooling to build.
