@@ -1,4 +1,4 @@
 [profile]
 name = "lucassantana"
-version = "0.3.0"
-description = "Lucas Santana's Claude Code workflow — operator CLAUDE.md + 60 portable skills + a file-based memory-structure template (the methodology, not the content)"
+version = "0.4.0"
+description = "Lucas Santana's Claude Code workflow — operator CLAUDE.md + 64 portable skills + a zero-setup file-based memory system (recall/sync/knowledge-loop/prune work out of the box; optional git vault + semantic retriever)"

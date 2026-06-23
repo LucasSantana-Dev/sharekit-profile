@@ -61,13 +61,13 @@ The handful of things that are *always* true and must load every session: identi
 - **Don't save** what the repo already records (code structure, git history, CLAUDE.md). If asked to remember something obvious, ask what was *non-obvious* about it and save that.
 - Treat recalled memories as background context reflecting what was true *when written* — verify a named file/flag still exists before acting on it.
 
-## Setup (to run the automation skills)
+## Works out of the box
 
-The included session/RAG skills expect:
-- **`$BRAIN_ROOT`** — a git repo holding the `memory/` tree (so memory is versioned and syncable across machines). Set it in `~/.claude/settings.local.json` `env`.
-- **Optional: a RAG retriever** — index `memory/` for semantic recall (any embedding-based search over the markdown). The `recall`/`adt-rag` skills call into one; without it they fall back to reading `MEMORY.md`.
-- **Optional: a session-capture plugin** (e.g. claude-mem) for raw observation logging.
+The operational skills (`recall`, `sync-memories`, `knowledge-loop`, `memory-prune`) need **zero setup** — they default to a memory dir at `~/.claude/memory/` and use plain `grep` for retrieval. Install the profile, start writing facts with `sync-memories`, recall them with `recall`. No database, no embeddings, no mount.
 
-Start with just `CORE.md` + `MEMORY.md` + a few fact files — the retriever is an optimization, not a requirement.
+Two optional upgrades, both via env vars in `~/.claude/settings.local.json` `env`:
 
-See `examples/` for empty skeletons.
+- **`BRAIN_ROOT`** — point memory at a git repo instead of `~/.claude/memory/`, so it's versioned and syncs across machines. Everything still works; you just get history.
+- **`MEMORY_RETRIEVER`** — a command template for semantic recall, e.g. `MEMORY_RETRIEVER="mytool query {} --top 5"` (the `{}` is replaced with the query). `recall` uses it when set and falls back to `grep` when unset. Wire it to any embedding search you like.
+
+Start with just `CORE.md` + `MEMORY.md` + a few fact files. The git repo and the retriever are optimizations, not requirements. See `examples/` for empty skeletons; the RAG-pipeline guide in the `rag` skill covers building a retriever if you want one.

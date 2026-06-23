@@ -18,9 +18,18 @@ This previews the changes, backs up anything it overwrites, and mirrors into `~/
   - *frontend:* `frontend-design`, `tailwind-design-system`, `shadcn`, `webapp-testing`, `design-an-interface`
   - *process:* `changelog-update`, `version-bump`, `setup-pre-commit`, `using-git-worktrees`, `quality-gates`, `pr-merge-readiness`
 
-## Memory structure
+## Memory system (works out of the box)
 
-`claude/memory-structure/` is a convention for giving the agent a **persistent, file-based memory** that survives across sessions — `CORE.md` (tier-0), a `MEMORY.md` index, and one fact per file with typed frontmatter (`user`/`feedback`/`project`/`reference`). It's the *methodology + skeletons*, not anyone's actual memories. A few session/RAG skills that operate it are included (`session-bootstrap`, `context-save`, `adt-rag`); the deeper memory automation assumes a personal vault+retriever stack and is left out by design.
+A **persistent, file-based memory** for the agent — and the skills that run it work with **zero setup**:
+
+- **`recall`** — retrieve relevant past knowledge before acting (scans `MEMORY.md` + `grep`, no database).
+- **`sync-memories`** — capture a durable fact (one file + index update).
+- **`knowledge-loop`** — pair recall + capture around a task.
+- **`memory-prune`** — merge duplicates, drop stale facts.
+
+By default memory lives at `~/.claude/memory/` and recall is `grep`-based — nothing to install. Two optional upgrades via `settings.local.json` `env`: set **`BRAIN_ROOT`** to use a git repo (versioned, syncs across machines), and **`MEMORY_RETRIEVER`** to plug in any semantic/embedding search (falls back to `grep` when unset).
+
+`claude/memory-structure/` documents the convention (`CORE.md` tier-0, `MEMORY.md` index, typed per-fact frontmatter: `user`/`feedback`/`project`/`reference`) with empty skeletons. The `rag` skill is a full RAG-pipeline guide if you want to build a retriever. **No personal memory content is included — only the structure and the skills.**
 
 ## Portable by design
 
