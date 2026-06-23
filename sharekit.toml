@@ -1,13 +1,4 @@
 [profile]
 name = "lucassantana"
 version = "0.1.0"
-description = "Lucas Santana's AI coding setup — Claude Code rules, skills, and Cursor config"
-
-[tools.claude]
-enabled = true
-
-[tools.cursor]
-enabled = true
-
-[forgekit]
-skills = ["caveman", "ship", "deep-research", "plan", "handoff"]
+description = "Coding fundamentals: clean CLAUDE.md rules, caveman (terse mode), ponytail (lazy/minimal design)"
