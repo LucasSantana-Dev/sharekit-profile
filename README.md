@@ -1,48 +1,329 @@
-# Sharekit Profile: lucassantana
+# Claude Code Harness Documentation
 
-My Claude Code workflow — the operator `CLAUDE.md` plus 55 portable skills, install with one command.
-
-## Install
-
-```bash
-npx @lucassantana/sharekit install LucasSantana-Dev
-```
-
-This previews the changes, backs up anything it overwrites, and mirrors into `~/.claude/`:
-- **`CLAUDE.md`** — the operator workflow: default priorities, autonomy, model tiering (Opus/Sonnet/Haiku), skill-first execution, and the hard rules (parallel-execution mandate, read-only analysis agents, idempotency, no big-bang rewrites, stuck protocol, signal-first, verify-the-result).
-- **55 skills** in `~/.claude/skills/` — behavioral + engineering, e.g.:
-  - *prompting/behavior:* `caveman` (terse output), `ponytail` (lazy/minimal design), `brainstorming`, `xp`, `teach`, `three-man-team`, `plow-ahead`, `prototype`
-  - *engineering:* `tdd`, `debug`, `refactor`, `review`, `dep-sweep`, `error-handling-audit`, `overengineering-audit`, `naming-consistency`
-  - *testing:* `test-cleanup`, `test-health`, `mutation-test`, `coverage-gap`, `generate-tests`, `backend-testing`
-  - *architecture:* `architecture-patterns`, `domain-modeling`, `codebase-design`, `coupling-map`, `refactor-plan`
-  - *frontend:* `frontend-design`, `tailwind-design-system`, `shadcn`, `webapp-testing`, `design-an-interface`
-  - *process:* `changelog-update`, `version-bump`, `setup-pre-commit`, `using-git-worktrees`, `quality-gates`, `pr-merge-readiness`
-
-## Memory system (works out of the box)
-
-A **persistent, file-based memory** for the agent — and the skills that run it work with **zero setup**:
-
-- **`recall`** — retrieve relevant past knowledge before acting (scans `MEMORY.md` + `grep`, no database).
-- **`sync-memories`** — capture a durable fact (one file + index update).
-- **`knowledge-loop`** — pair recall + capture around a task.
-- **`memory-prune`** — merge duplicates, drop stale facts.
-- **`memory-eval`** *(advanced)* — gate retrieval quality so a change can't silently degrade recall; label-free regression gate over a golden set. Needs a retriever; the grep default needs none of it.
-
-By default memory lives at `~/.claude/memory/` and recall is `grep`-based — nothing to install. Two optional upgrades via `settings.local.json` `env`: set **`BRAIN_ROOT`** to use a git repo (versioned, syncs across machines), and **`MEMORY_RETRIEVER`** to plug in any semantic/embedding search (falls back to `grep` when unset).
-
-`claude/memory-structure/` documents the convention (`CORE.md` tier-0, `MEMORY.md` index, typed per-fact frontmatter: `user`/`feedback`/`project`/`reference`) with empty skeletons. The `rag` skill is a full RAG-pipeline guide if you want to build a retriever. **No personal memory content is included — only the structure and the skills.**
-
-## Portable by design
-
-These skills are machine-independent — paths and identity flow through env vars (`${DEV_ROOT}`, `${GITHUB_USER}`, …) rather than hardcoded values. Set yours in `~/.claude/settings.local.json` under `"env"` (or your shell). No personal infrastructure, IPs, or secrets are included.
-
-Skills tied to a personal memory/RAG stack are intentionally excluded — this is the portable subset.
-
-## Safety
-
-- **Hooks are never auto-installed.** A profile's `settings.json` (which can run shell commands) is flagged and skipped unless you opt in with `--include-hooks`.
-- **Everything is backed up** before it's applied; `npx @lucassantana/sharekit rollback LucasSantana-Dev` restores it.
+**Comprehensive reference guide for a fully-configured Claude Code operator environment with 325+ skills, 40+ agents, automated hook pipeline, RAG retrieval, memory persistence, and integrated MCP servers.**
 
 ---
 
-Fork it, adapt it, make it yours. A workflow that nobody follows is worse than none.
+## Quick Start: Daily Operations
+
+### Starting a session
+```bash
+claude   # Opens Claude Code CLI
+```
+
+The session start hook chain fires automatically:
+- Auto-pulls latest state from `~/.claude-env`
+- Reindexes any drifted RAG chunks
+- Alerts if main branch has diverged
+- Alerts if memory index is oversized
+
+### Processing your first prompt
+Every user prompt triggers `UserPromptSubmit` hooks (0-overhead):
+
+1. **Auto-recall** — `autorecall-hook.sh` injects relevant docs as `# Knowledge graph context` block
+2. **Model routing** — `model-tier-router.sh` routes to Haiku/Sonnet/Opus based on complexity
+3. **Composite detection** — `composite-router.sh` emits `🎯 Composite match: /<name>` if your intent matches a composite skill
+4. **Auto-context-pack** — if context >85%, automatically compacts context
+
+### Most common daily patterns
+
+| Task | Use This | Why |
+|------|----------|-----|
+| Start day, understand blocking work | `/session-bootstrap` | Chains wake-up → next-priority → pr-snapshot → context-pack |
+| Plan before coding | `/plan` | Validation-gated plan for multi-step work |
+| Implement independently-parallelizable tasks | `/dispatch` or `/orchestrate` | Fans out parallel agents, reconciles results |
+| Review code before merge | `/code-review` | Severity-rated findings (bugs, regressions, security > style) |
+| Debug a failing test or prod error | `/debug` | Systematic root-cause analysis |
+| Full project health check | `/audit-deep` | Composites test, config, hooks, security, MCP, plugins |
+| Refactor a module end-to-end | `/refactor-pipeline` | Chains plan → 3-agent team → test cleanup → ADR → docs-sync |
+| Ship work + capture memory | `/session-wrap-up` | Chains ship → memory-sync → handoff |
+
+### When to use composites vs. individual skills
+
+**Always prefer composites** when the composite-router hook emits `🎯 Composite match`. Composites auto-chain phases and enforce gates. Running sub-skills manually bypasses critical phases.
+
+Marked with `*` in skill lists below.
+
+Example: User says "refactor this module."
+- Correct: Composite-router fires `🎯 Composite match: /refactor-pipeline` → invoke `/refactor-pipeline`
+- Wrong: Invoke `/refactor` directly, skipping discovery and plan phases
+
+---
+
+## Directory Structure
+
+```
+~/.claude/                              # Operator rules, hooks, state
+├── CLAUDE.md                           # Global operator config
+├── SKILLS.md                           # Skill index + descriptions
+├── settings.json                       # Hook definitions + env config
+├── settings.local.json                 # Local overrides + project-specific hooks
+├── agents/                             # ~40 specialized agent definitions
+├── hooks/                              # ~30 shell scripts for automation
+├── memory/                             # Persistent memory database
+├── handoffs/                           # Session checkpoint packets
+├── plans/                              # Implementation plans
+├── tasks/                              # Task tracker state
+├── rag-index/                          # RAG retrieval + reindex hooks
+├── workflows/                          # Saved Workflow() scripts
+├── plugins/                            # Installed Claude Code plugins
+├── templates/                          # Reusable artifact templates
+├── standards -> ~/.agents/skills/standards/
+└── skills -> ~/.agents/skills/
+
+~/.agents/                              # Canonical skill and agent definitions
+├── skills/                             # 325 skill folders
+├── standards/                          # Policy and discipline docs (~20 files)
+├── agents/                             # Agent definition mirrors
+├── bin/                                # Utilities (sync binary)
+├── memory/                             # Memory archive
+└── scripts/
+
+~/.claude-env/                          # Environment/bootstrap layer
+├── bin/sync                            # Sync push/pull for memories + ADRs
+├── adrs/                               # Architecture Decision Records
+├── hooks/                              # Env-level hooks
+└── ... (config, memory, scripts)
+```
+
+---
+
+## Hook Lifecycle: What Fires When
+
+Hooks are shell scripts wired to tool events. They are zero-overhead on success (exit 0 = silent), auto-killed at timeout (3-5s default), and logged on failure.
+
+### SessionStart (fires once per session)
+1. Log session start
+2. Merge stale RAG chunks into live index
+3. Pull latest memories + ADRs from env
+4. Detect and reindex drifted files
+5. Alert if main branch has drifted
+6. Alert if memory index oversized
+
+### UserPromptSubmit (fires on every prompt)
+1. Auto-recall: semantic search, inject `# Knowledge graph context`
+2. Classify prompt complexity (simple/moderate/complex/xcomplex)
+3. Emit model tier hint (Haiku → Sonnet → Opus)
+4. Log turn count
+5. Warn if context >85%, suggest `/compact`
+6. If intent matches composite: emit `🎯 Composite match: /<name>`
+7. Warn if on release branch
+
+### PreToolUse (safety gates)
+- Filter dangerous bash (rm -rf, sudo rm, etc.)
+- Block writes to protected paths
+- Block re-reading same file twice
+
+### PostToolUse (observe & learn)
+- `[Bash]` → detect missed read-tool-kick opportunities
+- `[Read]` → warn if >25KB, log which files read
+- `[Write|Edit]` → reindex changed files
+- `[*]` → log turn count, check token budget
+- `[Edit]` → warn if >3 edits in one turn
+- `[Write|Edit|MultiEdit]` → validate skill writes
+
+### PreCompact / PostCompact / Stop / SessionEnd
+- Pre/Post compact: snapshot state before/after compression
+- Stop: log token usage, check rate limits
+- SessionEnd: sync RAG and memories to persistent storage
+
+---
+
+## Agents: Specialized Worker Types
+
+~40 agent types for different tasks. Invoke via Agent tool or skills that dispatch them.
+
+**Analysis agents** (read-only): architect, code-reviewer, critic, decision-critic, document-specialist, efficiency-advisor, explore, scientist, security-reviewer
+
+**Execution agents** (write files): backlog-manager, ci-fixer, code-simplifier, debugger, deep-auditor, designer, git-master, handoff-writer, issue-triager, mcp-tool-dev, mutation-tester, parallel-implementer, phase-runner, pr-reviewer, rag-evaluator, refactor-orchestrator, research-decider, systematic-debugger, tdd-practitioner, team-coordinator, test-engineer, tracer, writer, xp-navigator
+
+**Forge ecosystem**: ecosystem-coordinator, forge-patterns-expert, mcp-gateway-specialist, uiforge-mcp-architect, webapp-developer
+
+See `~/.claude/agents/` for full definitions.
+
+---
+
+## Skills: 325 Total Across 18 Categories
+
+Skills are autonomous entry points. See `~/.claude/SKILLS.md` for complete reference.
+
+**Session & Context** (10): wake-up, session-bootstrap*, resume, context-pack, handoff, session-wrap-up, session-cleanup, etc.
+
+**Planning & Execution** (14): plan, route, next-priority, loop, dispatch, orchestrate, add, scope-and-execute*, parallel-phases*, feature-from-zero*, fallback
+
+**Code Quality** (14): code-review, refactor, refactor-plan, refactor-pipeline*, verify, verify-before-done*, quality-gates, impeccable, simplify
+
+**Testing** (12): tdd, test-health, test-cleanup, generate-tests, coverage-gap, mutation-test, fix-the-suite*, webapp-testing, playwright-best-practices
+
+**Debugging** (6): debug, debug-deep*, systematic-debugging, diagnosing-bugs
+
+**Security** (7): secure, security-audit, security-sweep, semgrep, harness-audit, audit-deep*
+
+**Git & PR** (11): pr-flow, pr-merge-readiness, pr-snapshot, branch-hygiene, merge-confidently, hotfix, version-bump, release-cut, gh-fix-ci
+
+**Ship & Deploy** (4): ship, ship-it, vercel-deploy, cloudflare-deploy
+
+**RAG & Memory** (15): recall, adt-rag, rag-quality, sync-memories, memory-prune, knowledge-loop*, adt-memory, mem-search
+
+**Architecture & ADRs** (10): adr-write, adr-gap, architecture-patterns, codebase-design, domain-modeling, coupling-map, orphan-hunt, graphify
+
+**Repository Management** (11): onboard-new-repo*, adt-repo-intake, backlog*, triage, to-issues, to-prd, ecosystem-health, repo-state-snapshot
+
+**CI/CD** (3): ci-watch, dep-sweep*, adt-schedule
+
+**Observability** (8): observe, sentry, langfuse-observe, observability-bootstrap*, observability-audit*
+
+**MCP & Plugins** (8): mcp-audit, mcp-care*, mcp-builder, adt-mcp-health, hook-effectiveness, plugin-audit
+
+**AI & Agents** (10): ai-sdk, smart-model-select, agent-browser, adt-eval, adt-multi-agent, efficiency-advisor
+
+**Skills & Plugin Management** (8): skill-creator, skill-maintainer, skill-effectiveness-audit, docs-sync, find-skills
+
+**Performance & Cost** (6): token-audit, smart-commands, rate-limit-watch, mac-optimize, insights, metrics
+
+**Standards & Research** (7): research-and-decide, adt-research, standards, adt-plan-change, automation-workflows, brainstorming
+
+*= composite (auto-chains sub-skills)
+
+---
+
+## MCP Servers
+
+### Local
+- **rag-index** — semantic search on local knowledge base
+- **tavily** — web search
+- **fetch** — fetch URLs
+- **firecrawl** — web scraping/crawling
+- **sonarqube** — code quality analysis
+- **graphify** — knowledge graph queries
+
+### Cloud (via claude.ai)
+Context7, Gmail, Google Calendar, Google Drive, Hugging Face, Jam, Linear, Sentry, Vercel, Cloudflare, GitHub, Playwright, Supabase, Serena, codebase-memory-mcp, filesystem, claude-mem
+
+---
+
+## Plugins Installed
+
+Vercel, GitHub, Firecrawl, Supabase, CodeRabbit, Skill Creator, Claude Code Setup, Claude MD Management, Claude Mem, LLM Docs Optimizer, Plugin Dev
+
+Each plugin extends Claude Code with new skills and tool integrations.
+
+---
+
+## Standards & Policies
+
+Key policy documents in `~/.agents/skills/standards/`:
+
+- **agent-routing.md** — when to use which agent type, read-only enforcement
+- **composite-contract.md** — composite-first principle, bail-out detection
+- **pr-conventions.md** — PR title/body/attribution standards
+- **graphify-discipline.md** — graph-first token discipline
+- **decision-discipline.md** — research-before-deciding rules
+- **artifact-schema.md** — structured artifact formats
+- ... (14+ more policy docs)
+
+---
+
+## Configuration
+
+### Model Tiering
+- **Main loop:** Sonnet 4.6 (execution default)
+- **Subagents:** Haiku 4.5 (mechanical tasks, fast)
+- **Opus:** Explicitly invoked for complex reasoning, ADR writing
+- **Autocompact:** 85% context threshold
+
+### Hard Rules (Non-Negotiable)
+1. Never automate on PRs with human reviewer comments
+2. Parallel execution mandatory for ≥2 independent tasks (use worktrees for same-repo)
+3. Analysis subagents read-only by agentType, not just prompt
+4. No big-bang rewrites without demand measurement gate
+5. Idempotency: state-check before mutation
+6. Dispatcher ≠ executor boundary (no logic in orchestrators)
+7. Repository as single source of truth
+8. No Claude co-author attribution on commits/PRs
+9. Storage on External HD (/Volumes/External HD/Desenvolvimento/)
+10. Stuck protocol: >2 attempts without progress → surface, switch approach, escalate
+
+### Default Behaviors
+- **Caveman mode ON** — terse, drop filler, keep technical substance
+- **Skill-first execution** — skills invoked autonomously when matching
+- **Composite-first** — composite-router detects intent, emits `🎯 Composite match: /<name>`
+- **Graph-first token discipline** — query graph before file reads
+- **Signal-first output** — verdict + top-3 findings; "X more — ask for full list" if >3
+
+---
+
+## Optimal Usage Patterns
+
+### Daily Workflow
+```
+1. /session-bootstrap (chains: wake-up → next-priority → pr-snapshot → context-pack)
+2. /plan (for complex work) or /route (if unsure)
+3. /dispatch or /orchestrate (≥2 independent tasks) or /loop (single task)
+4. /code-review + /verify-before-done* (before merge)
+5. /session-wrap-up (ship → memory-sync → handoff)
+```
+
+### Using Composites
+When composite-router emits `🎯 Composite match: /<name>`: invoke that composite. Running sub-skills manually skips critical phases.
+
+| Task | Use Composite | Why |
+|------|---------------|-----|
+| Refactor a module | `/refactor-pipeline*` | Enforces plan → team → test-cleanup → ADR phases |
+| Onboard repo | `/onboard-new-repo*` | Chains intake → audit → config-drift → CLAUDE.md |
+| Build feature from scratch | `/feature-from-zero*` | Full greenfield: research → scope → design → test → merge → ship |
+| Health check | `/audit-deep*` | Parallel sub-agents across 7 dimensions |
+| End session | `/session-wrap-up` | Chains ship → memory → handoff |
+
+### Model Selection
+- **Haiku:** Mechanical tasks (formatting, symbol lookup, grep, simple renames), subagent batch work
+- **Sonnet (default):** Implementation, feature work, code review, test generation
+- **Opus:** Orchestration, critic role, architectural decisions, ADR writing
+
+Use `smart-model-select` before multi-agent work. Never override for speculative speed.
+
+### Parallel Execution
+For ≥2 independent units (parallel investigations, multi-repo sweeps, batch fixes):
+1. Dispatch one Agent per unit in SINGLE tool-use block
+2. Use worktrees if same repo: `/Volumes/External HD/Desenvolvimento/.worktrees/<task>-<n>/`
+3. Set correct `agentType` (Explore for analysis, general-purpose for execution)
+4. Use `parallel()` or `pipeline()` in Workflow scripts
+
+### Context Management
+- **Auto-compaction:** At 85% fill, `auto-context-pack.sh` warns + suggests `/compact`
+- **Read dedup:** `read-dedup.sh` blocks re-reading same file twice
+- **RTK detection:** `rtk-miss-detector.sh` flags Bash that should use Read tool
+- **Large file warning:** >25KB read emits warning
+
+If context bloat builds: `/compact` (saves ~30-40% tokens)
+
+---
+
+## Troubleshooting
+
+| Problem | Diagnosis | Fix |
+|---------|-----------|-----|
+| Hooks not firing | `cat ~/.claude/tool-failures.log \| jq '\[\]'`; verify settings.json | Increase timeout, debug hook directly, check dependencies |
+| Composite not invoked | Check session.log for `Composite match`; verify intent matches skill | Invoke directly: `/composite-name` |
+| RAG retrieval stale | `/adt-rag-coverage` and `/adt-rag-drift` scan for gaps | Reindex: `/adt-rag-index-rebuild` |
+| Agent spawn failed | Verify agent exists: `ls ~/.claude/agents/ \| grep name` | Use default agent or check agent file syntax |
+| Memory not persisting | Check sync: `cat ~/.claude/.sync.log \| tail` | `/sync-memories` explicitly; verify frontmatter |
+| Slow hooks / timeouts | `time bash ~/.claude/hooks/name.sh` | Increase timeout in settings.json or optimize hook |
+| Parallel agents conflicting | Verify worktrees: `ls /Volumes/External\ HD/Desenvolvimento/.worktrees/` | Ensure `isolation: "worktree"` on agents |
+| Token budget hit | `/token-audit` for analysis | `/compact` for relief; `/update-config` to raise limit |
+
+---
+
+## Getting Help
+
+- **Skill reference:** `/find-skills <keyword>` or browse `~/.agents/skills/`
+- **Policy questions:** Check `~/.agents/skills/standards/` for decision rules
+- **Hook debugging:** `cat ~/.claude/tool-failures.log \| jq`
+- **Token analysis:** `/token-audit` for weekly spend review
+- **System health:** `/audit-deep*` for full project + harness check
+- **Stuck:** `/route` to disambiguate intent or `/fallback` to recover
+
+---
+
+**Last updated:** 2026-06-24  
+**Harness version:** Agent-OS (v6+), 325 skills, 40+ agents, 30+ hooks, 6 MCP servers
