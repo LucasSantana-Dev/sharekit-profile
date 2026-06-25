@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agent OS — Claude Code Harness Reference</title>
-  <meta name="description" content="Visual reference for the Claude Code operator harness — 162+ skills, 40 agents, 30+ hooks, MCP servers, and plugins.">
+  <meta name="description" content="Visual reference for the Claude Code operator harness — 250+ skills, 40 agents, 30+ hooks, MCP servers, and plugins.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -706,6 +706,8 @@ const CATEGORIES = [
   { id: 'sync-docs',    label: 'Sync & Documentation',        color: '#e879f9', guide: 'docs-sync after editing any skill, standard, or hook. graphify to turn a codebase or docs folder into a queryable knowledge graph.' },
   { id: 'performance',  label: 'Performance & Cost',          color: '#94a3b8', guide: 'token-audit for weekly spend review. smart-model-select before long or expensive tasks. rate-limit-watch auto-fires; no manual invoke needed.' },
   { id: 'standards',    label: 'Standards & Research',        color: '#64748b', guide: 'adt-research for deep investigation before a decision. standards to load repo-specific coding standards. adt-plan-change before any multi-file edit.' },
+  { id: 'ponytail',    label: 'Ponytail',                    color: '#84cc16', guide: 'Minimalism discipline — ponytail before over-engineering. Use ponytail-audit to scan the full repo, ponytail-review in PRs, ponytail-debt to track shortcuts.' },
+  { id: 'writing',     label: 'Writing',                     color: '#f97316', guide: 'Writing and content skills. writing-beats for article structure, writing-shape for drafting from raw material, writing-fragments for mining ideas.' },
 ];
 
 const SKILLS = [
@@ -909,7 +911,119 @@ const SKILLS = [
   { name: 'standards',            cat: 'standards',     composite: false, desc: 'Access and apply project coding and workflow standards.' },
   { name: 'adt-research',         cat: 'standards',     composite: false, desc: 'Deep research on a topic using web search, docs, and codebase analysis.' },
   { name: 'automation-workflows', cat: 'standards',     composite: false, desc: 'Design reusable automation for repetitive development loops.' },
-  { name: 'brainstorming',        cat: 'standards',     composite: false, desc: 'Facilitate collaborative idea exploration and turn rough concepts into structured proposals.' },
+  { name: 'deep-research',        cat: 'standards',     composite: false, desc: 'Multi-source fact-checked research — fact-check claims, evaluate vendors, generate comparisons.' },
+  { name: 'read-the-damn-docs',   cat: 'standards',     composite: false, desc: 'Reference for third-party APIs, libraries, frameworks, CLIs, and cloud services before coding.' },
+  { name: 'teach',                cat: 'standards',     composite: false, desc: 'Teach a new skill or concept in this workspace.' },
+
+  // ── Session additions
+  { name: 'caveman',              cat: 'session',       composite: false, desc: 'Ultra-compressed communication — cuts 75% tokens by dropping filler while keeping technical accuracy.' },
+  { name: 'focus',                cat: 'session',       composite: false, desc: 'Focus context on a specific development area to reduce noise when switching domains.' },
+  { name: 'task-start',           cat: 'session',       composite: false, desc: 'Bootstrap session via 3 parallel agents: handoff reader, git state, project intake.' },
+  { name: 'session-close',        cat: 'session',       composite: true,  desc: 'Composite memory close — sync-memories → handoff → knowledge-loop.' },
+  { name: 'visual-plan',          cat: 'session',       composite: false, desc: 'Turn text plans into visual plans with diagrams, file maps, code, questions, and prototypes.' },
+  { name: 'visual-recap',         cat: 'session',       composite: false, desc: 'Turn a PR, branch, or commit into a visual recap with diagrams and API/schema summaries.' },
+
+  // ── Planning additions
+  { name: 'scope-it',             cat: 'planning',      composite: false, desc: 'Map blast radius before coding — identify affected files, dependencies, and test surface.' },
+  { name: 'plow-ahead',           cat: 'planning',      composite: false, desc: 'Autonomous progress without routine clarification stops — no filler questions.' },
+  { name: 'brief-and-drill',      cat: 'planning',      composite: false, desc: 'Brief a subagent with context, then drill comprehension before delegating real work.' },
+  { name: 'three-man-team',       cat: 'planning',      composite: false, desc: 'Parallel Architect → Builder → Reviewer for complex features and large PRs.' },
+  { name: 'loop-engineer',        cat: 'planning',      composite: false, desc: 'Design and implement autonomous agent loops — stop manual prompting, self-iterate.' },
+  { name: 'agent-box-dispatch',   cat: 'planning',      composite: false, desc: 'Submit async jobs to agent-box Docker container — drop files into queue, check results asynchronously.' },
+  { name: 'agent-dispatch',       cat: 'planning',      composite: false, desc: 'Dispatch ad-hoc tasks to remote agent-box (scripts or Claude prompts). Maps aliases to shell scripts.' },
+  { name: 'agent-teams',          cat: 'planning',      composite: false, desc: 'Coordinate multiple agent sessions for parallel implementation, review, and synthesis across workstreams.' },
+
+  // ── Code Quality additions
+  { name: 'review',               cat: 'quality',       composite: false, desc: 'Two-axis code review: Standards (conventions?) and Spec (matches issue?).' },
+  { name: 'overengineering-audit',cat: 'quality',       composite: false, desc: 'Flag over-engineering — speculative abstractions, premature generalization, unnecessary indirection.' },
+  { name: 'error-handling-audit', cat: 'quality',       composite: false, desc: 'Audit the unhappy path — swallowed errors, resource leaks, secrets on error paths.' },
+  { name: 'orphan-hunt',          cat: 'quality',       composite: false, desc: 'Scan for dead code: unimported files, unused exports, undeclared dependencies.' },
+  { name: 'naming-consistency',   cat: 'quality',       composite: false, desc: 'Detect naming conventions and audit for violations across files.' },
+  { name: 'backend-slop-audit',   cat: 'quality',       composite: false, desc: 'Lint backend code against anti-patterns: swallowed errors, unvalidated input, missing timeouts.' },
+  { name: 'dependency-scout',     cat: 'quality',       composite: false, desc: 'Find npm packages to replace hand-rolled boilerplate. Vets for security, maintenance, and adoption.' },
+  { name: 'request-refactor-plan',cat: 'quality',       composite: false, desc: 'Create a refactor plan via interview, filed as a GitHub issue with tiny commits.' },
+  { name: 'setup-pre-commit',     cat: 'quality',       composite: false, desc: 'Set up Husky hooks with lint-staged, type checking, and tests.' },
+  { name: 'qodo-get-rules',       cat: 'quality',       composite: false, desc: 'Load Qodo rules relevant to the current task via semantic search.' },
+  { name: 'qodo-pr-resolver',     cat: 'quality',       composite: false, desc: 'Review Qodo PR feedback — view by severity, apply fixes interactively or in batch.' },
+
+  // ── Architecture additions
+  { name: 'coupling-map',         cat: 'architecture',  composite: false, desc: 'Map module coupling via import graph — identifies fan-in/fan-out nodes and cycles.' },
+  { name: 'grill-with-options',   cat: 'architecture',  composite: false, desc: 'Structured decision interview using 2–4 bounded options. Fast stress-test with explicit trade-offs.' },
+  { name: 'architecture-improvement', cat: 'architecture', composite: true, desc: 'Composite codebase audit — coupling-map → orphan-hunt → improve → domain-modeling → adr-write.' },
+  { name: 'decide',               cat: 'architecture',  composite: true,  desc: 'Mode-routed decision: Quick Mode verdict or Full Mode research → decision → ADR → memory.' },
+  { name: 'decision-mapping',     cat: 'architecture',  composite: false, desc: 'Build a DAG of parallel investigation tickets — creates decision map and drives to resolution.' },
+
+  // ── Testing additions
+  { name: 'test-driven-development', cat: 'testing',    composite: false, desc: 'Enforce TDD: red-green-refactor loop — write failing tests before implementation code.' },
+  { name: 'test-sweep',           cat: 'testing',       composite: true,  desc: 'Composite three-phase test improvement — test-health → test-cleanup → mutation-test.' },
+
+  // ── Debugging additions
+  { name: 'adt-self-heal',        cat: 'debugging',     composite: false, desc: 'Autonomous error recovery — detect failures, diagnose root cause, apply fixes, and resume.' },
+
+  // ── Security additions
+  { name: 'skill-security-scan',  cat: 'security',      composite: false, desc: 'Scan skill and hook bodies for malicious patterns (pipe-to-shell, suspicious eval).' },
+
+  // ── Git additions
+  { name: 'autofix',              cat: 'git',           composite: false, desc: 'Safely review and apply CodeRabbit PR feedback with per-change approval.' },
+
+  // ── Release additions
+  { name: 'adt-ship-check',       cat: 'release',       composite: false, desc: 'Verify work before committing, pushing, or requesting review — runs verification commands.' },
+  { name: 'pr-to-release',        cat: 'release',       composite: true,  desc: 'Composite — branch → release with changelog, PR, and deploy readiness check.' },
+
+  // ── Frontend additions
+  { name: 'ui-ux-pro-max',        cat: 'frontend',      composite: false, desc: 'UI/UX reference library: 97 palettes, 57 fonts, 50+ components, patterns, and design systems.' },
+  { name: 'browser-use',          cat: 'frontend',      composite: false, desc: 'Automate browser interactions for testing, form filling, screenshots, and data extraction.' },
+  { name: 'use-my-browser',       cat: 'frontend',      composite: false, desc: 'Use live browser session or visible state versus static fetches.' },
+  { name: 'nano-banana',          cat: 'frontend',      composite: false, desc: 'Generate images with Google Gemini native models — text-to-image and image manipulation.' },
+  { name: 'shorts-edit',          cat: 'frontend',      composite: false, desc: 'Edit vertical 9:16 short videos (TikTok/Reels/Shorts) with styled captions.' },
+
+  // ── AI & Agents additions
+  { name: 'agent-forge',          cat: 'ai-agents',     composite: false, desc: 'Transform any skill into a persistent specialized agent, saved to ~/.claude/agents/.' },
+
+  // ── RAG & Memory additions
+  { name: 'mem-search',           cat: 'rag',           composite: false, desc: 'Search past work across sessions — find prior solutions, how-tos, and timeline queries.' },
+  { name: 'codebase-memory',      cat: 'rag',           composite: false, desc: 'Use codebase knowledge graph for structural queries — architecture, callers, dependencies.' },
+  { name: 'rag-curate',           cat: 'rag',           composite: false, desc: 'Improve RAG corpus — add missing docs, rewrite weak chunks, fill coverage gaps.' },
+  { name: 'rag-eval',             cat: 'rag',           composite: false, desc: 'Retrieval regression gate vs baseline — compare Hit@5, MRR, and per-intent metrics.' },
+  { name: 'rag-maintenance',      cat: 'rag',           composite: true,  desc: 'Composite full RAG audit — measure quality, find gaps, detect stale chunks, curate.' },
+
+  // ── Skill & Plugin Management additions
+  { name: 'harness-doctor',       cat: 'skill-mgmt',    composite: false, desc: 'Diagnose harness health: MCP servers, filesystem, git sync, graph freshness, hooks, settings.' },
+  { name: 'skill-creator-local',  cat: 'skill-mgmt',    composite: false, desc: 'Local skill-creator fork with unique init_skill.py for historical compatibility.' },
+  { name: 'adt-auto-invoke',      cat: 'skill-mgmt',    composite: false, desc: 'Meta-skill routing table — when to apply other skills automatically without being asked.' },
+  { name: 'rtk-health',           cat: 'skill-mgmt',    composite: false, desc: 'Check rtk rewrite probes for ask-rule exit code after an rtk update.' },
+
+  // ── Repository Management additions
+  { name: 'adt-repo-intake',      cat: 'repo-mgmt',     composite: false, desc: 'Onboard into an unfamiliar repository fast — reads docs, detects stack, summarizes structure.' },
+  { name: 'repo-setup',           cat: 'repo-mgmt',     composite: true,  desc: 'Composite — configure a fresh repo: bootstrap → config-drift-detect → CLAUDE.md.' },
+  { name: 'adt-specs-spec-new',   cat: 'repo-mgmt',     composite: false, desc: 'Create committed per-feature spec with frontmatter — promote ephemeral plans into persistent artifacts.' },
+  { name: 'adt-specs-aggregate-roadmap', cat: 'repo-mgmt', composite: false, desc: 'Cross-repo roadmap by walking curated repos\' spec frontmatter — run at session start for orientation.' },
+  { name: 'plan-to-issues',       cat: 'repo-mgmt',     composite: false, desc: 'Create one GitHub issue per plan task with phase-labels and optional milestone.' },
+  { name: 'extract-package',      cat: 'repo-mgmt',     composite: false, desc: 'Scan for low-coupling modules extractable into a standalone npm package.' },
+  { name: 'extract-product',      cat: 'repo-mgmt',     composite: false, desc: 'Scan repo for whole capabilities spinnable as their own project — OSS, CLI, SaaS, or template.' },
+
+  // ── Performance additions
+  { name: 'session-insights',     cat: 'performance',   composite: false, desc: 'Token and session analytics — cost (daily/statusline), workspace stats (git/GitHub).' },
+  { name: 'stay-within-limits',   cat: 'performance',   composite: false, desc: 'Respect 5-hour and weekly usage limits — check usage between waves, pause near cap.' },
+  { name: 'performance-audit',    cat: 'performance',   composite: false, desc: 'Audit system performance — health, routing, caching, and scalability bottlenecks.' },
+  { name: 'efficient-frontier',   cat: 'performance',   composite: false, desc: 'Delegate research/coding/testing to cheaper subagents; keep planning/synthesis with expensive model.' },
+
+  // ── Sync & Documentation additions
+  { name: 'criativaria-brain-sync', cat: 'sync-docs',   composite: false, desc: 'Sync Criativaria project memories with the canonical GitHub brain.' },
+
+  // ── Ponytail
+  { name: 'ponytail',             cat: 'ponytail',      composite: false, desc: 'Laziest solution that works — delete, simplify, shorten code before over-engineering.' },
+  { name: 'ponytail-audit',       cat: 'ponytail',      composite: false, desc: 'Whole-repo over-engineering scan — ranked list of what to delete, simplify, or stop doing.' },
+  { name: 'ponytail-debt',        cat: 'ponytail',      composite: false, desc: 'Harvest ponytail comments into a debt ledger — track deliberate shortcuts.' },
+  { name: 'ponytail-gain',        cat: 'ponytail',      composite: false, desc: 'Show ponytail impact: less code, less cost, more speed (measured from medians).' },
+  { name: 'ponytail-help',        cat: 'ponytail',      composite: false, desc: 'Quick reference for ponytail modes, skills, and commands.' },
+  { name: 'ponytail-review',      cat: 'ponytail',      composite: false, desc: 'Code review focused on over-engineering — find what to delete.' },
+
+  // ── Writing
+  { name: 'writing-beats',        cat: 'writing',       composite: false, desc: 'Shape an article as a journey of beats — write one beat at a time from raw material.' },
+  { name: 'writing-fragments',    cat: 'writing',       composite: false, desc: 'Mine for writing fragments (claims, vignettes, sentences) — build a compilation.' },
+  { name: 'writing-great-skills', cat: 'writing',       composite: false, desc: 'Reference for writing skills well — vocabulary and principles for predictability.' },
+  { name: 'writing-shape',        cat: 'writing',       composite: false, desc: 'Shape markdown raw material into an article via conversation — draft openings, grow piecemeal.' },
 ];
 
 const AGENTS = [
