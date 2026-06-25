@@ -390,14 +390,126 @@
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--border-2); }
 
+    /* ── MOBILE BOTTOM TABS ─────────────────────── */
+    .mobile-tabs {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+      background: rgba(9,9,11,0.95);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .mobile-tab-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); height: 56px;
+    }
+    .mobile-tab {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 3px; font-size: 9px; font-weight: 600; letter-spacing: .04em;
+      text-transform: uppercase; color: var(--text-dim);
+      border: none; background: transparent; cursor: pointer; padding: 8px 4px;
+      transition: color .15s; -webkit-tap-highlight-color: transparent;
+    }
+    .mobile-tab.active { color: var(--cyan); }
+    .mobile-tab svg { width: 20px; height: 20px; }
+
+    /* ── MOBILE CONTROLS (search + pills) ───────── */
+    .mobile-controls {
+      display: none; flex-direction: column; gap: 10px; margin-bottom: 16px;
+    }
+    .mobile-search-wrap { position: relative; }
+    .mobile-search-icon {
+      position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+      color: var(--text-dim); pointer-events: none; width: 15px; height: 15px;
+    }
+    #search-mobile {
+      width: 100%; padding: 10px 12px 10px 34px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text);
+      font-size: 15px; font-family: inherit; outline: none;
+      transition: border-color .15s; -webkit-appearance: none;
+    }
+    #search-mobile::placeholder { color: var(--text-dim); }
+    #search-mobile:focus { border-color: var(--border-2); }
+
+    .mobile-filter-row { display: flex; gap: 6px; }
+    .mobile-filter-btn {
+      padding: 6px 12px; border-radius: 99px; font-size: 12px; font-weight: 500;
+      cursor: pointer; border: 1px solid var(--border); background: transparent;
+      color: var(--text-muted); transition: all .15s; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mobile-filter-btn.active { background: var(--violet); border-color: var(--violet); color: #fff; }
+
+    .cat-pills-row {
+      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+    .cat-pills-row::-webkit-scrollbar { display: none; }
+    .cat-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 99px;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text-muted); font-size: 12px; font-weight: 500;
+      white-space: nowrap; cursor: pointer; flex-shrink: 0;
+      transition: all .15s; -webkit-tap-highlight-color: transparent;
+    }
+    .cat-pill:active { opacity: .7; }
+    .cat-pill.active { color: var(--text); background: var(--surface-2); }
+    .cat-pill-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
     /* ── RESPONSIVE ────────────────────────────── */
+    @media (max-width: 900px) {
+      .skill-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+      .agent-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    }
+
     @media (max-width: 768px) {
-      :root { --sidebar-w: 0px; }
-      aside { display: none; }
-      main { padding: 16px; }
-      .skill-grid { grid-template-columns: 1fr; }
-      nav { padding: 0 12px; }
+      :root { --sidebar-w: 0px; --nav-h: 48px; }
+
+      /* nav */
+      nav { padding: 0 16px; }
+      .nav-brand { margin-right: 0; }
       .nav-version { display: none; }
+      .nav-tabs { display: none; }
+      .nav-right { display: none; }
+
+      /* sidebar */
+      aside { display: none; }
+
+      /* mobile controls */
+      .mobile-controls { display: flex; }
+      .mobile-tabs { display: block; }
+
+      /* main */
+      main {
+        padding: 16px 16px calc(56px + env(safe-area-inset-bottom) + 16px);
+      }
+
+      /* grids */
+      .skill-grid { grid-template-columns: 1fr; }
+      .agent-grid { grid-template-columns: 1fr; }
+      .mcp-grid { grid-template-columns: 1fr; }
+      .plugin-grid { grid-template-columns: 1fr; }
+
+      /* cards */
+      .skill-card { padding: 12px 14px; }
+      .copy-btn { width: 32px; height: 32px; }
+
+      /* section headers */
+      .section-title { font-size: 17px; }
+      .grid-header-title { font-size: 17px; }
+      .grid-header { margin-bottom: 14px; }
+
+      /* hooks */
+      .hook-event-header { flex-wrap: wrap; gap: 6px; }
+      .hook-event-subtitle { width: 100%; font-size: 11px; }
+    }
+
+    @media (max-width: 480px) {
+      main { padding: 12px 12px calc(56px + env(safe-area-inset-bottom) + 12px); }
+      nav { padding: 0 12px; }
+      .nav-brand-icon { width: 24px; height: 24px; font-size: 13px; }
+      .nav-brand { font-size: 14px; gap: 7px; }
     }
   </style>
 </head>
@@ -463,6 +575,22 @@
 
     <!-- SKILLS PANEL -->
     <div class="panel active" id="panel-skills">
+
+      <!-- Mobile-only controls (search + filter + category pills) -->
+      <div class="mobile-controls">
+        <div class="mobile-search-wrap">
+          <svg class="mobile-search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="8.5" cy="8.5" r="5.5"/><path d="m13.5 13.5 3.5 3.5"/>
+          </svg>
+          <input id="search-mobile" type="search" placeholder="Search skills…" autocomplete="off" spellcheck="false" inputmode="search">
+        </div>
+        <div class="mobile-filter-row">
+          <button class="mobile-filter-btn active" data-filter="all">All</button>
+          <button class="mobile-filter-btn" data-filter="composites">⚡ Composites</button>
+        </div>
+        <div class="cat-pills-row" id="cat-pills"></div>
+      </div>
+
       <div class="grid-header">
         <div>
           <div class="grid-header-title" id="grid-title">All Skills</div>
@@ -511,6 +639,46 @@
 
   </main>
 </div>
+
+<!-- Mobile bottom tab bar -->
+<nav class="mobile-tabs" id="mobile-tabs">
+  <div class="mobile-tab-grid">
+    <button class="mobile-tab active" data-panel="skills">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+      </svg>
+      Skills
+    </button>
+    <button class="mobile-tab" data-panel="agents">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+        <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      </svg>
+      Agents
+    </button>
+    <button class="mobile-tab" data-panel="hooks">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+        <path d="M12 2v10m0 0c0 3.3-2.7 6-6 6H4"/><circle cx="12" cy="20" r="2"/>
+        <path d="M20 8l-3 3-3-3"/>
+      </svg>
+      Hooks
+    </button>
+    <button class="mobile-tab" data-panel="mcp">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+        <rect x="2" y="7" width="20" height="10" rx="2"/><path d="M6 11h.01M10 11h.01"/>
+        <path d="M14 11h4"/>
+      </svg>
+      MCP
+    </button>
+    <button class="mobile-tab" data-panel="plugins">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/>
+        <path d="M2 12l10 5 10-5"/>
+      </svg>
+      Plugins
+    </button>
+  </div>
+</nav>
 
 <script>
 // ══ DATA ════════════════════════════════════════════════════════════════════
@@ -932,9 +1100,11 @@ function getCatColor(catId) {
 
 function renderCategoryList() {
   const container = document.getElementById('cat-list');
+  const pillsContainer = document.getElementById('cat-pills');
   const counts = {};
   SKILLS.forEach(s => { counts[s.cat] = (counts[s.cat] || 0) + 1; });
 
+  // Desktop sidebar
   let html = `
     <button class="cat-item ${activeCategory === 'all' ? 'active' : ''}" data-cat="all">
       <span class="cat-item-dot" style="background:#71717a"></span>
@@ -942,7 +1112,6 @@ function renderCategoryList() {
       <span class="cat-item-count">${SKILLS.length}</span>
     </button>
   `;
-
   CATEGORIES.forEach(cat => {
     const count = counts[cat.id] || 0;
     html += `
@@ -953,11 +1122,35 @@ function renderCategoryList() {
       </button>
     `;
   });
-
   container.innerHTML = html;
   container.querySelectorAll('.cat-item').forEach(btn => {
     btn.addEventListener('click', () => {
       activeCategory = btn.dataset.cat;
+      renderAll();
+    });
+  });
+
+  // Mobile horizontal pills
+  let pillsHtml = `
+    <button class="cat-pill ${activeCategory === 'all' ? 'active' : ''}" data-cat="all" style="${activeCategory==='all'?'border-color:#71717a':'' }">
+      <span class="cat-pill-dot" style="background:#71717a"></span>All
+    </button>
+  `;
+  CATEGORIES.forEach(cat => {
+    const active = activeCategory === cat.id;
+    pillsHtml += `
+      <button class="cat-pill ${active ? 'active' : ''}" data-cat="${cat.id}"
+        style="${active ? `border-color:${cat.color};color:${cat.color}` : ''}">
+        <span class="cat-pill-dot" style="background:${cat.color}"></span>${cat.label.split(' ')[0]}
+      </button>
+    `;
+  });
+  pillsContainer.innerHTML = pillsHtml;
+  pillsContainer.querySelectorAll('.cat-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeCategory = btn.dataset.cat;
+      // scroll active pill into view on mobile
+      btn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
       renderAll();
     });
   });
@@ -1153,54 +1346,59 @@ function renderAll() {
   renderSkillGrid();
 }
 
-// ══ TABS ════════════════════════════════════════════════════════════════════
+// ══ PANEL SWITCH (shared logic for desktop tabs + mobile bottom bar) ═════════
+
+function switchPanel(panel) {
+  activePanel = panel;
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.panel === panel));
+  document.querySelectorAll('.mobile-tab').forEach(t => t.classList.toggle('active', t.dataset.panel === panel));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + panel).classList.add('active');
+  document.getElementById('sidebar').style.display = panel === 'skills' ? '' : 'none';
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
 
 document.getElementById('nav-tabs').querySelectorAll('.nav-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    const panel = tab.dataset.panel;
-    activePanel = panel;
-
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel-' + panel).classList.add('active');
-
-    const sidebar = document.getElementById('sidebar');
-    sidebar.style.display = panel === 'skills' ? '' : 'none';
-  });
+  tab.addEventListener('click', () => switchPanel(tab.dataset.panel));
+});
+document.getElementById('mobile-tabs').querySelectorAll('.mobile-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchPanel(tab.dataset.panel));
 });
 
-// ══ SEARCH ══════════════════════════════════════════════════════════════════
+// ══ SEARCH (desktop sidebar + mobile) ═══════════════════════════════════════
 
-document.getElementById('search').addEventListener('input', e => {
-  searchQuery = e.target.value.trim();
+function setSearch(val) {
+  searchQuery = val;
+  document.getElementById('search').value = val;
+  document.getElementById('search-mobile').value = val;
   renderSkillGrid();
-});
+}
 
-// ── keyboard shortcut: / to focus search
+document.getElementById('search').addEventListener('input', e => setSearch(e.target.value.trim()));
+document.getElementById('search-mobile').addEventListener('input', e => setSearch(e.target.value.trim()));
+
 document.addEventListener('keydown', e => {
-  if (e.key === '/' && document.activeElement !== document.getElementById('search')) {
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  const target = isMobile ? document.getElementById('search-mobile') : document.getElementById('search');
+  if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
     e.preventDefault();
-    document.getElementById('search').focus();
+    if (activePanel === 'skills') { target.focus(); target.select(); }
   }
-  if (e.key === 'Escape') {
-    document.getElementById('search').blur();
-    document.getElementById('search').value = '';
-    searchQuery = '';
-    renderSkillGrid();
-  }
+  if (e.key === 'Escape') { target.blur(); setSearch(''); }
 });
 
-// ── Filter buttons
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    activeFilter = btn.dataset.filter;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderSkillGrid();
+// ══ FILTER BUTTONS (desktop sidebar + mobile) ════════════════════════════════
+
+function setFilter(filter) {
+  activeFilter = filter;
+  document.querySelectorAll('.filter-btn, .mobile-filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === filter);
   });
-});
+  renderSkillGrid();
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => btn.addEventListener('click', () => setFilter(btn.dataset.filter)));
+document.querySelectorAll('.mobile-filter-btn').forEach(btn => btn.addEventListener('click', () => setFilter(btn.dataset.filter)));
 
 // ══ INIT ════════════════════════════════════════════════════════════════════
 
