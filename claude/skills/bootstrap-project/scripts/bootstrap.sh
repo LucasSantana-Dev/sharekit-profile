@@ -11,7 +11,9 @@
 # Exit: 0 ok/already-done · 1 bad args/path · 2 mount guard (External HD unmounted)
 set -euo pipefail
 
-BRAIN="/Volumes/External HD/Desenvolvimento/knowledge-brain"
+# Portable: the centralized brain location is configurable. Set KNOWLEDGE_BRAIN to your vault
+# (e.g. an external drive); defaults to ~/knowledge-brain so the skill works on any machine.
+BRAIN="${KNOWLEDGE_BRAIN:-$HOME/knowledge-brain}"
 PROJECTS_DIR="$HOME/.claude/projects"
 
 DRY=0; UPDATE=0; NAME=""; PROJ=""
@@ -29,8 +31,12 @@ done
 PROJ="${PROJ:-$PWD}"
 PROJ="$(cd "$PROJ" 2>/dev/null && pwd)" || { echo "BLOCKED: project path not found: $PROJ"; exit 1; }
 
-# --- mount guard (brain + RAG embedder live on External HD) ---
-mount | grep -q "/Volumes/External HD" || { echo "BLOCKED: External HD unmounted — brain unreachable"; exit 2; }
+# --- mount guard: only when the brain lives on a mounted volume (external drive etc.) ---
+case "$BRAIN" in
+  /Volumes/*|/mnt/*|/media/*)
+    vol="$(printf '%s\n' "$BRAIN" | cut -d/ -f1-3)"
+    mount | grep -q "$vol" || { echo "BLOCKED: '$vol' not mounted — brain unreachable"; exit 2; } ;;
+esac
 
 # --- detect name + slug ---
 if [ -z "$NAME" ]; then

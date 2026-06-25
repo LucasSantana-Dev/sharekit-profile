@@ -50,7 +50,7 @@ Analyze a PR diff, identify new or changed functions without tests, and dispatch
 /coverage-gap 645
 
 # Analyze PR in specific repo
-/coverage-gap 645 --repo LucasSantana-Dev/Lucky
+/coverage-gap 645 --repo <github-user>/Lucky
 ```
 
 ## Output / Evidence

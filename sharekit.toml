@@ -1,4 +1,4 @@
 [profile]
 name = "lucassantana"
-version = "0.8.0"
-description = "Lucas Santana's Claude Code workflow — operator CLAUDE.md + 66 portable skills + a zero-setup file-based memory system (recall/sync/prune; advanced memory-eval gate) + Megabrain (one-vault-for-all-projects: memory + graphs + RAG; bootstrap-project stands up a new project's memory + central graph in one ritual)"
+version = "0.9.0"
+description = "Lucas Santana's Claude Code workflow — operator CLAUDE.md + 80 portable skills (now incl. the full core operational set: route, plan, loop, orchestrate, dispatch, handoff, ship, secure, verify, …) + a zero-setup file-based memory system (recall/sync/prune; advanced memory-eval gate) + Megabrain (one-vault-for-all-projects: memory + graphs + RAG; bootstrap-project stands up a new project's memory + central graph in one ritual)"
