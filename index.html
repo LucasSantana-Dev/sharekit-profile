@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agent OS — Claude Code Harness Reference</title>
-  <meta name="description" content="Visual reference for the Claude Code operator harness — 250+ skills, 40 agents, 30+ hooks, MCP servers, and plugins.">
+  <meta name="description" content="Visual reference for the Claude Code operator harness — 270+ skills, 40 agents, 30+ hooks, MCP servers, and plugins.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -105,6 +105,9 @@
       transition: color .15s, background .15s;
     }
     .nav-gh-link:hover { color: var(--text); background: var(--surface-2); }
+.lang-toggle { display: flex; align-items: center; gap: 5px; height: 32px; padding: 0 10px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; color: var(--text-muted); background: transparent; border: 1px solid var(--border); cursor: pointer; transition: color .15s, background .15s, border-color .15s; white-space: nowrap; }
+.lang-toggle:hover { color: var(--text); background: var(--surface-2); border-color: var(--border-2); }
+.lang-toggle.active { color: var(--cyan); border-color: var(--cyan); background: #0e7490/10; }
 
     /* ── LAYOUT ─────────────────────────────────── */
     .layout {
@@ -520,12 +523,12 @@
   <a class="nav-brand" href="#">
     <div class="nav-brand-icon">⚡</div>
     Agent OS
-    <span class="nav-version">v0.7.0</span>
+    <span class="nav-version">v0.8.0</span>
   </a>
 
   <div class="nav-tabs" id="nav-tabs">
     <button class="nav-tab active" data-panel="skills">
-      Skills <span class="tab-count" id="tc-skills">162</span>
+      Skills <span class="tab-count" id="tc-skills">270</span>
     </button>
     <button class="nav-tab" data-panel="agents">
       Agents <span class="tab-count">40</span>
@@ -542,6 +545,7 @@
   </div>
 
   <div class="nav-right">
+    <button class="lang-toggle" id="lang-toggle" title="Toggle language">🇧🇷 PT</button>
     <a class="nav-gh-link" href="https://github.com/LucasSantana-Dev/sharekit-profile" target="_blank" rel="noopener">
       <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
       GitHub
@@ -709,6 +713,279 @@ const CATEGORIES = [
   { id: 'ponytail',    label: 'Ponytail',                    color: '#84cc16', guide: 'Minimalism discipline — ponytail before over-engineering. Use ponytail-audit to scan the full repo, ponytail-review in PRs, ponytail-debt to track shortcuts.' },
   { id: 'writing',     label: 'Writing',                     color: '#f97316', guide: 'Writing and content skills. writing-beats for article structure, writing-shape for drafting from raw material, writing-fragments for mining ideas.' },
 ];
+
+const TRANSLATIONS = {
+  "wake-up": "Brief compacto de session-bootstrap — responde 'o que estava fazendo, o que está bloqueando, qual é o próximo passo' em ~600-900 tokens.",
+  "session-bootstrap": "Composite de início do dia. Encadeia wake-up → next-priority → pr-snapshot → context-pack.",
+  "resume": "Reidrata a tarefa atual a partir de handoffs, planos, tarefas, notas de memória e estado do git.",
+  "context-pack": "Monta um bundle de contexto sensível à tarefa (código relevante + padrões + decisões passadas) via RAG, limitado por orçamento de tokens.",
+  "context-save": "Captura o estado atual da tarefa para que o trabalho possa ser retomado depois sem redescoberta.",
+  "handoff": "Compacta a conversa atual em um documento de handoff para outro agente pegar.",
+  "handoff-diet": "Meta-skill codificando o padrão no-wakeup-polling. Reduz spam de handoff em 80%.",
+  "session-wrap-up": "Encerra uma sessão de desenvolvimento enviando trabalho, capturando memória e escrevendo handoff.",
+  "session-cleanup": "Limpa o estado atual da sessão para que o trabalho possa transicionar de forma limpa para a próxima sessão.",
+  "zoom-out": "Pede ao agente uma perspectiva mais ampla ou de nível superior sobre código desconhecido.",
+  "optimize-context": "Otimiza o uso de contexto reduzindo bloat, melhorando eficiência de tokens e focando em áreas relevantes.",
+  "plan": "Monta um plano de implementação compacto e validado para trabalho multi-etapa, arriscado ou ambíguo.",
+  "route": "Decide a skill, agente ou chain certa para a requisição atual antes de gastar tokens no caminho errado.",
+  "next-priority": "Decide a coisa de maior valor e segura para fazer agora no repo ou workspace ativo.",
+  "loop": "Ritmo de execução padrão — inspecionar → agir → verificar → checkpoint — aplicado iterativamente até pronto.",
+  "dispatch": "Divide trabalho de investigação claramente separável em trilhas paralelas e depois reconcilia resultados.",
+  "orchestrate": "Coordena equipes multi-agente, trabalho multi-etapa ou multi-repo entre planos, skills, worktrees e investigações paralelas.",
+  "add": "Adiciona uma feature, teste, config, doc ou automação com segurança com escopo claro e validação.",
+  "scope-and-execute": "Entende um problema, planeja o trabalho, executa e envia tudo em um workflow encadeado.",
+  "parallel-investigate": "Distribui N investigações independentes como agentes paralelos em um único bloco de tool-use e depois agrega resultados.",
+  "parallel-phases": "Pega um plano em fases com tarefas independentes por fase, distribui agentes por onda, controla entre fases.",
+  "subagent-driven-development": "Executa planos de implementação com tarefas independentes usando subagentes paralelos na sessão atual.",
+  "feature-from-zero": "Mega-composite — feature greenfield completa de ideia para produção: research → scope → design → test → merge → ship.",
+  "fallback": "Recupera-se com segurança quando a ferramenta, skill ou caminho preferido falha.",
+  "code-review": "Code review que prioriza bugs, regressões, problemas de segurança e erros de lógica sobre estilo.",
+  "refactor": "Melhoria cirúrgica de código sem mudar comportamento — elimina code smells preservando comportamento.",
+  "refactor-plan": "Planeja um refactor multi-arquivo com sequência apropriada e passos de rollback.",
+  "refactor-pipeline": "Refatora com segurança um módulo ponta a ponta: plan → three-man-team → fix-the-suite → ADR → docs-sync.",
+  "verify": "Executa a sequência de validação mais estreita e significativa antes de merge, release ou handoff.",
+  "verify-before-done": "Gate de verificação pré-ship: lint/type/build → tests → coverage → Sonar → CI → Sentry.",
+  "quality-assurance": "Escolhe e sequencia as skills e checks QA certas para uma mudança ou release.",
+  "quality-gates": "Executa gates de verificação nativos do repositório como lint, type-check e testes.",
+  "improve-codebase-architecture": "Encontra oportunidades de aprofundamento informadas por CONTEXT.md e ADRs — refactoring, testabilidade, consolidação de módulos.",
+  "impeccable": "Polida interfaces frontend: UX review, hierarquia visual, acessibilidade, comportamento responsivo, design systems.",
+  "simplify": "Revisa código alterado para reutilização, simplificação, eficiência e limpezas de altitude, depois aplica as correções.",
+  "tdd": "Desenvolvimento orientado por testes com loop red-green-refactor — escreve testes falhando primeiro, implementa, refatora.",
+  "test-health": "Diagnóstico somente leitura reportando o estado da suite de testes do projeto — contagem, cobertura, tempo de execução, flakiness, testes mortos.",
+  "test-cleanup": "Audita e poda uma suite de testes inchada até o mínimo de testes que atingem limiar de cobertura e guardando comportamento real.",
+  "generate-tests": "Analisa mudanças de código e propõe ou gera testes significativos que cobrem a mudança.",
+  "coverage-gap": "Encontra e preenche gaps de cobertura de testes para um PR analisando diffs e escrevendo novos testes.",
+  "mutation-test": "Executa mutation testing para verificar que testes realmente pegam falhas quando código fonte está quebrado.",
+  "fix-the-suite": "Diagnostica, repara e valida uma suite de testes: test-health → config-drift → test-cleanup → mutation-test → ADR.",
+  "backend-testing": "Guia de backend testing abrangente para testes unitários, integração, autenticação e API.",
+  "webapp-testing": "Testa uma aplicação web local com scripts baseados em Playwright, screenshots e fluxos de interação.",
+  "playwright-best-practices": "Guia de testes Playwright — E2E, component, API, visual, accessibility, security e Electron testing.",
+  "performance-test": "Identifica gargalos de performance e coleta métricas sob carga realista.",
+  "debug": "Análise sistemática de causa raiz para bugs, erros e comportamento inesperado.",
+  "debug-deep": "Composite completo para bugs complexos multi-service: Sentry → CI logs → code trace → fix → regression test.",
+  "systematic-debugging": "Aplica o protocolo de debugging 4-fase: observe → hypothesize → isolate → fix. Bloqueia tentativas de racionalização.",
+  "diagnosing-bugs": "Workflow de diagnóstico de bug estruturado — reproduz, isola causa raiz, documenta evidência antes de tocar código.",
+  "secure": "Executa uma passada security-first para config, credenciais, risco de dependência e atalhos operacionais inseguros.",
+  "security-audit": "Auditoria de segurança ampla através de secrets, dependências, caminhos de código e riscos OWASP.",
+  "security-scan": "Executa passos de segurança scanning concretos incluindo Trivy, npm audit e detecção de secrets.",
+  "security-sweep": "Passada de segurança completa: security-audit + socket-audit + semgrep + code-security em paralelo.",
+  "semgrep": "Executa scans de análise estática Semgrep e cria regras de detecção customizadas para scanning baseado em padrões.",
+  "socket-audit": "Executa auditoria de segurança de supply chain Socket.dev em dependências npm para pacotes maliciosos e typosquatting.",
+  "sonar-check": "Preflight de gate SonarCloud pré-push — scans para ReDoS, SSRF e gaps de cobertura.",
+  "config-drift-detect": "Audita gates de projeto (thresholds jest/vitest, tsconfig, eslint, husky, Sonar, proteção de branch) para drift.",
+  "pr-flow": "Gerenciamento de ciclo de vida PR completo — cria, atualiza, revisa e faz merge com convenções apropriadas.",
+  "pr-merge-readiness": "Veredicto combinado antes de merge: status CI, estado de review, cobertura, Sonar e verificação de conflito.",
+  "pr-snapshot": "Snapshot de todos os PRs abertos entre repos — status, staleness, merge-readiness e issues bloqueadores.",
+  "merge-confidently": "Executa todos os checks pré-merge e confirma segurança antes de fazer commit do merge.",
+  "branch-hygiene": "Limpeza one-pass de branches locais stale, worktrees mortos, branches mergeadas e branches remotas de PR abandonadas.",
+  "using-git-worktrees": "Cria git worktrees isoladas para trabalho de feature que não deve reutilizar o checkout principal.",
+  "gh-address-comments": "Responde aos comentários de review no PR GitHub aberto para o branch atual.",
+  "gh-fix-ci": "Debugar e corrigir checks falhando de GitHub PR.",
+  "first-pr": "Desembarca um primeiro PR seguro em um repo desconhecido: onboard → context-pack → scope → TDD → PR.",
+  "hotfix": "Bypass emergencial de branch de release quando produção está quebrada e não pode esperar o próximo release.",
+  "ship": "Envia mudanças validadas — tag, GitHub release e verificação pós-ship.",
+  "ship-it": "Leva um PR mergeado todo o caminho até produção: version-bump → changelog → tag → deploy → verify.",
+  "release-cut": "Promove branch de release para main, corta uma versão, limpa. Agrupa muitos PRs em um release.",
+  "version-bump": "Automatiza version bumping em monorepos npm com promoção CHANGELOG e automação de PR.",
+  "changelog-update": "Atualiza CHANGELOG.md promovendo conteúdo [Unreleased] para uma seção versionada.",
+  "deployment-automation": "Automatiza deployment de aplicação para plataformas e servidores cloud.",
+  "vercel-deploy": "Faz deploy de aplicações e websites para Vercel.",
+  "cloudflare-deploy": "Faz deploy de aplicações e infraestrutura para Cloudflare — Workers, Pages, KV, R2.",
+  "prod-rebuild": "Reconstrói e reinicia serviços Docker de produção em servidor remoto com monitoramento assíncrono.",
+  "repo-bootstrap": "Configura um repo novo para o workflow release-branch: cria release branch, CHANGELOG, config dep-sweep, PR.",
+  "adr-write": "Captura um Architecture Decision Record — o que foi decidido, por quê, alternativas, quando revisitar.",
+  "adr-gap": "Encontra decisões que deveriam ter um ADR mas não têm — scana código para escolhas arquiteturais não documentadas.",
+  "research-and-decide": "Composite — research → critic challenge → plan → ADR. Força o pareamento research-to-decision.",
+  "grill-me": "Entrevista o usuário implacavelmente sobre um plano ou design até atingir entendimento compartilhado.",
+  "grill-with-docs": "Sessão de grilling que desafia seu plano contra o modelo de domínio existente e atualiza documentação inline.",
+  "brainstorming": "Facilita exploração colaborativa de ideias e transforma conceitos brutos em propostas estruturadas.",
+  "api-design-principles": "Domina princípios de design REST e GraphQL API para APIs intuitivas e escaláveis.",
+  "architecture-patterns": "Escolhe e aplica padrões de arquitetura backend — Clean Architecture, DDD, CQRS e mais.",
+  "prototype": "Constrói um protótipo descartável para detalhar um design antes de comprometer.",
+  "domain-modeling": "Modela a camada de domínio com entidades, value objects, agregados e invariantes.",
+  "codebase-design": "Analisa e melhora o design geral e estrutura da codebase.",
+  "repaint": "Ponto de entrada único para TODA construção/restyling frontend — qualquer página, componente, dashboard, hero, seção de pricing ou data table.",
+  "ui-expert": "Constrói interfaces frontend de nível produção que parecem Linear, Vercel, Stripe ou Notion — não output genérico de LLM.",
+  "frontend-design": "Cria interfaces frontend ousadas e art-directed para trabalho explicitamente criativo ou expressivo.",
+  "design-build": "Design, scaffold, constrói e verifica uma UI: ui-audit → shadcn/tailwind → impeccable → webapp-testing.",
+  "shadcn": "Gerencia componentes shadcn — adição, busca, correção, debugging e configuração.",
+  "tailwind-design-system": "Guia Tailwind CSS v4 design-system para tokens, theming e padrões de componentes.",
+  "ai-slop-audit": "Passada de QA pós-geração que linta output frontend contra anti-padrões conhecidos 'AI made that'.",
+  "design-an-interface": "Design uma interface UI com spec estruturada, decisões de layout e breakdown de componentes.",
+  "docker-expert": "Guia Docker focado em produção para design de imagem, builds multi-stage e orquestração.",
+  "turborepo": "Guia Turborepo monorepo para modelagem de tarefas, caching, filtragem e integração CI.",
+  "supabase-postgres-best-practices": "Otimização de performance Postgres e best practices do Supabase.",
+  "supabase": "Use para QUALQUER tarefa envolvendo Supabase — Database, Auth, Edge Functions, Realtime, Storage, RLS, migrations.",
+  "prisma-migrate": "Executa migrações Prisma com segurança com checks pré-flight e guia de rollback.",
+  "trigger-dev": "Constrói agentes AI, workflows e tarefas de background duráveis com Trigger.dev.",
+  "observe": "Ponto de entrada unificado para trabalho observability + monitoring — roteia para o membro certo da família.",
+  "observability-bootstrap": "Configura observabilidade completa para um novo serviço: implementa todos 4 pilares → SLOs + alerts → smoke-test.",
+  "observability-audit": "Audita observabilidade de um serviço existente: analisa → debugar → tune → implementa gaps → configuração de monitoramento.",
+  "observability-implement": "Adiciona observabilidade a código que carece dela — logs estruturados, métricas, traces, error reporting (OTEL, Prometheus, Sentry).",
+  "observability-debug": "Diagnostica observabilidade quebrada — alerts flapping, signals faltando, trace propagation quebrada.",
+  "langfuse-observe": "Configura observabilidade Langfuse LLM para traçar chamadas Claude API com custos, tokens e latência.",
+  "sentry": "Inspeciona problemas ou eventos Sentry, sumariza erros, correlaciona com deploys recentes.",
+  "mcp-builder": "Guia para criar servidores MCP de alta qualidade do zero.",
+  "mcp-audit": "Diagnóstico somente leitura — scana transcrições de sessão para surfar quais servidores/ferramentas MCP você realmente usa. Flag servidores zero-uso.",
+  "mcp-care": "Auditoria completa e reparo de ciclo de vida do servidor MCP: mcp-audit → mcp-health → mcp-doctor → sugestões mcp-builder.",
+  "adt-mcp-health": "Valida saúde de provedor MCP ao vivo — separa problemas de config de falhas de auth e conectividade.",
+  "hook-development": "Cria hooks para plugins Claude Code — eventos de hook, config, exit codes, contratos stdin/stdout.",
+  "hook-effectiveness": "Audita hooks Claude Code para frequência de disparo, latência, exit codes e valor de output. Executa após cabear novos hooks.",
+  "ai-sdk": "Responde perguntas sobre o AI SDK e ajuda a construir features powered por AI.",
+  "smart-model-select": "Escolhe o modelo mais leve ou tier de reasoning que pode fazer a tarefa bem.",
+  "agent-browser": "Executa automação de browser baseada em ref com agent-browser para navegação rápida e scraping.",
+  "efficiency-advisor": "Analisa um workflow multi-agente proposto para desperdício de tokens e gargalos de tempo.",
+  "recall": "Busca semântica one-shot contra o índice RAG local — fuzzy, cross-file ou sobre raciocínio anterior.",
+  "adt-rag": "Constrói e debugar pipelines Retrieval-Augmented Generation — chunking, embedding, retrieval, reranking.",
+  "adt-rag-coverage": "Audita distribuição de corpus por tipo de fonte e repo; identifica gaps de cobertura e tópicos underindexados.",
+  "adt-rag-drift": "Detecta e corrige chunks stale — arquivos que mudaram ou foram deletados desde last indexing.",
+  "sync-memories": "Sincroniza conhecimento de projeto ou sessão durável nos sistemas de memória disponíveis.",
+  "memory-prune": "Audita arquivos de memória de projeto para entradas stale — onde PRs citadas mergearam, bugs foram corrigidos ou arquivos não existem mais.",
+  "knowledge-loop": "Consulta, captura, melhora e persiste conhecimento: recall → sync-memories → rag-curate → handoff.",
+  "rag-quality": "Avalia qualidade de retrieval do índice RAG local.",
+  "find-skills": "Descobre skills instaláveis relevantes do ecossistema de skills disponível.",
+  "skill-creator": "Cria ou atualiza skills instaladas com descrições de trigger claras, naming estável e estrutura SKILL.md.",
+  "skill-maintainer": "Audita, normaliza, mescla e melhora o catálogo de skills local para que routing permaneça claro e útil.",
+  "skill-effectiveness-audit": "Scana JSONLs de sessão para skills que falharam, retornaram 'out of scope' ou executaram diagnósticos sem ação.",
+  "plugin-audit": "Diagnóstico somente leitura — flag plugins habilitados com zero uso, plugins não registrados, plugins desabilitados-mas-instalados.",
+  "docs-sync": "Detecta e reconcilia drift entre skills/padrões canônicos e suas cópias espelhadas.",
+  "harness-audit": "Audita o harness Claude Code completo para drift, skills stale, hooks mal configurados e agentes mortos.",
+  "onboard-new-repo": "Workflow first-touch: adt-repo-intake → audit-deep → config-drift-detect → init CLAUDE.md.",
+  "backlog": "Construtor de backlog end-to-end: audit-deep → ROI-rank → specs → plan → GitHub issues → project board.",
+  "triage": "Faz triage de issues através de uma state machine dirigida por papéis de triage.",
+  "to-issues": "Quebra um plano, spec ou PRD em GitHub issues independentemente-grabáveis usando vertical slices.",
+  "to-prd": "Transforma o contexto de conversa atual em um PRD e publica no rastreador de issues do projeto.",
+  "audit-deep": "Verificação de saúde completa do projeto entre testing, config, hooks, performance, segurança, MCP e plugins.",
+  "ecosystem-health": "Scana um workspace ou monorepo e retorna um snapshot de saúde bruto de repos, pacotes e CI.",
+  "repo-state-snapshot": "Tira um snapshot rotulado do estado do repo (SHA, issues abertas, PRs abertas, release mais recente) e diffa contra anterior.",
+  "ci-watch": "Inspeciona estado CI atual, identifica o primeiro bloqueador real e monitora até checks ficarem verdes ou entendidos.",
+  "dep-sweep": "Processa em lote PRs abertos Dependabot/Renovate: agrupa por risco → auto-merge seguro → flag arriscado.",
+  "incident-response": "Coordena resposta de incidente usando Sentry, Linear e GitHub para fazer triage, correlacionar e rastrear problemas de produção.",
+  "production-incident": "Workflow de incidente de produção completo: sentry → debug-deep → incident-response → ship-it → ADR.",
+  "graphify": "Transforma qualquer pasta de arquivos em um grafo de conhecimento navegável. Use para qualquer pergunta de codebase ou documento.",
+  "dev-assets-sync": "Executa o sync de backup dev-assets — rsyncs configs Claude, memórias, padrões, hooks e arquivos por-projeto.",
+  "sync-sharekit-profile": "Sincroniza este perfil de harness para seu repositório remoto (skills, padrões, hooks, config).",
+  "token-audit": "Analisa uso histórico de tokens Claude Code a partir de arquivos JSONL de sessão — gasto, taxas de cache hit, tendências semanais.",
+  "smart-commands": "Guia de decisão para quando usar proativamente comandos slash Claude Code — /think, /model, /compact, /clear.",
+  "insights": "Gera um relatório de insights de produtividade ou uso para sessões Claude Code.",
+  "metrics": "Mostra métricas de produtividade concretas e analytics de sessão — tokens, tarefas, tempo e throughput de PR.",
+  "standards": "Acessa e aplica padrões de codificação e workflow do projeto.",
+  "adt-research": "Pesquisa profunda sobre um tópico usando busca web, docs e análise de codebase.",
+  "automation-workflows": "Design automação reutilizável para loops de desenvolvimento repetitivos.",
+  "deep-research": "Pesquisa multi-fonte verificada por fatos — verifica reivindicações, avalia fornecedores, gera comparações.",
+  "read-the-damn-docs": "Referência para APIs de terceiros, bibliotecas, frameworks, CLIs e serviços cloud antes de codificar.",
+  "teach": "Ensina uma nova skill ou conceito neste workspace.",
+  "caveman": "Comunicação ultra-comprimida — corta 75% dos tokens eliminando preenchimento mantendo precisão técnica.",
+  "focus": "Foca contexto em uma área de desenvolvimento específica para reduzir ruído ao mudar de domínios.",
+  "task-start": "Bootstraps sessão via 3 agentes paralelos: handoff reader, git state, project intake.",
+  "session-close": "Composite memory close — sync-memories → handoff → knowledge-loop.",
+  "visual-plan": "Transforma planos de texto em planos visuais com diagramas, mapas de arquivo, código, perguntas e protótipos.",
+  "visual-recap": "Transforma um PR, branch ou commit em um visual recap com diagramas e resumos de API/schema.",
+  "scope-it": "Mapeia raio de explosão antes de codificar — identifica arquivos afetados, dependências e superfície de testes.",
+  "plow-ahead": "Progresso autônomo sem paradas de esclarecimento rotineiras — sem perguntas de preenchimento.",
+  "brief-and-drill": "Briefa um subagent com contexto, depois pratica compreensão antes de delegar trabalho real.",
+  "three-man-team": "Paralelo Arquiteto → Builder → Reviewer para features complexas e PRs grandes.",
+  "loop-engineer": "Design e implementa loops de agente autônomos — para prompting manual, auto-itera.",
+  "agent-box-dispatch": "Submete jobs assíncronos para container Docker agent-box — coloca arquivos na fila, verifica resultados assincronamente.",
+  "agent-dispatch": "Despachota tarefas ad-hoc para agent-box remoto (scripts ou prompts Claude). Mapeia aliases para shell scripts.",
+  "agent-teams": "Coordena múltiplas sessões de agente para implementação paralela, review e síntese entre workstreams.",
+  "review": "Code review dois-eixo: Padrões (convenções?) e Spec (corresponde ao issue?).",
+  "overengineering-audit": "Flag over-engineering — abstrações especulativas, generalização prematura, indireção desnecessária.",
+  "error-handling-audit": "Audita o caminho infeliz — erros engolidos, vazamentos de recursos, secrets em caminhos de erro.",
+  "orphan-hunt": "Scana código morto: arquivos não importados, exports não usados, dependências não declaradas.",
+  "naming-consistency": "Detecta convenções de nomenclatura e audita violações entre arquivos.",
+  "backend-slop-audit": "Linta código backend contra anti-padrões: erros engolidos, input não validado, timeouts faltando.",
+  "dependency-scout": "Encontra pacotes npm para substituir boilerplate feito à mão. Veta para segurança, manutenção e adoção.",
+  "request-refactor-plan": "Cria um plano de refactor via entrevista, arquivado como um GitHub issue com tiny commits.",
+  "setup-pre-commit": "Configura hooks Husky com lint-staged, type checking e testes.",
+  "qodo-get-rules": "Carrega regras Qodo relevantes para a tarefa atual via busca semântica.",
+  "qodo-pr-resolver": "Revisa feedback Qodo PR — vê por severidade, aplica correções interativamente ou em lote.",
+  "coupling-map": "Mapeia acoplamento de módulo via grafo de import — identifica nós fan-in/fan-out e ciclos.",
+  "grill-with-options": "Entrevista de decisão estruturada usando 2-4 opções limitadas. Stress-test rápido com trade-offs explícitos.",
+  "architecture-improvement": "Auditoria composite de codebase — coupling-map → orphan-hunt → improve → domain-modeling → adr-write.",
+  "decide": "Decisão roteada por modo: veredicto Quick Mode ou Full Mode research → decision → ADR → memory.",
+  "decision-mapping": "Constrói uma DAG de tickets de investigação paralela — cria mapa de decisão e impulsiona para resolução.",
+  "test-driven-development": "Força TDD: loop red-green-refactor — escreve testes falhando antes de código de implementação.",
+  "test-sweep": "Composite três-fase de melhoria de testes — test-health → test-cleanup → mutation-test.",
+  "adt-self-heal": "Recuperação autônoma de erro — detecta falhas, diagnostica causa raiz, aplica correções e retoma.",
+  "skill-security-scan": "Scana corpos de skill e hook para padrões maliciosos (pipe-to-shell, eval suspeito).",
+  "autofix": "Revisa com segurança e aplica feedback CodeRabbit PR com aprovação por mudança.",
+  "adt-ship-check": "Verifica trabalho antes de fazer commit, push ou solicitar review — executa comandos de verificação.",
+  "pr-to-release": "Composite — branch → release com changelog, PR e verificação de deploy readiness.",
+  "ui-ux-pro-max": "Biblioteca de referência UI/UX: 97 paletas, 57 fontes, 50+ componentes, padrões e design systems.",
+  "browser-use": "Automatiza interações de browser para testing, preenchimento de formulário, screenshots e extração de dados.",
+  "use-my-browser": "Usa sessão de browser ao vivo ou estado visível versus fetches estáticas.",
+  "nano-banana": "Gera imagens com modelos nativos Google Gemini — text-to-image e manipulação de imagem.",
+  "shorts-edit": "Edita vídeos curtos verticais 9:16 (TikTok/Reels/Shorts) com captions estilizadas.",
+  "agent-forge": "Transforma qualquer skill em um agente especializado persistente, salvo em ~/.claude/agents/.",
+  "mem-search": "Busca trabalho anterior entre sessões — encontra soluções prévias, how-tos e queries de timeline.",
+  "codebase-memory": "Usa grafo de conhecimento de codebase para queries estruturais — arquitetura, callers, dependências.",
+  "rag-curate": "Melhora corpus RAG — adiciona docs faltando, reescreve chunks fracos, preenche gaps de cobertura.",
+  "rag-eval": "Gate de regressão de retrieval vs baseline — compara Hit@5, MRR e métricas per-intent.",
+  "rag-maintenance": "Composite auditoria RAG completa — mede qualidade, encontra gaps, detecta chunks stale, curate.",
+  "harness-doctor": "Diagnostica saúde do harness: servidores MCP, filesystem, git sync, graph freshness, hooks, settings.",
+  "skill-creator-local": "Fork skill-creator local com unique init_skill.py para compatibilidade histórica.",
+  "adt-auto-invoke": "Tabela de roteamento meta-skill — quando aplicar outras skills automaticamente sem ser perguntado.",
+  "rtk-health": "Verifica probes de reescrita rtk para exit code ask-rule após uma atualização rtk.",
+  "adt-repo-intake": "Integra em um repositório desconhecido rápido — lê docs, detecta stack, sumariza estrutura.",
+  "repo-setup": "Composite — configura um repo novo: bootstrap → config-drift-detect → CLAUDE.md.",
+  "adt-specs-spec-new": "Cria spec committed per-feature com frontmatter — promove planos efêmeros em artefatos persistentes.",
+  "adt-specs-aggregate-roadmap": "Roadmap cross-repo percorrendo frontmatter de specs de repos curados — executa no início da sessão para orientação.",
+  "plan-to-issues": "Cria um GitHub issue por tarefa de plano com phase-labels e milestone opcional.",
+  "extract-package": "Scana módulos low-coupling extraíveis em um pacote npm standalone.",
+  "extract-product": "Scana repo para capacidades inteiras spinnable como seu próprio projeto — OSS, CLI, SaaS ou template.",
+  "session-insights": "Analytics de token e sessão — custo (daily/statusline), stats do workspace (git/GitHub).",
+  "stay-within-limits": "Respeita limites de uso 5-hour e weekly — verifica uso entre ondas, pausa perto do cap.",
+  "performance-audit": "Audita performance do sistema — saúde, roteamento, caching e gargalos de escalabilidade.",
+  "efficient-frontier": "Delega research/coding/testing a subagents mais baratos; mantém planning/synthesis com modelo expensive.",
+  "criativaria-brain-sync": "Sincroniza memórias de projeto Criativaria com o brain GitHub canônico.",
+  "ponytail": "Solução mais preguiçosa que funciona — delete, simplifica, encurta código antes de over-engineering.",
+  "ponytail-audit": "Scan whole-repo de over-engineering — lista ranqueada do que deletar, simplificar ou parar de fazer.",
+  "ponytail-debt": "Colhe comentários ponytail em um ledger de debt — rastreia atalhos deliberados.",
+  "ponytail-gain": "Mostra impacto ponytail: menos código, menos custo, mais speed (medido a partir de medianas).",
+  "ponytail-help": "Referência rápida para modos ponytail, skills e comandos.",
+  "ponytail-review": "Code review focado em over-engineering — encontra o que deletar.",
+  "writing-beats": "Molda um artigo como uma jornada de beats — escreve um beat por vez a partir de material bruto.",
+  "writing-fragments": "Minera por fragmentos de escrita (reivindicações, vinhetas, frases) — constrói uma compilação.",
+  "writing-great-skills": "Referência para escrever skills bem — vocabulário e princípios para previsibilidade.",
+  "writing-shape": "Molda material bruto markdown em um artigo via conversa — draft openings, cresce aos poucos.",
+  "nextjs": "Construa e otimize aplicativos Next.js com renderização no servidor e melhores práticas de deploy.",
+  "vercel-agent": "Use capacidades de agente Vercel para workflows serverless e automação alimentados por IA.",
+  "vercel-api": "Gerencie projetos, deployments e ambientes Vercel através da API Vercel.",
+  "vercel-cli": "Implante e gerencie projetos Vercel pela linha de comando.",
+  "vercel-firewall": "Configure e gerencie regras de Firewall Vercel para proteção DDoS e filtragem de tráfego.",
+  "vercel-flags": "Gerencie feature flags para rollouts graduais, testes A/B e recursos experimentais.",
+  "vercel-functions": "Construa e implante funções serverless na plataforma Vercel.",
+  "vercel-queues": "Use Vercel Queues para processamento confiável de jobs assíncrono e tarefas em background.",
+  "vercel-sandbox": "Teste e valide mudanças de código em um ambiente isolado de sandbox Vercel.",
+  "vercel-services": "Gerencie serviços, integrações e add-ons Vercel para funcionalidade estendida.",
+  "vercel-storage": "Use Vercel Storage para bancos de dados, KV store e soluções de blob storage.",
+  "auth": "Implemente autenticação segura com OAuth, JWT e gerenciamento de sessão.",
+  "chat-sdk": "Construa recursos de chat em tempo real usando o AI SDK ou protocolos WebSocket.",
+  "cms": "Integre e gerencie conteúdo com plataformas de CMS headless.",
+  "cron-jobs": "Agende e gerencie tarefas recorrentes em background com cron jobs.",
+  "deployments-cicd": "Configure pipelines CI/CD para testes, build e deploy automatizados.",
+  "email": "Envie e gerencie email transacional e de marketing em escala.",
+  "env-vars": "Gerencie variáveis de ambiente e secrets com segurança entre ambientes.",
+  "investigation-mode": "Depure e investigue problemas em ambientes de desenvolvimento, staging e produção.",
+  "marketplace": "Descubra e integre parceiros e extensões do marketplace Vercel.",
+  "payments": "Processe pagamentos e gerencie assinaturas com Stripe ou provedores similares.",
+  "react-best-practices": "Aplique melhores práticas de performance, acessibilidade e manutenibilidade em aplicações React.",
+  "routing-middleware": "Construa roteamento personalizado e camadas de middleware para manipulação de requisições.",
+  "sign-in-with-vercel": "Implemente autenticação single sign-on usando o provedor OAuth da Vercel.",
+  "v0-dev": "Gere componentes e interfaces de UI usando a geração de código alimentada por IA do v0.",
+  "verification": "Verifique deploys, saúde do build e comportamento da aplicação em produção.",
+  "firecrawl-agent": "Use Firecrawl para web scraping autônomo e extração de dados estruturados.",
+  "firecrawl-crawl": "Rastreie sites inteiros e extraia todos os links, conteúdo e metadados.",
+  "firecrawl-scrape": "Raspe páginas web individuais e extraia dados estruturados ou não estruturados.",
+  "firecrawl-search": "Pesquise e extraia informações direcionadas de páginas web com assistência LLM.",
+  "firecrawl-map": "Gere mapas de site e descubra estrutura de navegação entre websites.",
+  "firecrawl-instruct": "Extraia dados de páginas web usando prompts e instruções personalizadas.",
+  "firecrawl-download": "Baixe e processe conteúdo web, PDFs e arquivos de URLs.",
+  "firecrawl-cli": "Use Firecrawl da linha de comando para workflows de web scraping em batch.",
+  "github": "Automatize workflows GitHub, gerencie issues, PRs, releases e repositórios.",
+  "yeet": "Delete com segurança e limpe branches GitHub e referências obsoletas.",
+};
 
 const SKILLS = [
   // ── Session & Context
@@ -1024,6 +1301,44 @@ const SKILLS = [
   { name: 'writing-fragments',    cat: 'writing',       composite: false, desc: 'Mine for writing fragments (claims, vignettes, sentences) — build a compilation.' },
   { name: 'writing-great-skills', cat: 'writing',       composite: false, desc: 'Reference for writing skills well — vocabulary and principles for predictability.' },
   { name: 'writing-shape',        cat: 'writing',       composite: false, desc: 'Shape markdown raw material into an article via conversation — draft openings, grow piecemeal.' },
+
+  // ── Plugin Skills (Vercel, Firecrawl, GitHub)
+  { name: 'nextjs', cat: 'backend', composite: false, desc: 'Build and optimize Next.js applications with server-side rendering and deployment best practices.' },
+  { name: 'vercel-agent', cat: 'backend', composite: false, desc: 'Use Vercel agent capabilities for AI-powered serverless workflows and automation.' },
+  { name: 'vercel-api', cat: 'backend', composite: false, desc: 'Manage Vercel projects, deployments, and environments through the Vercel API.' },
+  { name: 'vercel-cli', cat: 'backend', composite: false, desc: 'Deploy and manage Vercel projects from the command line.' },
+  { name: 'vercel-firewall', cat: 'security', composite: false, desc: 'Configure and manage Vercel Firewall rules for DDoS protection and traffic filtering.' },
+  { name: 'vercel-flags', cat: 'backend', composite: false, desc: 'Manage feature flags for gradual rollouts, A/B testing, and experimental features.' },
+  { name: 'vercel-functions', cat: 'backend', composite: false, desc: 'Build and deploy serverless functions on the Vercel platform.' },
+  { name: 'vercel-queues', cat: 'backend', composite: false, desc: 'Use Vercel Queues for reliable asynchronous job processing and background tasks.' },
+  { name: 'vercel-sandbox', cat: 'backend', composite: false, desc: 'Test and validate code changes in an isolated Vercel sandbox environment.' },
+  { name: 'vercel-services', cat: 'backend', composite: false, desc: 'Manage Vercel services, integrations, and add-ons for extended functionality.' },
+  { name: 'vercel-storage', cat: 'backend', composite: false, desc: 'Use Vercel Storage for databases, KV store, and blob storage solutions.' },
+  { name: 'auth', cat: 'security', composite: false, desc: 'Implement secure authentication with OAuth, JWT, and session management.' },
+  { name: 'chat-sdk', cat: 'ai-agents', composite: false, desc: 'Build real-time chat features using the AI SDK or WebSocket protocols.' },
+  { name: 'cms', cat: 'backend', composite: false, desc: 'Integrate and manage content with headless CMS platforms.' },
+  { name: 'cron-jobs', cat: 'cicd', composite: false, desc: 'Schedule and manage recurring background tasks with cron jobs.' },
+  { name: 'deployments-cicd', cat: 'cicd', composite: false, desc: 'Set up CI/CD pipelines for automated testing, building, and deployment.' },
+  { name: 'email', cat: 'backend', composite: false, desc: 'Send and manage transactional and marketing emails at scale.' },
+  { name: 'env-vars', cat: 'backend', composite: false, desc: 'Manage environment variables and secrets securely across environments.' },
+  { name: 'investigation-mode', cat: 'debugging', composite: false, desc: 'Debug and investigate issues in development, staging, and production environments.' },
+  { name: 'marketplace', cat: 'backend', composite: false, desc: 'Discover and integrate Vercel marketplace partners and extensions.' },
+  { name: 'payments', cat: 'backend', composite: false, desc: 'Process payments and manage subscriptions with Stripe or similar providers.' },
+  { name: 'react-best-practices', cat: 'frontend', composite: false, desc: 'Apply performance, accessibility, and maintainability best practices in React applications.' },
+  { name: 'routing-middleware', cat: 'backend', composite: false, desc: 'Build custom routing and middleware layers for request handling and transformation.' },
+  { name: 'sign-in-with-vercel', cat: 'security', composite: false, desc: 'Implement single sign-on authentication using Vercel\'s OAuth provider.' },
+  { name: 'v0-dev', cat: 'frontend', composite: false, desc: 'Generate UI components and interfaces using v0\'s AI-powered code generation.' },
+  { name: 'verification', cat: 'testing', composite: false, desc: 'Verify deployments, build health, and application behavior in production.' },
+  { name: 'firecrawl-agent', cat: 'standards', composite: false, desc: 'Use Firecrawl for autonomous web scraping and structured data extraction.' },
+  { name: 'firecrawl-crawl', cat: 'standards', composite: false, desc: 'Crawl entire websites and extract all links, content, and metadata.' },
+  { name: 'firecrawl-scrape', cat: 'standards', composite: false, desc: 'Scrape individual web pages and extract structured or unstructured data.' },
+  { name: 'firecrawl-search', cat: 'standards', composite: false, desc: 'Search and extract targeted information from web pages with LLM assistance.' },
+  { name: 'firecrawl-map', cat: 'standards', composite: false, desc: 'Generate site maps and discover navigation structure across websites.' },
+  { name: 'firecrawl-instruct', cat: 'standards', composite: false, desc: 'Extract data from web pages using custom prompts and instructions.' },
+  { name: 'firecrawl-download', cat: 'standards', composite: false, desc: 'Download and process web content, PDFs, and files from URLs.' },
+  { name: 'firecrawl-cli', cat: 'standards', composite: false, desc: 'Use Firecrawl from the command line for batch web scraping workflows.' },
+  { name: 'github', cat: 'git', composite: false, desc: 'Automate GitHub workflows, manage issues, PRs, releases, and repositories.' },
+  { name: 'yeet', cat: 'git', composite: false, desc: 'Safely delete and clean up GitHub branches and stale references.' },
 ];
 
 const AGENTS = [
@@ -1204,6 +1519,7 @@ let activePanel = 'skills';
 let activeCategory = 'all';
 let activeFilter = 'all';
 let searchQuery = '';
+let lang = 'en';
 
 // ══ RENDER ══════════════════════════════════════════════════════════════════
 
@@ -1281,10 +1597,12 @@ function renderSkillGrid() {
   }
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
-    filtered = filtered.filter(s =>
-      s.name.toLowerCase().includes(q) ||
-      s.desc.toLowerCase().includes(q)
-    );
+    filtered = filtered.filter(s => {
+      const pt = TRANSLATIONS[s.name] || '';
+      return s.name.toLowerCase().includes(q) ||
+             s.desc.toLowerCase().includes(q) ||
+             pt.toLowerCase().includes(q);
+    });
   }
 
   const cat = activeCategory === 'all' ? null : CATEGORIES.find(c => c.id === activeCategory);
@@ -1334,7 +1652,7 @@ function renderSkillGrid() {
             </button>
           </div>
         </div>
-        <div class="skill-desc">${skill.desc}</div>
+        <div class="skill-desc">${lang === 'pt' ? (TRANSLATIONS[skill.name] || skill.desc) : skill.desc}</div>
         <div class="skill-footer">
           <span class="badge badge-category" style="border-color:${skillColor}22; color:${skillColor}; background:${skillColor}12">${skillCat ? skillCat.label : skill.cat}</span>
         </div>
@@ -1513,6 +1831,16 @@ function setFilter(filter) {
 
 document.querySelectorAll('.filter-btn').forEach(btn => btn.addEventListener('click', () => setFilter(btn.dataset.filter)));
 document.querySelectorAll('.mobile-filter-btn').forEach(btn => btn.addEventListener('click', () => setFilter(btn.dataset.filter)));
+
+// ══ LANG TOGGLE ═════════════════════════════════════════════════════════════
+
+document.getElementById('lang-toggle').addEventListener('click', () => {
+  lang = lang === 'en' ? 'pt' : 'en';
+  const btn = document.getElementById('lang-toggle');
+  btn.textContent = lang === 'pt' ? '🇺🇸 EN' : '🇧🇷 PT';
+  btn.classList.toggle('active', lang === 'pt');
+  renderSkillGrid();
+});
 
 // ══ INIT ════════════════════════════════════════════════════════════════════
 
