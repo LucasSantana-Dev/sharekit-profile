@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent OS — Claude Code Harness Reference</title>
+  <meta name="description" content="Visual reference for the Claude Code operator harness — 162+ skills, 40 agents, 30+ hooks, MCP servers, and plugins.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #09090b;
+      --surface:     #111113;
+      --surface-2:   #18181b;
+      --border:      #27272a;
+      --border-2:    #3f3f46;
+      --text:        #fafafa;
+      --text-muted:  #71717a;
+      --text-dim:    #52525b;
+      --cyan:        #22d3ee;
+      --violet:      #a78bfa;
+      --blue:        #60a5fa;
+      --green:       #4ade80;
+      --amber:       #fbbf24;
+      --red:         #f87171;
+      --pink:        #f472b6;
+      --nav-h:       56px;
+      --sidebar-w:   260px;
+      --radius:      8px;
+      --radius-sm:   5px;
+    }
+
+    html { color-scheme: dark; scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Geist', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: var(--nav-h);
+      background: rgba(9,9,11,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0;
+      padding: 0 20px;
+    }
+
+    .nav-brand {
+      display: flex; align-items: center; gap: 9px;
+      font-weight: 700; font-size: 15px; letter-spacing: -0.3px;
+      color: var(--text); text-decoration: none; flex-shrink: 0;
+      margin-right: 24px;
+    }
+    .nav-brand-icon {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: linear-gradient(135deg, #6366f1 0%, #22d3ee 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+    .nav-version {
+      font-size: 11px; font-family: 'Geist Mono', monospace;
+      background: var(--surface-2); border: 1px solid var(--border);
+      color: var(--text-muted); padding: 2px 7px; border-radius: 99px;
+    }
+
+    .nav-tabs {
+      display: flex; gap: 2px; flex: 1;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-tab {
+      padding: 6px 14px; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      border: none; background: transparent; color: var(--text-muted);
+      transition: color .15s, background .15s; white-space: nowrap;
+    }
+    .nav-tab:hover { color: var(--text); background: var(--surface-2); }
+    .nav-tab.active { color: var(--text); background: var(--surface-2); }
+    .nav-tab .tab-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--border); color: var(--text-dim);
+      font-size: 10px; font-family: 'Geist Mono', monospace;
+      padding: 1px 5px; border-radius: 99px; margin-left: 5px;
+    }
+    .nav-tab.active .tab-count { background: var(--border-2); color: var(--text-muted); }
+
+    .nav-right {
+      display: flex; gap: 10px; align-items: center; margin-left: auto; flex-shrink: 0;
+    }
+    .nav-gh-link {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--text-muted); text-decoration: none; font-size: 13px;
+      padding: 6px 10px; border-radius: var(--radius-sm);
+      transition: color .15s, background .15s;
+    }
+    .nav-gh-link:hover { color: var(--text); background: var(--surface-2); }
+
+    /* ── LAYOUT ─────────────────────────────────── */
+    .layout {
+      display: flex;
+      padding-top: var(--nav-h);
+      min-height: 100vh;
+    }
+
+    /* ── SIDEBAR ────────────────────────────────── */
+    aside {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      position: sticky; top: var(--nav-h);
+      height: calc(100vh - var(--nav-h));
+      overflow-y: auto; overflow-x: hidden;
+      border-right: 1px solid var(--border);
+      padding: 16px 12px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .search-wrap {
+      position: relative; margin-bottom: 16px;
+    }
+    .search-icon {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      color: var(--text-dim); pointer-events: none;
+      width: 14px; height: 14px;
+    }
+    #search {
+      width: 100%; padding: 8px 10px 8px 32px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text);
+      font-size: 13px; font-family: inherit; outline: none;
+      transition: border-color .15s;
+    }
+    #search::placeholder { color: var(--text-dim); }
+    #search:focus { border-color: var(--border-2); }
+
+    .filter-row {
+      display: flex; gap: 6px; margin-bottom: 16px;
+    }
+    .filter-btn {
+      padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 500;
+      cursor: pointer; border: 1px solid var(--border); background: transparent;
+      color: var(--text-muted); transition: all .15s;
+    }
+    .filter-btn:hover { color: var(--text); border-color: var(--border-2); }
+    .filter-btn.active { background: var(--violet); border-color: var(--violet); color: #fff; }
+
+    .sidebar-section-label {
+      font-size: 10px; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--text-dim);
+      padding: 4px 6px 8px; margin-top: 4px;
+    }
+
+    .cat-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 8px; border-radius: var(--radius-sm);
+      cursor: pointer; transition: background .1s, color .1s;
+      color: var(--text-muted); font-size: 13px; font-weight: 450;
+      border: none; background: transparent; width: 100%; text-align: left;
+    }
+    .cat-item:hover { background: var(--surface-2); color: var(--text); }
+    .cat-item.active { background: var(--surface-2); color: var(--text); }
+    .cat-item-dot {
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+      margin-right: 8px;
+    }
+    .cat-item-name { flex: 1; }
+    .cat-item-count {
+      font-size: 11px; font-family: 'Geist Mono', monospace;
+      color: var(--text-dim); background: var(--surface-2);
+      padding: 1px 6px; border-radius: 99px; min-width: 22px; text-align: center;
+    }
+    .cat-item.active .cat-item-count { background: var(--border); color: var(--text-muted); }
+
+    /* ── MAIN ───────────────────────────────────── */
+    main {
+      flex: 1; min-width: 0;
+      padding: 24px 28px 48px;
+    }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── SKILL GRID ─────────────────────────────── */
+    .grid-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px; gap: 12px; flex-wrap: wrap;
+    }
+    .grid-header-title {
+      font-size: 20px; font-weight: 700; letter-spacing: -0.4px;
+    }
+    .grid-header-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+    .result-count {
+      font-size: 12px; font-family: 'Geist Mono', monospace;
+      color: var(--text-dim); white-space: nowrap;
+    }
+
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 10px;
+    }
+
+    .skill-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      cursor: default;
+      transition: border-color .15s, box-shadow .15s;
+      display: flex; flex-direction: column; gap: 8px;
+      position: relative; overflow: hidden;
+    }
+    .skill-card:hover {
+      border-color: var(--border-2);
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+    .skill-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px; opacity: 0; transition: opacity .15s;
+    }
+    .skill-card:hover::before { opacity: 1; }
+
+    .skill-card-top {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+    }
+    .skill-name {
+      font-family: 'Geist Mono', monospace;
+      font-size: 13px; font-weight: 600;
+      color: var(--cyan); letter-spacing: -0.2px;
+    }
+    .skill-name::before { content: '/'; opacity: .5; }
+    .skill-card-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 10px; font-weight: 600; letter-spacing: .03em;
+      padding: 2px 7px; border-radius: 99px; white-space: nowrap;
+    }
+    .badge-composite { background: rgba(167,139,250,.15); color: var(--violet); border: 1px solid rgba(167,139,250,.3); }
+    .badge-category { background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }
+
+    .copy-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 24px; height: 24px; border-radius: 5px;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text-dim); cursor: pointer; transition: all .15s; flex-shrink: 0;
+    }
+    .copy-btn:hover { color: var(--text); border-color: var(--border-2); background: var(--surface-2); }
+    .copy-btn.copied { color: var(--green); border-color: rgba(74,222,128,.4); }
+
+    .skill-desc {
+      font-size: 13px; color: var(--text-muted); line-height: 1.55;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .skill-footer {
+      display: flex; align-items: center; gap: 6px; margin-top: 2px;
+    }
+
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center; padding: 64px 20px;
+      color: var(--text-muted);
+    }
+    .no-results-icon { font-size: 32px; margin-bottom: 12px; }
+    .no-results-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+
+    /* ── AGENT TABLE ────────────────────────────── */
+    .section-header {
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-size: 20px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 4px;
+    }
+    .section-sub { font-size: 13px; color: var(--text-muted); }
+
+    .agent-group { margin-bottom: 36px; }
+    .agent-group-title {
+      font-size: 12px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--text-dim); margin-bottom: 12px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+    .agent-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 8px;
+    }
+    .agent-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px 14px;
+      transition: border-color .15s;
+    }
+    .agent-card:hover { border-color: var(--border-2); }
+    .agent-name {
+      font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 600;
+      color: var(--blue); margin-bottom: 4px;
+    }
+    .agent-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .agent-tag {
+      display: inline-block; margin-top: 6px;
+      font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;
+    }
+    .agent-tag-analysis { background: rgba(96,165,250,.12); color: var(--blue); }
+    .agent-tag-execution { background: rgba(74,222,128,.12); color: var(--green); }
+    .agent-tag-forge { background: rgba(251,191,36,.12); color: var(--amber); }
+
+    /* ── HOOKS PANEL ────────────────────────────── */
+    .hooks-timeline { margin-top: 8px; }
+    .hook-event {
+      border: 1px solid var(--border); border-radius: var(--radius);
+      margin-bottom: 12px; overflow: hidden;
+    }
+    .hook-event-header {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface-2); padding: 10px 14px;
+      cursor: pointer; user-select: none;
+    }
+    .hook-event-header:hover { background: var(--surface); }
+    .hook-event-tag {
+      font-family: 'Geist Mono', monospace; font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 4px; background: rgba(34,211,238,.12);
+      color: var(--cyan);
+    }
+    .hook-event-title { font-size: 13px; font-weight: 600; flex: 1; }
+    .hook-event-subtitle { font-size: 12px; color: var(--text-dim); }
+    .hook-event-body { padding: 12px 14px; background: var(--surface); }
+    .hook-step {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 5px 0; border-bottom: 1px solid var(--border);
+      font-size: 12.5px; color: var(--text-muted);
+    }
+    .hook-step:last-child { border-bottom: none; }
+    .hook-step-num {
+      font-family: 'Geist Mono', monospace; font-size: 10px;
+      color: var(--text-dim); padding-top: 2px; min-width: 16px;
+    }
+
+    /* ── MCP PANEL ──────────────────────────────── */
+    .mcp-section { margin-bottom: 32px; }
+    .mcp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; }
+    .mcp-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px; transition: border-color .15s;
+    }
+    .mcp-card:hover { border-color: var(--border-2); }
+    .mcp-name {
+      font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 600;
+      color: var(--green); margin-bottom: 5px;
+    }
+    .mcp-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .mcp-type {
+      display: inline-block; margin-top: 8px;
+      font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;
+    }
+    .mcp-local { background: rgba(74,222,128,.12); color: var(--green); }
+    .mcp-cloud { background: rgba(96,165,250,.12); color: var(--blue); }
+
+    /* ── PLUGINS PANEL ──────────────────────────── */
+    .plugin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; }
+    .plugin-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px; transition: border-color .15s;
+    }
+    .plugin-card:hover { border-color: var(--border-2); }
+    .plugin-name { font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text); }
+    .plugin-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .plugin-tag {
+      display: inline-block; margin-top: 8px;
+      font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 99px;
+      background: var(--surface-2); color: var(--text-dim); border: 1px solid var(--border);
+    }
+
+    /* ── DIVIDER ───────────────────────────────── */
+    .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+    /* ── SCROLLBAR ─────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-2); }
+
+    /* ── RESPONSIVE ────────────────────────────── */
+    @media (max-width: 768px) {
+      :root { --sidebar-w: 0px; }
+      aside { display: none; }
+      main { padding: 16px; }
+      .skill-grid { grid-template-columns: 1fr; }
+      nav { padding: 0 12px; }
+      .nav-version { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <div class="nav-brand-icon">⚡</div>
+    Agent OS
+    <span class="nav-version">v0.7.0</span>
+  </a>
+
+  <div class="nav-tabs" id="nav-tabs">
+    <button class="nav-tab active" data-panel="skills">
+      Skills <span class="tab-count" id="tc-skills">162</span>
+    </button>
+    <button class="nav-tab" data-panel="agents">
+      Agents <span class="tab-count">40</span>
+    </button>
+    <button class="nav-tab" data-panel="hooks">
+      Hooks <span class="tab-count">7</span>
+    </button>
+    <button class="nav-tab" data-panel="mcp">
+      MCP Servers <span class="tab-count">18</span>
+    </button>
+    <button class="nav-tab" data-panel="plugins">
+      Plugins <span class="tab-count">11</span>
+    </button>
+  </div>
+
+  <div class="nav-right">
+    <a class="nav-gh-link" href="https://github.com/LucasSantana-Dev/sharekit-profile" target="_blank" rel="noopener">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      GitHub
+    </a>
+  </div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR (shown only on Skills panel) -->
+  <aside id="sidebar">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="8.5" cy="8.5" r="5.5"/><path d="m13.5 13.5 3.5 3.5"/>
+      </svg>
+      <input id="search" type="text" placeholder="Search skills…" autocomplete="off" spellcheck="false">
+    </div>
+
+    <div class="filter-row">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="composites">⚡ Composites</button>
+    </div>
+
+    <div class="sidebar-section-label">Categories</div>
+    <div id="cat-list"></div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main>
+
+    <!-- SKILLS PANEL -->
+    <div class="panel active" id="panel-skills">
+      <div class="grid-header">
+        <div>
+          <div class="grid-header-title" id="grid-title">All Skills</div>
+          <div class="grid-header-sub" id="grid-sub">162 skills across 22 categories — invoke autonomously or with /<i>name</i></div>
+        </div>
+        <div class="result-count" id="result-count"></div>
+      </div>
+      <div class="skill-grid" id="skill-grid"></div>
+    </div>
+
+    <!-- AGENTS PANEL -->
+    <div class="panel" id="panel-agents">
+      <div class="section-header">
+        <div class="section-title">Specialized Agent Types</div>
+        <div class="section-sub">40 agent types — invoke via the Agent tool, agent() in Workflows, or skills that dispatch them. Set agentType for read-only enforcement on analysis phases.</div>
+      </div>
+      <div id="agents-content"></div>
+    </div>
+
+    <!-- HOOKS PANEL -->
+    <div class="panel" id="panel-hooks">
+      <div class="section-header">
+        <div class="section-title">Hook Lifecycle</div>
+        <div class="section-sub">Shell scripts wired to tool events — zero-overhead on success (exit 0 = silent), auto-killed at timeout, logged on failure.</div>
+      </div>
+      <div id="hooks-content"></div>
+    </div>
+
+    <!-- MCP PANEL -->
+    <div class="panel" id="panel-mcp">
+      <div class="section-header">
+        <div class="section-title">MCP Servers</div>
+        <div class="section-sub">Model Context Protocol servers extend Claude Code with real-time access to external tools, APIs, and data sources.</div>
+      </div>
+      <div id="mcp-content"></div>
+    </div>
+
+    <!-- PLUGINS PANEL -->
+    <div class="panel" id="panel-plugins">
+      <div class="section-header">
+        <div class="section-title">Installed Plugins</div>
+        <div class="section-sub">Plugins extend Claude Code with new skills, MCP tools, and integrations packaged for one-step install.</div>
+      </div>
+      <div id="plugins-content"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ══ DATA ════════════════════════════════════════════════════════════════════
+
+const CATEGORIES = [
+  { id: 'session',      label: 'Session & Context',           color: '#06b6d4', guide: 'Use at the start or end of a session. wake-up and resume are daily entry points; handoff is the exit. Composites chain these automatically.' },
+  { id: 'planning',     label: 'Planning & Execution',        color: '#6366f1', guide: 'Use when scoping work before touching code. plan for non-trivial tasks; route when unsure; dispatch/orchestrate when work decomposes into independent parallel tracks.' },
+  { id: 'quality',      label: 'Code Quality & Review',       color: '#a78bfa', guide: 'Use after writing code or before merging. verify is the lightweight pre-merge gate; refactor-pipeline is the full composite for larger cleanups.' },
+  { id: 'testing',      label: 'Testing',                     color: '#22d3ee', guide: 'Reach for test-health first (read-only), then test-cleanup to prune, mutation-test to validate survivors. tdd for new features built test-first.' },
+  { id: 'debugging',    label: 'Debugging',                   color: '#f87171', guide: 'Start with debug for most bugs. Escalate to debug-deep (composite) when the issue spans CI, Sentry, and multiple services.' },
+  { id: 'security',     label: 'Security',                    color: '#fb923c', guide: 'secure before any deploy touching auth, secrets, or infra. security-sweep (composite) for a full pass. socket-audit for supply-chain risk.' },
+  { id: 'git',          label: 'Git & PR',                    color: '#4ade80', guide: 'pr-flow for the full PR cycle. merge-confidently before any merge. branch-hygiene to clean up stale branches. first-pr* for onboarding into unfamiliar repos.' },
+  { id: 'release',      label: 'Release & Deployment',        color: '#34d399', guide: 'ship for tagging a release after merge; ship-it* (composite) for the full bump → changelog → tag → deploy chain. hotfix only for production emergencies.' },
+  { id: 'architecture', label: 'Architecture & Decisions',    color: '#fbbf24', guide: 'adr-write after any significant technical decision. research-and-decide* when exploring options before deciding. grill-me to stress-test your plan.' },
+  { id: 'frontend',     label: 'Frontend & UI',               color: '#f472b6', guide: 'ui-expert for production-quality interfaces; ai-slop-audit after any AI-generated UI. design-build* for the full design-to-verified loop.' },
+  { id: 'backend',      label: 'Backend',                     color: '#94a3b8', guide: 'Reference skills — load on demand when working in that layer. supabase any time Supabase is involved.' },
+  { id: 'observability',label: 'Observability & Monitoring',  color: '#38bdf8', guide: 'observe routes to the right sub-skill. observability-bootstrap for new services. sentry when investigating a production error.' },
+  { id: 'mcp-dev',      label: 'MCP Development',             color: '#a3e635', guide: 'adt-mcp-patterns for building a new MCP server. mcp-care* for a full health check. adt-mcp-doctor when a server fails to start.' },
+  { id: 'ai-agents',    label: 'AI & Agents',                 color: '#c084fc', guide: 'adt-multi-agent for orchestrating parallel agent teams. smart-model-select before any multi-agent job. adt-eval to measure LLM output quality.' },
+  { id: 'rag',          label: 'RAG & Memory',                color: '#fb7185', guide: 'recall for a quick semantic lookup before reading files. adt-memory to persist decisions. memory-prune when the memory index feels stale.' },
+  { id: 'skill-mgmt',   label: 'Skill & Plugin Management',   color: '#60a5fa', guide: 'write-a-skill to create a new skill. skill-effectiveness-audit when a skill is being bypassed. docs-sync after editing any skill.' },
+  { id: 'repo-mgmt',    label: 'Repository Management',       color: '#34d399', guide: 'onboard-new-repo on first touch of an unfamiliar codebase. backlog to turn audit findings into a prioritized issue board. audit-deep* for full health check.' },
+  { id: 'cicd',         label: 'CI/CD',                       color: '#f59e0b', guide: 'ci-watch when PR checks are red. dep-sweep* to batch-process Dependabot/Renovate PRs. adt-schedule to define recurring automated runs.' },
+  { id: 'incident',     label: 'Incident Management',         color: '#ef4444', guide: 'incident-response to coordinate a live production issue. production-incident* for the full triage-to-fix-to-ADR chain.' },
+  { id: 'sync-docs',    label: 'Sync & Documentation',        color: '#e879f9', guide: 'docs-sync after editing any skill, standard, or hook. graphify to turn a codebase or docs folder into a queryable knowledge graph.' },
+  { id: 'performance',  label: 'Performance & Cost',          color: '#94a3b8', guide: 'token-audit for weekly spend review. smart-model-select before long or expensive tasks. rate-limit-watch auto-fires; no manual invoke needed.' },
+  { id: 'standards',    label: 'Standards & Research',        color: '#64748b', guide: 'adt-research for deep investigation before a decision. standards to load repo-specific coding standards. adt-plan-change before any multi-file edit.' },
+];
+
+const SKILLS = [
+  // ── Session & Context
+  { name: 'wake-up',              cat: 'session',       composite: false, desc: 'Compact session-bootstrap brief — answers "what was I doing, what\'s blocking, what\'s next" in ~600-900 tokens.' },
+  { name: 'session-bootstrap',    cat: 'session',       composite: true,  desc: 'Start-of-day composite. Chains wake-up → next-priority → pr-snapshot → context-pack.' },
+  { name: 'resume',               cat: 'session',       composite: false, desc: 'Rehydrate the current task from handoffs, plans, tasks, memory notes, and git state.' },
+  { name: 'context-pack',         cat: 'session',       composite: false, desc: 'Build a task-aware context bundle (relevant code + standards + past decisions) via RAG, capped at a token budget.' },
+  { name: 'context-save',         cat: 'session',       composite: false, desc: 'Capture current task state so work can be resumed later without re-discovery.' },
+  { name: 'handoff',              cat: 'session',       composite: false, desc: 'Compact the current conversation into a handoff document for another agent to pick up.' },
+  { name: 'handoff-diet',         cat: 'session',       composite: false, desc: 'Meta-skill codifying the no-wakeup-polling pattern. Reduces handoff spam by 80%.' },
+  { name: 'session-wrap-up',      cat: 'session',       composite: false, desc: 'Close out a development session by shipping work, capturing memory, and writing handoff.' },
+  { name: 'session-cleanup',      cat: 'session',       composite: false, desc: 'Clean up current session state so work can transition cleanly to the next session.' },
+  { name: 'zoom-out',             cat: 'session',       composite: false, desc: 'Tell the agent to give broader context or a higher-level perspective on unfamiliar code.' },
+  { name: 'optimize-context',     cat: 'session',       composite: false, desc: 'Optimize context usage by reducing bloat, improving token efficiency, and focusing on relevant areas.' },
+
+  // ── Planning & Execution
+  { name: 'plan',                 cat: 'planning',      composite: false, desc: 'Build a compact, validation-gated implementation plan for multi-step, risky, or ambiguous work.' },
+  { name: 'route',                cat: 'planning',      composite: false, desc: 'Decide the right skill, agent, or chain for the current request before spending tokens on the wrong path.' },
+  { name: 'next-priority',        cat: 'planning',      composite: false, desc: 'Decide the highest-value safe thing to do right now in the active repo or workspace.' },
+  { name: 'loop',                 cat: 'planning',      composite: false, desc: 'Default execution rhythm — inspect → act → verify → checkpoint — applied iteratively until done.' },
+  { name: 'dispatch',             cat: 'planning',      composite: false, desc: 'Split cleanly separable investigation work into parallel tracks, then reconcile results.' },
+  { name: 'orchestrate',          cat: 'planning',      composite: false, desc: 'Coordinate multi-agent teams, multi-step or multi-repo work across plans, skills, worktrees, and parallel investigations.' },
+  { name: 'add',                  cat: 'planning',      composite: false, desc: 'Add a feature, test, config, doc, or automation safely with clear scope and validation.' },
+  { name: 'scope-and-execute',    cat: 'planning',      composite: true,  desc: 'Understand a problem, plan the work, execute it, and ship it in one chained workflow.' },
+  { name: 'parallel-investigate', cat: 'planning',      composite: false, desc: 'Fan out N independent investigations as parallel agents in a single tool-use block, then roll up results.' },
+  { name: 'parallel-phases',      cat: 'planning',      composite: true,  desc: 'Take a phased plan with independent tasks per phase, fan out agents per wave, gate between phases.' },
+  { name: 'subagent-driven-development', cat: 'planning', composite: false, desc: 'Execute implementation plans with independent tasks using parallel subagents in the current session.' },
+  { name: 'feature-from-zero',    cat: 'planning',      composite: true,  desc: 'Mega-composite — full greenfield feature from idea to live: research → scope → design → test → merge → ship.' },
+  { name: 'fallback',             cat: 'planning',      composite: false, desc: 'Recover cleanly when the preferred tool, skill, or path fails.' },
+
+  // ── Code Quality & Review
+  { name: 'code-review',          cat: 'quality',       composite: false, desc: 'Code review that prioritizes bugs, regressions, security issues, and logic errors over style.' },
+  { name: 'refactor',             cat: 'quality',       composite: false, desc: 'Surgical code improvement without changing behavior — eliminate code smells while preserving behavior.' },
+  { name: 'refactor-plan',        cat: 'quality',       composite: false, desc: 'Plan a multi-file refactor with proper sequencing and rollback steps.' },
+  { name: 'refactor-pipeline',    cat: 'quality',       composite: true,  desc: 'Safely refactor a module end-to-end: plan → three-man-team → fix-the-suite → ADR → docs-sync.' },
+  { name: 'verify',               cat: 'quality',       composite: false, desc: 'Run the narrowest meaningful validation sequence before merge, release, or handoff.' },
+  { name: 'verify-before-done',   cat: 'quality',       composite: true,  desc: 'Pre-ship verification gate: lint/type/build → tests → coverage → Sonar → CI → Sentry.' },
+  { name: 'quality-assurance',    cat: 'quality',       composite: false, desc: 'Choose and sequence the right QA skills and checks for a change or release.' },
+  { name: 'quality-gates',        cat: 'quality',       composite: false, desc: 'Run repository-native verification gates such as lint, type-check, and tests.' },
+  { name: 'improve-codebase-architecture', cat: 'quality', composite: false, desc: 'Find deepening opportunities informed by CONTEXT.md and ADRs — refactoring, testability, module consolidation.' },
+  { name: 'impeccable',           cat: 'quality',       composite: false, desc: 'Polish frontend interfaces: UX review, visual hierarchy, accessibility, responsive behavior, design systems.' },
+  { name: 'simplify',             cat: 'quality',       composite: false, desc: 'Review changed code for reuse, simplification, efficiency, and altitude cleanups, then apply the fixes.' },
+
+  // ── Testing
+  { name: 'tdd',                  cat: 'testing',       composite: false, desc: 'Test-driven development with red-green-refactor loop — write failing tests first, implement, refactor.' },
+  { name: 'test-health',          cat: 'testing',       composite: false, desc: 'Read-only diagnostic reporting the state of a project\'s test suite — count, coverage, runtime, flakiness, dead tests.' },
+  { name: 'test-cleanup',         cat: 'testing',       composite: false, desc: 'Audit and prune a bloated test suite down to minimum tests that hit coverage threshold and guard real behavior.' },
+  { name: 'generate-tests',       cat: 'testing',       composite: false, desc: 'Analyze code changes and propose or generate meaningful tests that cover the change.' },
+  { name: 'coverage-gap',         cat: 'testing',       composite: false, desc: 'Find and fill test coverage gaps for a PR by analyzing diffs and writing new tests.' },
+  { name: 'mutation-test',        cat: 'testing',       composite: false, desc: 'Run mutation testing to verify tests actually catch failures when source code is broken.' },
+  { name: 'fix-the-suite',        cat: 'testing',       composite: true,  desc: 'Diagnose, repair, and validate a test suite: test-health → config-drift → test-cleanup → mutation-test → ADR.' },
+  { name: 'backend-testing',      cat: 'testing',       composite: false, desc: 'Comprehensive backend testing guidance for unit, integration, authentication, and API tests.' },
+  { name: 'webapp-testing',       cat: 'testing',       composite: false, desc: 'Test a local web application with Playwright-based scripts, screenshots, and interaction flows.' },
+  { name: 'playwright-best-practices', cat: 'testing',  composite: false, desc: 'Playwright testing guidance — E2E, component, API, visual, accessibility, security, and Electron testing.' },
+  { name: 'performance-test',     cat: 'testing',       composite: false, desc: 'Identify performance bottlenecks and gather metrics under realistic load.' },
+
+  // ── Debugging
+  { name: 'debug',                cat: 'debugging',     composite: false, desc: 'Systematic root-cause analysis for bugs, errors, and unexpected behavior.' },
+  { name: 'debug-deep',           cat: 'debugging',     composite: true,  desc: 'Full composite for complex multi-service bugs: Sentry → CI logs → code trace → fix → regression test.' },
+  { name: 'systematic-debugging', cat: 'debugging',     composite: false, desc: 'Apply the 4-phase debugging protocol: observe → hypothesize → isolate → fix. Blocks rationalization attempts.' },
+  { name: 'diagnosing-bugs',      cat: 'debugging',     composite: false, desc: 'Structured bug diagnosis workflow — reproduce, isolate root cause, document evidence before touching code.' },
+
+  // ── Security
+  { name: 'secure',               cat: 'security',      composite: false, desc: 'Run a security-first pass for config, credentials, dependency risk, and unsafe operational shortcuts.' },
+  { name: 'security-audit',       cat: 'security',      composite: false, desc: 'Broad security audit across secrets, dependencies, code paths, and OWASP risks.' },
+  { name: 'security-scan',        cat: 'security',      composite: false, desc: 'Run concrete security scanning steps including Trivy, npm audit, and secrets detection.' },
+  { name: 'security-sweep',       cat: 'security',      composite: true,  desc: 'Full security pass: security-audit + socket-audit + semgrep + code-security in parallel.' },
+  { name: 'semgrep',              cat: 'security',      composite: false, desc: 'Run Semgrep static analysis scans and create custom detection rules for pattern-based scanning.' },
+  { name: 'socket-audit',         cat: 'security',      composite: false, desc: 'Run Socket.dev supply chain security audit on npm dependencies for malicious packages and typosquatting.' },
+  { name: 'sonar-check',          cat: 'security',      composite: false, desc: 'Pre-push SonarCloud gate preflight — scans for ReDoS, SSRF, and coverage gaps.' },
+  { name: 'config-drift-detect',  cat: 'security',      composite: false, desc: 'Audit project gates (jest/vitest thresholds, tsconfig, eslint, husky, Sonar, branch protection) for drift.' },
+
+  // ── Git & PR
+  { name: 'pr-flow',              cat: 'git',           composite: false, desc: 'Full PR lifecycle management — create, update, review, and merge with proper conventions.' },
+  { name: 'pr-merge-readiness',   cat: 'git',           composite: false, desc: 'Combined verdict before merge: CI status, review state, coverage, Sonar, and conflict check.' },
+  { name: 'pr-snapshot',          cat: 'git',           composite: false, desc: 'Snapshot of all open PRs across repos — status, staleness, merge-readiness, and blocking issues.' },
+  { name: 'merge-confidently',    cat: 'git',           composite: false, desc: 'Run all pre-merge checks and confirm safety before committing the merge.' },
+  { name: 'branch-hygiene',       cat: 'git',           composite: true,  desc: 'One-pass cleanup of stale local branches, dead worktrees, merged branches, and abandoned remote PR branches.' },
+  { name: 'using-git-worktrees',  cat: 'git',           composite: false, desc: 'Create isolated git worktrees for feature work that should not reuse the main checkout.' },
+  { name: 'gh-address-comments',  cat: 'git',           composite: false, desc: 'Address review comments on the open GitHub PR for the current branch.' },
+  { name: 'gh-fix-ci',            cat: 'git',           composite: false, desc: 'Debug and fix failing GitHub PR checks.' },
+  { name: 'first-pr',             cat: 'git',           composite: true,  desc: 'Land a safe first PR in an unfamiliar repo: onboard → context-pack → scope → TDD → PR.' },
+  { name: 'hotfix',               cat: 'git',           composite: true,  desc: 'Emergency bypass of release branch when production is broken and can\'t wait for next release.' },
+
+  // ── Release & Deployment
+  { name: 'ship',                 cat: 'release',       composite: false, desc: 'Ship validated changes — tag, GitHub release, and post-ship verification.' },
+  { name: 'ship-it',              cat: 'release',       composite: true,  desc: 'Take a merged PR all the way to production: version-bump → changelog → tag → deploy → verify.' },
+  { name: 'release-cut',          cat: 'release',       composite: true,  desc: 'Promote release branch to main, cut a version, clean up. Batches many PRs into one release.' },
+  { name: 'version-bump',         cat: 'release',       composite: false, desc: 'Automate version bumping in npm monorepos with CHANGELOG promotion and PR automation.' },
+  { name: 'changelog-update',     cat: 'release',       composite: false, desc: 'Update CHANGELOG.md by promoting [Unreleased] content to a versioned section.' },
+  { name: 'deployment-automation',cat: 'release',       composite: false, desc: 'Automate application deployment to cloud platforms and servers.' },
+  { name: 'vercel-deploy',        cat: 'release',       composite: false, desc: 'Deploy applications and websites to Vercel.' },
+  { name: 'cloudflare-deploy',    cat: 'release',       composite: false, desc: 'Deploy applications and infrastructure to Cloudflare — Workers, Pages, KV, R2.' },
+  { name: 'prod-rebuild',         cat: 'release',       composite: false, desc: 'Rebuild and restart production Docker services on remote server with async monitoring.' },
+  { name: 'repo-bootstrap',       cat: 'release',       composite: true,  desc: 'Configure a fresh repo for the release-branch workflow: create release branch, CHANGELOG, dep-sweep config, PR.' },
+
+  // ── Architecture & Decisions
+  { name: 'adr-write',            cat: 'architecture',  composite: false, desc: 'Capture an Architecture Decision Record — what was decided, why, alternatives, when to revisit.' },
+  { name: 'adr-gap',              cat: 'architecture',  composite: false, desc: 'Find decisions that should have an ADR but don\'t — scan code for undocumented architectural choices.' },
+  { name: 'research-and-decide',  cat: 'architecture',  composite: true,  desc: 'Composite — research → critic challenge → plan → ADR. Forces the research-to-decision pairing.' },
+  { name: 'grill-me',             cat: 'architecture',  composite: false, desc: 'Interview the user relentlessly about a plan or design until reaching shared understanding.' },
+  { name: 'grill-with-docs',      cat: 'architecture',  composite: false, desc: 'Grilling session that challenges your plan against the existing domain model and updates documentation inline.' },
+  { name: 'brainstorming',        cat: 'architecture',  composite: false, desc: 'Facilitate collaborative idea exploration and turn rough concepts into structured proposals.' },
+  { name: 'api-design-principles',cat: 'architecture',  composite: false, desc: 'Master REST and GraphQL API design principles for intuitive, scalable APIs.' },
+  { name: 'architecture-patterns',cat: 'architecture',  composite: false, desc: 'Choose and apply backend architecture patterns — Clean Architecture, DDD, CQRS, and more.' },
+  { name: 'prototype',            cat: 'architecture',  composite: false, desc: 'Build a throwaway prototype to flesh out a design before committing.' },
+  { name: 'domain-modeling',      cat: 'architecture',  composite: false, desc: 'Model the domain layer with entities, value objects, aggregates, and invariants.' },
+  { name: 'codebase-design',      cat: 'architecture',  composite: false, desc: 'Analyze and improve the overall design and structure of the codebase.' },
+
+  // ── Frontend & UI
+  { name: 'repaint',              cat: 'frontend',      composite: false, desc: 'Single entry point for ALL frontend building/restyling — any page, component, dashboard, hero, pricing section, or data table.' },
+  { name: 'ui-expert',            cat: 'frontend',      composite: false, desc: 'Build production-grade frontend interfaces that look like Linear, Vercel, Stripe, or Notion — not generic LLM output.' },
+  { name: 'frontend-design',      cat: 'frontend',      composite: false, desc: 'Create bold, art-directed frontend interfaces for explicitly creative or expressive work.' },
+  { name: 'design-build',         cat: 'frontend',      composite: true,  desc: 'Design, scaffold, build, and verify a UI: ui-audit → shadcn/tailwind → impeccable → webapp-testing.' },
+  { name: 'shadcn',               cat: 'frontend',      composite: false, desc: 'Manage shadcn components — adding, searching, fixing, debugging, and configuration.' },
+  { name: 'tailwind-design-system',cat: 'frontend',     composite: false, desc: 'Tailwind CSS v4 design-system guidance for tokens, theming, and component patterns.' },
+  { name: 'ai-slop-audit',        cat: 'frontend',      composite: false, desc: 'Post-generation QA pass that lints frontend output against known "AI made that" anti-patterns.' },
+  { name: 'design-an-interface',  cat: 'frontend',      composite: false, desc: 'Design a UI interface with structured spec, layout decisions, and component breakdown.' },
+
+  // ── Backend
+  { name: 'docker-expert',        cat: 'backend',       composite: false, desc: 'Production-focused Docker guidance for image design, multi-stage builds, and orchestration.' },
+  { name: 'turborepo',            cat: 'backend',       composite: false, desc: 'Turborepo monorepo guidance for task modeling, caching, filtering, and CI integration.' },
+  { name: 'supabase-postgres-best-practices', cat: 'backend', composite: false, desc: 'Postgres performance optimization and best practices from Supabase.' },
+  { name: 'supabase',             cat: 'backend',       composite: false, desc: 'Use for ANY task involving Supabase — Database, Auth, Edge Functions, Realtime, Storage, RLS, migrations.' },
+  { name: 'prisma-migrate',       cat: 'backend',       composite: false, desc: 'Run Prisma migrations safely with pre-flight checks and rollback guidance.' },
+  { name: 'trigger-dev',          cat: 'backend',       composite: false, desc: 'Build AI agents, workflows, and durable background tasks with Trigger.dev.' },
+
+  // ── Observability & Monitoring
+  { name: 'observe',              cat: 'observability', composite: false, desc: 'Unified entry point for observability + monitoring work — routes to the right family member.' },
+  { name: 'observability-bootstrap', cat: 'observability', composite: true, desc: 'Set up complete observability for a new service: implement all 4 pillars → SLOs + alerts → smoke-test.' },
+  { name: 'observability-audit',  cat: 'observability', composite: true,  desc: 'Audit observability of an existing service: analyze → debug → tune → implement gaps → monitoring setup.' },
+  { name: 'observability-implement', cat: 'observability', composite: false, desc: 'Add observability to code that lacks it — structured logs, metrics, traces, error reporting (OTEL, Prometheus, Sentry).' },
+  { name: 'observability-debug',  cat: 'observability', composite: false, desc: 'Diagnose broken observability — flapping alerts, missing signals, broken trace propagation.' },
+  { name: 'langfuse-observe',     cat: 'observability', composite: false, desc: 'Set up Langfuse LLM observability to trace Claude API calls with costs, tokens, and latency.' },
+  { name: 'sentry',               cat: 'observability', composite: false, desc: 'Inspect Sentry issues or events, summarize errors, correlate with recent deploys.' },
+
+  // ── MCP Development
+  { name: 'mcp-builder',          cat: 'mcp-dev',       composite: false, desc: 'Guide for creating high-quality MCP servers from scratch.' },
+  { name: 'mcp-audit',            cat: 'mcp-dev',       composite: false, desc: 'Read-only diagnostic — scan session transcripts to surface which MCP servers/tools you actually use. Flag zero-use servers.' },
+  { name: 'mcp-care',             cat: 'mcp-dev',       composite: true,  desc: 'Full MCP server lifecycle audit and repair: mcp-audit → mcp-health → mcp-doctor → mcp-builder suggestions.' },
+  { name: 'adt-mcp-health',       cat: 'mcp-dev',       composite: false, desc: 'Validate live MCP provider health — separate config issues from auth and connectivity failures.' },
+  { name: 'hook-development',     cat: 'mcp-dev',       composite: false, desc: 'Create hooks for Claude Code plugins — hook events, config, exit codes, stdin/stdout contracts.' },
+  { name: 'hook-effectiveness',   cat: 'mcp-dev',       composite: false, desc: 'Audit Claude Code hooks for fire frequency, latency, exit codes, and output value. Run after wiring new hooks.' },
+
+  // ── AI & Agents
+  { name: 'ai-sdk',               cat: 'ai-agents',     composite: false, desc: 'Answer questions about the AI SDK and help build AI-powered features.' },
+  { name: 'smart-model-select',   cat: 'ai-agents',     composite: false, desc: 'Pick the lightest model or reasoning tier that can do the task well.' },
+  { name: 'agent-browser',        cat: 'ai-agents',     composite: false, desc: 'Run ref-based browser automation with agent-browser for quick navigation and scraping.' },
+  { name: 'efficiency-advisor',   cat: 'ai-agents',     composite: false, desc: 'Analyze a proposed multi-agent workflow for token waste and time bottlenecks.' },
+
+  // ── RAG & Memory
+  { name: 'recall',               cat: 'rag',           composite: false, desc: 'One-shot semantic lookup against the local RAG index — fuzzy, cross-file, or about prior reasoning.' },
+  { name: 'adt-rag',              cat: 'rag',           composite: false, desc: 'Build and debug Retrieval-Augmented Generation pipelines — chunking, embedding, retrieval, reranking.' },
+  { name: 'adt-rag-coverage',     cat: 'rag',           composite: false, desc: 'Audit corpus distribution by source type and repo; identify coverage gaps and underindexed topics.' },
+  { name: 'adt-rag-drift',        cat: 'rag',           composite: false, desc: 'Detect and fix stale chunks — files that changed or were deleted since last indexing.' },
+  { name: 'sync-memories',        cat: 'rag',           composite: false, desc: 'Sync durable project or session knowledge into the available memory systems.' },
+  { name: 'memory-prune',         cat: 'rag',           composite: false, desc: 'Audit project memory files for stale entries — where cited PRs merged, bugs fixed, or files no longer exist.' },
+  { name: 'knowledge-loop',       cat: 'rag',           composite: true,  desc: 'Query, capture, improve, and persist knowledge: recall → sync-memories → rag-curate → handoff.' },
+  { name: 'rag-quality',          cat: 'rag',           composite: false, desc: 'Evaluate retrieval quality from the local RAG index.' },
+
+  // ── Skill & Plugin Management
+  { name: 'find-skills',          cat: 'skill-mgmt',    composite: false, desc: 'Discover relevant installable skills from the available skill ecosystem.' },
+  { name: 'skill-creator',        cat: 'skill-mgmt',    composite: false, desc: 'Create or update installed skills with clear trigger descriptions, stable naming, and SKILL.md structure.' },
+  { name: 'skill-maintainer',     cat: 'skill-mgmt',    composite: false, desc: 'Audit, normalize, merge, and improve the local skill catalog so routing stays clear and useful.' },
+  { name: 'skill-effectiveness-audit', cat: 'skill-mgmt', composite: false, desc: 'Scan session JSONLs for skills that bailed, returned "out of scope", or ran diagnostics without action.' },
+  { name: 'plugin-audit',         cat: 'skill-mgmt',    composite: false, desc: 'Read-only diagnostic — flag enabled plugins with zero usage, unregistered plugins, disabled-but-installed plugins.' },
+  { name: 'docs-sync',            cat: 'skill-mgmt',    composite: false, desc: 'Detect and reconcile drift between canonical skills/standards and their mirrored copies.' },
+  { name: 'harness-audit',        cat: 'skill-mgmt',    composite: false, desc: 'Audit the full Claude Code harness for drift, stale skills, misconfigured hooks, and dead agents.' },
+
+  // ── Repository Management
+  { name: 'onboard-new-repo',     cat: 'repo-mgmt',     composite: true,  desc: 'First-touch workflow: adt-repo-intake → audit-deep → config-drift-detect → init CLAUDE.md.' },
+  { name: 'backlog',              cat: 'repo-mgmt',     composite: true,  desc: 'End-to-end backlog builder: audit-deep → ROI-rank → specs → plan → GitHub issues → project board.' },
+  { name: 'triage',               cat: 'repo-mgmt',     composite: false, desc: 'Triage issues through a state machine driven by triage roles.' },
+  { name: 'to-issues',            cat: 'repo-mgmt',     composite: false, desc: 'Break a plan, spec, or PRD into independently-grabbable GitHub issues using vertical slices.' },
+  { name: 'to-prd',               cat: 'repo-mgmt',     composite: false, desc: 'Turn the current conversation context into a PRD and publish it to the project issue tracker.' },
+  { name: 'audit-deep',           cat: 'repo-mgmt',     composite: true,  desc: 'Full project health check across testing, config, hooks, performance, security, MCP, and plugins.' },
+  { name: 'ecosystem-health',     cat: 'repo-mgmt',     composite: false, desc: 'Scan a workspace or monorepo and return a raw health snapshot of repos, packages, and CI.' },
+  { name: 'repo-state-snapshot',  cat: 'repo-mgmt',     composite: false, desc: 'Take a labeled snapshot of repo state (SHA, open issues, open PRs, latest release) and diff against prior.' },
+
+  // ── CI/CD
+  { name: 'ci-watch',             cat: 'cicd',          composite: false, desc: 'Inspect current CI state, identify the first real blocker, and monitor until checks are green or understood.' },
+  { name: 'dep-sweep',            cat: 'cicd',          composite: true,  desc: 'Batch-process open Dependabot/Renovate PRs: group by risk → auto-merge safe → flag risky.' },
+
+  // ── Incident Management
+  { name: 'incident-response',    cat: 'incident',      composite: false, desc: 'Coordinate incident response using Sentry, Linear, and GitHub to triage, correlate, and track production issues.' },
+  { name: 'production-incident',  cat: 'incident',      composite: true,  desc: 'Full production incident workflow: sentry → debug-deep → incident-response → ship-it → ADR.' },
+
+  // ── Sync & Documentation
+  { name: 'graphify',             cat: 'sync-docs',     composite: false, desc: 'Turn any folder of files into a navigable knowledge graph. Use for any codebase or document question.' },
+  { name: 'dev-assets-sync',      cat: 'sync-docs',     composite: false, desc: 'Run the dev-assets backup sync — rsyncs Claude configs, memories, standards, hooks, and per-project files.' },
+  { name: 'sync-sharekit-profile',cat: 'sync-docs',     composite: false, desc: 'Sync this harness profile to its remote repository (skills, standards, hooks, config).' },
+
+  // ── Performance & Cost
+  { name: 'token-audit',          cat: 'performance',   composite: false, desc: 'Analyze historical Claude Code token usage from session JSONL files — spend, cache hit rates, weekly trends.' },
+  { name: 'smart-commands',       cat: 'performance',   composite: false, desc: 'Decision guide for when to proactively use Claude Code slash commands — /think, /model, /compact, /clear.' },
+  { name: 'insights',             cat: 'performance',   composite: false, desc: 'Generate a productivity or usage insights report for Claude Code sessions.' },
+  { name: 'metrics',              cat: 'performance',   composite: false, desc: 'Show concrete productivity metrics and session analytics — tokens, tasks, time, and PR throughput.' },
+
+  // ── Standards & Research
+  { name: 'standards',            cat: 'standards',     composite: false, desc: 'Access and apply project coding and workflow standards.' },
+  { name: 'adt-research',         cat: 'standards',     composite: false, desc: 'Deep research on a topic using web search, docs, and codebase analysis.' },
+  { name: 'automation-workflows', cat: 'standards',     composite: false, desc: 'Design reusable automation for repetitive development loops.' },
+  { name: 'brainstorming',        cat: 'standards',     composite: false, desc: 'Facilitate collaborative idea exploration and turn rough concepts into structured proposals.' },
+];
+
+const AGENTS = [
+  // Analysis
+  { name: 'architect',            type: 'analysis',  desc: 'Audit and improve codebase architecture. Chains coupling analysis → orphan hunt → deepening → domain → critic → ADR. Read-only.' },
+  { name: 'code-reviewer',        type: 'analysis',  desc: 'Severity-rated code review: logic defects, SOLID principles, style, performance. Read-only.' },
+  { name: 'critic',               type: 'analysis',  desc: 'Work plan and code review expert — thorough, multi-perspective. Powered by Opus.' },
+  { name: 'decision-critic',      type: 'analysis',  desc: 'Artifact-only adversarial reviewer for DECISIONS. Reasons solely on the artifact — no evidence-gathering tools.' },
+  { name: 'document-specialist',  type: 'analysis',  desc: 'External documentation & reference specialist. Read-only.' },
+  { name: 'efficiency-advisor',   type: 'analysis',  desc: 'Analyze proposed multi-agent workflows for token waste and time bottlenecks.' },
+  { name: 'explore',              type: 'analysis',  desc: 'Fast read-only search agent for locating code, files, and symbols. Quick/medium/very thorough sweep modes.' },
+  { name: 'scientist',            type: 'analysis',  desc: 'Data analysis and research execution specialist.' },
+  { name: 'security-reviewer',    type: 'analysis',  desc: 'Security vulnerability detection: OWASP Top 10, secrets, unsafe patterns. Read-only.' },
+  { name: 'overengineering-auditor', type: 'analysis', desc: 'Flag code heavier than its problem — single-impl abstractions, speculative generalization, premature optimization.' },
+  // Execution
+  { name: 'backlog-manager',      type: 'execution', desc: 'Build ROI-ranked, deduped backlogs from parallel repo analysis to GitHub issues on a Project board.' },
+  { name: 'ci-fixer',             type: 'execution', desc: 'Diagnose and fix failing GitHub CI on your own PRs. Fetches Actions logs, drafts fix plan, implements after approval.' },
+  { name: 'code-simplifier',      type: 'execution', desc: 'Simplify and refine code for clarity, consistency, and maintainability while preserving all functionality.' },
+  { name: 'debugger',             type: 'execution', desc: 'Root-cause analysis, regression isolation, stack trace analysis, build/compilation error resolution.' },
+  { name: 'deep-auditor',         type: 'execution', desc: 'Composite health audit: test-health, config-drift, hook-effectiveness, security, MCP, plugin, socket — all in parallel.' },
+  { name: 'designer',             type: 'execution', desc: 'UI/UX Designer-Developer for stunning interfaces. Powered by Sonnet.' },
+  { name: 'git-master',           type: 'execution', desc: 'Git expert for atomic commits, rebasing, and history management with style detection.' },
+  { name: 'handoff-writer',       type: 'execution', desc: 'Capture active work state before budget runs low or switching projects. Writes resume packet to handoffs dir.' },
+  { name: 'issue-triager',        type: 'execution', desc: 'Move issues through triage state machine — needs-triage → needs-info | ready-for-agent | ready-for-human | wontfix.' },
+  { name: 'mcp-tool-dev',         type: 'execution', desc: 'MCP tool development specialist. Expert in implementing, registering, and debugging MCP tools.' },
+  { name: 'mutation-tester',      type: 'execution', desc: 'Run mutation testing to verify tests actually catch broken behavior. Installs framework if needed.' },
+  { name: 'parallel-implementer', type: 'execution', desc: 'Execute plans by dispatching one agent per task with mandatory two-stage review after each task.' },
+  { name: 'phase-runner',         type: 'execution', desc: 'Fan out one agent per task per phase, reconcile per wave, gate between phases, emit phase × outcome report.' },
+  { name: 'pr-reviewer',          type: 'execution', desc: 'Two-axis review of a git diff — Standards (conventions?) and Spec (matches issue/PRD?). Parallel sub-agents.' },
+  { name: 'rag-evaluator',        type: 'execution', desc: 'Run retrieval regression gates against current repo state. Compares Hit@5, MRR, and per-intent metrics.' },
+  { name: 'refactor-orchestrator',type: 'execution', desc: 'Orchestrate end-to-end refactors across 6 phases with RAG pre-flight, critic gate, 3-agent execution, two-stage review.' },
+  { name: 'research-decider',     type: 'execution', desc: 'Evaluate library/pattern/architecture choices end-to-end: research → critic challenge → plan → ADR → index.' },
+  { name: 'systematic-debugger',  type: 'execution', desc: 'Apply 4-phase systematic debugging. Enforces root-cause investigation before proposing any fix.' },
+  { name: 'tdd-practitioner',     type: 'execution', desc: 'Enforce TDD discipline: write failing tests first, watch them fail, implement minimal code, refactor under green.' },
+  { name: 'team-coordinator',     type: 'execution', desc: 'Decompose a task into parallel workstreams, assign agent ownership, run integration at dependency boundaries.' },
+  { name: 'test-engineer',        type: 'execution', desc: 'Test strategy, integration/e2e coverage, flaky test hardening, TDD workflows.' },
+  { name: 'tracer',               type: 'execution', desc: 'Evidence-driven causal tracing with competing hypotheses, evidence for/against, and next-probe recommendations.' },
+  { name: 'writer',               type: 'execution', desc: 'Technical documentation writer for README, API docs, and comments. Powered by Haiku.' },
+  { name: 'xp-navigator',         type: 'execution', desc: 'Drive Extreme Programming pair development cycles — plan → test → implement → refactor → release.' },
+  // Forge ecosystem
+  { name: 'ecosystem-coordinator',type: 'forge',     desc: 'Master coordinator for Forge Space ecosystem — orchestrates forge-patterns, mcp-gateway, uiforge-mcp, and webapp specialists.' },
+  { name: 'forge-patterns-expert',type: 'forge',     desc: 'Expert for Forge-Space forge-patterns repo — pattern library, shared configurations, MCP context server, security framework.' },
+  { name: 'mcp-gateway-specialist',type: 'forge',    desc: 'Expert for forge-mcp-gateway — central hub for MCP aggregation, routing, authentication, and API management.' },
+  { name: 'uiforge-mcp-architect',type: 'forge',     desc: 'Expert for uiforge-mcp — specialized MCP server for UI generation, template management, and AI-powered components.' },
+  { name: 'webapp-developer',     type: 'forge',     desc: 'Expert for uiforge-webapp — management interface for UIForge ecosystem with Supabase, React, and UX design.' },
+];
+
+const HOOKS = [
+  {
+    event: 'SessionStart',
+    tag: 'ONCE',
+    title: 'Session initialization',
+    subtitle: 'Fires once when Claude Code starts',
+    steps: [
+      'Log session start timestamp and project context',
+      'Pull latest memories + ADRs from ~/.claude-env (sync)',
+      'Merge stale RAG chunks into live index',
+      'Detect and reindex drifted files',
+      'Alert if main branch has drifted from remote',
+      'Alert if memory index is oversized (>200 entries)',
+    ]
+  },
+  {
+    event: 'UserPromptSubmit',
+    tag: 'EVERY PROMPT',
+    title: 'Per-prompt automation chain',
+    subtitle: 'Fires on every user message — zero-overhead when all pass',
+    steps: [
+      'Auto-recall: semantic search RAG index, inject # Knowledge graph context block',
+      'Classify prompt complexity (simple / moderate / complex / xcomplex)',
+      'Emit model tier hint (Haiku → Sonnet → Opus)',
+      'Log turn count and context fill percentage',
+      'Warn if context >85%, suggest /compact',
+      'If intent matches composite: emit 🎯 Composite match: /<name>',
+      'Warn if on release branch (non-hotfix work)',
+    ]
+  },
+  {
+    event: 'PreToolUse [Bash]',
+    tag: 'SAFETY GATE',
+    title: 'Bash safety filter',
+    subtitle: 'Blocks dangerous or wasteful shell commands',
+    steps: [
+      'Block destructive patterns: rm -rf, sudo rm, git reset --hard, etc.',
+      'Block writes to protected paths (~/.ssh, /etc, /usr)',
+      'Flag cat/head/tail on files that should use the Read tool',
+    ]
+  },
+  {
+    event: 'PreToolUse [Read]',
+    tag: 'SAFETY GATE',
+    title: 'Read dedup guard',
+    subtitle: 'Prevents re-reading the same file twice in a session',
+    steps: [
+      'Track every file read in session state',
+      'Block re-read of a file already in context with the same offset',
+      'Emit "already read — use context" hint instead',
+    ]
+  },
+  {
+    event: 'PostToolUse',
+    tag: 'OBSERVE',
+    title: 'Post-tool observation layer',
+    subtitle: 'Fires after every tool call to log, observe, and validate',
+    steps: [
+      '[Bash] Detect missed read-tool-kick opportunities (cat/head on code files)',
+      '[Read] Warn if file >25KB read in full; log which files read',
+      '[Write|Edit] Reindex changed files into RAG',
+      '[Write|Edit] Validate skill writes (frontmatter, structure)',
+      '[Edit] Warn if >3 edits in one turn (possible loop)',
+      '[*] Log turn count, check token budget against limits',
+    ]
+  },
+  {
+    event: 'PreCompact / PostCompact',
+    tag: 'CONTEXT',
+    title: 'Context compaction checkpoints',
+    subtitle: 'Fires before and after /compact to preserve state',
+    steps: [
+      'PreCompact: snapshot current task state, active plan ref, and open PRs',
+      'PostCompact: reload essential context (handoff, active plan, blocking PRs)',
+    ]
+  },
+  {
+    event: 'Stop / SessionEnd',
+    tag: 'CLEANUP',
+    title: 'Session close-out',
+    subtitle: 'Fires when Claude Code stops or the session ends',
+    steps: [
+      'Log total token usage and cache hit rate for the session',
+      'Check rate limits; warn if approaching quota',
+      'Sync RAG index and memories to persistent storage (~/.claude-env)',
+      'Write session summary to session log',
+    ]
+  },
+];
+
+const MCP_SERVERS = [
+  // Local
+  { name: 'rag-index',     type: 'local', desc: 'Semantic search on local knowledge base — skills, standards, ADRs, docs. Core of the auto-recall system.' },
+  { name: 'tavily',        type: 'local', desc: 'Web search with structured results for research tasks.' },
+  { name: 'fetch',         type: 'local', desc: 'Fetch URLs and scrape web content for documentation and research.' },
+  { name: 'firecrawl',     type: 'local', desc: 'Advanced web scraping, crawling, and content extraction.' },
+  { name: 'sonarqube',     type: 'local', desc: 'Code quality analysis — complexity, coverage gaps, security hotspots.' },
+  { name: 'graphify',      type: 'local', desc: 'Knowledge graph queries over indexed codebases and document sets.' },
+  // Cloud (via claude.ai)
+  { name: 'Context7',      type: 'cloud', desc: 'Fetch current documentation for any library, framework, SDK, API, or CLI tool — use before answering library questions.' },
+  { name: 'GitHub',        type: 'cloud', desc: 'Full GitHub API — repos, issues, PRs, comments, reviews, code search, branch management.' },
+  { name: 'Vercel',        type: 'cloud', desc: 'Deployments, projects, build logs, runtime errors, toolbar threads, domain availability.' },
+  { name: 'Sentry',        type: 'cloud', desc: 'Issue triage, event search, AI analysis (Seer), organization and project management.' },
+  { name: 'Linear',        type: 'cloud', desc: 'Issue tracking, project management, and team workflow automation.' },
+  { name: 'Supabase',      type: 'cloud', desc: 'Database queries, schema management, Edge Functions, and project administration.' },
+  { name: 'Cloudflare',    type: 'cloud', desc: 'Workers, D1 databases, KV namespaces, R2 buckets, Hyperdrive configuration.' },
+  { name: 'Playwright',    type: 'cloud', desc: 'Browser automation — navigate, click, fill forms, screenshot, evaluate JS, handle dialogs.' },
+  { name: 'Filesystem',    type: 'cloud', desc: 'Extended filesystem operations with size info, media reading, and directory trees.' },
+  { name: 'codebase-memory', type: 'cloud', desc: 'Index and query codebase architecture, search code, trace paths, manage ADRs.' },
+  { name: 'Serena',        type: 'cloud', desc: 'Advanced code analysis — find declarations, implementations, references, diagnostics, symbol renaming.' },
+  { name: 'claude-mem',    type: 'cloud', desc: 'Persistent cross-session memory — save, search, and retrieve observations across projects.' },
+];
+
+const PLUGINS = [
+  { name: 'Vercel',         desc: 'Next.js, AI SDK, SWR, Turbopack, shadcn, agent-browser, deployment, storage, and platform patterns.', tags: ['Skills', 'MCP Tools'] },
+  { name: 'GitHub',         desc: 'gh-address-comments, gh-fix-ci, yeet — GitHub workflow automation.', tags: ['Skills'] },
+  { name: 'Firecrawl',      desc: 'Web scraping and crawling: scrape, crawl, map, search, instruct, download, agent modes.', tags: ['Skills', 'MCP Tools'] },
+  { name: 'Supabase',       desc: 'supabase skill + MCP tool integration for database, auth, and Edge Function workflows.', tags: ['Skills', 'MCP Tools'] },
+  { name: 'CodeRabbit',     desc: 'code-review and autofix skills powered by CodeRabbit AI review engine.', tags: ['Skills'] },
+  { name: 'Skill Creator',  desc: 'skill-creator skill — create or update installed skills with proper structure.', tags: ['Skills'] },
+  { name: 'Claude Code Setup', desc: 'claude-automation-recommender — recommend automations and hook patterns for Claude Code.', tags: ['Skills'] },
+  { name: 'Claude MD Management', desc: 'claude-md-improver — audit and improve CLAUDE.md files across projects.', tags: ['Skills'] },
+  { name: 'Claude Mem',     desc: 'mem-search skill + cross-session memory MCP tool via thedotmack/claude-mem.', tags: ['Skills', 'MCP Tools'] },
+  { name: 'LLM Docs Optimizer', desc: 'llm-docs-optimizer — optimize documentation for LLM consumption and RAG retrieval.', tags: ['Skills'] },
+  { name: 'Plugin Dev',     desc: 'hook-development, command-development, skill-development, plugin-structure, mcp-integration tools.', tags: ['Skills'] },
+];
+
+// ══ STATE ═══════════════════════════════════════════════════════════════════
+
+let activePanel = 'skills';
+let activeCategory = 'all';
+let activeFilter = 'all';
+let searchQuery = '';
+
+// ══ RENDER ══════════════════════════════════════════════════════════════════
+
+function getCatColor(catId) {
+  const cat = CATEGORIES.find(c => c.id === catId);
+  return cat ? cat.color : '#71717a';
+}
+
+function renderCategoryList() {
+  const container = document.getElementById('cat-list');
+  const counts = {};
+  SKILLS.forEach(s => { counts[s.cat] = (counts[s.cat] || 0) + 1; });
+
+  let html = `
+    <button class="cat-item ${activeCategory === 'all' ? 'active' : ''}" data-cat="all">
+      <span class="cat-item-dot" style="background:#71717a"></span>
+      <span class="cat-item-name">All Categories</span>
+      <span class="cat-item-count">${SKILLS.length}</span>
+    </button>
+  `;
+
+  CATEGORIES.forEach(cat => {
+    const count = counts[cat.id] || 0;
+    html += `
+      <button class="cat-item ${activeCategory === cat.id ? 'active' : ''}" data-cat="${cat.id}">
+        <span class="cat-item-dot" style="background:${cat.color}"></span>
+        <span class="cat-item-name">${cat.label}</span>
+        <span class="cat-item-count">${count}</span>
+      </button>
+    `;
+  });
+
+  container.innerHTML = html;
+  container.querySelectorAll('.cat-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeCategory = btn.dataset.cat;
+      renderAll();
+    });
+  });
+}
+
+function renderSkillGrid() {
+  let filtered = SKILLS;
+
+  if (activeCategory !== 'all') {
+    filtered = filtered.filter(s => s.cat === activeCategory);
+  }
+  if (activeFilter === 'composites') {
+    filtered = filtered.filter(s => s.composite);
+  }
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(s =>
+      s.name.toLowerCase().includes(q) ||
+      s.desc.toLowerCase().includes(q)
+    );
+  }
+
+  const cat = activeCategory === 'all' ? null : CATEGORIES.find(c => c.id === activeCategory);
+  const title = cat ? cat.label : 'All Skills';
+  const guide = cat ? cat.guide : 'Invoke autonomously or with /<name> — the composite-router auto-detects matching composites.';
+
+  document.getElementById('grid-title').textContent = title;
+  document.getElementById('grid-sub').textContent = guide;
+
+  const countEl = document.getElementById('result-count');
+  if (searchQuery || activeFilter !== 'all') {
+    countEl.textContent = `${filtered.length} result${filtered.length !== 1 ? 's' : ''}`;
+  } else {
+    countEl.textContent = '';
+  }
+
+  const grid = document.getElementById('skill-grid');
+  const catColor = cat ? cat.color : '#71717a';
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="no-results">
+        <div class="no-results-icon">◎</div>
+        <div class="no-results-title">No skills found</div>
+        <div>Try a different search term or category</div>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(skill => {
+    const skillCat = CATEGORIES.find(c => c.id === skill.cat);
+    const skillColor = skillCat ? skillCat.color : '#71717a';
+    return `
+      <div class="skill-card" style="--card-color:${skillColor}">
+        <style>
+          .skill-card[style*="${skillColor}"]:hover::before { background: ${skillColor}; }
+        </style>
+        <div class="skill-card-top">
+          <div class="skill-name">${skill.name}</div>
+          <div class="skill-card-actions">
+            ${skill.composite ? '<span class="badge badge-composite">⚡ composite</span>' : ''}
+            <button class="copy-btn" data-name="${skill.name}" title="Copy /command">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="skill-desc">${skill.desc}</div>
+        <div class="skill-footer">
+          <span class="badge badge-category" style="border-color:${skillColor}22; color:${skillColor}; background:${skillColor}12">${skillCat ? skillCat.label : skill.cat}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  grid.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      navigator.clipboard.writeText('/' + btn.dataset.name).then(() => {
+        btn.classList.add('copied');
+        btn.innerHTML = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`;
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>`;
+        }, 1500);
+      });
+    });
+  });
+
+  document.getElementById('tc-skills').textContent = filtered.length;
+}
+
+function renderAgents() {
+  const container = document.getElementById('agents-content');
+  const groups = [
+    { key: 'analysis', label: 'Analysis Agents — read-only by agentType', tagClass: 'agent-tag-analysis', tagLabel: 'read-only' },
+    { key: 'execution', label: 'Execution Agents — can write files', tagClass: 'agent-tag-execution', tagLabel: 'write-capable' },
+    { key: 'forge', label: 'Forge Ecosystem Agents', tagClass: 'agent-tag-forge', tagLabel: 'domain-specific' },
+  ];
+
+  container.innerHTML = groups.map(group => {
+    const agents = AGENTS.filter(a => a.type === group.key);
+    return `
+      <div class="agent-group">
+        <div class="agent-group-title">${group.label} (${agents.length})</div>
+        <div class="agent-grid">
+          ${agents.map(a => `
+            <div class="agent-card">
+              <div class="agent-name">${a.name}</div>
+              <div class="agent-desc">${a.desc}</div>
+              <span class="agent-tag ${group.tagClass}">${group.tagLabel}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderHooks() {
+  const container = document.getElementById('hooks-content');
+  container.innerHTML = `<div class="hooks-timeline">` + HOOKS.map(hook => `
+    <div class="hook-event">
+      <div class="hook-event-header">
+        <span class="hook-event-tag">${hook.tag}</span>
+        <span class="hook-event-title">${hook.event}</span>
+        <span class="hook-event-subtitle">${hook.subtitle}</span>
+      </div>
+      <div class="hook-event-body">
+        ${hook.steps.map((step, i) => `
+          <div class="hook-step">
+            <span class="hook-step-num">${i + 1}.</span>
+            <span>${step}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('') + `</div>`;
+}
+
+function renderMCP() {
+  const container = document.getElementById('mcp-content');
+  const local = MCP_SERVERS.filter(m => m.type === 'local');
+  const cloud = MCP_SERVERS.filter(m => m.type === 'cloud');
+
+  container.innerHTML = `
+    <div class="mcp-section">
+      <div class="agent-group-title">Local MCP Servers (${local.length})</div>
+      <div class="mcp-grid">
+        ${local.map(m => `
+          <div class="mcp-card">
+            <div class="mcp-name">${m.name}</div>
+            <div class="mcp-desc">${m.desc}</div>
+            <span class="mcp-type mcp-local">local</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="mcp-section">
+      <div class="agent-group-title">Cloud MCP Servers via claude.ai (${cloud.length})</div>
+      <div class="mcp-grid">
+        ${cloud.map(m => `
+          <div class="mcp-card">
+            <div class="mcp-name">${m.name}</div>
+            <div class="mcp-desc">${m.desc}</div>
+            <span class="mcp-type mcp-cloud">cloud</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderPlugins() {
+  const container = document.getElementById('plugins-content');
+  container.innerHTML = `
+    <div class="plugin-grid">
+      ${PLUGINS.map(p => `
+        <div class="plugin-card">
+          <div class="plugin-name">${p.name}</div>
+          <div class="plugin-desc">${p.desc}</div>
+          <div>${p.tags.map(t => `<span class="plugin-tag">${t}</span>`).join(' ')}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderAll() {
+  renderCategoryList();
+  renderSkillGrid();
+}
+
+// ══ TABS ════════════════════════════════════════════════════════════════════
+
+document.getElementById('nav-tabs').querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const panel = tab.dataset.panel;
+    activePanel = panel;
+
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + panel).classList.add('active');
+
+    const sidebar = document.getElementById('sidebar');
+    sidebar.style.display = panel === 'skills' ? '' : 'none';
+  });
+});
+
+// ══ SEARCH ══════════════════════════════════════════════════════════════════
+
+document.getElementById('search').addEventListener('input', e => {
+  searchQuery = e.target.value.trim();
+  renderSkillGrid();
+});
+
+// ── keyboard shortcut: / to focus search
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== document.getElementById('search')) {
+    e.preventDefault();
+    document.getElementById('search').focus();
+  }
+  if (e.key === 'Escape') {
+    document.getElementById('search').blur();
+    document.getElementById('search').value = '';
+    searchQuery = '';
+    renderSkillGrid();
+  }
+});
+
+// ── Filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    activeFilter = btn.dataset.filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderSkillGrid();
+  });
+});
+
+// ══ INIT ════════════════════════════════════════════════════════════════════
+
+renderAll();
+renderAgents();
+renderHooks();
+renderMCP();
+renderPlugins();
+</script>
+</body>
+</html>
