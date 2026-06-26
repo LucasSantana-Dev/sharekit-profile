@@ -1,6 +1,6 @@
 ---
 name: recall
-description: One-shot semantic lookup against the local RAG index — answers "what did we decide about X", "where did we hit this bug before", "is there a memory note for Y" in a single MCP call. Backed by the `rag_query` MCP tool over ~21k chunks (memory, plans, handoffs, skills, standards, repo docs/readmes, changelogs, specs, roadmaps, code, git commits, prior session transcripts) across the curated repos (your curated repos). Auto-scopes to current repo. Use instead of grep when the question is fuzzy, cross-file, or about prior reasoning rather than current code shape. Skip for pure navigation (where is X defined → grep / serena) or single-file edits.
+description: One-shot semantic lookup against the local RAG index — answers "what did we decide about X", "where did we hit this bug before", "is there a memory note for Y" in a single MCP call. Backed by the `rag_query` MCP tool over ~21k chunks (memory, plans, handoffs, skills, standards, repo docs/readmes, changelogs, specs, roadmaps, code, git commits, prior session transcripts) across the curated repos (Lucky, homelab, Craftvaria, ai-dev-toolkit, ai-dev-toolkit-setup). Auto-scopes to current repo. Use instead of grep when the question is fuzzy, cross-file, or about prior reasoning rather than current code shape. Skip for pure navigation (where is X defined → grep / serena) or single-file edits.
 triggers:
   - recall
   - have we seen this before
@@ -29,7 +29,7 @@ rag_query(query="<natural-language question>", top=5)
 Optional args:
 - `top` (1–20, default 5) — more isn't always better; reranker quality drops past 8.
 - `scope_types` — narrow to e.g. `["memory", "handoffs"]` for "what did I write down" queries, or `["commit"]` for "what did we ship lately on X".
-- `scope_repos` — pass `["all"]` to ignore cwd auto-scope; pass `["<repo>"]` etc. to force a specific repo.
+- `scope_repos` — pass `["all"]` to ignore cwd auto-scope; pass `["Lucky"]` etc. to force a specific repo.
 
 ## Failure modes
 
@@ -48,7 +48,7 @@ A `rag_query()` result includes:
       "text": "<chunk content>",
       "source": {
         "type": "memory" | "handoff" | "plan" | "commit" | "code" | "readme",
-        "repo": "<repo>" | "...",
+        "repo": "Lucky" | "homelab" | "...",
         "path": "..."
       },
       "score": 0.87  // reranker confidence; >0.8 usually relevant

@@ -169,7 +169,7 @@ Next:
 - `adt-rag-drift` — handles the RAG index drift; this skill handles the memory **files**.
 - `rag-curate` — fix weak retrievals exposed when stale entries are pruned and the new query surface widens.
 
-## Examples of stale entries (example project)
+## Examples of stale entries (Lucky project)
 
 These were the kind of entries this skill catches:
 
