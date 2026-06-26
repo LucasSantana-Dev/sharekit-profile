@@ -42,8 +42,16 @@ Use this skill to create an isolated workspace without disturbing the current ch
 
 ## Workflow
 
+**Parallelism note:** Steps 1 and 2 are independent and can run in parallel — execute the preflight script while consulting `references/directory-selection.md` simultaneously, then reconcile outputs before proceeding to Step 3.
+
 1. Run `python3 scripts/worktree_preflight.py` from the repository root to capture the current branch, dirty state, existing worktree directories, and active worktrees.
+
+   **Done when:** preflight output shows current branch, dirty state, existing worktrees, and directory options.
+
 2. Choose the worktree base directory using the preflight output and `references/directory-selection.md`.
+
+   **Done when:** directory choice recorded and verified against project convention (see `references/directory-selection.md`).
+
 3. Create the worktree on the target branch without disturbing the current checkout.
 4. Run only the minimal setup needed for the new workspace.
 5. Verify the new worktree starts from the expected clean baseline before implementation begins.
@@ -68,5 +76,8 @@ Use this skill to create an isolated workspace without disturbing the current ch
 
 ## Memory Hooks
 
-- Read memory only if the repository has a durable worktree convention that changes the directory choice.
-- Do not write memory unless the session establishes a new long-lived worktree rule.
+**What is stored:** durable worktree directory convention for the repository (e.g., `.worktrees/` as the canonical location).
+
+**When to read:** at the start of the task, query memory for the repository's established worktree convention if one exists. Use it to inform directory selection in Step 2.
+
+**When to write:** only if this session discovers a new, reusable worktree pattern (e.g., a project rule that was not previously documented). Record the pattern in memory with the repository path and convention name for future sessions.

@@ -45,21 +45,25 @@ padding. A suite with 70% coverage and 85% mutation score genuinely guards behav
 
 ## Workflow
 
-### 1. Detect language and pick the framework
-
-| Language | Framework | Install |
-|---|---|---|
-| TypeScript / JavaScript | Stryker | `npm i -D @stryker-mutator/core @stryker-mutator/jest-runner` (or `vitest-runner`) |
-| Python | mutmut | `pip install mutmut` |
-| Go | go-mutesting | `go install github.com/zimmski/go-mutesting/...@latest` |
-| Rust | cargo-mutants | `cargo install cargo-mutants` |
-| Java / Kotlin | PIT | maven/gradle plugin |
-| Ruby | mutant | `gem install mutant-rspec` |
+### 0. Check prior mutation scores (regression baseline)
 
 ```bash
-# Detect what's already configured
-ls stryker.conf.* .stryker* mutmut_config.py cargo-mutants.toml 2>/dev/null
+mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: External HD unmounted — RAG unreachable"; exit 1; }
+python3 ~/.claude/rag-index/query.py "mutation test score prior result" --top 5 --scope memory
 ```
+
+If prior runs exist for this repo, note the prior score. If this run scores significantly
+lower, investigate recent test changes. See `standards/skill-patterns.md §rag-first` and
+`standards/skill-patterns.md §mount-guard`.
+
+**Done when:** prior scores checked; regression noted (if any) or absence confirmed.
+
+### 1. Detect language and pick the framework
+
+See [references/frameworks.md](references/frameworks.md) for the full table, install commands,
+and framework detection.
+
+**Done when:** framework confirmed; tool installed and callable.
 
 ### 2. Confirm baseline is green
 
@@ -70,30 +74,14 @@ npm test 2>&1 | tail -5     # or pytest, go test, cargo test
 Stop if any test fails. Mutation testing requires that all tests pass on the unmodified
 source — otherwise mutation kills are indistinguishable from real failures.
 
-### 3. Configure (Stryker example)
+**Done when:** all tests pass on unmodified source; baseline confirmed green.
 
-If `stryker.conf.json` doesn't exist, create one. **Default to per-file mode** for the
-first run; full-suite mutation can take hours on a large codebase.
+### 3. Configure
 
-```json
-{
-  "mutate": ["src/**/*.ts", "!src/**/*.spec.ts", "!src/**/*.test.ts"],
-  "testRunner": "jest",
-  "reporters": ["clear-text", "progress", "html"],
-  "coverageAnalysis": "perTest",
-  "concurrency": 4,
-  "timeoutMS": 30000,
-  "thresholds": { "high": 80, "low": 60, "break": 50 }
-}
-```
+See [references/configs.md](references/configs.md) for Stryker configuration, Vitest override,
+and per-file mode examples.
 
-For Vitest replace `"jest"` with `"vitest"` and install `@stryker-mutator/vitest-runner`.
-
-For per-file mode (the recommended default):
-
-```bash
-npx stryker run --mutate "src/services/auth.ts"
-```
+**Done when:** mutation config file created or confirmed present; test mutate pattern verified.
 
 ### 4. Run
 
@@ -120,6 +108,8 @@ cargo mutants --file src/auth.rs
 Mutation testing is slow (typically 30–60× the suite runtime). For a 30-second suite
 mutating one file with 100 mutants, expect ~5–15 minutes.
 
+**Done when:** mutation run completes; mutation.html report generated or console output captured.
+
 ### 5. Read the report
 
 Stryker outputs an HTML report at `reports/mutation/mutation.html` and a console summary:
@@ -136,6 +126,8 @@ Timeout:               3
 - **>80%** — suite is genuinely protective; ship it
 - **60–80%** — acceptable; investigate the top survivors
 - **<60%** — significant portions of the suite are not catching failures; act on it
+
+**Done when:** score calculated; survivors identified and classified.
 
 ### 6. Act on survivors
 
@@ -161,6 +153,8 @@ to delete it, then write a real replacement with `/generate-tests`.
 For each survivor, prefer the order: **fix the test → delete the test → ignore the mutant**.
 Ignoring should be rare and always documented.
 
+**Done when:** top survivors triaged; each assigned to a type and action (fix/delete/ignore).
+
 ### 7. Re-run after fixes
 
 ```bash
@@ -170,41 +164,28 @@ npx stryker run --mutate "src/<file>"
 Confirm the score crossed the threshold. If still below, repeat step 6 on the new
 survivor list.
 
+**Done when:** score ≥ threshold (80%+) or survivors re-triaged.
+
 ### 8. CI integration (optional follow-up)
 
-For modules below the project's mutation threshold, add a CI job that runs mutation
-testing on changed files in PRs:
+See [references/configs.md](references/configs.md) for the full CI workflow YAML.
 
-```yaml
-# .github/workflows/mutation.yml
-on: pull_request
-jobs:
-  mutation:
-    steps:
-      - uses: actions/checkout@v4
-      - run: npm ci
-      - name: Find changed source files
-        run: |
-          git diff --name-only origin/main...HEAD \
-            | grep -E "^src/.*\.ts$" \
-            | grep -v "\.spec\.\|\.test\." > changed.txt
-      - name: Mutate changed files
-        run: npx stryker run --mutate "$(cat changed.txt | tr '\n' ',')"
-```
+This keeps full-suite mutation cost out of CI while catching new shallow tests at PR time.
 
-This keeps full-suite mutation cost out of CI while catching new shallow tests at
-PR time.
+**Done when:** CI workflow file (if configured) present in `.github/workflows/` and tested once.
 
 ---
 
 ## Outputs / Evidence
 
-- Mutation score per file or whole project
-- HTML report at `reports/mutation/mutation.html`
-- List of survivors classified by type (equivalent / missing assertion / mocked-out /
-  trivially weak)
-- Specific test edits or deletions recommended
-- Updated score after fixes
+**Verdict:** Mutation score (>80% = protective / 60–80% = acceptable / <60% = act now)
+
+**Top 3 findings:**
+1. Highest-priority survivor type (A/B/C/D) and count
+2. Recommended action (fix test / delete / replace mock / add assertion)
+3. Estimated effort to close survivors
+
+**Full evidence:** See `reports/mutation/mutation.html` for classified survivors, mutation details per file, and score trend if re-run.
 
 ## Failure / Stop Conditions
 

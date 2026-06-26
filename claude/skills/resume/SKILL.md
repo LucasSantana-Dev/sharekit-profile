@@ -1,57 +1,43 @@
 ---
 name: resume
-description: Rehydrate interrupted work—recover task state from handoffs, plans, in-progress memory, or git when context is lost. Use when rejoining a session, resuming after a handoff, or clarifying "where were we."
-metadata:
-  tier: foundational
-  owner: core
-  canonical_source: standards/session-resume.md
+description: Rehydrate the current task from handoffs, plans, tasks, memory notes, and git state.
 triggers:
-  - resume session
-  - continue work
+  - resume
+  - continue
   - what was I doing
-  - recover task state
 ---
 
 # resume
 
-Restore active task context before continuing work.
+Recover state before doing new work.
 
-## Step 1: Query prior context from memory/vault
+## Read order
 
-**Done when:** Found ≥1 source or confirmed none exist.
+1. `~/.claude/handoffs/<project>/latest.md`
+2. `~/.claude/handoffs/latest.md`
+3. newest plan in `.claude/plans/` or `.agents/plans/`
+4. `.agents/memory/in-progress.md`
+5. current git branch, status, and open PRs
 
-Mount guard: `mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: External HD unmounted — handoffs unreachable"; exit 1; }`
+## Post-incident check
 
-Query order (stop at first match):
-1. Project handoff: `rag_query(query="current task state", top=1, scope_types=["handoffs"])` for `~/.claude/handoffs/<project>/latest.md`
-2. Global handoff: `rag_query(query="in-progress work", top=1, scope_types=["handoffs"])` for `~/.claude/handoffs/latest.md`
-3. Memory recall: `search_knowledge(query="active objective status", top=3)` for `.agents/memory/in-progress.md`
+After loading the handoff, scan for OPEN incident flags (P0/P1 failures). If present, surface before anything else: a committed root-cause artifact (ADR or incident-log) is required before the next task proceeds. Do not silently skip an open incident flag and start a new task.
 
-If no RAG/vault hit: fall back to filesystem—read newest `.claude/plans/` or `.agents/plans/` by mtime; surface blocker if none found.
+## Output
 
-**Blocker:** No handoff, plan, or in-progress note found → Surface: "resume: no prior context found; start fresh or specify task." Halt.
+Return:
+- active objective
+- repo, branch, worktree
+- what is already done
+- what remains
+- exact next action
+- any open incident flags (if found)
 
-## Step 2: Load git state (branch, uncommitted changes, open PRs)
+## Failure / Stop Conditions
 
-**Done when:** Branch name, worktree path, and git status visible; any open PR linked.
+- If no handoff, plan, or git context is found → surface "no context found" and ask the user for orientation rather than guessing an objective.
+- Do not invent a task when all context sources are empty.
 
-Sequence:
-- `git rev-parse --abbrev-ref HEAD` — current branch
-- `git status --short` — uncommitted changes (stops if diverges significantly)
-- `git log -1 --oneline` — latest commit for context
-- If active repo is known: `gh pr list --state open --author @me --json number,title,url` — open PRs
+## Pair with standards
 
-## Step 3: Signal-first summary
-
-**Done when:** User sees verdict + 3-line state summary inline.
-
-Output (in order):
-1. **Verdict** — "Resume from [handoff|plan|in-progress] at [task name]" OR "No prior state; starting fresh"
-2. **Active objective** — 1 sentence (from recovered context)
-3. **Current state** — repo, branch, worktree, uncommitted changes (if any), open PR (if relevant)
-4. **Exact next action** — the stated next step from handoff, or derived from remaining work
-5. **Blockers** — if any (missing handoff, stuck test, etc.)
-
-Cite sources: "From: ~/.claude/handoffs/latest.md (recovered 2m ago)" or "From: git branch/status."
-
-Cross-reference: See `standards/session-resume.md §1-4` for read order and behavior.
+- `standards/session-budget.md` — defines when to create checkpoints/handoffs (70%/90% context thresholds) that resume rehydrates from

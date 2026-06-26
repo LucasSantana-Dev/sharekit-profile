@@ -1,0 +1,64 @@
+{
+  "skill_name": "loop-engineer",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "ci-test-fix-loop",
+      "prompt": "I want a loop that automatically fixes failing tests in my repo every time CI fails. The repo uses TypeScript and Jest. Tests run on GitHub Actions. When a test fails I currently have to manually read the error, edit the code, push, and wait. I want that whole cycle to happen automatically.",
+      "expected_output": "6 separate labeled files: goal-card.md, architecture.md, cycle.md, building-blocks.md, implementation.md, reconciliation-template.md. Goal Card is a standalone artifact. Architecture explicitly covers both single/fleet AND closed/open dimensions. Cycle maps to real GitHub Actions commands. Implementation has runnable content.",
+      "assertions": [
+        "Output organized into distinct labeled phase files: goal-card.md, architecture.md, cycle.md, building-blocks.md, implementation.md, reconciliation-template.md \u2014 NOT a single monolithic document",
+        "goal-card.md is a standalone artifact presented before architecture design begins (not merged into another file)",
+        "architecture.md explicitly addresses BOTH dimensions: single-agent vs fleet (with rationale) AND closed vs open loop (with rationale)",
+        "reconciliation-template.md present as a separate file containing all required fields: Trigger, Goal, Cycle, Discover, Plan, Execute, Verify, Iterate, Outcome, Memory, Next trigger",
+        "cycle.md maps stages to THIS task concretely \u2014 e.g. Discover specifies reading GitHub Actions logs by name, not just 'find what is needed'",
+        "implementation.md contains actual runnable commands (real gh CLI flags, real workflow YAML, or real shell script content) \u2014 not described in prose"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "eval_name": "research-loop",
+      "prompt": "Design me a loop that researches a topic I give it, finds credible sources, verifies the claims, and saves a final synthesized report as a markdown file. It should keep searching until it's confident the answer is well-sourced, not just give me the first thing it finds.",
+      "expected_output": "6 separate labeled files. Goal Card has confidence threshold as DONE WHEN. Architecture recommends single-agent. Cycle has separate verify agent. implementation.md is a usable SKILL.md.",
+      "assertions": [
+        "Output organized into distinct labeled phase files: goal-card.md, architecture.md, cycle.md, building-blocks.md, implementation.md, reconciliation-template.md \u2014 NOT a single monolithic document",
+        "goal-card.md is a standalone artifact with DONE WHEN expressed as a confidence threshold or verified-source count (not vague 'when satisfied')",
+        "architecture.md explicitly addresses BOTH dimensions: single-agent vs fleet (with rationale) AND closed vs open loop (with rationale)",
+        "reconciliation-template.md present as a separate file containing all required fields: Trigger, Goal, Cycle, Discover, Plan, Execute, Verify, Iterate, Outcome, Memory, Next trigger",
+        "cycle.md specifies a SEPARATE verify/critic agent from the researcher \u2014 maker and checker are distinct (not same agent checking own work)",
+        "implementation.md contains actual runnable content with specific file paths for where reports are saved and real commands for searching/reading sources"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "eval_name": "pr-review-slack-loop",
+      "prompt": "Every morning I manually prompt Claude to review yesterday's merged PRs in my GitHub repo and post a Slack summary with highlights and anything that looks risky. I want to automate this so it runs on its own at 9am without me doing anything. The repo is octocat/hello-world and Slack channel is #eng-updates.",
+      "expected_output": "6 separate labeled files. Goal Card has trigger=9am and done-when=Slack posted. Architecture covers both dimensions. building-blocks.md has concrete automation config (launchd/cron). implementation.md has real gh CLI and Slack commands.",
+      "assertions": [
+        "Output organized into distinct labeled phase files: goal-card.md, architecture.md, cycle.md, building-blocks.md, implementation.md, reconciliation-template.md \u2014 NOT a single monolithic document",
+        "goal-card.md is a standalone artifact with TRIGGER specifying daily 9am schedule and DONE WHEN specifying Slack message posted",
+        "architecture.md explicitly addresses BOTH dimensions: single-agent vs fleet (with rationale) AND closed vs open loop (with rationale)",
+        "reconciliation-template.md present as a separate file containing all required fields: Trigger, Goal, Cycle, Discover, Plan, Execute, Verify, Iterate, Outcome, Memory, Next trigger",
+        "building-blocks.md Automations row contains actual automation config (launchd plist XML snippet, cron entry, or GitHub Actions YAML) \u2014 not just 'use launchd'",
+        "implementation.md contains real gh CLI command for fetching merged PRs (with actual flags like --repo, --json, --state) AND real Slack posting mechanism (webhook curl or MCP tool call)"
+      ],
+      "files": []
+    }
+  ],
+  "substance_assertions": {
+    "_note": "Filename-INDEPENDENT loop-design QUALITY checks (added 2026-06-24 after iter-4 showed the 6 structural assertions measured FORMAT conformance: structural delta +100pp vs substance delta only +16.5pp). Grade these against output SUBSTANCE regardless of filenames, to separate quality from format. Run alongside the per-eval structural assertions.",
+    "assertions": [
+      "Specifies a concrete STOP / success exit criterion (when the loop is DONE) anywhere in the output \u2014 concrete, not 'when satisfied'",
+      "Specifies an ESCAPE hatch: max failed iterations and/or escalation to human, anywhere",
+      "Verify is done by a SEPARATE checker from the executor (maker != checker), anywhere",
+      "Contains actually-runnable commands (real CLI flags / YAML / shell / API), not just prose, anywhere",
+      "States an OBSERVABLE success criterion (threshold/count/event), not subjective, anywhere",
+      "Addresses BOTH single-agent-vs-fleet AND closed-vs-open dimensions with rationale, anywhere"
+    ]
+  },
+  "metadata": {
+    "iter4_finding": "structural pass delta = +100pp (format), substance delta = +16.5pp (true quality). Skill's value is mostly consistent structure+gates; modest substance uplift."
+  }
+}

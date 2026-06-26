@@ -9,19 +9,6 @@ metadata:
   canonical_source: ~/.agents/skills/brainstorming
 ---
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Brainstorming Ideas Into Designs
 
 Help turn ideas into fully formed designs through natural collaborative dialogue.

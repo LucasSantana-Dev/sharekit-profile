@@ -1,71 +1,23 @@
 ---
 name: handoff
-description: Capture active work state before budget runs low, switching projects, or ending session. Write durable resume packet to `~/.claude/handoffs/<project>/latest.md` for next session to continue without rediscovery.
-metadata:
-  owner: Lucas Santana
-  tier: orchestration
-  canonical_source: CLAUDE.md §1–2 (handoff resume pattern)
-triggers:
-  - handoff
-  - save state
-  - prepare resume
-  - end of session checkpoint
-  - hand off to codex
-  - hand off to next session
-  - capture context
-  - budget approaches limit
-  - switching projects
+description: Compact the current conversation into a handoff document for another agent to pick up.
+argument-hint: "What will the next session be used for?"
 ---
 
-# handoff
+Write a handoff document summarising the current conversation so a fresh agent can continue the work. Save to the temporary directory of the user's OS - not the current workspace.
 
-Capture active task state before running out of context, switching models, or stopping for the day.
+Include a "suggested skills" section in the document, which suggests skills that the agent should invoke.
 
-## Guard condition
+Do not duplicate content already captured in other artifacts (PRDs, plans, ADRs, issues, commits, diffs). Reference them by path or URL instead.
 
-Before writing: verify External HD mounted and target directory is writable.
+Redact any sensitive information, such as API keys, passwords, or personally identifiable information.
 
-```bash
-mount | grep -q "${DEV_ROOT}" || {
-  echo "BLOCKED: External HD unmounted — cannot write ~/.claude/handoffs/<project>/latest.md"
-  exit 1
-}
-```
+If the user passed arguments, treat them as a description of what the next session will focus on and tailor the doc accordingly.
 
-## Capture (use references/template.md)
+## Post-incident capture gate
 
-Write to `~/.claude/handoffs/<project>/latest.md` with these sections in order:
+Before writing the handoff, check if the session encountered any failures:
 
-- **Active objective** — one sentence, what you're finishing or resuming
-- **Repo, branch, worktree** — exact paths + worktree parent (e.g., `${DEV_ROOT}/.worktrees/my-task/`)
-- **What changed** — file paths touched, git status summary (no full diffs)
-- **What was verified** — tests passed, deploys green, decision checkpoints cleared
-- **What remains** — next 2–3 steps, in order
-- **Blockers + gates** — anything blocking next action; what condition unblocks it
-- **Exact next action** — command to run or skill to invoke (copy-pasteable)
-- **Key anchors** — PR/issue URLs, commit SHAs, decision links (ADRs, memory)
-
-See `references/template.md` for format.
-
-## Rules (non-negotiable)
-
-1. **Keep it specific** — "fixed auth" [FAIL], "added jwt-refresh middleware to POST /auth/login, verified with curl + integration test" ✓
-2. **Do not dump whole files** — path + line range only (e.g., `src/db/schema.ts:42–67`)
-3. **Do not archive until next action is truly complete** — if you're mid-feature, do NOT commit/merge anything before writing this handoff
-4. **Use the template** — deviating adds ambiguity for the receiving session
-
-## Done when
-
-- [ ] External HD mounted
-- [ ] Target directory exists (`~/.claude/handoffs/<project>/`)
-- [ ] Packet written and readable
-- [ ] Next action is copy-pasteable (tested in same session if possible)
-- [ ] Key URLs/commits/commands are absolute paths or full git refs
-- [ ] No whole files dumped; all file refs include line ranges or function names
-- [ ] Packet is ≤ ~2000 words (else split into multiple sub-packets or reference external ADRs)
-
-## Pair with
-
-On the receiving end, invoke `/resume` to auto-load and stage the handoff packet.
-
-See CLAUDE.md §1 (handoff resume pattern) for integration rules.
+- **P0/P1 failures** (production incident, data loss, security failure, broken CI gate): if a committed root-cause artifact (ADR or incident-log entry) does not yet exist, flag it as an open action in the handoff: "OPEN: incident capture required before next task — root cause, fix applied, preventive action."
+- **P2/P3 failures** (CI flake, test regression): write a brief memory note (if not already done) and include it in the handoff context.
+- **Repeat root cause** (same failure ≥2× in 14 days): flag as requiring an ADR + prevention rule, not just a memory note.

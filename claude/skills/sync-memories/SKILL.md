@@ -1,48 +1,92 @@
 ---
 name: sync-memories
-description: Capture durable knowledge to file-based memory — one fact per file plus an index update. Zero-dependency; commits if memory is a git repo.
+description: Sync durable project or session knowledge into the available memory systems
+  so future sessions have accurate context. Use when meaningful work is complete and
+  the user wants the result remembered.
+metadata:
+  owner: global-agents
+  tier: stateful
+  canonical_source: ~/.agents/skills/sync-memories
 ---
 
-# Sync memories (capture)
+# Sync Memories — Session Knowledge Capture
 
-Persist what was learned or decided this session so a future session can `recall` it.
+Update persistent memory systems with session accomplishments so future sessions have accurate context.
 
-## When
+## When to use
 
-- Session end, a decision reached, or a surprising gotcha worth not re-learning.
-- The user says "remember this".
-- **Skip** if the session was pure read/recall with no durable output.
+- After completing a PR / feature / refactor session
+- After a release (version bump, changelog, tag)
+- After discovering important architecture or gotcha info
+- When existing memories are stale (test counts, versions, READMEs outdated)
 
-## Where memory lives
+## Workflow
 
+### 1. Gather current state
+
+```bash
+git log --oneline -10
+git diff --stat HEAD~3 2>/dev/null || git diff --stat HEAD
+git branch --show-current
+git status
+# If JS/TS project:
+node -p "require('./package.json').version" 2>/dev/null
+npm test 2>&1 | grep -E "Tests:|Test Suites:" | tail -2
 ```
-${BRAIN_ROOT:-$HOME/.claude/memory}
+
+### 2. Pick the right memory system
+
+| Tool present | Where memories live | Update via |
+|---|---|---|
+| Claude Code project memory | `~/.claude/projects/<slug>/memory/*.md` | direct file edit + MEMORY.md pointer line |
+| Serena MCP (`.serena/`) | per-project memories | `serena.write_memory(name, content)` |
+| claude-mem MCP | FTS5 DB | `save_memory({project, title, text})` |
+| `.agents/memory/<project>.md` | tracked in repo | append a `## Session YYYY-MM-DD` block |
+
+Use all that apply. They don't conflict; recall queries each separately.
+
+### 3. Update — one fact per file
+
+Each memory file holds one fact. Frontmatter required (see global CLAUDE.md). For project memories: `type: project`, link related notes with `[[name]]`, and add a one-line pointer to `MEMORY.md` so the index loads it next session.
+
+For Serena memories, standard categories:
+- `project_overview` — version, test count, recent PRs, open work
+- `architecture` — boundaries, key files
+- `gotchas` — things that surprised you
+- one memory per logical accomplishment, not per file
+
+### 4. Verify
+
+```bash
+# Spot-check the most-edited memory
+cat ~/.claude/projects/<slug>/memory/<name>.md | head -20
+# or
+serena.read_memory("project_overview")
 ```
 
-## How
+Check: version matches `package.json`, test count matches latest run, recent PRs listed.
 
-1. **Decide the fact.** One fact per file:
-   - `name` — short kebab-case slug.
-   - `description` — one line (this is what `recall` matches on, so make it specific).
-   - `type` — `user` (who the user is) · `feedback` (how to work, with the *why*) · `project` (ongoing work/constraints; use absolute dates) · `reference` (external pointer).
-2. **Check for an existing file** that already covers it — update that file rather than duplicate. Delete memories that turn out wrong.
-3. **Write the fact** to `$MEM/<slug>.md`:
-   ```markdown
-   ---
-   name: <slug>
-   description: <one-line>
-   metadata:
-     type: <type>
-   ---
-   <the fact, stated plainly. For feedback/project, add **Why:** and **How to apply:** lines.
-   Link related memories with [[other-slug]].>
-   ```
-4. **Append to the index** `$MEM/MEMORY.md`:
-   ```
-   - [<Title>](<slug>.md) — <short hook>
-   ```
-5. **Version it** if memory is a git repo: `git -C "$MEM" add -A && git -C "$MEM" commit -m "memory: <slug>"`.
+## Anti-patterns
 
-## Don't save
+- Duplicating AGENTS.md / CLAUDE.md content in memories (those are static rules; memories are dynamic state)
+- Speculative / future content — only current state
+- Entire file contents — use paths and brief descriptions
+- Memories for trivial changes (typo fixes, formatting)
+- Stale test counts — they drift fast and mislead future sessions
+- Multiple memories covering the same fact — find and update, don't add
 
-What the repo already records (code structure, past fixes, git history, project config) or what only matters to this one conversation. If asked to remember one of those, ask what was *non-obvious* about it and save that instead.
+## Outputs
+
+- List of memories updated (paths)
+- Before/after snapshot of any field that changed (version, count, status)
+- Confirmation that index files (MEMORY.md, etc.) got the corresponding pointer
+
+## Pair with standards
+
+- `standards/sync-memories-forgekit.md` — forgekit monorepo memory-sync workflow and triggers
+
+## Stop conditions
+
+- Stop if prerequisites missing or request scope changed
+- Never write incorrect version numbers — always read from `package.json`
+- If a memory would duplicate an existing one verbatim, abort and update the original

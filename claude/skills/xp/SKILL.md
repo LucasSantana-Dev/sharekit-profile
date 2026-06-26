@@ -4,7 +4,7 @@ description: "Extreme Programming for AI-human pair development. Use when: pair 
 metadata:
   tier: "methodology"
   owner: "lucas"
-  canonical_source: "https://github.com/your-username/claude-code"
+  canonical_source: "https://github.com/<github-user>/claude-code"
 ---
 
 # XP — Extreme Programming with AI Agents

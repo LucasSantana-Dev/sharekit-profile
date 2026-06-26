@@ -10,14 +10,6 @@ metadata:
   canonical_source: ~/.agents/skills/webapp-testing
 ---
 
-
-
-
-
-
-
-
-
 # Web Application Testing
 
 Use this skill for Playwright-based verification of local or controlled web applications.

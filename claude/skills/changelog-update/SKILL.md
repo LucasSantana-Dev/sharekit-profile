@@ -1,19 +1,14 @@
 ---
 name: changelog-update
-description: |
-  Automate CHANGELOG.md maintenance: promote [Unreleased] → versioned section, compute version bump (major/minor/patch),
-  update package.json + src/index.ts VERSION constant, commit, tag, create GitHub release. Follows Keep a Changelog format.
-  Use when (1) cutting a release, (2) [Unreleased] has accumulated work to version, (3) CHANGELOG stale vs git tags.
+description:
+  Update CHANGELOG.md by promoting [Unreleased] content to a versioned section
+  and bumping the package version. Follows Keep a Changelog format. Use when
+  preparing a release or when [Unreleased] has accumulated work that needs to
+  be captured under a version.
 metadata:
   owner: global-agents
   tier: contextual
   canonical_source: ~/.agents/skills/changelog-update
-triggers:
-  - changelog update
-  - release version
-  - bump version
-  - prepare release
-  - promote unreleased
 ---
 
 # Changelog Update Skill
@@ -201,47 +196,6 @@ After bumping:
 - [ ] `[Unreleased]` section is empty (or holds only post-release additions)
 - [ ] Git tag created and pushed
 - [ ] GitHub Release created
-
-## Lucky Bot — Git-Log Auto-Generation
-
-Lucky's CHANGELOG was historically maintained with 51+ manual edits per release. Replace that with this workflow:
-
-### Auto-generate from git log
-
-```bash
-LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-if [ -n "$LAST_TAG" ]; then
-  RANGE="${LAST_TAG}..HEAD"
-else
-  RANGE="HEAD"
-fi
-
-echo "### Added"
-git log $RANGE --format="- %s" | grep -E "^- feat(\(.+\))?[!:]" | sed 's/^- feat[^:]*: /- /'
-
-echo ""
-echo "### Fixed"
-git log $RANGE --format="- %s" | grep -E "^- fix(\(.+\))?[!:]" | sed 's/^- fix[^:]*: /- /'
-
-echo ""
-echo "### Changed"
-git log $RANGE --format="- %s" | grep -E "^- (refactor|chore|perf)(\(.+\))?[!:]" | sed 's/^- [^:]*: /- /'
-```
-
-This outputs the three sections ready to paste under a new version header.
-
-### Commits that belong in CHANGELOG
-
-Only include user-visible entries. Skip: `chore: bump version`, `chore: deps`, `ci:`, `test:`, `docs:` (unless affecting end user). Lucky-specific: always include `/command` additions and music-player fixes.
-
-### Lucky release steps (replaces manual edits)
-
-1. Run the git-log snippet above — review and prune bot noise
-2. Paste under new version header: `## [X.Y.Z] - YYYY-MM-DD`
-3. Run `npm version patch|minor|major --no-git-tag-version`
-4. Commit: `chore: bump version to X.Y.Z`
-5. Tag: `git tag vX.Y.Z` (tags point at the bump commit, not main HEAD — see `lucky-release-tag-pattern.md`)
-6. Push: `git push && git push --tags`
 
 ## Forge Space Repo Specifics
 

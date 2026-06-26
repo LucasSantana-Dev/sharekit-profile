@@ -1,0 +1,23 @@
+{
+  "skill_name": "decide",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Should I use Array.find() or _.find() from lodash to filter a user object in a single React component? It's a simple lookup, just need to grab one element.",
+      "expected_output": "Quick Decision Mode — short inline verdict under 200 words, recommends one option, states the key tradeoff, does NOT mention creating an ADR, does NOT invoke multi-phase research pipeline.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "We need to pick a date/time library for our Node.js REST API. I'm considering date-fns, dayjs, and native Intl.DateTimeFormat. We have a team of 4, ship to 8 locales, and do a lot of date arithmetic (business day calculations, timezone conversions). Please decide and document it.",
+      "expected_output": "Full Decision Mode (MED/HIGH stake), researches ≥2 alternatives with tradeoffs, emits a DECISION BRIEF checkpoint with all required fields (Recommendation, Confidence, Evidence, Alternatives, Switch triggers — which must be specific and concrete, not vague), then proceeds to ADR creation. Reconciliation block emitted at end.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "We need to decide between Redis and Memcached for our session caching layer. We're a 3-person team with a Node.js backend, 50k DAU, expecting 3-5x growth in 12 months. Sessions are user auth tokens, ~2KB each.",
+      "expected_output": "Full Decision Mode (MED/HIGH stake), considers both options with tradeoffs, Decision Brief includes at least 1 concrete/observable switch trigger (not 'when requirements change' or 'when the team grows'), reconciliation block emitted at end with Mode/Stake/Confidence fields populated.",
+      "files": []
+    }
+  ]
+}

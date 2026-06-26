@@ -1,0 +1,57 @@
+{
+  "families": [
+    {
+      "id": "seo-audit-alias",
+      "group": "alias",
+      "skills": ["seo-audit", "audit-website"],
+      "overlay": {"source": "seo-audit", "target": "audit-website"},
+      "descriptions": {
+        "seo-audit": ["seo audit", "technical seo", "on-page seo"],
+        "audit-website": ["seo", "performance", "security"]
+      }
+    },
+    {
+      "id": "competitor-alternatives-alias",
+      "group": "alias",
+      "skills": ["competitor-alternatives", "programmatic-seo"],
+      "overlay": {
+        "source": "competitor-alternatives",
+        "target": "programmatic-seo"
+      },
+      "descriptions": {
+        "competitor-alternatives": ["alternatives", "comparison", "x vs y"],
+        "programmatic-seo": ["programmatic seo", "pages at scale", "comparison pages"]
+      }
+    },
+    {
+      "id": "browser-boundaries",
+      "group": "routing",
+      "skills": ["agent-browser", "browser-use", "webapp-testing"],
+      "descriptions": {
+        "agent-browser": ["ref-based", "quick scripted interaction", "webapp-testing"],
+        "browser-use": ["persistent", "profile reuse", "agent-browser"],
+        "webapp-testing": ["playwright", "local web application", "browser-level verification"]
+      }
+    },
+    {
+      "id": "create-skill-wrapper",
+      "group": "wrapper",
+      "skills": ["create-skill", "skill-creator"],
+      "overlay": {"source": "create-skill", "target": "skill-creator"},
+      "descriptions": {
+        "create-skill": ["legacy", "skill-authoring", "skill-creator"],
+        "skill-creator": ["new skill", "upgrading an existing", "refactoring a large skill"]
+      }
+    },
+    {
+      "id": "quality-assurance-router",
+      "group": "router",
+      "skills": ["quality-assurance", "quality-gates"],
+      "overlay": {"source": "quality-assurance", "target": "quality-gates"},
+      "descriptions": {
+        "quality-assurance": ["qa strategy", "orchestrate", "verification"],
+        "quality-gates": ["lint", "type-check", "tests"]
+      }
+    }
+  ]
+}

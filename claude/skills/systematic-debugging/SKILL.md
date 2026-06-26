@@ -1,403 +1,78 @@
 ---
 name: systematic-debugging
-description: Use when encountering any bug, test failure, or unexpected behavior,
-  before proposing fixes
-metadata:
-  owner: global-agents
-  tier: contextual
-  canonical_source: ~/.agents/skills/systematic-debugging
-  progressive_disclosure: split
+description: Use when encountering bugs, test failures, or unexpected behavior
+  before attempting fixes. Finds root cause instead of guessing.
+triggers:
+  - debug this
+  - find root cause
+  - why is this broken
+  - test failure investigation
 ---
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # Systematic Debugging
 
-## Overview
-
-Random fixes waste time and create new bugs. Quick patches mask underlying issues.
-
-**Core principle:** ALWAYS find root cause before attempting fixes. Symptom fixes are failure.
-
-**Violating the letter of this process is violating the spirit of debugging.**
-
-## The Iron Law
-
-```
-NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
-```
-
-If you haven't completed Phase 1, you cannot propose fixes.
+Find root cause before fixing. No exceptions.
 
 ## When to Use
 
-Use for ANY technical issue:
-- Test failures
-- Bugs in production
-- Unexpected behavior
-- Performance problems
-- Build failures
-- Integration issues
-
-**Use this ESPECIALLY when:**
-- Under time pressure (emergencies make guessing tempting)
-- "Just one quick fix" seems obvious
-- You've already tried multiple fixes
-- Previous fix didn't work
-- You don't fully understand the issue
-
-**Don't skip when:**
-- Issue seems simple (simple bugs have root causes too)
-- You're in a hurry (rushing guarantees rework)
-- Manager wants it fixed NOW (systematic is faster than thrashing)
+- Test failures, prod bugs, unexpected behavior
+- Build breaks, integration issues, performance problems
+- Under time pressure (systematic is faster than guess-and-check thrashing)
+- "Just one quick fix" tempting you (red flag: stop, debug first)
+- After ≥2 failed fix attempts (return to phase 1, not phase 4)
 
 ## The Four Phases
-
-You MUST complete each phase before proceeding to the next.
 
 ### Phase 1: Root Cause Investigation
 
 **BEFORE attempting ANY fix:**
 
-1. **Read Error Messages Carefully**
-   - Don't skip past errors or warnings
-   - They often contain the exact solution
-   - Read stack traces completely
-   - Note line numbers, file paths, error codes
+1. **Read errors carefully** — stack traces, line numbers, exact error codes. Error message often contains the solution.
 
-2. **Reproduce Consistently**
-   - Can you trigger it reliably?
-   - What are the exact steps?
-   - Does it happen every time?
-   - If not reproducible → gather more data, don't guess
+2. **Reproduce consistently** — trigger it reliably. If unreproducible, gather more data first.
 
-3. **Check Recent Changes**
-   - What changed that could cause this?
-   - Git diff, recent commits
-   - New dependencies, config changes
-   - Environmental differences
+3. **Check recent changes** — git diff, new deps, config changes, environment differences.
 
-   **For CI lint failures after adding new test files:**
-   - **Run lint on the full test directory**, not just changed files:
-     ```bash
-     npx eslint apps/web/src/__tests__/         # JS/TS — full dir
-     ruff check tests/                           # Python — full dir
-     ```
-     CI lints ALL files; the pre-commit hook only lints staged files. Discrepancy is normal.
-   - Common ESLint issues in new test files:
-     - `body assigned but never used` — when `await res.json()` result is not needed:
-       ```ts
-       // ✗ triggers no-unused-vars
-       const body = await res.json();
-       // ✓ drains stream without assignment
-       void await res.json();
-       // ✓ if body IS used in assertions
-       const body = await res.json();
-       expect(body.data).toMatchObject(...);
-       ```
-     - Unused imports from error types — remove the import line entirely
-     - Unused destructuring remainder (`const { x: _, ...rest }`) — use `eslint-disable-next-line`
-   - Check if new path includes subdirectories with **stale/duplicate** test copies
-     (e.g., `tests/infrastructure/` as a stale copy of `tests/*.py`)
-   - Verify every `--ignore` entry in the test command is still valid (files/dirs exist)
-   - Check the test output for errors referencing files/scripts that no longer exist
+4. **Gather evidence in multi-layer systems** — for each component boundary (CI → build → sign, API → DB), log what enters, what exits, verify propagation. Show WHERE it breaks.
 
-4. **Gather Evidence in Multi-Component Systems**
-
-   **WHEN system has multiple components (CI → build → signing, API → service → database):**
-
-   **BEFORE proposing fixes, add diagnostic instrumentation:**
-   ```
-   For EACH component boundary:
-     - Log what data enters component
-     - Log what data exits component
-     - Verify environment/config propagation
-     - Check state at each layer
-
-   Run once to gather evidence showing WHERE it breaks
-   THEN analyze evidence to identify failing component
-   THEN investigate that specific component
-   ```
-
-   **Example (multi-layer system):**
-   ```bash
-   # Layer 1: Workflow
-   echo "=== Secrets available in workflow: ==="
-   echo "IDENTITY: ${IDENTITY:+SET}${IDENTITY:-UNSET}"
-
-   # Layer 2: Build script
-   echo "=== Env vars in build script: ==="
-   env | grep IDENTITY || echo "IDENTITY not in environment"
-
-   # Layer 3: Signing script
-   echo "=== Keychain state: ==="
-   security list-keychains
-   security find-identity -v
-
-   # Layer 4: Actual signing
-   codesign --sign "$IDENTITY" --verbose=4 "$APP"
-   ```
-
-   **This reveals:** Which layer fails (secrets → workflow ✓, workflow → build ✗)
-
-5. **Trace Data Flow**
-
-   **WHEN error is deep in call stack:**
-
-   See `root-cause-tracing.md` in this directory for the complete backward tracing technique.
-
-   **Quick version:**
-   - Where does bad value originate?
-   - What called this with bad value?
-   - Keep tracing up until you find the source
-   - Fix at source, not at symptom
+5. **Trace data flow** — where does bad value originate? What called it with bad data? Keep tracing up. See `root-cause-tracing.md` for the full backward-trace technique.
 
 ### Phase 2: Pattern Analysis
 
-**Find the pattern before fixing:**
-
-1. **Find Working Examples**
-   - Locate similar working code in same codebase
-   - What works that's similar to what's broken?
-
-2. **Compare Against References**
-   - If implementing pattern, read reference implementation COMPLETELY
-   - Don't skim - read every line
-   - Understand the pattern fully before applying
-
-3. **Identify Differences**
-   - What's different between working and broken?
-   - List every difference, however small
-   - Don't assume "that can't matter"
-
-4. **Understand Dependencies**
-   - What other components does this need?
-   - What settings, config, environment?
-   - What assumptions does it make?
+1. Find similar working code in the codebase.
+2. Compare working vs broken — list every difference.
+3. Understand dependencies — what components, config, assumptions does it need?
 
 ### Phase 3: Hypothesis and Testing
 
-**Scientific method:**
-
-1. **Form Single Hypothesis**
-   - State clearly: "I think X is the root cause because Y"
-   - Write it down
-   - Be specific, not vague
-
-2. **Test Minimally**
-   - Make the SMALLEST possible change to test hypothesis
-   - One variable at a time
-   - Don't fix multiple things at once
-
-3. **Verify Before Continuing**
-   - Did it work? Yes → Phase 4
-   - Didn't work? Form NEW hypothesis
-   - DON'T add more fixes on top
-
-4. **When You Don't Know**
-   - Say "I don't understand X"
-   - Don't pretend to know
-   - Ask for help
-   - Research more
+1. Form one specific hypothesis: "I think X is the root cause because Y"
+2. Test minimally — smallest possible change, one variable at a time.
+3. Verify. Worked? → Phase 4. Didn't? → form new hypothesis.
 
 ### Phase 4: Implementation
 
-**Fix the root cause, not the symptom:**
+1. Create failing test case reproducing the issue.
+2. Implement single fix addressing root cause. No bundled improvements.
+3. Verify fix. Test passes? No other tests broken?
+4. **If ≥3 fixes failed:** STOP. Question the architecture, not the fix.
 
-1. **Create Failing Test Case**
-   - Simplest possible reproduction
-   - Automated test if possible
-   - One-off test script if no framework
-   - MUST have before fixing
-   - Use the `superpowers:test-driven-development` skill for writing proper failing tests
+## Red Flags — STOP and Return to Phase 1
 
-2. **Implement Single Fix**
-   - Address the root cause identified
-   - ONE change at a time
-   - No "while I'm here" improvements
-   - No bundled refactoring
-
-3. **Verify Fix**
-   - Test passes now?
-   - No other tests broken?
-   - Issue actually resolved?
-
-4. **If Fix Doesn't Work**
-   - STOP
-   - Count: How many fixes have you tried?
-   - If < 3: Return to Phase 1, re-analyze with new information
-   - **If ≥ 3: STOP and question the architecture (step 5 below)**
-   - DON'T attempt Fix #4 without architectural discussion
-
-5. **If 3+ Fixes Failed: Question Architecture**
-
-   **Pattern indicating architectural problem:**
-   - Each fix reveals new shared state/coupling/problem in different place
-   - Fixes require "massive refactoring" to implement
-   - Each fix creates new symptoms elsewhere
-
-   **STOP and question fundamentals:**
-   - Is this pattern fundamentally sound?
-   - Are we "sticking with it through sheer inertia"?
-   - Should we refactor architecture vs. continue fixing symptoms?
-
-   **Discuss with your human partner before attempting more fixes**
-
-   This is NOT a failed hypothesis - this is a wrong architecture.
-
-## Turn Efficiency — Prevent Debugging Churn
-
-Every read, edit, and bash call costs a subscription turn. Debugging loops (read → edit → test → fail → re-read) are the #1 source of turn waste. Enforce these constraints hard:
-
-### File Read Budget
-
-- **Read each file at most twice** before you must form a complete hypothesis — once to understand, once to verify a specific detail. A third read means your mental model is incomplete. Stop, write down what you still don't know, and form a hypothesis gap before re-reading.
-- **Never re-read a file that is in your active context.** If you read it this session and haven't compacted, it is still there. Use your memory.
-- **If the file changed since your read:** use `git diff` on just that file rather than a full re-read.
-
-### Edit Budget per File
-
-| Edits on same file | Required action |
-|--------------------|-----------------|
-| 1–2 | Normal — proceed |
-| 3–4 | Pause: re-state the hypothesis. Are you fixing the root cause or symptoms? |
-| 5+ | **STOP. Dispatch to a subagent with a clean context.** You are in a churn loop. `Agent(model="sonnet", prompt="debug X in file Y, full context: ...")` |
-
-**Always batch same-file changes into a single MultiEdit call.** If you need to make three edits to `foo.ts`, that is one MultiEdit = one turn. Three sequential Edits = three turns for identical work.
-
-### Repro-First Protocol
-
-Before editing any source file for a failing test or bug:
-
-1. Write the minimal repro case (isolated test, standalone script, or `curl` command) that triggers the failure — in a scratch buffer, not in the real source.
-2. Confirm the repro fails.
-3. *Then* open the source file. Your first read should already be informed by the repro output.
-
-This prevents the most common churn pattern: editing based on incomplete understanding, watching the test fail in a different place, re-reading, editing again.
-
-### Subagent Escalation Trigger
-
-If you observe any of the following, immediately stop inline debugging and dispatch to a subagent:
-
-- 5+ edits to the same file in this session
-- 3+ failed hypothesis cycles (edit → test → fail → repeat)
-- You have re-read the same file 3+ times
-- You don't understand why the last fix didn't work
-
-```python
-Agent(
-    model="sonnet",
-    prompt="""
-Debug failing test: <test name>.
-File: <path>. Error: <exact error>.
-Hypothesis tried and failed: <list>.
-Constraint: fix in ≤3 edits, use MultiEdit for all changes.
-"""
-)
-```
-
-A fresh subagent has no stale mental model and 88 avg turns — vs your 728-turn inline average.
-
-## Red Flags - STOP and Follow Process
-
-If you catch yourself thinking:
 - "Quick fix for now, investigate later"
-- "Just try changing X and see if it works"
+- "Just try X and see if it works"
 - "Add multiple changes, run tests"
 - "Skip the test, I'll manually verify"
 - "It's probably X, let me fix that"
-- "I don't fully understand but this might work"
-- "Pattern says X but I'll adapt it differently"
-- "Here are the main problems: [lists fixes without investigation]"
-- Proposing solutions before tracing data flow
-- **"One more fix attempt" (when already tried 2+)**
-- **Each fix reveals new problem in different place**
+- "Pattern says X but I'll adapt differently"
+- "One more fix attempt" (when already tried 2+)
+- Each fix reveals new problem in different place
 
-**ALL of these mean: STOP. Return to Phase 1.**
+**If 3+ fixes failed:** Question fundamentals, not symptoms.
 
-**If 3+ fixes failed:** Question the architecture (see Phase 4.5)
+## Support & References
 
-## your human partner's Signals You're Doing It Wrong
+- **`root-cause-tracing.md`** — backward-trace technique for deep call stacks
+- **`defense-in-depth.md`** — validation at multiple layers after root cause identified
+- **`condition-based-waiting.md`** — condition polling vs arbitrary timeouts
 
-**Watch for these redirections:**
-- "Is that not happening?" - You assumed without verifying
-- "Will it show us...?" - You should have added evidence gathering
-- "Stop guessing" - You're proposing fixes without understanding
-- "Ultrathink this" - Question fundamentals, not just symptoms
-- "We're stuck?" (frustrated) - Your approach isn't working
-
-**When you see these:** STOP. Return to Phase 1.
-
-## Common Rationalizations
-
-| Excuse | Reality |
-|--------|---------|
-| "Issue is simple, don't need process" | Simple issues have root causes too. Process is fast for simple bugs. |
-| "Emergency, no time for process" | Systematic debugging is FASTER than guess-and-check thrashing. |
-| "Just try this first, then investigate" | First fix sets the pattern. Do it right from the start. |
-| "I'll write test after confirming fix works" | Untested fixes don't stick. Test first proves it. |
-| "Multiple fixes at once saves time" | Can't isolate what worked. Causes new bugs. |
-| "Reference too long, I'll adapt the pattern" | Partial understanding guarantees bugs. Read it completely. |
-| "I see the problem, let me fix it" | Seeing symptoms ≠ understanding root cause. |
-| "One more fix attempt" (after 2+ failures) | 3+ failures = architectural problem. Question pattern, don't fix again. |
-
-## Quick Reference
-
-| Phase | Key Activities | Success Criteria |
-|-------|---------------|------------------|
-| **1. Root Cause** | Read errors, reproduce, check changes, gather evidence | Understand WHAT and WHY |
-| **2. Pattern** | Find working examples, compare | Identify differences |
-| **3. Hypothesis** | Form theory, test minimally | Confirmed or new hypothesis |
-| **4. Implementation** | Create test, fix, verify | Bug resolved, tests pass |
-
-## When Process Reveals "No Root Cause"
-
-If systematic investigation reveals issue is truly environmental, timing-dependent, or external:
-
-1. You've completed the process
-2. Document what you investigated
-3. Implement appropriate handling (retry, timeout, error message)
-4. Add monitoring/logging for future investigation
-
-**But:** 95% of "no root cause" cases are incomplete investigation.
-
-## Supporting Techniques
-
-These techniques are part of systematic debugging and available in this directory:
-
-- **`root-cause-tracing.md`** - Trace bugs backward through call stack to find original trigger
-- **`defense-in-depth.md`** - Add validation at multiple layers after finding root cause
-- **`condition-based-waiting.md`** - Replace arbitrary timeouts with condition polling
-
-**Related skills:**
-- **superpowers:test-driven-development** - For creating failing test case (Phase 4, Step 1)
-- **superpowers:verification-before-completion** - Verify fix worked before claiming success
-
-## Real-World Impact
-
-From debugging sessions:
-- Systematic approach: 15-30 minutes to fix
-- Random fixes approach: 2-3 hours of thrashing
-- First-time fix rate: 95% vs 40%
-- New bugs introduced: Near zero vs common
-
-## Outputs / Evidence
-
-- Return the checks run, evidence captured, blockers found, and the next required action.
-
-## Memory Hooks
-
-- Read memory when product, repo, or workflow history affects correctness.
-- Write memory only if this work establishes a durable policy or convention.
+Related: `/test-driven-development` (create failing test in Phase 4.1)

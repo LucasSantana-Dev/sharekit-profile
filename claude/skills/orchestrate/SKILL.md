@@ -1,45 +1,99 @@
 ---
 name: orchestrate
-description: Coordinate multi-step, multi-repo, or multi-phase work spanning different skills, worktrees, agents — orchestrate when one skill isn't enough (plan + parallel implementation + CI verification + ship), cross-repo migrations (≥3 repos), or multi-workstream projects. Sequences or parallelizes phases, maintains single source of truth for state, surfaces blockers at convergence points. Also sync-memories between phases, gate irreversible actions, decide serial vs. parallel vs. worktree-split execution.
+description: Coordinate multi-agent teams, multi-step or multi-repo work across plans, skills, worktrees, and parallel investigations. Use when the task is large enough to benefit from parallel work, independent workstreams, and one lead agent owning synthesis.
 triggers:
   - orchestrate
   - coordinate this
   - run a multi-step workflow
-  - multi-repo delivery
+  - agent teams
+argument-hint: '[serial|parallel|worktree-split]'
 metadata:
-  tier: execution-layer (Sonnet)
+  owner: global-agents
+  tier: contextual
+  canonical_source: ~/.agents/skills/orchestrate
 ---
 
 # orchestrate
 
+Use for larger delivery flows and multi-agent coordination.
+
+## Use When
+
+- The task is large enough that parallel work will save time or add confidence.
+- Independent workstreams can be defined with clear inputs, outputs, and ownership.
+- One lead agent can own synthesis, integration, and final verification.
+- Work spans multiple repos, skill chains, or requires worktree separation.
+
+## Do Not Use When
+
+- The task is small, tightly coupled, or faster to complete in one session.
+- Multiple agents would fight over the same files or the same mutable context.
+- The user wants one narrow implementation rather than orchestration.
+
+## Core Responsibilities
+
+- Decide whether work should be serial, parallel, or worktree-split
+- Choose the controlling plan
+- Keep one source of truth for current state
+- Ensure each branch of work converges cleanly
+- Plan and run multi-agent work without losing integration quality
+
+## Inputs / Prereqs
+
+- The goal, success criteria, and integration owner.
+- Candidate workstreams and the dependencies between them.
+- The quality gates or review checkpoints that must run after synthesis.
+- References on team topologies, coordination patterns, or example team boards (if available).
+
 ## Workflow
 
-1. **Scope & plan** — Capture active repo, branch, worktree state. Read `.claude/plans/` or invoke `/plan` if one doesn't exist. Done when: decision rule (serial/parallel/worktree-split) matches ≥2 independent phases or repos.
+1. Decide whether parallelism buys time, confidence, or separation of concerns.
+   - Done when: serial/parallel/worktree-split decision is recorded and communicated to team.
 
-2. **Dispatch work** — For ≥2 independent units (repos, agents, phases), dispatch in a single Agent tool call with worktrees per unit (see standards/workflow.md §parallel-execution-mandatory). Assign owner workflow to each workstream. Done when: all agents launched and initial task files or handoffs written.
+2. Split the work into independent tracks with an owner, expected output, and handoff condition.
+   - Done when: each track has clear input, output, and ownership + dependencies mapped.
 
-3. **Monitor & gate** — Track convergence point. Before any irreversible action (merge, deploy, force-push), surface state + verdict. Check for blockers: missing test results, review comments from humans, CI failures. Done when: all workstreams reached convergence criteria OR blocker surfaced + explicit halt.
+3. Pick a lead agent to maintain the task board, resolve blockers, and synthesize results.
+   - Done when: lead agent identified and briefed on integration responsibilities.
 
-4. **Sync & handoff** — Write convergence state to `.claude/tasks/` or handoff file. If session ends mid-flow, snapshot phase, active workstreams, blocker (if any), next action. Done when: durable checkpoint written and read-back verified.
+4. Give each agent a bounded prompt with files, constraints, and stop conditions.
+   - Done when: each agent has received a scoped brief + stop conditions + file permissions.
 
-## Stop/Failure Conditions
+5. Run sync points only at dependency boundaries, not continuously.
+   - Done when: sync schedule defined and agents notified of sync times + escalation paths.
 
-- **No convergence plan** — if phases cannot merge cleanly (conflicting changes, no clear gate), surface blocker, halt before merge.
-- **External HD unmounted** — if RAG/handoff lookup fails (mount check), fall back to plan file + inline state, log degradation.
-- **Human review blocker** — if review comments exist on any open PR from a human author, halt before auto-merge (CLAUDE.md hard-rule).
-
-## Cross-links
-
-- Parallel execution rule: standards/workflow.md §parallel-execution-mandatory (≥2 independent units → single Agent block with worktrees).
-- Agent-dispatcher boundary: standards/agent-routing.md (orchestrator drives phase calls; doesn't implement logic-bearing changes inline).
-- Irreversible gate pattern: standards/workflow.md §idempotency (state-check before mutation; skip if already done).
-- Composite skill reference: if intent matches a composite (plan + implement + test + ship), invoke the composite instead of running phases manually (standards/skill-auto-invoke.md).
+6. Recombine the work, rerun required validation, and report the integrated outcome.
+   - Done when: all branches converged, validation passed, and integrated output delivered.
 
 ## Output
 
-Signal-first:
-- **Verdict:** serial/parallel/worktree-split + convergence rule + go/no-go to next phase.
-- **State:** active scope, workstreams (with owner skill), phase, next milestone.
-- **Blocker (if any):** explicit halt + recommended recovery (retry, escalate, pivot).
+**Verdict:** Orchestration plan ready (serial, parallel, or worktree-split) with integration ownership confirmed.
 
-Then: workstream tasks (in `.claude/tasks/`) + handoff snapshot if session pauses.
+**Top 3 state items:**
+- Active scope + workstreams with named owners
+- Lead agent integration role + convergence point
+- Sync schedule + escalation paths + exit criteria
+
+**Complete state:**
+- workstreams and owners
+- owner workflow for each stream
+- active scope
+- convergence point
+- exit criteria
+- integration lead role
+- sync or escalation points
+
+## Dispatcher ≠ executor boundary
+
+This skill coordinates; sub-agents implement. If, while orchestrating, you find yourself writing logic (adding conditions, changing data flow, modifying retry behavior) — stop. Surface the decision as a blocker in the reconciliation output. Do not silently implement. Trivial inline edits (string constants, log labels, comment fixes) are allowed in orchestration scaffolding — log them as "inline edit — not logic-bearing."
+
+## Failure / Stop Conditions
+
+- Stop if the task cannot be decomposed without heavy coordination overhead.
+- Stop if no agent can own final integration and verification.
+- Do not use parallel agents as a substitute for a missing implementation plan.
+- Stop if you are about to implement logic in the orchestrator itself (see boundary above).
+
+## See also
+
+- `standards/prompting-discipline.md` — 4-block Goal/Method/Constraints/Validation structure for subagent briefs (step 4)

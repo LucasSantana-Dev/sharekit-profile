@@ -7,21 +7,8 @@ argument-hint: '[<note>]'
 metadata:
   owner: global-agents
   tier: stateful
-  canonical_source: $HOME/.agents/skills/context-save
+  canonical_source: ~/.agents/skills/context-save
 ---
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # Context Save — Mid-Task State Preservation
 
