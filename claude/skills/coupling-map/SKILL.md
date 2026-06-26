@@ -1,6 +1,7 @@
 ---
 name: coupling-map
-description: Map module coupling via import graph analysis. Identifies high fan-in (many callers) and high fan-out (many dependencies) nodes, and surfaces cycles. Use when planning a refactor, evaluating testability, or identifying brittle modules. Triggers: "coupling map", "module coupling", "dependency map", "fan-in fan-out", "import graph", "find tightly coupled code".
+description: >-
+  Map module coupling via import graph analysis. Identifies high fan-in (many callers) and high fan-out (many dependencies) nodes, and surfaces cycles. Use when planning a refactor, evaluating testability, or identifying brittle modules. Triggers: "coupling map", "module coupling", "dependency map", "fan-in fan-out", "import graph", "find tightly coupled code".
 metadata:
   owner: global-agents
   tier: ephemeral

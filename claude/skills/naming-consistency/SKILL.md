@@ -1,6 +1,7 @@
 ---
 name: naming-consistency
-description: Detect naming conventions from existing code, then audit new or all symbols for violations. Reports inconsistencies across files without enforcing a single style. Use when reviewing a PR for naming regressions, auditing a module before a refactor, or establishing a naming baseline. Triggers: "naming consistency", "naming audit", "naming violations", "inconsistent names", "naming conventions", "check naming".
+description: >-
+  Detect naming conventions from existing code, then audit new or all symbols for violations. Reports inconsistencies across files without enforcing a single style. Use when reviewing a PR for naming regressions, auditing a module before a refactor, or establishing a naming baseline. Triggers: "naming consistency", "naming audit", "naming violations", "inconsistent names", "naming conventions", "check naming".
 metadata:
   owner: global-agents
   tier: ephemeral
