@@ -30,7 +30,7 @@ Use only when the branch is plausibly ready.
 
 ## Rollback gate (release/prod deploys only)
 
-Before merge-and-tag for any main/release branch ship or production infra change (Cloudflare, self-hosted infra, Dockerfile rewrite), surface a rollback plan:
+Before merge-and-tag for any main/release branch ship or production infra change (Cloudflare, homelab, Dockerfile rewrite), surface a rollback plan:
 
 ```
 Rollback plan:

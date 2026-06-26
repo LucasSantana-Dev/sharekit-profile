@@ -17,6 +17,7 @@ coupling-map
 coverage-gap
 debug
 decide
+decide-now
 decision-mapping
 dep-sweep
 design-an-interface
@@ -34,7 +35,6 @@ knowledge-loop
 loop
 loop-engineer
 mem-search
-memory-eval
 memory-prune
 mutation-test
 naming-consistency

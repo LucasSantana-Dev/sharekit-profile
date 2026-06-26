@@ -1,0 +1,45 @@
+{
+  "skill_name": "decide-now",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Should I merge PR #45 into main now, or wait for CodeRabbit to finish reviewing it? CI is all green.",
+      "expected_output": "Clear merge/wait verdict with reasoning from PR state and CLAUDE.md rules. Should cite CI status. Should mention CodeRabbit status as a factor. No wishy-washy 'both options have merits'.",
+      "files": [],
+      "assertions": [
+        "Output contains 'Decision:' header or label",
+        "Output contains 'Why:' with cited evidence (PR number, CI status, or specific rule)",
+        "Output contains 'Next step:' with a concrete command or action",
+        "Output does NOT contain 'it depends' without also giving a final verdict",
+        "Output is a single clear choice (merge OR wait), not 'you could do either'",
+        "For PR merge decisions: correctly applies CLAUDE.md bot-exemption (CodeRabbit/bots do NOT block merges; only human reviewer comments do)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I have two open tasks: fix the flaky test in tests/test_smoke_harness.py, or work on the new pipeline feature. What should I tackle first?",
+      "expected_output": "Clear prioritization verdict. Should attempt to load memory/plans/CI context to justify. Should cite something from current state, not just generic 'fix tests first' advice.",
+      "files": [],
+      "assertions": [
+        "Output contains 'Decision:' header or label",
+        "Output names exactly one task to do first (not 'do both' or 'either works')",
+        "Output contains 'Why:' with reasoning that references project context or priorities",
+        "Output contains explicit 'Tradeoff:' label (not just tradeoff content buried in prose) acknowledging what's deferred",
+        "Output contains 'Next step:' with a concrete action"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Should I add LC_NUMERIC=C to the render_master.sh script as an inline export, or set it in the calling pipeline script instead?",
+      "expected_output": "Clear location verdict for where to put LC_NUMERIC=C. Should check existing code context if possible. Should cite a reason grounded in the codebase (consistency with other scripts, blast radius, etc.).",
+      "files": [],
+      "assertions": [
+        "Output contains 'Decision:' header or label",
+        "Output picks one location (inline in render_master.sh OR in the caller), not 'it depends on your preference'",
+        "Output contains 'Why:' with at least one reason grounded in code or project conventions",
+        "Output contains 'Tradeoff:' acknowledging the downside of the chosen approach",
+        "Output contains 'Next step:' with a specific action"
+      ]
+    }
+  ]
+}

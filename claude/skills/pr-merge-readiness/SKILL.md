@@ -218,4 +218,4 @@ Suggested next action:
 - Read memory for any per-repo overrides (allow-flaky checks, third-party reviewer
   expectations) before computing the verdict
 - Optional: write a one-line memory after a MERGE verdict was acted on, so trend data
-  ("a project merged 12 PRs this week, 3 with WARN overridden") becomes available
+  ("Lucky merged 12 PRs this week, 3 with WARN overridden") becomes available

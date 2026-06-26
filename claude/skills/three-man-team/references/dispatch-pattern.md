@@ -8,7 +8,7 @@ This shows how to invoke the three agents in parallel using pseudo-code (actual 
 agent dispatch \
   --name architect \
   --model opus \
-  --prompt "Read the target codebase and write a plan for shipping /guild-config command. Details in task. Output to ~/.claude/plans/guild-config.md" \
+  --prompt "Read the Lucky Discord bot codebase and write a plan for shipping /guild-config command. Details in task. Output to ~/.claude/plans/guild-config.md" \
   --task "Implement /guild-config command: allow server admins to set music genre filters, auto-disconnect timeout, and DJ role. 3 phases: (1) schema design, (2) command implementation, (3) integration tests."
 
 agent dispatch \
