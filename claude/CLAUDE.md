@@ -184,6 +184,14 @@ Load detailed rules from `.claude/standards/` as needed:
 - `rtk.md`
 - `skill-quality-spec.md` (13-point skill quality checklist)
 - `skill-patterns.md` (copy-paste templates for the 8 recurring skill quality patterns)
+- `red-flags.md` (catalogue of observable anti-actions an agent must never do/approve — load before any destructive, irreversible, or merge/deploy action)
+- `code-standards.md` is the entrypoint; these expand it: `naming-conventions.md`, `commenting-policy.md` (no redundant comments), `async-patterns.md` (always await; no fire-and-forget), `dependency-injection.md` (deps flow in, testable in isolation), `python-cli-patterns.md` (split CLI by domain >200 lines)
+- `memory-vs-documentation.md` (knowledge taxonomy — "is this a memory or project doc?"; load when writing memory or deciding where knowledge lives)
+- `session-health.md` (token-budget level → action thresholds; load with `session-budget.md`)
+- `shell-secret-management.md` (macOS personal-env secret handling; load with `security.md` for credential/token work)
+- `skill-catalog-topology.md` (canonical `~/.agents/skills` → symlink → claude-env mirror; load before editing/moving any skill — see ADR-0041)
+- `sync-memories-forgekit.md` (forgekit-monorepo `/sync-memories` workflow — project-specific)
+- `deferred-marketplaces.md` (reference only — third-party sources evaluated and intentionally NOT auto-loaded)
 
 ## Hard rules
 

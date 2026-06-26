@@ -1,6 +1,7 @@
 ---
 name: scope-it
-description: Map the blast radius of a task before writing any code. Identifies affected files, downstream dependencies, and likely test surface. Use before starting implementation to avoid scope creep or missed impact. Triggers: "scope this", "what will this touch", "how big is this change", "before I start".
+description: >-
+  Map the blast radius of a task before writing any code. Identifies affected files, downstream dependencies, and likely test surface. Use before starting implementation to avoid scope creep or missed impact. Triggers: "scope this", "what will this touch", "how big is this change", "before I start".
 metadata:
   owner: global-agents
   tier: ephemeral

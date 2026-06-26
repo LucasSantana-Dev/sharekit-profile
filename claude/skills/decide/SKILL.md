@@ -1,8 +1,10 @@
 ---
 name: decide
-description: Composite skill — two-phase decision pipeline. Chains research-and-decide (research options + recommendation) → adr-write (document the decision). Stops after Phase 1 if research is inconclusive and needs human input. Use when making an architectural or tooling decision that needs both a recommendation and a durable record. Triggers: "decide", "research and decide", "make a decision with ADR", "evaluate options and document", "pick between X and Y and record it".
+description: >-
+  Composite skill — two-phase decision pipeline. Chains research-and-decide (research options + recommendation) → adr-write (document the decision). Stops after Phase 1 if research is inconclusive and needs human input. Use when making an architectural or tooling decision that needs both a recommendation and a durable record. Triggers: "decide", "research and decide", "make a decision with ADR", "evaluate options and document", "pick between X and Y and record it".
 user-invocable: true
-auto-invoke: architectural-decisions-needing-documentation
+auto-invoke: >-
+  architectural-decisions-needing-documentation
 metadata:
   owner: global-agents
   tier: contextual

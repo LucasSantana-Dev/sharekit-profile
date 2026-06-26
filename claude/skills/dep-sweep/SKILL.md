@@ -1,8 +1,10 @@
 ---
 name: dep-sweep
-description: Composite skill — batch-process the queue of open Dependabot / Renovate / npm-bot PRs by grouping them by risk, auto-merging the safe ones into `release`, and surfacing only the risky ones for human review. Chains gh PR enumeration → risk classification (devDeps / patch / minor / major / lockfile-only) → pr-merge-readiness per group → auto-merge safe group → flag risky group → optional /pr-to-release for batch entry on release. Use when bot-PR noise has piled up; reduces a 20-PR queue to "merged 14, 6 need eyes".
+description: >-
+  Composite skill — batch-process the queue of open Dependabot / Renovate / npm-bot PRs by grouping them by risk, auto-merging the safe ones into `release`, and surfacing only the risky ones for human review. Chains gh PR enumeration → risk classification (devDeps / patch / minor / major / lockfile-only) → pr-merge-readiness per group → auto-merge safe group → flag risky group → optional /pr-to-release for batch entry on release. Use when bot-PR noise has piled up; reduces a 20-PR queue to "merged 14, 6 need eyes".
 user-invocable: true
-auto-invoke: "dependabot PRs", "renovate queue", "clean up bot PRs", "update deps", weekly if ≥10 open bot PRs
+auto-invoke: >-
+  "dependabot PRs", "renovate queue", "clean up bot PRs", "update deps", weekly if ≥10 open bot PRs
 metadata:
   owner: global-agents
   tier: contextual
