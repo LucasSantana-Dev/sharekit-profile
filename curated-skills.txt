@@ -15,7 +15,6 @@ context-pack
 context-save
 coupling-map
 coverage-gap
-criativaria-brain-sync
 debug
 decide
 decision-mapping
