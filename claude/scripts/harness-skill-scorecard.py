@@ -61,9 +61,14 @@ def check(path):
             soft.append(f"name!=dir({fn})")
     if len(text.splitlines()) <= 30:
         soft.append("under-30-lines")
-    if not re.search(r"done when|^##.*done.when", text, re.I | re.M):
+    # Broadened 2026-06-26: composites encode completion in a "## Reconciliation" block (their
+    # output contract) — counts as a checkable done-state. Old narrow literal false-flagged 28.
+    if not re.search(r"done when|^##+ .*(reconciliation|completion criteria|success criteria|definition of done|exit criteria|acceptance criteria)|^##+ .*\bdone\b", text, re.I | re.M):
         soft.append("no-done-when")
-    if not re.search(r"^##.*(hard rule|negative rule|stop condition|common rationaliz)", text, re.I | re.M):
+    # Broadened 2026-06-26: real composites use "Stop / escalation conditions", "Preconditions
+    # (hard-fail ...)", "bail out", etc. The old narrow "stop condition" literal false-flagged ~7
+    # composites that DO halt. Metric must be honest or it mis-guides every quality pass.
+    if not re.search(r"^##+ .*(stop|halt|escalat|precondition|hard.?fail|hard rule|negative rule|rationaliz|bail|abort|failure mode)", text, re.I | re.M):
         soft.append("no-stop-conditions")
     if not re.search(r"^##+ .*(Phase|Step|Process|Workflow|Mode|Cycle|Recipe|Pipeline)|^\*\*Step|^[0-9]+\. ", text, re.M):
         soft.append("no-workflow")

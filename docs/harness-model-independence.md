@@ -185,13 +185,25 @@ path, not a defect.**
 The structural floor is at 100% — every skill loads. The remaining quality headroom is in **SOFT**
 nudges, which are advisory, not breakage:
 
-- `no-done-when`: **191** skills lack an explicit checkable completion criterion
-- `no-stop-conditions`: **123** skills lack a named "if X → halt" failure path
+- `no-done-when`: **163** skills lack an explicit checkable completion criterion
+- `no-stop-conditions`: **100** skills lack a named "if X → halt" failure path
+- **fully-clean (0 soft): 51** skills (up from a false-positive-inflated 23)
 
 These are the next quality levers, but they require judgment to fix well (a wrong done-condition is
 worse than none), so they're deliberately SOFT — not auto-blocked. They're tracked by the same
-scorecard, so progress is measurable. The model-independent *floor* is the win this session; the
-*ceiling* is ongoing.
+scorecard, so progress is measurable.
+
+**Metric-honesty correction (this matters for model-independence).** The first SOFT counts were
+*false-positive inflated*: the regex looked for the literal "stop condition" / "done when" and missed
+the real-world phrasings composites use — `## Stop / escalation conditions`,
+`## Preconditions (hard-fail …)`, and `## Reconciliation` (a composite's completion contract). Left
+unfixed, the metric would have driven a quality pass that *added redundant sections to ~50 skills
+that already halt and report* — noise, not improvement. The check was caught nearly mass-editing 24
+composites that weren't broken (the documented "harness-audit false-positive rate is HIGH — verify
+every finding" lesson, working as intended). Both the scorecard and the gate hook were broadened to
+recognize the real headers, dropping the counts to their honest values. **A model-independent metric
+is only useful if it's accurate** — fixing the measurement was higher-value than editing innocent
+skills.
 
 ---
 
