@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agent OS — Claude Code Harness Reference</title>
-  <meta name="description" content="Visual reference for the Claude Code operator harness — 270+ skills, 40 agents, 30+ hooks, MCP servers, and plugins.">
+  <meta name="description" content="Visual reference for the Claude Code operator harness — 269 skills, 39 agents, 30+ hooks, MCP servers, and plugins.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -528,10 +528,10 @@
 
   <div class="nav-tabs" id="nav-tabs">
     <button class="nav-tab active" data-panel="skills">
-      Skills <span class="tab-count" id="tc-skills">270</span>
+      Skills <span class="tab-count" id="tc-skills">269</span>
     </button>
     <button class="nav-tab" data-panel="agents">
-      Agents <span class="tab-count">40</span>
+      Agents <span class="tab-count">39</span>
     </button>
     <button class="nav-tab" data-panel="hooks">
       Hooks <span class="tab-count">7</span>
@@ -598,7 +598,7 @@
       <div class="grid-header">
         <div>
           <div class="grid-header-title" id="grid-title">All Skills</div>
-          <div class="grid-header-sub" id="grid-sub">162 skills across 22 categories — invoke autonomously or with /<i>name</i></div>
+          <div class="grid-header-sub" id="grid-sub">269 skills across 24 categories — invoke autonomously or with /<i>name</i></div>
         </div>
         <div class="result-count" id="result-count"></div>
       </div>
@@ -609,7 +609,7 @@
     <div class="panel" id="panel-agents">
       <div class="section-header">
         <div class="section-title">Specialized Agent Types</div>
-        <div class="section-sub">40 agent types — invoke via the Agent tool, agent() in Workflows, or skills that dispatch them. Set agentType for read-only enforcement on analysis phases.</div>
+        <div class="section-sub">39 agent types — invoke via the Agent tool, agent() in Workflows, or skills that dispatch them. Set agentType for read-only enforcement on analysis phases.</div>
       </div>
       <div id="agents-content"></div>
     </div>
@@ -887,7 +887,6 @@ const TRANSLATIONS = {
   "three-man-team": "Paralelo Arquiteto → Builder → Reviewer para features complexas e PRs grandes.",
   "loop-engineer": "Design e implementa loops de agente autônomos — para prompting manual, auto-itera.",
   "agent-box-dispatch": "Submete jobs assíncronos para container Docker agent-box — coloca arquivos na fila, verifica resultados assincronamente.",
-  "agent-dispatch": "Despachota tarefas ad-hoc para agent-box remoto (scripts ou prompts Claude). Mapeia aliases para shell scripts.",
   "agent-teams": "Coordena múltiplas sessões de agente para implementação paralela, review e síntese entre workstreams.",
   "review": "Code review dois-eixo: Padrões (convenções?) e Spec (corresponde ao issue?).",
   "overengineering-audit": "Flag over-engineering — abstrações especulativas, generalização prematura, indireção desnecessária.",
@@ -1207,7 +1206,6 @@ const SKILLS = [
   { name: 'three-man-team',       cat: 'planning',      composite: false, desc: 'Parallel Architect → Builder → Reviewer for complex features and large PRs.' },
   { name: 'loop-engineer',        cat: 'planning',      composite: false, desc: 'Design and implement autonomous agent loops — stop manual prompting, self-iterate.' },
   { name: 'agent-box-dispatch',   cat: 'planning',      composite: false, desc: 'Submit async jobs to agent-box Docker container — drop files into queue, check results asynchronously.' },
-  { name: 'agent-dispatch',       cat: 'planning',      composite: false, desc: 'Dispatch ad-hoc tasks to remote agent-box (scripts or Claude prompts). Maps aliases to shell scripts.' },
   { name: 'agent-teams',          cat: 'planning',      composite: false, desc: 'Coordinate multiple agent sessions for parallel implementation, review, and synthesis across workstreams.' },
 
   // ── Code Quality additions
