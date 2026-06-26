@@ -68,19 +68,7 @@ Record all four baseline metrics before touching anything:
 - **Coverage %** (lines or statements — whichever the threshold uses)
 - **Source LOC**
 
-Map source LOC to the proportionality table to set your count target:
-
-| App type | Source LOC | Efficient test count |
-|---|---|---|
-| Browser extension | ~3k | 40–150 |
-| CLI tool | ~2k | 30–120 |
-| REST API (≤20 routes) | ~4k | 80–250 |
-| Full-stack app | ~15k | 200–600 |
-| Large multi-subsystem app | 15k–50k | 500–1500 |
-
-The large multi-subsystem row covers services with many distinct feature modules. Treat
-the count as a ceiling, not a floor: aggressive deletion below the lower bound should
-only happen if integration coverage stays and the suite shrinks organically.
+See [references/lookup-tables.md](references/lookup-tables.md#efficient-test-count-by-app-type) for the proportionality lookup table by app type.
 
 **Plan: reach the count target while maintaining coverage and cutting suite runtime.**
 
@@ -110,21 +98,7 @@ functions. The proportionality target is then mathematically unreachable without
   constants, migration scripts)
 - **Writing integration tests aggressively** so each test covers many functions
 
-**Coverage exclusion patterns worth considering before lowering the gate:**
-
-```ts
-// jest.config.ts / vitest.config.ts
-coveragePathIgnorePatterns: [
-  '/node_modules/',
-  '/__generated__/',   // generated GraphQL or Prisma types
-  '/src/types/',       // pure TS interfaces and enums
-  '/src/constants/',   // pure constants with no logic
-  '/src/migrations/',  // DB migrations
-]
-```
-
-Excluding generated or logic-free files is cleaner than lowering the threshold, because
-the threshold still enforces real coverage on real code.
+See [references/lookup-tables.md](references/lookup-tables.md#coverage-exclusion-patterns) for coverage exclusion patterns that avoid lowering the threshold.
 
 **If incompatible, STOP and surface the conflict explicitly to the user before pruning:**
 

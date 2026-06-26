@@ -11,19 +11,6 @@ metadata:
   canonical_source: ~/.agents/skills/frontend-design
 ---
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic "AI slop" aesthetics. Implement real working code with exceptional attention to aesthetic details and creative choices.
 
 Use `frontend-design-specialist` for normal product UI, application screens, dashboard work, and standard frontend polish. Use this skill when the visual concept itself is the primary challenge.

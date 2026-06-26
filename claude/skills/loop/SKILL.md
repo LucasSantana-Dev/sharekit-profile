@@ -1,35 +1,52 @@
 ---
 name: loop
-description: 'Execute iteratively — inspect → act → verify → checkpoint — until done or blocked. Use for known plans, draining queues (PRs, issues, bumps), or multi-step recipes. Each cycle: evidence → change → narrow check → artifact + state line. Stop on unrecoverable error. Pair with `ship` (merge-bound) or `handoff` (budget overrun).'
+description: Default execution rhythm — inspect → act → verify → checkpoint — applied iteratively until the task is done or a clear blocker emerges. Use when working through a known plan, draining a queue (PRs, issues, dependency bumps), or executing a multi-step recipe where each step's output informs the next. Each iteration must produce a concrete artifact (commit, comment, decision) and a one-line state update. Stop on first unrecoverable error rather than retrying blindly. Pair with `ship` for merge-bound work and `handoff` if budget runs out mid-loop.
 triggers:
   - loop
   - execute this plan
   - keep going safely
   - work through these
   - drain the queue
+  - keep cycling
+  - run iteratively
 ---
 
 # loop
 
-Default execution rhythm once the path is clear.
+## Cycle
 
-## The cycle
+1. Inspect the smallest missing evidence.
+**Done when:** smallest gap identified, next action clear
 
-1. **Inspect** — read the smallest missing evidence (one file, one test output, one PR comment).
-2. **Act** — make the smallest coherent change (one commit-worth, ≤100-line diff for safety).
-3. **Verify** — run the narrowest applicable check first (lint → unit tests → integration, stop if any fails).
-4. **Checkpoint** — output a one-liner: `[cycle N] <done-what> → <state>` (e.g., `[cycle 3] Merged PR #42 → 2 remain`).
-5. **Repeat** — loop back to Step 1.
+2. Act on the smallest coherent change.
+**Done when:** artifact created and narrow surface-area check passed
 
-## Output format per cycle
+3. Verify with narrow checks first.
+**Done when:** narrow checks pass (lint/unit test/spot-check only)
 
-**State line** (mandatory): `[cycle N] <action> → <next-state>`  
-**Artifact** (mandatory): one of: git commit, PR comment, decision doc, test result (not "ready" or "looks good").  
-**Instrumentation**: if N > 5 cycles and no merge/close imminent, surface progress or re-scope.
+4. Checkpoint the result.
+5. Repeat until done or blocked.
 
-## Stop conditions (halt, do not retry)
+## Stop conditions
 
-- **Evidence shift**: task facts have changed; re-plan instead of looping.
-- **Scope creep**: diff exceeds intended boundary (e.g., small fix became a refactor); re-scope or `plan`.
-- **Stuck**: same error repeats ≥2 cycles without new diagnosis; surface blocker, halt, escalate.
-- **Complexity jump**: work exceeds single skill's depth; invoke `plan` or `orchestrate`.
+Stop and re-route if:
+- the evidence no longer supports the current path
+- the diff grows beyond the intended scope
+- the same failure repeats without progress
+- the work becomes multi-step enough to require `plan`
+- context budget exceeds 75% → emit `handoff`, then stop the loop
+- cumulative tool-result bytes >50KB without progress → summarize + drop noise before next iteration
+
+## Stuck protocol
+
+If the same task has been attempted >2 times without measurable progress (same failure repeating, diff not advancing), stop the loop and emit: "Stuck: [task], attempt N, last blocker: [X]." Switch to a different approach or tool. After 2 approach switches fail without progress, escalate to the user — do not keep cycling silently.
+
+## Output (per checkpoint)
+
+One line per completed step: verdict + artifact produced. Report only what changed or failed. Do not narrate steps that passed cleanly.
+
+## Parallel mode
+
+If a `Monitor` task is running (CI settle, build, long test), do NOT busy-wait. Pick up an independent priority — refactor a different file, draft a memory note, answer an open review thread — and resume the original loop when the monitor fires its event.
+
+Rule: at most one Monitor active per loop; otherwise events collide.

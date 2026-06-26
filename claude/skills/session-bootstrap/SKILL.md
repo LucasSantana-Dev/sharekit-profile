@@ -6,13 +6,17 @@ auto-invoke: first-prompt-of-session + post-resume + post-handoff-load
 metadata:
   owner: global-agents
   tier: contextual
-  canonical_source: $HOME/.claude/skills/session-bootstrap
+  canonical_source: ~/.claude/skills/session-bootstrap
 ---
 
 # Session Bootstrap
 
 The single command for "I just sat down, get me oriented and ready to work."
 Replaces the manual `/wake-up` → `/next-priority` → `/pr-snapshot` sequence.
+
+## Pair with standards
+
+- `standards/session-resume.md` — session-resume protocol that session-bootstrap orchestrates
 
 ## Auto-invocation triggers
 

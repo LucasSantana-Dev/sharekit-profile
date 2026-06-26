@@ -43,3 +43,14 @@ Lead with verdict:
 ## RAG note
 
 N/A. Routing is decision-logic not fact-lookup. Do not query RAG/knowledge-brain.
+
+## Failure / Stop Conditions
+
+- If the request maps to two composites with equal weight → surface both and ask; do not pick silently.
+- If no skill fits → fall back to `plan` (it handles the general "figure out what to do next" shape).
+- Do not route to a composite when a simpler single skill is clearly sufficient — composite overhead is only warranted when the chain is necessary.
+
+## Memory Hooks
+
+- Read memory if the request touches a domain with prior decisions (auth, CI, release pipeline) to confirm the routing is still correct.
+- No write — routing decisions are ephemeral and not worth persisting.

@@ -1,61 +1,42 @@
 ---
 name: context-pack
 description: >-
-  Assemble a task-aware context bundle before large changes, reviews, or entering unfamiliar
-  code. Bootstrap fast by querying RAG first for decisions/patterns/why, then pull only the
-  files/standards that matter. Use when refactoring multi-file systems, crossing repo
-  boundaries, auditing unfamiliar work, or spending ≥5 reads exploring. Skip single-file
-  edits and grep-answerable questions.
+  Build a task-aware context bundle before large changes, reviews, or unfamiliar work. Pul
+  l only the code, standards, plans, RAG hits, and notes that matter instead of reading wi
+  de. Use before refactors, cross-file fixes, unfamiliar repos, or when starting a session
+   where you will spend more than five reads exploring. Backed by the local RAG index via 
+  the rag_query MCP tool. Skip when the task touches one known file or the answer fits in 
+  a single grep.
 triggers:
   - context pack
   - gather relevant context
   - retrieve what matters
   - bootstrap me on this
   - load context for
-  - pack my context
-mcp_servers: [rag-index, serena]
 ---
 
 # context-pack
 
-Bootstrap task-aware context in <3 minutes.
+Use before reading broadly.
 
-## Workflow
+## Goal
 
-**Step 1: Query RAG for decisions & patterns**
-- **Check mount guard:** `mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: External HD unmounted"; }` — if unmounted, surface blocker and fall back to step 2b.
-- **Query RAG:** Use exact command pattern:
-  ```bash
-  python3 ~/.claude/rag-index/query.py "<task question>" --top 5 [--scope memory] [--fast]
-  ```
-  OR via MCP: `rag_query(query="<task question>", top=5, scope_types=["memory","handoffs","plans"])`
-- **Done when:** top 5 results reviewed; ≥1 hit means context exists (cite line ranges, skip file reads).
+Pull only the code, standards, plans, and notes that matter for the task.
 
-**Step 2: Load active plans or handoffs**
-- Check `~/.claude/handoffs/<project>/latest.md` and `.claude/plans/<task>*.md` for scope.
-- Prefer these over wide file reads — they encode prior decisions.
-- **Done when:** confirmed present/absent; if present, read and skip to output.
+**Done when:** context bundle complete and next read would not change action.
 
-**Step 2b (if RAG blocked or empty): targeted file reads**
-- Identify 2–3 smallest relevant files by name (not speculation).
-- Read only the sections needed to act (cite line ranges).
-- Do NOT speculatively expand the set.
-- **Done when:** read set ≤3 files and each chunk ≤~20 lines.
+## Preferred sources (in order)
 
-**Step 3: Signal findings**
-- Lead with verdict: "Context packed: X decisions found, Y files flagged, Z immediate blockers."
-- List top 3 insights inline; bulk findings reference `references/full-context.md` ("ask for full list").
-- Do NOT paste full-file contents or dump all RAG results.
-- **Done when:** reader knows next action without additional context.
+See [references/discovery-strategy.md](references/discovery-strategy.md) §Preferred sources.  
+See also [standards/user-context.md](standards/user-context.md) — context load order (repo state → handoff → plan → memory → standards).
 
-## Stop Conditions
+## Rules
 
-- **RAG unavailable (External HD unmounted):** surface blocker clearly; do not hide it in fallback.
-- **RAG returns ∅ AND no plans/handoffs exist:** read 2–3 files, stop. Expanding further dilutes signal.
-- **Task touches one known file:** skip context-pack entirely; direct read is faster.
-- **Marginal reads:** if the next read would not change the action, halt — each extra read dilutes budget.
+See [references/discovery-strategy.md](references/discovery-strategy.md) §Symbol lookup strategy, §Chunking discipline, and §Anti-patterns for task-scoped retrieval rules.
 
-## References
+## Failure / Stop Conditions
 
-See `standards/workflow.md §3` (task-scoped retrieval discipline); `recall/SKILL.md` (verified RAG patterns).
-For discovery strategy rules, see `references/discovery-strategy.md`.
+- **Mount guard:** If External HD unmounted → `rag_query` degrades; fall back to grep + claude-mem. Check before starting: `mount | grep -q "${DEV_ROOT}" || echo "BLOCKED: External HD unmounted — RAG/vault unreachable"`.
+- If RAG retrieval returns nothing and no plans/handoffs exist for the topic → read the 2-3 most relevant files directly; do not expand the read set speculatively.
+- Stop accumulating context when the next read would not change the action — marginal reads waste budget and dilute signal.
+- Do not invoke context-pack for tasks touching one known file; direct read is faster.

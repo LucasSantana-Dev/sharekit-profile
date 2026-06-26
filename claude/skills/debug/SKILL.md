@@ -1,19 +1,19 @@
 ---
 name: debug
-description: Quick root-cause debugging. Systematic trace-before-fix workflow for bugs, test failures, and unexpected behavior. When you need to investigate fast—why is this failing, root cause, debug this, ultradebug—run the 7-step frame inline or dispatch to systematic-debugging for full workflow.
-metadata:
-  owner: global-agents
-  tier: alias
-  canonical_source: ~/.claude/skills/systematic-debugging
+description: Systematic root-cause analysis for bugs, errors, and unexpected behavior
+triggers:
+  - debug this
+  - why is this failing
+  - root cause
+  - investigate
+  - ultradebug
 ---
 
 # Debug
 
-Quick 7-step debugging workflow. For full turn-efficiency budgets, architecture questioning, and subagent escalation triggers, see `systematic-debugging`.
+Systematic 7-step debugging. Don't guess — trace.
 
-**Core principle: Find root cause before fixing.** Symptom fixes are failure.
-
-## Quick 7-Step Frame
+## Steps
 
 1. **Reproduce** — get a minimal, reliable reproduction
 2. **Locate** — find the exact file, line, and call path where it breaks
@@ -23,17 +23,13 @@ Quick 7-step debugging workflow. For full turn-efficiency budgets, architecture 
 6. **Fix** — change exactly what the evidence points to
 7. **Verify** — confirm fix resolves the issue, run full test suite
 
-## Inline Rules
+## Rules
 
 - Never change code before you know the root cause
 - Read the actual error message — don't skim it
 - Check assumptions: is the value what you think it is? Add a log
 - Distinguish "symptom" from "cause" — fix the cause
 - If stuck after 3 hypotheses, add instrumentation before guessing more
-
-## When to Escalate
-
-For turn-efficiency budgets, architecture questioning (3+ failed fixes), subagent escalation triggers, red flags, and debugging churn prevention, invoke `/systematic-debugging` instead. Both workflows share the same non-negotiable: root cause FIRST, fixes SECOND.
 
 ## Output
 

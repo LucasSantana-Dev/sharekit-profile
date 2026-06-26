@@ -1,88 +1,54 @@
 ---
 name: ship
-description: Merge a ready PR or cut a release without skipping CI or review gates. Use for ready-to-merge work, release preparation, or merge-readiness checks. Refuses `--admin`, `--no-verify`, `--force-with-lease` against main.
+description: >-
+  Take a branch from feature done to actually merged or release cut without skipping CI or
+   review gates. Validates PR goal, required checks, review state, and risk. Handles versi
+  on bump, changelog, tag, and post-merge verification when releasing. Refuses to use admi
+  n bypasses or force options against main. Skip for WIP work or when CI is yellow with un
+  known signal and fix blockers first via ci-watch or next-priority.
 triggers:
   - ship
-  - merge this PR
   - prepare to merge
-  - release-ready check
-  - cut a release
   - prepare release
-metadata:
-  tier: execution
-  owner: lucas
-  canonical_source: standards/pr-conventions.md, standards/release-cadence.md
+  - cut a release
+  - merge this PR
+  - release-ready check
+  - shippable
 ---
 
 # ship
 
-Merge a ready PR or cut a release—without skipping CI or review gates.
+Use only when the branch is plausibly ready.
 
-## Preconditions (all required)
+## Preconditions
 
-- Goal is clear (title + body in PR, or release intent stated)
-- Diff is understood (no surprises in file changes)
-- Required checks green **or** failure proven unrelated (ref: `standards/pr-conventions.md §82`)
-- No blocking review comments (CodeRabbit, Sonar, human reviewers all resolved)
-- No obvious security or migration risk
+- goal is clear
+- diff is understood
+- required checks are green or a failure is proven unrelated
+- no unresolved blocking review comments
+- no obvious security or migration risk
 
-**Done when:** all five preconditions confirmed.
+## Rollback gate (release/prod deploys only)
 
-## Step 1: Optional — Pre-ship history lookup
-
-If this is a release-cut, query prior incidents or releases (fail-loud if External HD unmounted):
-
-```bash
-mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: External HD unmounted — release history inaccessible"; exit 1; }
-rag_query(query="releases and incidents in last 14 days", top=3)
-```
-
-**Done when:** prior issues surfaced or no prior context found.
-
-## Step 2: Validate merge readiness
-
-Run `/pr-merge-readiness` for combined verdict (all gates). Surface verdict clearly:
-- `✓ MERGE` — proceed to step 3
-- `[WARN] WAIT` — blocker present; surface and halt
-- `✗ FIX` — red CI or conflicts; fix first via `/ci-watch` or `/next-priority`, then re-check
-
-**Done when:** verdict is MERGE.
-
-## Step 3: Update docs / CHANGELOG if needed
-
-If release: confirm CHANGELOG entry matches PR body `## Changelog` field (ref: `standards/pr-conventions.md §74–75`).
-
-**Done when:** CHANGELOG updated or confirmed current.
-
-## Step 4: Merge or release
-
-- **Merge:** `gh pr merge --squash` (or merge-commit if documented in PR body)
-- **Release:** `/release-cut` (handles version + tag + verification)
-
-**Done when:** PR merged or release tagged + pushed.
-
-## Stop conditions (surface and halt)
-
-- Another user has blocking comments on the PR → surface blocker; do NOT merge
-- CI red with unknown signal → surface cause; do NOT merge (use `/ci-watch` to triage)
-- WIP work or not-ready state → surface precondition gap; do NOT merge
-
-## Safety gates (non-overridable)
-
-- **Never** use `gh pr merge --admin`, `--no-verify`, or `--force-with-lease` against `main`
-- **Never** automate merge/release when PR has comments from another person (CLAUDE.md hard rule)
-- **Never** cut release when `main..release` ≤ 1 commit (batch of 1 defeats purpose)
-- See `standards/release-cadence.md` for full policy
-
-## Output format
+Before merge-and-tag for any main/release branch ship or production infra change (Cloudflare, self-hosted infra, Dockerfile rewrite), surface a rollback plan:
 
 ```
-<VERDICT: MERGE | WAIT | FIX>
-
-Findings:
-- <top blocker or readiness signal>
-- <second signal>
-- <third signal>
-
-Next: [merge now | fix X first | escalate to user]
+Rollback plan:
+  Revert steps: [e.g. git revert <tag>, re-deploy previous tag]
+  Commands: [exact commands]
+  Estimated recovery time: [~X minutes]
 ```
+
+If no rollback plan can be formulated, halt and ask the user before proceeding. Exempt: feature-branch preview deploys, staging-only changes, hotfixes reverting a prior bad deploy.
+
+## Steps
+
+1. run `verify`
+2. inspect review and CI state
+3. update docs or changelog if needed
+4. prepare commit / push / PR or release step
+5. if anything is unclear, step back to the smallest unblock
+
+## See also
+
+- `standards/red-flags.md` — operator-action red flags to halt on before shipping (force-merge, unclear CI/review, uncommitted context)
