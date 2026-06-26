@@ -1,41 +1,78 @@
 ---
 name: recall
-description: Retrieve relevant past knowledge from file-based memory before acting. Grep-based by default (zero-dependency); uses a configured semantic retriever if one is available.
+description: One-shot semantic lookup against the local RAG index — answers "what did we decide about X", "where did we hit this bug before", "is there a memory note for Y" in a single MCP call. Backed by the `rag_query` MCP tool over ~21k chunks (memory, plans, handoffs, skills, standards, repo docs/readmes, changelogs, specs, roadmaps, code, git commits, prior session transcripts) across the curated repos (your curated repos). Auto-scopes to current repo. Use instead of grep when the question is fuzzy, cross-file, or about prior reasoning rather than current code shape. Skip for pure navigation (where is X defined → grep / serena) or single-file edits.
+triggers:
+  - recall
+  - have we seen this before
+  - did we decide
+  - prior context on
+  - what did we learn about
+  - is there a memory note for
 ---
 
-# Recall
+# recall
 
-Pull relevant facts from memory **before** wide exploration, or whenever the user asks "what did we decide about X / is there a note on Y / where did we leave Z".
+Single-shot RAG lookup. Don't over-fetch.
 
-## Where memory lives
+**Mount guard:** `mount | grep -q /Volumes/External\ HD || echo WARNING: RAG degraded` — the index lives on the External HD; an unmounted drive silently degrades recall. See `standards/knowledge-brain.md §1`.
+
+## How
+
+Call the MCP tool directly:
 
 ```
-${BRAIN_ROOT:-$HOME/.claude/memory}
+rag_query(query="<natural-language question>", top=5)
 ```
 
-A directory of markdown facts with a `MEMORY.md` index and a `CORE.md` tier-0. See `memory-structure/` for the convention. Works out of the box — no database, no embeddings required.
+**Done when:** top results answer your question in 1–2 chunks. If not, narrow the query or increase `top` (up to 8).
 
-## How to recall (cheapest first)
+Optional args:
+- `top` (1–20, default 5) — more isn't always better; reranker quality drops past 8.
+- `scope_types` — narrow to e.g. `["memory", "handoffs"]` for "what did I write down" queries, or `["commit"]` for "what did we ship lately on X".
+- `scope_repos` — pass `["all"]` to ignore cwd auto-scope; pass `["<repo>"]` etc. to force a specific repo.
 
-1. **Index scan.** Read `MEMORY.md` — its one-line descriptions usually tell you which facts are relevant. Often this is enough.
-2. **Keyword grep** (the zero-dependency default):
-   ```bash
-   MEM="${BRAIN_ROOT:-$HOME/.claude/memory}"
-   grep -rilE "<keyword1|keyword2>" "$MEM" --include='*.md'
-   ```
-   Read the matching fact files in full.
-3. **Semantic retriever (optional).** If `$MEMORY_RETRIEVER` is set — a command template that takes a query and prints matching file paths — use it for fuzzy/semantic recall:
-   ```bash
-   if [ -n "$MEMORY_RETRIEVER" ]; then eval "${MEMORY_RETRIEVER/\{\}/<query>}"; else echo "(no retriever — using grep)"; fi
-   ```
-   Unset → step 2 is the fallback. (Wire `$MEMORY_RETRIEVER` to any embedding search, e.g. `mytool query {} --top 5`.)
+## Failure modes
 
-## When to recall
+- **Unmounted External HD** — if the drive drops mid-session, the RAG index becomes stale or inaccessible. Mount guard (above) catches this; surface "WARNING: RAG degraded" and skip the query or fall back to grep.
+- **Stale index** — if memory or code changed recently and the reindex hook hasn't run (2–5 minute lag typical), you may miss the latest decisions or commits. Fallback: ask directly ("what did we just decide") or grep recent files / `git log`.
+- **Low-quality rerank** — if you ask a vague question ("fix this") without context, the reranker may return false positives. Be specific ("why did we choose D1 for Progress Tracker storage").
 
-- Before wide Grep/Read sweeps on a question memory might already answer.
-- On "what did we decide / is there a memory for / where did we leave X".
-- At the start of any non-trivial task.
+## Anatomy of results
 
-## Output
+A `rag_query()` result includes:
 
-Cite the fact file(s) and give the answer. Treat a recalled fact as reflecting what was true *when written* — verify a named file/flag still exists before acting on it. If nothing matches, say so plainly; don't fabricate.
+```json
+{
+  "results": [
+    {
+      "text": "<chunk content>",
+      "source": {
+        "type": "memory" | "handoff" | "plan" | "commit" | "code" | "readme",
+        "repo": "<repo>" | "...",
+        "path": "..."
+      },
+      "score": 0.87  // reranker confidence; >0.8 usually relevant
+    }
+  ]
+}
+```
+
+Typical scores: relevant = 0.75+; weak relevance = 0.50–0.75; noise = <0.50. Higher `top` → more noise. See `standards/skill-patterns.md §completion-criteria` for "Done when" discipline.
+
+## When recall beats grep
+
+- "Why is this written this way" — answers live in memory/plans/commits, not the file.
+- Cross-repo questions ("is this pattern used elsewhere") — index covers 5 repos.
+- Past-incident lookup — `feedback_*.md` memory files surface here, not in repo grep.
+- Onboarding into an unfamiliar area — gets 5 best chunks across all source types in one call.
+
+## When grep / serena beats recall
+
+- "Where is `function X` defined" — `mcp__serena__find_symbol` or `grep` is faster + exact.
+- Single-file scoped edits — open the file.
+- Recent state ("did this change today") — `git log` / `git diff` is authoritative; the index lags by minutes-to-hours depending on whether the post-edit reindex hook ran.
+
+## Pair with
+
+- `context-pack` when one query isn't enough and you need a multi-source bundle.
+- `dispatch` when the question fans into multiple parallel investigations.
