@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agent OS — Claude Code Harness Reference</title>
-  <meta name="description" content="Visual reference for the Claude Code operator harness — 269 skills, 39 agents, 30+ hooks, MCP servers, and plugins.">
+  <meta name="description" content="Visual reference for the Claude Code operator harness — 259 skills, 39 agents, 30+ hooks, MCP servers, and plugins.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -528,7 +528,7 @@
 
   <div class="nav-tabs" id="nav-tabs">
     <button class="nav-tab active" data-panel="skills">
-      Skills <span class="tab-count" id="tc-skills">269</span>
+      Skills <span class="tab-count" id="tc-skills">259</span>
     </button>
     <button class="nav-tab" data-panel="agents">
       Agents <span class="tab-count">39</span>
@@ -598,7 +598,7 @@
       <div class="grid-header">
         <div>
           <div class="grid-header-title" id="grid-title">All Skills</div>
-          <div class="grid-header-sub" id="grid-sub">269 skills across 24 categories — invoke autonomously or with /<i>name</i></div>
+          <div class="grid-header-sub" id="grid-sub">259 skills across 24 categories — invoke autonomously or with /<i>name</i></div>
         </div>
         <div class="result-count" id="result-count"></div>
       </div>
@@ -721,7 +721,6 @@ const TRANSLATIONS = {
   "context-pack": "Monta um bundle de contexto sensível à tarefa (código relevante + padrões + decisões passadas) via RAG, limitado por orçamento de tokens.",
   "context-save": "Captura o estado atual da tarefa para que o trabalho possa ser retomado depois sem redescoberta.",
   "handoff": "Compacta a conversa atual em um documento de handoff para outro agente pegar.",
-  "handoff-diet": "Meta-skill codificando o padrão no-wakeup-polling. Reduz spam de handoff em 80%.",
   "session-wrap-up": "Encerra uma sessão de desenvolvimento enviando trabalho, capturando memória e escrevendo handoff.",
   "session-cleanup": "Limpa o estado atual da sessão para que o trabalho possa transicionar de forma limpa para a próxima sessão.",
   "zoom-out": "Pede ao agente uma perspectiva mais ampla ou de nível superior sobre código desconhecido.",
@@ -749,7 +748,6 @@ const TRANSLATIONS = {
   "quality-gates": "Executa gates de verificação nativos do repositório como lint, type-check e testes.",
   "improve-codebase-architecture": "Encontra oportunidades de aprofundamento informadas por CONTEXT.md e ADRs — refactoring, testabilidade, consolidação de módulos.",
   "impeccable": "Polida interfaces frontend: UX review, hierarquia visual, acessibilidade, comportamento responsivo, design systems.",
-  "simplify": "Revisa código alterado para reutilização, simplificação, eficiência e limpezas de altitude, depois aplica as correções.",
   "tdd": "Desenvolvimento orientado por testes com loop red-green-refactor — escreve testes falhando primeiro, implementa, refatora.",
   "test-health": "Diagnóstico somente leitura reportando o estado da suite de testes do projeto — contagem, cobertura, tempo de execução, flakiness, testes mortos.",
   "test-cleanup": "Audita e poda uma suite de testes inchada até o mínimo de testes que atingem limiar de cobertura e guardando comportamento real.",
@@ -781,7 +779,6 @@ const TRANSLATIONS = {
   "using-git-worktrees": "Cria git worktrees isoladas para trabalho de feature que não deve reutilizar o checkout principal.",
   "gh-address-comments": "Responde aos comentários de review no PR GitHub aberto para o branch atual.",
   "gh-fix-ci": "Debugar e corrigir checks falhando de GitHub PR.",
-  "first-pr": "Desembarca um primeiro PR seguro em um repo desconhecido: onboard → context-pack → scope → TDD → PR.",
   "hotfix": "Bypass emergencial de branch de release quando produção está quebrada e não pode esperar o próximo release.",
   "ship": "Envia mudanças validadas — tag, GitHub release e verificação pós-ship.",
   "ship-it": "Leva um PR mergeado todo o caminho até produção: version-bump → changelog → tag → deploy → verify.",
@@ -813,16 +810,11 @@ const TRANSLATIONS = {
   "ai-slop-audit": "Passada de QA pós-geração que linta output frontend contra anti-padrões conhecidos 'AI made that'.",
   "design-an-interface": "Design uma interface UI com spec estruturada, decisões de layout e breakdown de componentes.",
   "docker-expert": "Guia Docker focado em produção para design de imagem, builds multi-stage e orquestração.",
-  "turborepo": "Guia Turborepo monorepo para modelagem de tarefas, caching, filtragem e integração CI.",
   "supabase-postgres-best-practices": "Otimização de performance Postgres e best practices do Supabase.",
   "supabase": "Use para QUALQUER tarefa envolvendo Supabase — Database, Auth, Edge Functions, Realtime, Storage, RLS, migrations.",
   "prisma-migrate": "Executa migrações Prisma com segurança com checks pré-flight e guia de rollback.",
   "trigger-dev": "Constrói agentes AI, workflows e tarefas de background duráveis com Trigger.dev.",
   "observe": "Ponto de entrada unificado para trabalho observability + monitoring — roteia para o membro certo da família.",
-  "observability-bootstrap": "Configura observabilidade completa para um novo serviço: implementa todos 4 pilares → SLOs + alerts → smoke-test.",
-  "observability-audit": "Audita observabilidade de um serviço existente: analisa → debugar → tune → implementa gaps → configuração de monitoramento.",
-  "observability-implement": "Adiciona observabilidade a código que carece dela — logs estruturados, métricas, traces, error reporting (OTEL, Prometheus, Sentry).",
-  "observability-debug": "Diagnostica observabilidade quebrada — alerts flapping, signals faltando, trace propagation quebrada.",
   "langfuse-observe": "Configura observabilidade Langfuse LLM para traçar chamadas Claude API com custos, tokens e latência.",
   "sentry": "Inspeciona problemas ou eventos Sentry, sumariza erros, correlaciona com deploys recentes.",
   "mcp-builder": "Guia para criar servidores MCP de alta qualidade do zero.",
@@ -861,9 +853,7 @@ const TRANSLATIONS = {
   "ci-watch": "Inspeciona estado CI atual, identifica o primeiro bloqueador real e monitora até checks ficarem verdes ou entendidos.",
   "dep-sweep": "Processa em lote PRs abertos Dependabot/Renovate: agrupa por risco → auto-merge seguro → flag arriscado.",
   "incident-response": "Coordena resposta de incidente usando Sentry, Linear e GitHub para fazer triage, correlacionar e rastrear problemas de produção.",
-  "production-incident": "Workflow de incidente de produção completo: sentry → debug-deep → incident-response → ship-it → ADR.",
   "graphify": "Transforma qualquer pasta de arquivos em um grafo de conhecimento navegável. Use para qualquer pergunta de codebase ou documento.",
-  "dev-assets-sync": "Executa o sync de backup dev-assets — rsyncs configs Claude, memórias, padrões, hooks e arquivos por-projeto.",
   "sync-sharekit-profile": "Sincroniza este perfil de harness para seu repositório remoto (skills, padrões, hooks, config).",
   "token-audit": "Analisa uso histórico de tokens Claude Code a partir de arquivos JSONL de sessão — gasto, taxas de cache hit, tendências semanais.",
   "smart-commands": "Guia de decisão para quando usar proativamente comandos slash Claude Code — /think, /model, /compact, /clear.",
@@ -994,7 +984,6 @@ const SKILLS = [
   { name: 'context-pack',         cat: 'session',       composite: false, desc: 'Build a task-aware context bundle (relevant code + standards + past decisions) via RAG, capped at a token budget.' },
   { name: 'context-save',         cat: 'session',       composite: false, desc: 'Capture current task state so work can be resumed later without re-discovery.' },
   { name: 'handoff',              cat: 'session',       composite: false, desc: 'Compact the current conversation into a handoff document for another agent to pick up.' },
-  { name: 'handoff-diet',         cat: 'session',       composite: false, desc: 'Meta-skill codifying the no-wakeup-polling pattern. Reduces handoff spam by 80%.' },
   { name: 'session-wrap-up',      cat: 'session',       composite: false, desc: 'Close out a development session by shipping work, capturing memory, and writing handoff.' },
   { name: 'session-cleanup',      cat: 'session',       composite: false, desc: 'Clean up current session state so work can transition cleanly to the next session.' },
   { name: 'zoom-out',             cat: 'session',       composite: false, desc: 'Tell the agent to give broader context or a higher-level perspective on unfamiliar code.' },
@@ -1026,7 +1015,6 @@ const SKILLS = [
   { name: 'quality-gates',        cat: 'quality',       composite: false, desc: 'Run repository-native verification gates such as lint, type-check, and tests.' },
   { name: 'improve-codebase-architecture', cat: 'quality', composite: false, desc: 'Find deepening opportunities informed by CONTEXT.md and ADRs — refactoring, testability, module consolidation.' },
   { name: 'impeccable',           cat: 'quality',       composite: false, desc: 'Polish frontend interfaces: UX review, visual hierarchy, accessibility, responsive behavior, design systems.' },
-  { name: 'simplify',             cat: 'quality',       composite: false, desc: 'Review changed code for reuse, simplification, efficiency, and altitude cleanups, then apply the fixes.' },
 
   // ── Testing
   { name: 'tdd',                  cat: 'testing',       composite: false, desc: 'Test-driven development with red-green-refactor loop — write failing tests first, implement, refactor.' },
@@ -1066,7 +1054,6 @@ const SKILLS = [
   { name: 'using-git-worktrees',  cat: 'git',           composite: false, desc: 'Create isolated git worktrees for feature work that should not reuse the main checkout.' },
   { name: 'gh-address-comments',  cat: 'git',           composite: false, desc: 'Address review comments on the open GitHub PR for the current branch.' },
   { name: 'gh-fix-ci',            cat: 'git',           composite: false, desc: 'Debug and fix failing GitHub PR checks.' },
-  { name: 'first-pr',             cat: 'git',           composite: true,  desc: 'Land a safe first PR in an unfamiliar repo: onboard → context-pack → scope → TDD → PR.' },
   { name: 'hotfix',               cat: 'git',           composite: true,  desc: 'Emergency bypass of release branch when production is broken and can\'t wait for next release.' },
 
   // ── Release & Deployment
@@ -1106,7 +1093,6 @@ const SKILLS = [
 
   // ── Backend
   { name: 'docker-expert',        cat: 'backend',       composite: false, desc: 'Production-focused Docker guidance for image design, multi-stage builds, and orchestration.' },
-  { name: 'turborepo',            cat: 'backend',       composite: false, desc: 'Turborepo monorepo guidance for task modeling, caching, filtering, and CI integration.' },
   { name: 'supabase-postgres-best-practices', cat: 'backend', composite: false, desc: 'Postgres performance optimization and best practices from Supabase.' },
   { name: 'supabase',             cat: 'backend',       composite: false, desc: 'Use for ANY task involving Supabase — Database, Auth, Edge Functions, Realtime, Storage, RLS, migrations.' },
   { name: 'prisma-migrate',       cat: 'backend',       composite: false, desc: 'Run Prisma migrations safely with pre-flight checks and rollback guidance.' },
@@ -1114,10 +1100,6 @@ const SKILLS = [
 
   // ── Observability & Monitoring
   { name: 'observe',              cat: 'observability', composite: false, desc: 'Unified entry point for observability + monitoring work — routes to the right family member.' },
-  { name: 'observability-bootstrap', cat: 'observability', composite: true, desc: 'Set up complete observability for a new service: implement all 4 pillars → SLOs + alerts → smoke-test.' },
-  { name: 'observability-audit',  cat: 'observability', composite: true,  desc: 'Audit observability of an existing service: analyze → debug → tune → implement gaps → monitoring setup.' },
-  { name: 'observability-implement', cat: 'observability', composite: false, desc: 'Add observability to code that lacks it — structured logs, metrics, traces, error reporting (OTEL, Prometheus, Sentry).' },
-  { name: 'observability-debug',  cat: 'observability', composite: false, desc: 'Diagnose broken observability — flapping alerts, missing signals, broken trace propagation.' },
   { name: 'langfuse-observe',     cat: 'observability', composite: false, desc: 'Set up Langfuse LLM observability to trace Claude API calls with costs, tokens, and latency.' },
   { name: 'sentry',               cat: 'observability', composite: false, desc: 'Inspect Sentry issues or events, summarize errors, correlate with recent deploys.' },
 
@@ -1170,11 +1152,9 @@ const SKILLS = [
 
   // ── Incident Management
   { name: 'incident-response',    cat: 'incident',      composite: false, desc: 'Coordinate incident response using Sentry, Linear, and GitHub to triage, correlate, and track production issues.' },
-  { name: 'production-incident',  cat: 'incident',      composite: true,  desc: 'Full production incident workflow: sentry → debug-deep → incident-response → ship-it → ADR.' },
 
   // ── Sync & Documentation
   { name: 'graphify',             cat: 'sync-docs',     composite: false, desc: 'Turn any folder of files into a navigable knowledge graph. Use for any codebase or document question.' },
-  { name: 'dev-assets-sync',      cat: 'sync-docs',     composite: false, desc: 'Run the dev-assets backup sync — rsyncs Claude configs, memories, standards, hooks, and per-project files.' },
   { name: 'sync-sharekit-profile',cat: 'sync-docs',     composite: false, desc: 'Sync this harness profile to its remote repository (skills, standards, hooks, config).' },
 
   // ── Performance & Cost
