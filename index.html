@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agent OS — Claude Code Harness Reference</title>
-  <meta name="description" content="Visual reference for the Claude Code operator harness — 259 skills, 39 agents, 30+ hooks, MCP servers, and plugins.">
+  <title>Agent OS — Claude Code Operator Harness Guide</title>
+  <meta name="description" content="A clear guide to the Claude Code operator harness — how skills, composites, sub-agents, and lifecycle hooks fit together, plus a searchable catalog of every skill, agent, hook, MCP server, and plugin.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -31,6 +31,17 @@
       --sidebar-w:   260px;
       --radius:      8px;
       --radius-sm:   5px;
+      /* spacing scale */
+      --sp-xs:       4px;
+      --sp-sm:       8px;
+      --sp-md:       16px;
+      --sp-lg:       24px;
+      --sp-xl:       32px;
+      --sp-2xl:      48px;
+      /* transitions */
+      --dur-fast:    0.1s;
+      --dur-norm:    0.15s;
+      --dur-slow:    0.2s;
     }
 
     html { color-scheme: dark; scroll-behavior: smooth; }
@@ -403,7 +414,7 @@
       padding-bottom: env(safe-area-inset-bottom);
     }
     .mobile-tab-grid {
-      display: grid; grid-template-columns: repeat(5, 1fr); height: 56px;
+      display: grid; grid-template-columns: repeat(6, 1fr); height: 56px;
     }
     .mobile-tab {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -514,6 +525,238 @@
       .nav-brand-icon { width: 24px; height: 24px; font-size: 13px; }
       .nav-brand { font-size: 14px; gap: 7px; }
     }
+
+    /* ══ GUIDE PANEL ═══════════════════════════════════════════ */
+    .g-wrap { max-width: 960px; margin: 0 auto; }
+    .g-section { margin-bottom: 56px; scroll-margin-top: calc(var(--nav-h) + 20px); }
+    .g-eyebrow {
+      font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--cyan); margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+    }
+    .g-eyebrow::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--border), transparent); }
+    .g-h2 { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; margin-bottom: 8px; }
+    .g-lead { font-size: 15px; color: var(--text-muted); line-height: 1.65; margin-bottom: 24px; max-width: 720px; font-weight: 500; }
+
+    /* hero */
+    .g-hero {
+      padding: 48px 0 12px; text-align: left;
+    }
+    .g-hero-badge {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500;
+      color: var(--text-muted); background: rgba(34,211,238,.08); border: 1px solid rgba(34,211,238,.2);
+      padding: 6px 14px; border-radius: 99px; margin-bottom: 20px;
+      transition: all var(--dur-norm);
+    }
+    .g-hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+    .g-hero-badge:hover { border-color: var(--cyan); background: rgba(34,211,238,.12); }
+    .g-hero h1 {
+      font-size: clamp(32px, 6vw, 48px); font-weight: 800; letter-spacing: -1.4px;
+      line-height: 1.1; margin-bottom: 18px;
+      background: linear-gradient(125deg, #fafafa 25%, #a78bfa 55%, #22d3ee 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .g-hero-sub { font-size: 16px; color: var(--text-muted); line-height: 1.65; max-width: 680px; margin-bottom: 32px; }
+    .g-hero-sub strong { color: var(--text); font-weight: 600; }
+
+    .g-stats {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 1px; background: var(--border); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; margin-bottom: 36px;
+    }
+    .g-stat { background: var(--surface); padding: 18px 14px; text-align: center; transition: all var(--dur-norm); }
+    .g-stat:hover { background: var(--surface-2); }
+    .g-stat-num { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; font-family: 'Geist Mono', monospace; margin-bottom: 4px; }
+    .g-stat-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .06em; font-weight: 500; }
+
+    .g-cta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+    .g-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 600;
+      padding: 11px 20px; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid transparent;
+      text-decoration: none; transition: all var(--dur-norm); white-space: nowrap;
+    }
+    .g-btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+    .g-btn-primary { background: var(--cyan); color: #06181c; }
+    .g-btn-primary:hover { background: #67e8f9; transform: translateY(-1px); box-shadow: 0 8px 16px rgba(34,211,238,.25); }
+    .g-btn-ghost { background: transparent; border-color: var(--border-2); color: var(--text); }
+    .g-btn-ghost:hover { background: var(--surface-2); border-color: var(--text); }
+
+    /* mental model diagram */
+    .g-diagram {
+      border: 1px solid var(--border); border-radius: var(--radius); padding: 32px;
+      background:
+        radial-gradient(120% 120% at 0% 0%, rgba(167,139,250,.05), transparent 50%),
+        radial-gradient(120% 120% at 100% 100%, rgba(34,211,238,.05), transparent 50%),
+        var(--surface);
+    }
+    .g-layer { margin-bottom: 28px; position: relative; }
+    .g-layer:last-child { margin-bottom: 0; }
+    .g-layer-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--text-dim); margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+    }
+    .g-layer-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--border), transparent); }
+    .g-nodes { display: flex; gap: 12px; flex-wrap: wrap; }
+    .g-node {
+      flex: 1; min-width: 160px; border: 1px solid var(--border-2); border-radius: var(--radius-sm);
+      padding: 14px 16px; background: var(--surface-2);
+      transition: all var(--dur-norm);
+      position: relative;
+    }
+    .g-node:hover { border-color: var(--border); background: #1a1a1e; }
+    .g-node::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(to right, rgba(34,211,238,.3), transparent);
+      opacity: 0; transition: opacity var(--dur-norm);
+    }
+    .g-node:hover::before { opacity: 1; }
+    .g-node-title { font-size: 13px; font-weight: 700; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+    .g-node-title .pip { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px currentColor; opacity: 0.8; }
+    .g-node-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .g-arrow {
+      text-align: center; color: var(--text-dim); font-size: 13px; line-height: 1; margin: 8px 0;
+      font-weight: 500; font-family: 'Geist Mono', monospace; opacity: 0.7;
+    }
+    .g-substrate {
+      border-top: 1px dashed rgba(34,211,238,.2); margin-top: 20px; padding-top: 16px;
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    }
+    .g-substrate-label { font-size: 11px; color: var(--text-dim); margin-right: 6px; font-weight: 500; }
+    .g-chip {
+      font-size: 11px; font-family: 'Geist Mono', monospace; color: var(--text-muted);
+      background: rgba(34,211,238,.08); border: 1px solid rgba(34,211,238,.2); padding: 4px 10px; border-radius: 99px;
+      transition: all var(--dur-norm);
+    }
+    .g-chip:hover { border-color: var(--cyan); background: rgba(34,211,238,.12); color: var(--cyan); }
+
+    /* steps */
+    .g-steps { display: flex; flex-direction: column; gap: 18px; }
+    .g-step { display: flex; gap: 16px; }
+    .g-step-num {
+      flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; font-family: 'Geist Mono', monospace;
+      font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, rgba(34,211,238,.15), rgba(167,139,250,.1));
+      border: 1.5px solid var(--cyan); color: var(--cyan);
+      box-shadow: 0 0 12px rgba(34,211,238,.15);
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .g-step-body { flex: 1; min-width: 0; }
+    .g-step-title { font-size: 14.5px; font-weight: 700; margin-bottom: 8px; }
+    .g-code {
+      font-family: 'Geist Mono', monospace; font-size: 12px; line-height: 1.7;
+      background: #0c0c0e; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 12px 14px; overflow-x: auto; white-space: pre; color: var(--text);
+      transition: all var(--dur-norm);
+    }
+    .g-code:hover { border-color: var(--border-2); box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+    .g-code .c-cmd { color: #22d3ee; font-weight: 500; }
+    .g-code .c-out { color: var(--text-dim); opacity: 0.9; }
+    .g-code .c-ok { color: #4ade80; font-weight: 500; }
+
+    /* concept cards */
+    .g-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+    .g-card {
+      border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; background: var(--surface);
+      transition: all var(--dur-norm);
+      display: flex; flex-direction: column;
+    }
+    .g-card:hover {
+      border-color: var(--cyan);
+      background: #1a1a1e;
+      box-shadow: 0 4px 12px rgba(34,211,238,.12);
+      transform: translateY(-1px);
+    }
+    .g-card:focus-within { outline: 2px solid var(--cyan); outline-offset: -1px; }
+    .g-card-title { font-size: 14.5px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 9px; }
+    .g-card-icon { flex-shrink: 0; display: flex; color: var(--cyan); }
+    .g-card-icon svg { width: 18px; height: 18px; }
+    .g-card-body { font-size: 13px; color: var(--text-muted); line-height: 1.6; flex: 1; }
+    .g-card-body code, .g-lead code, .g-step-title code, .g-rule code {
+      font-family: 'Geist Mono', monospace; font-size: .9em; color: var(--cyan);
+      background: rgba(34,211,238,.1); padding: 2px 6px; border-radius: 4px;
+      font-weight: 500;
+    }
+    .g-card-eg { font-size: 12px; color: var(--text-dim); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .g-card-eg b { color: var(--text-muted); font-weight: 600; }
+
+    /* task router */
+    .g-tasks { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+    .g-task {
+      display: flex; align-items: flex-start; gap: 14px; text-align: left; width: 100%;
+      border: 1px solid var(--border); border-radius: var(--radius); padding: 15px 17px;
+      background: var(--surface); cursor: pointer; transition: all var(--dur-norm); color: inherit; font: inherit;
+      position: relative;
+    }
+    .g-task:hover {
+      border-color: var(--cyan);
+      background: #1a1a1e;
+      box-shadow: 0 4px 12px rgba(34,211,238,.1);
+      transform: translateY(-1px);
+    }
+    .g-task:focus-visible { outline: 2px solid var(--cyan); outline-offset: -1px; }
+    .g-task::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(to right, rgba(34,211,238,.2), transparent);
+      opacity: 0; transition: opacity var(--dur-norm);
+    }
+    .g-task:hover::before { opacity: 1; }
+    .g-task-icon { flex-shrink: 0; line-height: 1.2; margin-top: 1px; display: flex; color: var(--cyan); }
+    .g-task-icon svg { width: 19px; height: 19px; }
+    .g-task-main { flex: 1; min-width: 0; }
+    .g-task-want { font-size: 13.5px; font-weight: 700; margin-bottom: 3px; }
+    .g-task-skill { font-family: 'Geist Mono', monospace; font-size: 11.5px; color: #22d3ee; font-weight: 500; }
+    .g-task-skill::before { content: '→ '; color: var(--text-dim); margin-right: 1px; }
+
+    /* rules / flow */
+    .g-rules { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 10px; }
+    .g-rule {
+      display: flex; gap: 12px; font-size: 13px; color: var(--text-muted); line-height: 1.6;
+      border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 13px 15px; background: var(--surface);
+      transition: all var(--dur-norm);
+    }
+    .g-rule:hover { border-color: var(--red); background: #1a1a1e; }
+    .g-rule-n {
+      font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--red); flex-shrink: 0; font-weight: 700;
+      opacity: 0.8;
+    }
+    .g-rule b { color: var(--text); font-weight: 700; }
+
+    .g-flow { display: flex; flex-direction: column; gap: 0; }
+    .g-flow-step {
+      display: flex; gap: 14px; align-items: flex-start; padding: 14px 0;
+      border-bottom: 1px solid var(--border); font-size: 13px;
+    }
+    .g-flow-step:last-child { border-bottom: none; }
+    .g-flow-tag {
+      font-family: 'Geist Mono', monospace; font-size: 10px; font-weight: 700; flex-shrink: 0;
+      padding: 3px 10px; border-radius: 4px; background: rgba(34,211,238,.12); color: var(--cyan);
+      min-width: 120px; text-align: center; white-space: nowrap;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .g-flow-text { color: var(--text-muted); line-height: 1.6; }
+    .g-flow-text b { color: var(--text); font-weight: 700; }
+
+    /* guide footer */
+    .g-footer {
+      border-top: 1px solid var(--border); margin-top: 8px; padding-top: 22px;
+      display: flex; flex-wrap: wrap; gap: 18px; align-items: center; justify-content: space-between;
+    }
+    .g-footer-links { display: flex; gap: 16px; flex-wrap: wrap; }
+    .g-footer-links a { color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color .15s; }
+    .g-footer-links a:hover { color: var(--cyan); }
+    .g-footer-meta { font-size: 12px; color: var(--text-dim); font-family: 'Geist Mono', monospace; }
+
+    @media (max-width: 768px) {
+      .g-hero { padding: 32px 0 8px; }
+      .g-hero h1 { font-size: clamp(28px, 5vw, 36px); }
+      .g-stats { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); margin-bottom: 28px; }
+      .g-stat { padding: 14px 10px; }
+      .g-stat-num { font-size: 22px; }
+      .g-flow-tag { min-width: 100px; font-size: 9.5px; }
+      .g-cards { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+      .g-card { padding: 16px 18px; }
+      .g-tasks { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    }
   </style>
 </head>
 <body>
@@ -521,31 +764,34 @@
 <!-- NAV -->
 <nav>
   <a class="nav-brand" href="#">
-    <div class="nav-brand-icon">⚡</div>
+    <div class="nav-brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M7 14l8-11v8l8 11V9"/></svg></div>
     Agent OS
-    <span class="nav-version">v0.8.0</span>
+    <span class="nav-version">v0.9.0</span>
   </a>
 
   <div class="nav-tabs" id="nav-tabs">
-    <button class="nav-tab active" data-panel="skills">
+    <button class="nav-tab active" data-panel="guide">
+      Guide
+    </button>
+    <button class="nav-tab" data-panel="skills">
       Skills <span class="tab-count" id="tc-skills">259</span>
     </button>
     <button class="nav-tab" data-panel="agents">
-      Agents <span class="tab-count">39</span>
+      Agents <span class="tab-count" id="tc-agents">39</span>
     </button>
     <button class="nav-tab" data-panel="hooks">
-      Hooks <span class="tab-count">7</span>
+      Hooks <span class="tab-count" id="tc-hooks">9</span>
     </button>
     <button class="nav-tab" data-panel="mcp">
-      MCP Servers <span class="tab-count">18</span>
+      MCP Servers <span class="tab-count" id="tc-mcp">18</span>
     </button>
     <button class="nav-tab" data-panel="plugins">
-      Plugins <span class="tab-count">11</span>
+      Plugins <span class="tab-count" id="tc-plugins">11</span>
     </button>
   </div>
 
   <div class="nav-right">
-    <button class="lang-toggle" id="lang-toggle" title="Toggle language">🇧🇷 PT</button>
+    <button class="lang-toggle" id="lang-toggle" title="Toggle language"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline;margin-right:4px"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="lang-text">PT</span></button>
     <a class="nav-gh-link" href="https://github.com/LucasSantana-Dev/sharekit-profile" target="_blank" rel="noopener">
       <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
       GitHub
@@ -567,7 +813,7 @@
 
     <div class="filter-row">
       <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="composites">⚡ Composites</button>
+      <button class="filter-btn" data-filter="composites">Composites</button>
     </div>
 
     <div class="sidebar-section-label">Categories</div>
@@ -577,8 +823,244 @@
   <!-- MAIN CONTENT -->
   <main>
 
+    <!-- GUIDE PANEL -->
+    <div class="panel active" id="panel-guide">
+      <div class="g-wrap">
+
+        <!-- HERO -->
+        <div class="g-hero g-section" id="g-top">
+          <div class="g-hero-badge"><span class="dot"></span> Operator harness · live reference</div>
+          <h1>Your autonomous engineering operator.</h1>
+          <p class="g-hero-sub">
+            A fully-wired Claude Code environment: reusable <strong>skills</strong> you invoke,
+            <strong>composites</strong> that chain them with gates, <strong>sub-agents</strong> that do
+            isolated work in parallel, and <strong>hooks</strong> that fire automatically on every prompt.
+            This page is the map — start here, then dive into the catalog.
+          </p>
+
+          <div class="g-stats">
+            <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">240+</div><div class="g-stat-label">Skills</div></div>
+            <div class="g-stat"><div class="g-stat-num" style="color:var(--violet)" id="st-composites">55+</div><div class="g-stat-label">Composites</div></div>
+            <div class="g-stat"><div class="g-stat-num" style="color:var(--blue)" id="st-agents">39</div><div class="g-stat-label">Agents</div></div>
+            <div class="g-stat"><div class="g-stat-num" style="color:var(--amber)">9</div><div class="g-stat-label">Hook events</div></div>
+            <div class="g-stat"><div class="g-stat-num" style="color:var(--green)" id="st-mcp">12</div><div class="g-stat-label">MCP + cloud</div></div>
+            <div class="g-stat"><div class="g-stat-num" style="color:var(--pink)">58</div><div class="g-stat-label">Standards</div></div>
+          </div>
+
+          <div class="g-cta-row">
+            <button class="g-btn g-btn-primary" data-goto="g-quickstart">Start in 5 minutes →</button>
+            <button class="g-btn g-btn-ghost" data-goto="g-tasks">I want to…</button>
+            <button class="g-btn g-btn-ghost" data-panel-jump="skills">Browse all skills</button>
+          </div>
+        </div>
+
+        <!-- MENTAL MODEL -->
+        <div class="g-section" id="g-model">
+          <div class="g-eyebrow">Mental model</div>
+          <h2 class="g-h2">How the pieces fit</h2>
+          <p class="g-lead">Four layers. You invoke at the top; everything below runs to serve that intent.</p>
+          <div class="g-diagram">
+            <div class="g-layer">
+              <div class="g-layer-label">1 · You invoke</div>
+              <div class="g-nodes">
+                <div class="g-node">
+                  <div class="g-node-title"><span class="pip" style="background:var(--cyan)"></span>Skills</div>
+                  <div class="g-node-desc">One well-scoped task — <code>/ship</code>, <code>/code-review</code>, <code>/debug</code>. Run in your context, read-only by default. Invoke with <code>/name</code> or let the router auto-detect.</div>
+                </div>
+                <div class="g-node">
+                  <div class="g-node-title"><span class="pip" style="background:var(--violet)"></span>Composites</div>
+                  <div class="g-node-desc">A skill that auto-chains other skills with gates between phases (e.g. plan → execute → test → record). Prefer these — running sub-skills by hand skips the gates.</div>
+                </div>
+              </div>
+            </div>
+            <div class="g-arrow">↓ dispatch</div>
+            <div class="g-layer">
+              <div class="g-layer-label">2 · Work gets done</div>
+              <div class="g-nodes">
+                <div class="g-node">
+                  <div class="g-node-title"><span class="pip" style="background:var(--blue)"></span>Sub-agents</div>
+                  <div class="g-node-desc">Autonomous workers in their own context (and git worktree). Analysis agents are read-only <em>by construction</em>; execution agents write. Run in parallel for independent work.</div>
+                </div>
+              </div>
+            </div>
+            <div class="g-arrow">↓ wrapped by</div>
+            <div class="g-layer">
+              <div class="g-layer-label">3 · Hooks (automatic, every prompt &amp; tool call)</div>
+              <div class="g-nodes">
+                <div class="g-node" style="background:rgba(34,211,238,.06)">
+                  <div class="g-node-desc" style="color:var(--text-muted)">Inject memory + graph context · route the model tier · detect composites · guard dangerous commands · reindex edits · mirror memory on exit. You never call these — they fire on their own.</div>
+                </div>
+              </div>
+            </div>
+            <div class="g-substrate">
+              <span class="g-substrate-label">on a substrate of</span>
+              <span class="g-chip">Standards</span>
+              <span class="g-chip">Memory</span>
+              <span class="g-chip">RAG index</span>
+              <span class="g-chip">ADR vault</span>
+              <span class="g-chip">CLAUDE.md</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- QUICKSTART -->
+        <div class="g-section" id="g-quickstart">
+          <div class="g-eyebrow">Quickstart · ~5 min</div>
+          <h2 class="g-h2">Your first autonomous task</h2>
+          <p class="g-lead">Prerequisites: Claude Code CLI installed, this profile in <code>~/.claude/</code>, a git repo to work in.</p>
+          <div class="g-steps">
+            <div class="g-step">
+              <div class="g-step-num">1</div>
+              <div class="g-step-body">
+                <div class="g-step-title">Open the CLI — the SessionStart hook primes everything</div>
+                <div class="g-code"><span class="c-cmd">$ claude</span>
+<span class="c-out">⟳ pull memories + ADRs · reindex drifted RAG · branch/drift checks</span>
+<span class="c-ok">✓ session ready</span></div>
+              </div>
+            </div>
+            <div class="g-step">
+              <div class="g-step-num">2</div>
+              <div class="g-step-body">
+                <div class="g-step-title">Ask for the highest-value next move</div>
+                <div class="g-code"><span class="c-cmd">&gt; /next-priority</span>
+<span class="c-out">→ scans active repo, open PRs, CI, memory</span>
+<span class="c-ok">✓ ranked list — start at #1</span></div>
+              </div>
+            </div>
+            <div class="g-step">
+              <div class="g-step-num">3</div>
+              <div class="g-step-body">
+                <div class="g-step-title">Run a composite — it chains the whole workflow</div>
+                <div class="g-code"><span class="c-cmd">&gt; /ship</span>
+<span class="c-out">→ verify → pr-merge-readiness → changelog → tag → deploy</span>
+<span class="c-ok">✓ merged, or surfaced the exact blocker</span></div>
+              </div>
+            </div>
+            <div class="g-step">
+              <div class="g-step-num">4</div>
+              <div class="g-step-body">
+                <div class="g-step-title">Stuck or unsure which skill? Let it route you</div>
+                <div class="g-code"><span class="c-cmd">&gt; /route "I need to refactor the auth module safely"</span>
+<span class="c-out">→ picks /refactor-pipeline, explains why</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CORE CONCEPTS -->
+        <div class="g-section" id="g-concepts">
+          <div class="g-eyebrow">Core concepts</div>
+          <h2 class="g-h2">Eight ideas that explain everything</h2>
+          <div class="g-cards">
+            <div class="g-card">
+              <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h8l-1 8 10-12h-8l1-8Z"/></svg></span>Skill</div>
+              <div class="g-card-body">A reusable, well-scoped workflow invoked with <code>/name</code>. Runs in your current context; most are read-only and hand you findings to apply.</div>
+              <div class="g-card-eg"><b>e.g.</b> <code>/code-review</code> reads your diff → returns severity-rated findings.</div>
+            </div>
+            <div class="g-card">
+              <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>Composite</div>
+              <div class="g-card-body">A skill that auto-chains several sub-skills with a gate between phases. The router fires <code>🎯 Composite match</code> when your intent matches one. Always prefer it — running sub-skills by hand skips critical phases.</div>
+              <div class="g-card-eg"><b>e.g.</b> <code>/refactor-pipeline</code> → plan → 3-agent team → test-cleanup → ADR → docs-sync.</div>
+            </div>
+            <div class="g-card">
+              <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="8" width="6" height="6" rx="1"/><circle cx="6" cy="5" r="1"/><circle cx="18" cy="5" r="1"/><circle cx="6" cy="19" r="1"/><circle cx="18" cy="19" r="1"/></svg></span>Sub-agent</div>
+              <div class="g-card-body">An autonomous Claude in its own context with a scoped toolset. Analysis agents (<code>Explore</code>, <code>critic</code>) are read-only by <em>agentType</em> — they structurally can't write. Dispatch many in parallel.</div>
+              <div class="g-card-eg"><b>e.g.</b> <code>/phase-runner</code> spawns one agent per task, one wave at a time.</div>
+            </div>
+            <div class="g-card">
+              <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6m0 6v6M7 6h10a3 3 0 0 1 3 3v2a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3z"/></svg></span>Hook</div>
+              <div class="g-card-body">A shell script wired to a lifecycle event (session start/end, every prompt, every tool call). Fires automatically — exit&nbsp;0 = silent, no overhead. You never invoke them.</div>
+              <div class="g-card-eg"><b>e.g.</b> on SessionEnd → mirror <code>~/.claude</code> to cloud backup.</div>
+            </div>
+            <div class="g-card">
+              <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/><path d="M9 3h6v6H9z"/><path d="M9 12h6M9 16h6"/></svg></span>Standard</div>
+              <div class="g-card-body">A policy doc the operator loads on demand — naming, testing, security, decision discipline. Standards are the "house rules" skills and agents follow.</div>
+              <div class="g-card-eg"><b>e.g.</b> <code>code-standards.md</code>, <code>security.md</code>, <code>red-flags.md</code>.</div>
+            </div>
+            <div class="g-card">
+              <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><circle cx="8" cy="6" r="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="12" cy="12" r="2"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="16" cy="18" r="2"/></svg></span>Model tiering</div>
+              <div class="g-card-body">Match model strength to task. <b>Haiku</b> for mechanical work, <b>Sonnet</b> for implementation, <b>Opus</b> for orchestration &amp; architecture. A hook hints the tier each turn.</div>
+              <div class="g-card-eg"><b>e.g.</b> <code>/smart-model-select</code> before any multi-agent job.</div>
+            </div>
+            <div class="g-card">
+              <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v10l6 6"/></svg></span>Autonomy</div>
+              <div class="g-card-body">Default is <b>proceed and report</b>, not pause and ask. Sub-decisions inside delegated scope are the operator's to make. It only stops for destructive, production, or out-of-scope actions.</div>
+              <div class="g-card-eg"><b>e.g.</b> "improve the tests" → it picks which tests &amp; targets, then proceeds.</div>
+            </div>
+            <div class="g-card">
+              <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="14" x2="20" y2="14"/><line x1="4" y1="20" x2="20" y2="20"/></svg></span>Caveman mode</div>
+              <div class="g-card-body">Default-on terse style: drops articles &amp; filler, keeps every technical term, command, and quoted error verbatim. Faster to read, cheaper in tokens.</div>
+              <div class="g-card-eg"><b>e.g.</b> "PreToolUse hook blocks <code>rm -rf</code> → surfaced, not run."</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- I WANT TO -->
+        <div class="g-section" id="g-tasks">
+          <div class="g-eyebrow">Task router</div>
+          <h2 class="g-h2">I want to…</h2>
+          <p class="g-lead">Pick a goal — it jumps you to the matching skills in the catalog.</p>
+          <div class="g-tasks">
+            <button class="g-task" data-search="next-priority"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v10l6 6"/></svg></span><span class="g-task-main"><span class="g-task-want">Know what to work on</span><span class="g-task-skill">/next-priority</span></span></button>
+            <button class="g-task" data-search="plan"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18v16H3V4z"/><path d="M3 10h18M7 4v6M12 4v6M17 4v6"/></svg></span><span class="g-task-main"><span class="g-task-want">Plan multi-step work</span><span class="g-task-skill">/plan</span></span></button>
+            <button class="g-task" data-search="dispatch"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8M4 10l6-6m4 6l6 6"/></svg></span><span class="g-task-main"><span class="g-task-want">Run independent tasks in parallel</span><span class="g-task-skill">/dispatch · /orchestrate</span></span></button>
+            <button class="g-task" data-search="review"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span><span class="g-task-main"><span class="g-task-want">Review code before merge</span><span class="g-task-skill">/code-review</span></span></button>
+            <button class="g-task" data-search="debug"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10h10M8 14h2M14 14h2M7 10a4 4 0 0 0-2.83 7M17 10a4 4 0 0 1 2.83 7"/></svg></span><span class="g-task-main"><span class="g-task-want">Debug a failing test or prod issue</span><span class="g-task-skill">/debug · /debug-deep</span></span></button>
+            <button class="g-task" data-search="ship"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v14m0 0L7 11m5 5l5-5"/></svg></span><span class="g-task-main"><span class="g-task-want">Ship work to production</span><span class="g-task-skill">/ship</span></span></button>
+            <button class="g-task" data-search="refactor"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20m-2 8v4m-16-4v4m4-12v16m8-16v16"/></svg></span><span class="g-task-main"><span class="g-task-want">Refactor a module safely</span><span class="g-task-skill">/refactor-pipeline</span></span></button>
+            <button class="g-task" data-search="audit"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span><span class="g-task-main"><span class="g-task-want">Audit the whole project</span><span class="g-task-skill">/audit-deep</span></span></button>
+            <button class="g-task" data-search="secure"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1L2 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-10-4z"/></svg></span><span class="g-task-main"><span class="g-task-want">Security pass before deploy</span><span class="g-task-skill">/secure · /security-sweep</span></span></button>
+            <button class="g-task" data-search="decide"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></svg></span><span class="g-task-main"><span class="g-task-want">Make &amp; record a decision</span><span class="g-task-skill">/research-and-decide · /decide</span></span></button>
+            <button class="g-task" data-search="handoff"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2z"/><path d="M9 8V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span><span class="g-task-main"><span class="g-task-want">Save state before stopping</span><span class="g-task-skill">/handoff</span></span></button>
+            <button class="g-task" data-search="memory"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v12H8z"/><path d="M5 16h14a2 2 0 0 1 2 2v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a2 2 0 0 1 2-2z"/></svg></span><span class="g-task-main"><span class="g-task-want">Recall or persist knowledge</span><span class="g-task-skill">/recall · /adt-memory</span></span></button>
+          </div>
+        </div>
+
+        <!-- PROMPT FLOW -->
+        <div class="g-section" id="g-flow">
+          <div class="g-eyebrow">Under the hood</div>
+          <h2 class="g-h2">What happens when you hit enter</h2>
+          <p class="g-lead">Every prompt runs through the hook pipeline before the operator even starts thinking — 9 lifecycle events, 36 scripts, all silent on success.</p>
+          <div class="g-flow">
+            <div class="g-flow-step"><span class="g-flow-tag">SessionStart</span><span class="g-flow-text"><b>Once.</b> Pull memories + ADRs from the env repo, reindex drifted RAG chunks, warn on branch drift or oversized memory.</span></div>
+            <div class="g-flow-step"><span class="g-flow-tag">UserPromptSubmit</span><span class="g-flow-text"><b>Every prompt.</b> Auto-recall injects a <code># Knowledge graph context</code> block · classify complexity → hint model tier · emit <code>🎯 Composite match</code> if intent fits · warn if context &gt; 85%.</span></div>
+            <div class="g-flow-step"><span class="g-flow-tag">PreToolUse</span><span class="g-flow-text"><b>Safety gate.</b> Block dangerous bash (<code>rm -rf</code>, <code>sudo rm</code>), writes to protected paths, and redundant re-reads.</span></div>
+            <div class="g-flow-step"><span class="g-flow-tag">PostToolUse</span><span class="g-flow-text"><b>Observe.</b> Reindex changed files on Write/Edit · warn on large reads or &gt; 3 edits/turn.</span></div>
+            <div class="g-flow-step"><span class="g-flow-tag">SessionEnd</span><span class="g-flow-text"><b>Cleanup.</b> Log token spend, then mirror memory + RAG to persistent cloud storage.</span></div>
+          </div>
+        </div>
+
+        <!-- HARD RULES -->
+        <div class="g-section" id="g-rules">
+          <div class="g-eyebrow">Guardrails</div>
+          <h2 class="g-h2">Hard rules the operator won't break</h2>
+          <p class="g-lead">Objective, non-negotiable. They override convenience and even composite behavior.</p>
+          <div class="g-rules">
+            <div class="g-rule"><span class="g-rule-n">01</span><span><b>Never automate a PR with a human's comments</b> — or any open PR authored by another person. Bots (CodeRabbit, dependabot) don't count.</span></div>
+            <div class="g-rule"><span class="g-rule-n">02</span><span><b>Parallel for ≥2 independent tasks</b> — one agent each, own worktree per same-repo agent. Sequential is a contract violation.</span></div>
+            <div class="g-rule"><span class="g-rule-n">03</span><span><b>Analysis agents read-only by agentType</b> — structurally write-incapable, not just told "don't write".</span></div>
+            <div class="g-rule"><span class="g-rule-n">04</span><span><b>State-check before mutation</b> — query current state first; skip if already satisfied. Idempotent by default.</span></div>
+            <div class="g-rule"><span class="g-rule-n">05</span><span><b>No big-bang rewrites without a demand gate</b> — measure usage first, prototype one unit, then commit.</span></div>
+            <div class="g-rule"><span class="g-rule-n">06</span><span><b>Stuck protocol</b> — &gt; 2 attempts without progress → surface it, switch approach, then escalate. Never silently loop.</span></div>
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="g-footer" id="g-foot">
+          <div class="g-footer-links">
+            <a href="https://github.com/LucasSantana-Dev/sharekit-profile" target="_blank" rel="noopener">GitHub ↗</a>
+            <a href="https://github.com/LucasSantana-Dev/sharekit-profile/tree/main/docs" target="_blank" rel="noopener">Full docs ↗</a>
+            <a href="https://github.com/LucasSantana-Dev/sharekit-profile/blob/main/docs/troubleshooting.md" target="_blank" rel="noopener">Troubleshooting ↗</a>
+            <a href="#" data-panel-jump="skills">Skill catalog →</a>
+          </div>
+          <div class="g-footer-meta">Agent OS · install: npx @lucassantana/sharekit install LucasSantana-Dev</div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- SKILLS PANEL -->
-    <div class="panel active" id="panel-skills">
+    <div class="panel" id="panel-skills">
 
       <!-- Mobile-only controls (search + filter + category pills) -->
       <div class="mobile-controls">
@@ -590,7 +1072,7 @@
         </div>
         <div class="mobile-filter-row">
           <button class="mobile-filter-btn active" data-filter="all">All</button>
-          <button class="mobile-filter-btn" data-filter="composites">⚡ Composites</button>
+          <button class="mobile-filter-btn" data-filter="composites">Composites</button>
         </div>
         <div class="cat-pills-row" id="cat-pills"></div>
       </div>
@@ -647,7 +1129,13 @@
 <!-- Mobile bottom tab bar -->
 <nav class="mobile-tabs" id="mobile-tabs">
   <div class="mobile-tab-grid">
-    <button class="mobile-tab active" data-panel="skills">
+    <button class="mobile-tab active" data-panel="guide">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+        <path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M9 3v15"/>
+      </svg>
+      Guide
+    </button>
+    <button class="mobile-tab" data-panel="skills">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
         <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
         <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
@@ -1493,7 +1981,7 @@ const PLUGINS = [
 
 // ══ STATE ═══════════════════════════════════════════════════════════════════
 
-let activePanel = 'skills';
+let activePanel = 'guide';
 let activeCategory = 'all';
 let activeFilter = 'all';
 let searchQuery = '';
@@ -1815,10 +2303,285 @@ document.querySelectorAll('.mobile-filter-btn').forEach(btn => btn.addEventListe
 document.getElementById('lang-toggle').addEventListener('click', () => {
   lang = lang === 'en' ? 'pt' : 'en';
   const btn = document.getElementById('lang-toggle');
-  btn.textContent = lang === 'pt' ? '🇺🇸 EN' : '🇧🇷 PT';
+  const textSpan = btn.querySelector('#lang-text');
+  if (textSpan) textSpan.textContent = lang === 'pt' ? 'EN' : 'PT';
   btn.classList.toggle('active', lang === 'pt');
   renderSkillGrid();
+  translateGuide(lang);
 });
+
+// ══ COUNT DERIVATION (single source of truth = the data arrays) ══════════════
+
+function deriveCounts() {
+  const set = (id, n) => { const el = document.getElementById(id); if (el) el.textContent = n; };
+  // nav tab badges
+  set('tc-agents', AGENTS.length);
+  set('tc-hooks', HOOKS.length);
+  set('tc-mcp', MCP_SERVERS.length);
+  set('tc-plugins', PLUGINS.length);
+  // hero stats
+  set('st-skills', SKILLS.length);
+  set('st-composites', SKILLS.filter(s => s.composite).length);
+  set('st-agents', AGENTS.length);
+  set('st-mcp', MCP_SERVERS.length);
+}
+
+// ══ GUIDE INTERACTIONS ═══════════════════════════════════════════════════════
+
+function wireGuide() {
+  // smooth-scroll to a section within the guide
+  document.querySelectorAll('[data-goto]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const el = document.getElementById(btn.dataset.goto);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+  // jump straight to another panel
+  document.querySelectorAll('[data-panel-jump]').forEach(btn => {
+    btn.addEventListener('click', e => { e.preventDefault(); switchPanel(btn.dataset.panelJump); });
+  });
+  // task router → open Skills filtered to the matching search term
+  document.querySelectorAll('.g-task[data-search]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchPanel('skills');
+      activeCategory = 'all';
+      setFilter('all');
+      setSearch(btn.dataset.search);
+    });
+  });
+}
+
+// ══ GUIDE i18n (PT-BR) — section-level innerHTML swap, EN auto-cached ═════════
+// Commands in code blocks stay verbatim; prose, labels, and CTAs translate.
+
+const GUIDE_PT = {
+  'g-top': `
+    <div class="g-hero-badge"><span class="dot"></span> Harness operador · referência viva</div>
+    <h1>Seu operador autônomo de engenharia.</h1>
+    <p class="g-hero-sub">
+      Um ambiente Claude Code totalmente conectado: <strong>skills</strong> reutilizáveis que você invoca,
+      <strong>composites</strong> que as encadeiam com gates, <strong>sub-agentes</strong> que fazem trabalho
+      isolado em paralelo e <strong>hooks</strong> que disparam automaticamente a cada prompt.
+      Esta página é o mapa — comece aqui e depois mergulhe no catálogo.
+    </p>
+    <div class="g-stats">
+      <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">240+</div><div class="g-stat-label">Skills</div></div>
+      <div class="g-stat"><div class="g-stat-num" style="color:var(--violet)" id="st-composites">55+</div><div class="g-stat-label">Composites</div></div>
+      <div class="g-stat"><div class="g-stat-num" style="color:var(--blue)" id="st-agents">39</div><div class="g-stat-label">Agentes</div></div>
+      <div class="g-stat"><div class="g-stat-num" style="color:var(--amber)">9</div><div class="g-stat-label">Eventos de hook</div></div>
+      <div class="g-stat"><div class="g-stat-num" style="color:var(--green)" id="st-mcp">12</div><div class="g-stat-label">MCP + nuvem</div></div>
+      <div class="g-stat"><div class="g-stat-num" style="color:var(--pink)">58</div><div class="g-stat-label">Standards</div></div>
+    </div>
+    <div class="g-cta-row">
+      <button class="g-btn g-btn-primary" data-goto="g-quickstart">Comece em 5 minutos →</button>
+      <button class="g-btn g-btn-ghost" data-goto="g-tasks">Eu quero…</button>
+      <button class="g-btn g-btn-ghost" data-panel-jump="skills">Ver todas as skills</button>
+    </div>`,
+
+  'g-model': `
+    <div class="g-eyebrow">Modelo mental</div>
+    <h2 class="g-h2">Como as peças se encaixam</h2>
+    <p class="g-lead">Quatro camadas. Você invoca no topo; tudo abaixo roda para servir essa intenção.</p>
+    <div class="g-diagram">
+      <div class="g-layer">
+        <div class="g-layer-label">1 · Você invoca</div>
+        <div class="g-nodes">
+          <div class="g-node">
+            <div class="g-node-title"><span class="pip" style="background:var(--cyan)"></span>Skills</div>
+            <div class="g-node-desc">Uma tarefa bem delimitada — <code>/ship</code>, <code>/code-review</code>, <code>/debug</code>. Rodam no seu contexto, somente-leitura por padrão. Invoque com <code>/nome</code> ou deixe o router detectar.</div>
+          </div>
+          <div class="g-node">
+            <div class="g-node-title"><span class="pip" style="background:var(--violet)"></span>Composites</div>
+            <div class="g-node-desc">Uma skill que encadeia outras skills com um gate entre as fases (ex.: planejar → executar → testar → registrar). Prefira-as — rodar sub-skills na mão pula os gates.</div>
+          </div>
+        </div>
+      </div>
+      <div class="g-arrow">↓ despacha</div>
+      <div class="g-layer">
+        <div class="g-layer-label">2 · O trabalho acontece</div>
+        <div class="g-nodes">
+          <div class="g-node">
+            <div class="g-node-title"><span class="pip" style="background:var(--blue)"></span>Sub-agentes</div>
+            <div class="g-node-desc">Workers autônomos no próprio contexto (e worktree git). Agentes de análise são somente-leitura <em>por construção</em>; agentes de execução escrevem. Rodam em paralelo para trabalho independente.</div>
+          </div>
+        </div>
+      </div>
+      <div class="g-arrow">↓ envolvidos por</div>
+      <div class="g-layer">
+        <div class="g-layer-label">3 · Hooks (automáticos, a cada prompt e tool call)</div>
+        <div class="g-nodes">
+          <div class="g-node" style="background:rgba(34,211,238,.06)">
+            <div class="g-node-desc" style="color:var(--text-muted)">Injetam memória + contexto do grafo · roteiam o tier do modelo · detectam composites · bloqueiam comandos perigosos · reindexam edições · espelham a memória ao sair. Você nunca os chama — eles disparam sozinhos.</div>
+          </div>
+        </div>
+      </div>
+      <div class="g-substrate">
+        <span class="g-substrate-label">sobre uma base de</span>
+        <span class="g-chip">Standards</span>
+        <span class="g-chip">Memória</span>
+        <span class="g-chip">Índice RAG</span>
+        <span class="g-chip">Vault de ADRs</span>
+        <span class="g-chip">CLAUDE.md</span>
+      </div>
+    </div>`,
+
+  'g-quickstart': `
+    <div class="g-eyebrow">Início rápido · ~5 min</div>
+    <h2 class="g-h2">Sua primeira tarefa autônoma</h2>
+    <p class="g-lead">Pré-requisitos: Claude Code CLI instalado, este profile em <code>~/.claude/</code> e um repo git para trabalhar.</p>
+    <div class="g-steps">
+      <div class="g-step">
+        <div class="g-step-num">1</div>
+        <div class="g-step-body">
+          <div class="g-step-title">Abra o CLI — o hook SessionStart prepara tudo</div>
+          <div class="g-code"><span class="c-cmd">$ claude</span>
+<span class="c-out">⟳ puxa memórias + ADRs · reindexa RAG defasado · checa branch/drift</span>
+<span class="c-ok">✓ sessão pronta</span></div>
+        </div>
+      </div>
+      <div class="g-step">
+        <div class="g-step-num">2</div>
+        <div class="g-step-body">
+          <div class="g-step-title">Peça o próximo passo de maior valor</div>
+          <div class="g-code"><span class="c-cmd">&gt; /next-priority</span>
+<span class="c-out">→ varre repo ativo, PRs abertos, CI, memória</span>
+<span class="c-ok">✓ lista priorizada — comece pelo #1</span></div>
+        </div>
+      </div>
+      <div class="g-step">
+        <div class="g-step-num">3</div>
+        <div class="g-step-body">
+          <div class="g-step-title">Rode um composite — ele encadeia o fluxo inteiro</div>
+          <div class="g-code"><span class="c-cmd">&gt; /ship</span>
+<span class="c-out">→ verify → pr-merge-readiness → changelog → tag → deploy</span>
+<span class="c-ok">✓ mergeado, ou aponta o bloqueio exato</span></div>
+        </div>
+      </div>
+      <div class="g-step">
+        <div class="g-step-num">4</div>
+        <div class="g-step-body">
+          <div class="g-step-title">Travou ou na dúvida de qual skill? Deixe ele te rotear</div>
+          <div class="g-code"><span class="c-cmd">&gt; /route "preciso refatorar o módulo de auth com segurança"</span>
+<span class="c-out">→ escolhe /refactor-pipeline e explica por quê</span></div>
+        </div>
+      </div>
+    </div>`,
+
+  'g-concepts': `
+    <div class="g-eyebrow">Conceitos centrais</div>
+    <h2 class="g-h2">Oito ideias que explicam tudo</h2>
+    <div class="g-cards">
+      <div class="g-card">
+        <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h8l-1 8 10-12h-8l1-8Z"/></svg></span>Skill</div>
+        <div class="g-card-body">Um fluxo reutilizável e bem delimitado, invocado com <code>/nome</code>. Roda no seu contexto atual; a maioria é somente-leitura e te entrega achados para aplicar.</div>
+        <div class="g-card-eg"><b>ex.</b> <code>/code-review</code> lê seu diff → retorna achados classificados por severidade.</div>
+      </div>
+      <div class="g-card">
+        <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>Composite</div>
+        <div class="g-card-body">Uma skill que encadeia várias sub-skills com um gate entre fases. O router emite <code>🎯 Composite match</code> quando sua intenção bate. Sempre prefira — rodar sub-skills na mão pula fases críticas.</div>
+        <div class="g-card-eg"><b>ex.</b> <code>/refactor-pipeline</code> → planejar → time de 3 agentes → test-cleanup → ADR → docs-sync.</div>
+      </div>
+      <div class="g-card">
+        <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="8" width="6" height="6" rx="1"/><circle cx="6" cy="5" r="1"/><circle cx="18" cy="5" r="1"/><circle cx="6" cy="19" r="1"/><circle cx="18" cy="19" r="1"/></svg></span>Sub-agente</div>
+        <div class="g-card-body">Um Claude autônomo no próprio contexto com um conjunto de ferramentas restrito. Agentes de análise (<code>Explore</code>, <code>critic</code>) são somente-leitura por <em>agentType</em> — não conseguem escrever. Despache vários em paralelo.</div>
+        <div class="g-card-eg"><b>ex.</b> <code>/phase-runner</code> sobe um agente por tarefa, uma onda por vez.</div>
+      </div>
+      <div class="g-card">
+        <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6m0 6v6M7 6h10a3 3 0 0 1 3 3v2a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3z"/></svg></span>Hook</div>
+        <div class="g-card-body">Um script shell ligado a um evento de ciclo de vida (início/fim de sessão, cada prompt, cada tool call). Dispara sozinho — exit&nbsp;0 = silencioso, sem overhead. Você nunca os invoca.</div>
+        <div class="g-card-eg"><b>ex.</b> no SessionEnd → espelha <code>~/.claude</code> para backup na nuvem.</div>
+      </div>
+      <div class="g-card">
+        <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/><path d="M9 3h6v6H9z"/><path d="M9 12h6M9 16h6"/></svg></span>Standard</div>
+        <div class="g-card-body">Um documento de política carregado sob demanda — nomenclatura, testes, segurança, disciplina de decisão. Standards são as "regras da casa" que skills e agentes seguem.</div>
+        <div class="g-card-eg"><b>ex.</b> <code>code-standards.md</code>, <code>security.md</code>, <code>red-flags.md</code>.</div>
+      </div>
+      <div class="g-card">
+        <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><circle cx="8" cy="6" r="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="12" cy="12" r="2"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="16" cy="18" r="2"/></svg></span>Tier de modelo</div>
+        <div class="g-card-body">Case a força do modelo com a tarefa. <b>Haiku</b> para trabalho mecânico, <b>Sonnet</b> para implementação, <b>Opus</b> para orquestração e arquitetura. Um hook sugere o tier a cada turno.</div>
+        <div class="g-card-eg"><b>ex.</b> <code>/smart-model-select</code> antes de qualquer job multi-agente.</div>
+      </div>
+      <div class="g-card">
+        <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v10l6 6"/></svg></span>Autonomia</div>
+        <div class="g-card-body">O padrão é <b>seguir e reportar</b>, não pausar e perguntar. Sub-decisões dentro do escopo delegado são do operador. Ele só para em ações destrutivas, de produção ou fora de escopo.</div>
+        <div class="g-card-eg"><b>ex.</b> "melhore os testes" → ele escolhe quais testes e metas, e segue.</div>
+      </div>
+      <div class="g-card">
+        <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="14" x2="20" y2="14"/><line x1="4" y1="20" x2="20" y2="20"/></svg></span>Modo caveman</div>
+        <div class="g-card-body">Estilo terso ligado por padrão: corta artigos e enchimento, mantém todo termo técnico, comando e erro citado na íntegra. Mais rápido de ler, mais barato em tokens.</div>
+        <div class="g-card-eg"><b>ex.</b> "hook PreToolUse bloqueia <code>rm -rf</code> → exposto, não executado".</div>
+      </div>
+    </div>`,
+
+  'g-tasks': `
+    <div class="g-eyebrow">Roteador de tarefas</div>
+    <h2 class="g-h2">Eu quero…</h2>
+    <p class="g-lead">Escolha um objetivo — ele te leva às skills correspondentes no catálogo.</p>
+    <div class="g-tasks">
+      <button class="g-task" data-search="next-priority"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v10l6 6"/></svg></span><span class="g-task-main"><span class="g-task-want">Saber no que trabalhar</span><span class="g-task-skill">/next-priority</span></span></button>
+      <button class="g-task" data-search="plan"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18v16H3V4z"/><path d="M3 10h18M7 4v6M12 4v6M17 4v6"/></svg></span><span class="g-task-main"><span class="g-task-want">Planejar trabalho multi-etapa</span><span class="g-task-skill">/plan</span></span></button>
+      <button class="g-task" data-search="dispatch"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8M4 10l6-6m4 6l6 6"/></svg></span><span class="g-task-main"><span class="g-task-want">Rodar tarefas independentes em paralelo</span><span class="g-task-skill">/dispatch · /orchestrate</span></span></button>
+      <button class="g-task" data-search="review"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span><span class="g-task-main"><span class="g-task-want">Revisar código antes do merge</span><span class="g-task-skill">/code-review</span></span></button>
+      <button class="g-task" data-search="debug"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10h10M8 14h2M14 14h2M7 10a4 4 0 0 0-2.83 7M17 10a4 4 0 0 1 2.83 7"/></svg></span><span class="g-task-main"><span class="g-task-want">Depurar um teste ou problema em prod</span><span class="g-task-skill">/debug · /debug-deep</span></span></button>
+      <button class="g-task" data-search="ship"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v14m0 0L7 11m5 5l5-5"/></svg></span><span class="g-task-main"><span class="g-task-want">Subir trabalho para produção</span><span class="g-task-skill">/ship</span></span></button>
+      <button class="g-task" data-search="refactor"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20m-2 8v4m-16-4v4m4-12v16m8-16v16"/></svg></span><span class="g-task-main"><span class="g-task-want">Refatorar um módulo com segurança</span><span class="g-task-skill">/refactor-pipeline</span></span></button>
+      <button class="g-task" data-search="audit"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span><span class="g-task-main"><span class="g-task-want">Auditar o projeto inteiro</span><span class="g-task-skill">/audit-deep</span></span></button>
+      <button class="g-task" data-search="secure"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1L2 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-10-4z"/></svg></span><span class="g-task-main"><span class="g-task-want">Passada de segurança antes do deploy</span><span class="g-task-skill">/secure · /security-sweep</span></span></button>
+      <button class="g-task" data-search="decide"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></svg></span><span class="g-task-main"><span class="g-task-want">Tomar e registrar uma decisão</span><span class="g-task-skill">/research-and-decide · /decide</span></span></button>
+      <button class="g-task" data-search="handoff"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2z"/><path d="M9 8V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span><span class="g-task-main"><span class="g-task-want">Salvar estado antes de parar</span><span class="g-task-skill">/handoff</span></span></button>
+      <button class="g-task" data-search="memory"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v12H8z"/><path d="M5 16h14a2 2 0 0 1 2 2v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a2 2 0 0 1 2-2z"/></svg></span><span class="g-task-main"><span class="g-task-want">Lembrar ou persistir conhecimento</span><span class="g-task-skill">/recall · /adt-memory</span></span></button>
+    </div>`,
+
+  'g-flow': `
+    <div class="g-eyebrow">Por baixo dos panos</div>
+    <h2 class="g-h2">O que acontece quando você dá enter</h2>
+    <p class="g-lead">Todo prompt passa pelo pipeline de hooks antes do operador começar a pensar — 9 eventos de ciclo de vida, 36 scripts, todos silenciosos em caso de sucesso.</p>
+    <div class="g-flow">
+      <div class="g-flow-step"><span class="g-flow-tag">SessionStart</span><span class="g-flow-text"><b>Uma vez.</b> Puxa memórias + ADRs do repo de ambiente, reindexa chunks de RAG defasados, alerta sobre drift de branch ou memória grande demais.</span></div>
+      <div class="g-flow-step"><span class="g-flow-tag">UserPromptSubmit</span><span class="g-flow-text"><b>Cada prompt.</b> Auto-recall injeta um bloco <code># Knowledge graph context</code> · classifica complexidade → sugere o tier do modelo · emite <code>🎯 Composite match</code> se a intenção encaixar · alerta se o contexto passar de 85%.</span></div>
+      <div class="g-flow-step"><span class="g-flow-tag">PreToolUse</span><span class="g-flow-text"><b>Gate de segurança.</b> Bloqueia bash perigoso (<code>rm -rf</code>, <code>sudo rm</code>), escritas em caminhos protegidos e re-leituras redundantes.</span></div>
+      <div class="g-flow-step"><span class="g-flow-tag">PostToolUse</span><span class="g-flow-text"><b>Observa.</b> Reindexa arquivos alterados em Write/Edit · alerta em leituras grandes ou mais de 3 edições por turno.</span></div>
+      <div class="g-flow-step"><span class="g-flow-tag">SessionEnd</span><span class="g-flow-text"><b>Limpeza.</b> Registra o gasto de tokens e então espelha memória + RAG para armazenamento persistente na nuvem.</span></div>
+    </div>`,
+
+  'g-rules': `
+    <div class="g-eyebrow">Guardrails</div>
+    <h2 class="g-h2">Regras que o operador não quebra</h2>
+    <p class="g-lead">Objetivas, inegociáveis. Sobrepõem-se à conveniência e até ao comportamento dos composites.</p>
+    <div class="g-rules">
+      <div class="g-rule"><span class="g-rule-n">01</span><span><b>Nunca automatizar um PR com comentários de uma pessoa</b> — nem qualquer PR aberto de autoria de outra pessoa. Bots (CodeRabbit, dependabot) não contam.</span></div>
+      <div class="g-rule"><span class="g-rule-n">02</span><span><b>Paralelo para ≥2 tarefas independentes</b> — um agente cada, worktree próprio por agente no mesmo repo. Sequencial é violação de contrato.</span></div>
+      <div class="g-rule"><span class="g-rule-n">03</span><span><b>Agentes de análise somente-leitura por agentType</b> — incapazes de escrever por construção, não só instruídos a "não escrever".</span></div>
+      <div class="g-rule"><span class="g-rule-n">04</span><span><b>State-check antes de mutação</b> — consulte o estado atual primeiro; pule se já satisfeito. Idempotente por padrão.</span></div>
+      <div class="g-rule"><span class="g-rule-n">05</span><span><b>Sem rewrites big-bang sem gate de demanda</b> — meça o uso primeiro, prototipe uma unidade, depois comprometa.</span></div>
+      <div class="g-rule"><span class="g-rule-n">06</span><span><b>Protocolo de travamento</b> — mais de 2 tentativas sem progresso → exponha, troque de abordagem, depois escale. Nunca repita em silêncio.</span></div>
+    </div>`,
+
+  'g-foot': `
+    <div class="g-footer-links">
+      <a href="https://github.com/LucasSantana-Dev/sharekit-profile" target="_blank" rel="noopener">GitHub ↗</a>
+      <a href="https://github.com/LucasSantana-Dev/sharekit-profile/tree/main/docs" target="_blank" rel="noopener">Documentação completa ↗</a>
+      <a href="https://github.com/LucasSantana-Dev/sharekit-profile/blob/main/docs/troubleshooting.md" target="_blank" rel="noopener">Troubleshooting ↗</a>
+      <a href="#" data-panel-jump="skills">Catálogo de skills →</a>
+    </div>
+    <div class="g-footer-meta">Agent OS · instale: npx @lucassantana/sharekit install LucasSantana-Dev</div>`,
+};
+
+const guideEnCache = {};
+function translateGuide(l) {
+  Object.keys(GUIDE_PT).forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (l === 'pt') {
+      if (!(id in guideEnCache)) guideEnCache[id] = el.innerHTML;
+      el.innerHTML = GUIDE_PT[id];
+    } else if (id in guideEnCache) {
+      el.innerHTML = guideEnCache[id];
+    }
+  });
+  deriveCounts();  // re-fill hero stat numbers after innerHTML swap
+  wireGuide();     // re-attach listeners to freshly-rendered buttons
+}
 
 // ══ INIT ════════════════════════════════════════════════════════════════════
 
@@ -1827,6 +2590,9 @@ renderAgents();
 renderHooks();
 renderMCP();
 renderPlugins();
+deriveCounts();
+wireGuide();
+switchPanel('guide');  // sync UI state (hide skills sidebar on the default guide panel)
 </script>
 </body>
 </html>
