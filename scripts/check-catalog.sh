@@ -15,7 +15,7 @@ AGENTS=$(arr_len AGENTS)
 CATS=$(awk '/const SKILLS = \[/{f=1} f{print} /^];/{if(f) exit}' "$HTML" | grep -oE "cat: '[a-z-]+" | sort -u | wc -l | tr -d ' ')
 
 TC_SKILLS=$(grep -oE 'tc-skills">[0-9]+' "$HTML" | grep -oE '[0-9]+' | head -1)
-TC_AGENTS=$(grep -oE 'Agents <span class="tab-count">[0-9]+' "$HTML" | grep -oE '[0-9]+$' | head -1)
+TC_AGENTS=$(grep -oE 'tc-agents">[0-9]+' "$HTML" | grep -oE '[0-9]+' | head -1)
 GRID=$(grep -oE '[0-9]+ skills across [0-9]+ categories' "$HTML" | head -1)
 GRID_SKILLS=$(printf '%s' "$GRID" | grep -oE '^[0-9]+')
 GRID_CATS=$(printf '%s' "$GRID" | grep -oE 'across [0-9]+' | grep -oE '[0-9]+')
