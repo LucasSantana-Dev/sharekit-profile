@@ -19,7 +19,10 @@ import os, re, sys, json, glob
 
 ROOT = os.path.expanduser("~/.agents/skills")
 if "--root" in sys.argv:
-    ROOT = sys.argv[sys.argv.index("--root") + 1]
+    _ri = sys.argv.index("--root")
+    if _ri + 1 >= len(sys.argv):
+        raise SystemExit("error: --root requires a value")
+    ROOT = sys.argv[_ri + 1]
 AS_JSON = "--json" in sys.argv
 
 try:
