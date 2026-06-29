@@ -8,12 +8,12 @@
  *   1. wrangler deploy warp/openrouter-proxy.js --name openrouter-warp-proxy
  *   2. wrangler secret put OPENROUTER_API_KEY  (paste sk-or-v1-...)
  *   3. In Warp: Settings → Add custom inference endpoint
- *      - URL: https://openrouter-warp-proxy.<your-subdomain>.workers.dev/v1
+ *      - URL: https://openrouter-warp-proxy.uiforge.workers.dev/v1
  *      - API key: anything (the Worker ignores it, uses the secret)
- *      - Models: add the model IDs from the list below
+ *      - Models: see warp/MODELS.md for the curated catalog
  */
 
-const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
+const OPENROUTER_BASE = "https://openrouter.ai/api";
 
 export default {
   async fetch(request, env) {
@@ -24,7 +24,9 @@ export default {
       return new Response("ok", { status: 200 });
     }
 
-    // Rewrite path to OpenRouter
+    // Rewrite path to OpenRouter. Incoming path already starts with /v1, and
+    // OPENROUTER_BASE ends at /api, so concatenation yields /api/v1/... — no
+    // double /v1.
     const target = OPENROUTER_BASE + url.pathname + url.search;
 
     // Clone request, inject auth

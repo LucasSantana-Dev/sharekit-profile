@@ -2,6 +2,8 @@
 # sync-sharekit-profile syncs ONLY these. Add a line to publish a skill; remove to unpublish.
 add
 adt-rag
+adt-rag-coverage
+adt-rag-drift
 architecture-patterns
 autofix
 backend-testing
@@ -11,6 +13,7 @@ caveman
 changelog-update
 ci-watch
 codebase-design
+codebase-memory
 context-pack
 context-save
 coupling-map
@@ -29,6 +32,7 @@ fallback
 focus
 frontend-design
 generate-tests
+graphify
 handoff
 impeccable
 knowledge-loop
@@ -39,6 +43,7 @@ memory-prune
 mutation-test
 naming-consistency
 next-priority
+optimize-context
 orchestrate
 overengineering-audit
 plan
@@ -49,10 +54,19 @@ plugin-claude-mem-mem-search
 plugin-coderabbit-code-review
 plugin-skill-creator-skill-creator
 ponytail
+ponytail-audit
+ponytail-debt
+ponytail-gain
+ponytail-help
+ponytail-review
 pr-merge-readiness
 prototype
 quality-assurance
 quality-gates
+rag-curate
+rag-eval
+rag-maintenance
+rag-quality
 read-the-damn-docs
 recall
 refactor
@@ -83,6 +97,7 @@ test-cleanup
 test-driven-development
 test-health
 three-man-team
+token-audit
 using-git-worktrees
 verify
 version-bump
