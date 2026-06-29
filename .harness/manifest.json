@@ -1,7 +1,7 @@
 {
   "schema": "https://json-schema.org/draft/2020-12/schema",
   "manifest_version": "1.0",
-  "generated_at": "2026-06-29T15:40:00Z",
+  "generated_at": "2026-06-29T22:50:00Z",
   "hosts": [
     "claude-code",
     "opencode",
@@ -10,7 +10,7 @@
   "files": {
     ".harness/mcp-policy.json": "3b2c773c766ec6ed53b58a471e5d635f9885f964deb0c4885bae5dfb19ab5ef4",
     "AGENTS.md": "3a69e4d3d14d99807e87d54d658af4b244a7011fe314447cc2e22ddb68adf147",
-    "claude/settings.json": "f89b916677f2552a4bca9224dfb342e0838457abf4ae3652bb6535a980784837"
+    "claude/settings.json": "f7280e5ba5b453e0091ccfd72b621cbfe9f45a3ed9b258c5cce690d3b4cbfebb"
   },
   "meta": {
     "adr_anchor": "Adopted from ruflo meta-harness pattern: declarative governance directory converts prose security rules into diffable, CI-enforceable code. + Wave-4 self-improvement flywheel: settings.json un-orphaning the hooks and enabling the observe→evaluate→optimize loop.",
