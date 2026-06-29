@@ -110,6 +110,20 @@ Hooks fire in a deterministic order tied to lifecycle events. The order matters:
 
 ---
 
+## 6a. PreToolUse — Deterministic Policy Gate (P4)
+
+**Position:** 3e (fifth PreToolUse filter)
+**Trigger:** Before any tool execution (all tools, no matcher)
+**What it does:**
+- Emit explicit ALLOW/DENY/REQUIRE_APPROVAL verdicts from `mcp-policy.json` outside the model
+- Append each decision to a hash-chained tamper-evident ledger bound to context hash (sha256 of tool+input+ts)
+- Exit 2 on DENY; REQUIRE_APPROVAL surfaces for host-agent decision
+- `--verify` walks the ledger chain; `--status` prints verdict counts
+
+**Why fifth in PreToolUse:** After the per-Bash and per-Write checks, this is the catch-all governance layer that applies to every tool regardless of matcher. It runs last so the cheaper, more specific gates have already filtered obvious violations; the policy gate then applies the declarative policy uniformly across whatever remains.
+
+---
+
 ## 7. PostToolUse — Documentation Update Detection
 
 **Position:** 7a (first PostToolUse filter)
@@ -170,24 +184,28 @@ Hooks fire in a deterministic order tied to lifecycle events. The order matters:
 ## Firing Order Summary
 
 ```
- 1. SessionStart          — fresh context foundation
- 2. UserPromptSubmit      — per-turn context injection and routing
+  1. SessionStart          — fresh context foundation
+  2. UserPromptSubmit      — per-turn context injection and routing
     + tool-shortlist      — bounded tool shortlist (context defense)
     + model-cache-guard   — flag cache-unsafe mid-conversation model switches
- 3. PreToolUse:
+  3. PreToolUse:
     3a. Bash safety       — block destructive shell commands
     3b. Dangerous patterns — block credential/SSRF/path traversal
     3c. Commit format      — validate conventional commits
     3d. Push-to-main block — protect shared history
- 4. [Tool executes]
- 5. PostToolUse:
+    3e. Policy gate (P4)   — deterministic ALLOW/DENY/REQUIRE_APPROVAL from mcp-policy.json
+  4. [Tool executes]
+  5. PostToolUse:
     5a. Trajectory log      — append structured tool-call event (observe)
     5b. Context guard       — tool-result firewall + lost-in-the-middle audit
     5c. OTEL observe        — emit GenAI span + context-breach scan
     5d. Doc-update detect   — catch documentation drift
     5e. Prettier/mdlint     — auto-format changed files
     5f. RTK miss detector   — flag token-saving opportunities
- 6. SessionEnd            — persist all state, generate handoff
+  6. PreCompact:
+    6a. Snapshot compact     — snapshot pre-compaction state
+    6b. Compaction guard (P4) — audit tool-call/result adjacency, budget warnings, cache-prefix stability
+  7. SessionEnd            — persist all state, generate handoff
 ```
 
 PostCompact additionally runs `model-cache-guard.sh` (with `OBSERVE_HOOK_EVENT=PostCompact`) to mark the next turn as a cache-safe model-switch boundary, alongside `reinject-compact.sh`.
@@ -199,7 +217,7 @@ PostCompact additionally runs `model-cache-guard.sh` (with `OBSERVE_HOOK_EVENT=P
 1. **Safety before execution.** All PreToolUse gates run before the tool executes. No tool runs without passing safety checks.
 2. **Observation after execution.** All PostToolUse hooks run after the tool completes. They observe and learn but never block.
 3. **Bookends are stable.** SessionStart and SessionEnd fire once per session. Everything else fires per-prompt or per-tool.
-4. **Order within PreToolUse is risk-ranked.** Shell safety > credential protection > commit format > push protection. Higher risk runs first.
+4. **Order within PreToolUse is risk-ranked.** Shell safety > credential protection > commit format > push protection > deterministic policy gate. Higher risk runs first.
 5. **Order within PostToolUse is correctness-ranked.** Content detection > formatting > optimization. Correctness runs first.
 
 ---
