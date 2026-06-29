@@ -5,3 +5,7 @@ warp/.wrangler/
 src/
 index.html.bak-*
 .agent-native/
+
+# Harness runtime (hook trajectory logs, session records, compaction snapshots,
+# incident stubs, distill pending queue). Append-only, machine-generated.
+.harness/runtime/
