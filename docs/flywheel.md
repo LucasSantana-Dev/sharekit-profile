@@ -182,6 +182,22 @@ the P2 proposer/evaluator) execute steps; the substrate owns transitions and
 the two human-in-the-loop gates. See `docs/handoff-schema.md` (division-sh/swarm,
 Malphite10, SMALL protocol, tascade).
 
+### The target architecture (P5 — shipped in this wave)
+
+P5 is the integration target: the flywheel from P0-P2 + the convergent patterns
+from P4, operating as a single closed loop. `hooks/cycle.sh` now exercises the
+whole architecture as one command, with two tracks:
+
+- **TRACK A — MAINTAIN**: `memory-consolidate.sh` (sleep-cycle), `skill-index.sh`
+  (progressive disclosure), `skill-prune.sh` (telemetry-based archive candidates).
+- **TRACK B — IMPROVE**: `diagnose.sh` -> `distill.sh` -> `propose.sh` (routed at
+  dispatch `implement` -> `review_gate`) -> `gate.sh` (routed at `eval`, with the
+  held-out eval set the proposer never saw) -> on pass, dispatch advances to
+  `merge_gate`; on regression, dispatch parks BLOCKED. The cycle closes the
+evaluate->optimize loop through the deterministic substrate, never trusting the
+model to self-route or self-promote. See `docs/target-architecture.md` for the
+five load-bearing subsystems and the eight load-bearing invariants.
+
 ## Why this works across any model
 
 The model is held fixed; what evolves is the **harness around it** — prompts,
