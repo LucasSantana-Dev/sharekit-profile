@@ -208,6 +208,15 @@ P4 layers the five convergent cross-cutting patterns the Wave-5 research tracks 
 - `hooks/skill-prune.sh` — telemetry-based skill pruning: reads the trajectory and stages never-hit / low-hit skills as archive candidates. Archive, never `rm`. CLI: `--dir <path>`, `--status`.
 - `hooks/dispatch.sh` — deterministic orchestration substrate: a fixed state machine (intake → triage → plan → research → implement → review_gate → eval → merge_gate → done, with BLOCKED first-class) where no LLM decides what fires next. Bounded workers (including the P2 proposer/evaluator) execute steps; the substrate owns transitions and the two human-in-the-loop gates. See [`docs/handoff-schema.md`](docs/handoff-schema.md). CLI: `--intake`, `--advance`, `--block`, `--allow-gate`, `--status`, `--list`.
 
+### Self-improvement flywheel (target architecture — P5)
+
+P5 is the integration target: the flywheel from P0-P2 + the convergent patterns from P4, operating as a single closed loop. `hooks/cycle.sh` now exercises the whole architecture as one command, with two tracks run in sequence:
+
+- **TRACK A — MAINTAIN** (the P4 substrate, periodic hygiene): `memory-consolidate.sh` (sleep-cycle), `skill-index.sh` (progressive-disclosure index), `skill-prune.sh` (telemetry-based archive candidates). Advisory; stages reports, never auto-applies.
+- **TRACK B — IMPROVE** (the P0-P3 flywheel, routed via `dispatch.sh`): `diagnose.sh` → `distill.sh` → `propose.sh` (at dispatch `implement` → `review_gate`) → `gate.sh` (at `eval`, with the held-out eval set the proposer never saw). On gate pass, dispatch advances to `merge_gate`; on regression, dispatch parks BLOCKED so the proposer reads WHY next time.
+
+The cycle closes the evaluate→optimize loop through the deterministic substrate — never trusting the model to self-route or self-promote. See [`docs/target-architecture.md`](docs/target-architecture.md) for the five load-bearing subsystems and the eight load-bearing invariants. CLI: `--target <file>`, `--eval <set>`, `--dry-run`, `--status`, `--no-maintain`.
+
 ---
 
 ## Agents: Specialized Worker Types
