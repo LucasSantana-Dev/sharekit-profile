@@ -47,8 +47,10 @@ Hooks fire in a deterministic order tied to lifecycle events. The order matters:
 5. Warn if context exceeds 85% — emit "compact available" hint
 6. Composite detection — if intent matches a composite skill, emit composite match
 7. Warn if on release branch — alert before making commits to release branches
+8. Bounded tool shortlist (`tool-shortlist.sh`) — surface only the tools whose keywords match the prompt instead of the full catalog (contextweaver 92.2% route-prompt reduction). Advisory.
+9. Cache-aware model routing (`model-cache-guard.sh`) — flag mid-conversation model switches as cache-unsafe; the only cache-safe switch boundaries are first-turn and post-compaction (Copilot). Advisory.
 
-**Why second:** Every prompt needs context injection and routing before the agent starts thinking. RAG recall must happen before the agent formulates a response. Complexity classification must happen before model selection. This is the "prepare the agent for this specific turn" step.
+**Why second:** Every prompt needs context injection and routing before the agent starts thinking. RAG recall must happen before the agent formulates a response. Complexity classification must happen before model selection. The bounded tool shortlist and cache-aware routing guards run here too because they shape the system-prompt context for the turn before any tool fires. This is the "prepare the agent for this specific turn" step.
 
 ---
 
@@ -170,6 +172,8 @@ Hooks fire in a deterministic order tied to lifecycle events. The order matters:
 ```
  1. SessionStart          — fresh context foundation
  2. UserPromptSubmit      — per-turn context injection and routing
+    + tool-shortlist      — bounded tool shortlist (context defense)
+    + model-cache-guard   — flag cache-unsafe mid-conversation model switches
  3. PreToolUse:
     3a. Bash safety       — block destructive shell commands
     3b. Dangerous patterns — block credential/SSRF/path traversal
@@ -185,6 +189,8 @@ Hooks fire in a deterministic order tied to lifecycle events. The order matters:
     5f. RTK miss detector   — flag token-saving opportunities
  6. SessionEnd            — persist all state, generate handoff
 ```
+
+PostCompact additionally runs `model-cache-guard.sh` (with `OBSERVE_HOOK_EVENT=PostCompact`) to mark the next turn as a cache-safe model-switch boundary, alongside `reinject-compact.sh`.
 
 ---
 
