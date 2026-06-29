@@ -72,6 +72,17 @@ Two optional upgrades, both via env vars in `~/.claude/settings.local.json` `env
 
 Start with just `CORE.md` + `MEMORY.md` + a few fact files. The git repo and the retriever are optimizations, not requirements. See `examples/` for empty skeletons; the RAG-pipeline guide in the `rag` skill covers building a retriever if you want one.
 
+## Self-improvement protocol
+
+The structure above is *knowledge persistence*. To make the harness **improve
+with use** — observe → evaluate → optimize — see **[SELF_IMPROVEMENT.md](SELF_IMPROVEMENT.md)**.
+It documents the **promotion ladder** (T0 scratch → T5 domain KB), **staleness
+scoring** (`last_verified` / `change_frequency` / `confidence`), the
+**PreCompact re-injection contract** (CORE memory survives compaction), and
+the **nightly distill** (auto_dream stages candidates → host-agent graduate/
+reject with required rationale). This is the closed loop that turns memory
+into a flywheel; without it, saved notes are unmeasured and unvalidated.
+
 ## Scaling up: Megabrain
 
 When you want *one* vault across **all** your projects — unified memory + decisions + knowledge graphs, browsable in Obsidian, versioned in git, retrievable by RAG — see **[MEGABRAIN.md](MEGABRAIN.md)**. It documents the full architecture: the 4-axis tag taxonomy (flat notes, tags-not-folders), the edit-in-place discipline for cross-machine sync, decision/ADR conventions, retention, and the optional tooling to build.
