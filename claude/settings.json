@@ -9,6 +9,11 @@
             "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/session-start-load.sh\"",
             "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "OBSERVE_HOOK_EVENT=SessionStart bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/observe-otel.sh\"",
+            "timeout": 2000
           }
         ]
       }
@@ -56,6 +61,16 @@
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/trajectory-log.sh\"",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/context-guard.sh\"",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "OBSERVE_HOOK_EVENT=PostToolUse bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/observe-otel.sh\"",
             "timeout": 2000
           }
         ]
@@ -112,6 +127,11 @@
             "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/session-end-flush.sh\"",
             "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "OBSERVE_HOOK_EVENT=SessionEnd bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/observe-otel.sh\"",
+            "timeout": 2000
           }
         ]
       }

@@ -60,20 +60,35 @@ nothing improves.
 - `reinject-compact.sh` (PostCompact) — CORE memory survives compaction.
 - `session-start-load.sh` (SessionStart) — CORE load + drift check.
 
-### Evaluate (P1)
+### Evaluate (P1 — shipped in this wave)
 
 The distill mines the trajectory for candidate learnings; the eval gate
-measures whether a skill/prompt/hook actually helps.
+measures whether a skill/prompt/hook actually helps; the self-diagnosis clusters
+failures; the context-guard defends the context window.
 
-- **Nightly distill** — cluster + prefilter + confidence-score candidates
-  (26 lesson patterns). Stages to `.harness/forge/`; **never** mutates semantic
-  memory directly. See `claude/memory-structure/SELF_IMPROVEMENT.md`.
-- **with-skill vs no-skill baseline** — run a task with and without a change;
-  gate on measurable lift (selftune `baseline` pattern).
+- **Nightly distill** — `hooks/distill.sh` clusters + prefilters + confidence-
+  scores candidates (decisions/learnings/failures/patterns). Stages to
+  `.harness/forge/`; **never** mutates semantic memory directly. See
+  `claude/memory-structure/SELF_IMPROVEMENT.md`.
+- **Host-agent review** — `hooks/review.sh` graduate/reject/reopen CLI.
+  Graduation requires `--rationale`; no rubber-stamping. Mirrors
+  agentic-stack `graduate.py`/`reject.py`/`reopen.py`.
+- **with-skill vs no-skill baseline** — `hooks/eval-baseline.sh` records A/B
+  runs and gates on measurable lift (selftune `baseline` pattern). Local,
+  zero-dep.
+- **self-diagnosis** — `hooks/diagnose.sh` clusters failures in the trajectory
+  log, surfaces root-cause candidates, detects repeated errors / tool overuse /
+  blind retries / token-waste patterns (SkillForge + AHE Agent Debugger).
+- **context defense** — `hooks/context-guard.sh` PostToolUse hook: tool-result
+  firewall (compact digest sidecars for >2KB responses), lost-in-the-middle
+  audit (constraint recap surfaced at window start), cache-boundary marker
+  (contextweaver 92.2% route-prompt reduction, agentforge).
+- **two-knob observability** — `hooks/observe-otel.sh` global default +
+  per-project override (pdhoolia); GenAI semantic span names; context-breach
+  scanning; idempotent ±1 feedback scores. Local JSONL by default; wire an
+  OTEL exporter via `OTEL_EXPORTER_OTLP_ENDPOINT` when ready.
 - **evaluator ≠ agent** — the judge never ships in the harness; the reviewer is
   not the implementer (lumos, gearbox, auto-harness).
-- **two-knob observability** — global default + per-project override (pdhoolia);
-  OTEL-native telemetry when wired.
 
 ### Optimize (P1 → P2)
 
