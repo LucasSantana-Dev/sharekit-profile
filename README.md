@@ -155,6 +155,20 @@ Hooks are shell scripts wired to tool events. They are zero-overhead on success 
 - Stop: log token usage, check rate limits
 - SessionEnd: sync RAG and memories to persistent storage
 
+### Enforcement & self-improvement (hook wiring)
+
+Hooks are registered to lifecycle events in [`claude/settings.json`](claude/settings.json). Before that file existed, the `hooks/` scripts were orphan artifacts and 9 of 15 `RULES.md` "Must Always" rules were advisory-only. The registered events now enforce the protected invariants at runtime:
+
+- `PreToolUse` (Bash) — `check-dangerous-patterns.sh` (destructive commands + sensitive paths), `check-pr-automation-halt.sh` (no force-push, no push to main, no AI-attribution in commits, halt on human-commented PRs), `check-stuck-loop.sh` (Stuck protocol), `check-idempotency.sh` (state-check-before-mutation hint). Exit 2 blocks.
+- `PreToolUse` (Write/Edit) — idempotency hint (logged to trajectory).
+- `SubagentStart` — `check-read-only-subagent.sh` blocks analysis subagents spawned with write tools (read-only-by-construction).
+- `PostToolUse` — `trajectory-log.sh` appends every tool call to `.harness/runtime/trajectory.jsonl` (the observe half of the flywheel).
+- `PreCompact` / `PostCompact` — snapshot pre-compaction state + re-inject CORE memory so hard rules survive compaction.
+- `Stop` — `post-incident-adr.sh` reminds on P0/P1 error spikes.
+- `SessionEnd` — `session-end-flush.sh` writes a session record and queues it for the nightly distill.
+
+The runtime log directory (`.harness/runtime/`) is gitignored — it is append-only fuel for the self-improvement loop, not source of truth. See [`docs/flywheel.md`](docs/flywheel.md) for the full observe → evaluate → optimize loop and [`claude/memory-structure/SELF_IMPROVEMENT.md`](claude/memory-structure/SELF_IMPROVEMENT.md) for the memory promotion ladder, staleness scoring, and nightly distill protocol.
+
 ---
 
 ## Agents: Specialized Worker Types

@@ -2,6 +2,14 @@
 
 > Numbered contract for hook/skill firing order with positional justifications.
 > Each entry: position, trigger, what it does, why it is at this position.
+>
+> **Wiring:** hooks are registered to lifecycle events in
+> [`claude/settings.json`](../claude/settings.json). Before that file existed,
+> the `hooks/` scripts were orphan artifacts and the contract below was
+> advisory-only. Exit code 2 is the only blocking code.
+>
+> **Self-improvement:** the PostToolUse/SessionEnd entries here are the
+> "observe" half of the flywheel — see [`flywheel.md`](flywheel.md).
 
 ---
 
