@@ -774,7 +774,7 @@
       Guide
     </button>
     <button class="nav-tab" data-panel="skills">
-      Skills <span class="tab-count" id="tc-skills">259</span>
+      Skills <span class="tab-count" id="tc-skills">260</span>
     </button>
     <button class="nav-tab" data-panel="agents">
       Agents <span class="tab-count" id="tc-agents">39</span>
@@ -901,6 +901,14 @@
               <span class="g-chip">CLAUDE.md</span>
             </div>
           </div>
+          <div class="g-substrate">
+            <span class="g-substrate-label">governed declaratively by .harness/</span>
+            <span class="g-chip">manifest.json</span>
+            <span class="g-chip">mcp-policy.json</span>
+            <span class="g-chip">README.md</span>
+            <span class="g-chip">check-harness-manifest.sh</span>
+          </div>
+          <p class="g-lead">Security rules become diffable, CI-enforceable code: <code>manifest.json</code> holds sha256 fingerprints of security-critical config; <code>mcp-policy.json</code> declares MCP governance (defaultDeny, 17 dangerous-pattern regexes, call budget, timeout, approved servers). JSON is the source of truth — AGENTS.md mirrors it in prose, and <code>scripts/check-harness-manifest.sh</code> verifies fingerprints + policy invariants in CI.</p>
         </div>
 
         <!-- QUICKSTART -->
@@ -1042,6 +1050,8 @@
             <div class="g-rule"><span class="g-rule-n">04</span><span><b>State-check before mutation</b> — query current state first; skip if already satisfied. Idempotent by default.</span></div>
             <div class="g-rule"><span class="g-rule-n">05</span><span><b>No big-bang rewrites without a demand gate</b> — measure usage first, prototype one unit, then commit.</span></div>
             <div class="g-rule"><span class="g-rule-n">06</span><span><b>Stuck protocol</b> — &gt; 2 attempts without progress → surface it, switch approach, then escalate. Never silently loop.</span></div>
+            <div class="g-rule"><span class="g-rule-n">07</span><span><b>Pattern Discovery Protocol (mandatory before implementation)</b> — "Search First, Reuse Always, Create Only When Necessary." Before any non-trivial work: search specs (<code>recall</code>/grep <code>docs/specs/</code>) → search codebase (grep/glob) → search session history (<code>recall</code>) → consult docs → architectural validation (route to <code>@oracle</code> for non-obvious cases). Chain <code>context-pack</code> before <code>plan</code>/<code>scope-and-execute</code>/<code>refactor</code>. Trivial single-file edits (&lt;20 lines, known path) are exempt.</span></div>
+            <div class="g-rule"><span class="g-rule-n">08</span><span><b>Independence Gate (review/security/critic agents)</b> — Review, security, and critic agents MUST be independent subagents — never collapsed into the implementer lane. Roles that MUST be independent: <code>code-reviewer</code>, <code>security-reviewer</code>, <code>critic</code>. Read-only-by-construction is about tool permissions (no write/edit). Independence is about lane separation — even with no write tools, a reviewer running in the same context as the implementer has compromised objectivity. Spawn an independent review subagent: after <code>@fixer</code> completes → <code>@code-reviewer</code> or <code>@oracle</code>; before merge → <code>@code-reviewer</code>; security-sensitive → <code>@security-reviewer</code>; high-stakes → <code>critic</code>.</span></div>
           </div>
         </div>
 
@@ -1080,7 +1090,7 @@
       <div class="grid-header">
         <div>
           <div class="grid-header-title" id="grid-title">All Skills</div>
-          <div class="grid-header-sub" id="grid-sub">259 skills across 24 categories — invoke autonomously or with /<i>name</i></div>
+          <div class="grid-header-sub" id="grid-sub">260 skills across 24 categories — invoke autonomously or with /<i>name</i></div>
         </div>
         <div class="result-count" id="result-count"></div>
       </div>
@@ -1401,6 +1411,7 @@ const TRANSLATIONS = {
   "rag-eval": "Gate de regressão de retrieval vs baseline — compara Hit@5, MRR e métricas per-intent.",
   "rag-maintenance": "Composite auditoria RAG completa — mede qualidade, encontra gaps, detecta chunks stale, curate.",
   "harness-doctor": "Diagnostica saúde do harness: servidores MCP, filesystem, git sync, graph freshness, hooks, settings.",
+  "harness-sync": "Sync bidirecional do harness com proteção de fork — puxa updates upstream sem sobrescrever customizações. Manifest-driven: substituições ({{TOKEN}}→value), renames (path mapping), globs protegidos (nunca sobrescritos), replaced (avisa em mudança upstream), conflict_strategy (upstream-wins|local-wins|prompt|three-way). 5 modos: pull, push, diff, init, validate.",
   "skill-creator-local": "Fork skill-creator local com unique init_skill.py para compatibilidade histórica.",
   "adt-auto-invoke": "Tabela de roteamento meta-skill — quando aplicar outras skills automaticamente sem ser perguntado.",
   "rtk-health": "Verifica probes de reescrita rtk para exit code ask-rule após uma atualização rtk.",
@@ -1732,6 +1743,7 @@ const SKILLS = [
 
   // ── Skill & Plugin Management additions
   { name: 'harness-doctor',       cat: 'skill-mgmt',    composite: false, desc: 'Diagnose harness health: MCP servers, filesystem, git sync, graph freshness, hooks, settings.' },
+  { name: 'harness-sync',         cat: 'skill-mgmt',    composite: false, desc: 'Bidirectional harness sync with fork protection — pull upstream updates without clobbering customizations. Manifest-driven: substitutions ({{TOKEN}}→value), renames (path mapping), protected globs (never overwritten), replaced (warn on upstream change), conflict_strategy (upstream-wins|local-wins|prompt|three-way). 5 modes: pull, push, diff, init, validate.' },
   { name: 'skill-creator-local',  cat: 'skill-mgmt',    composite: false, desc: 'Local skill-creator fork with unique init_skill.py for historical compatibility.' },
   { name: 'adt-auto-invoke',      cat: 'skill-mgmt',    composite: false, desc: 'Meta-skill routing table — when to apply other skills automatically without being asked.' },
   { name: 'rtk-health',           cat: 'skill-mgmt',    composite: false, desc: 'Check rtk rewrite probes for ask-rule exit code after an rtk update.' },
@@ -1891,6 +1903,18 @@ const HOOKS = [
       'Block destructive patterns: rm -rf, sudo rm, git reset --hard, etc.',
       'Block writes to protected paths (~/.ssh, /etc, /usr)',
       'Flag cat/head/tail on files that should use the Read tool',
+    ]
+  },
+  {
+    event: 'PreToolUse [Bash]',
+    tag: 'SAFETY GATE',
+    title: 'Dangerous Patterns Block',
+    subtitle: 'Reads .harness/mcp-policy.json, regex-matches Bash commands against 17 dangerous patterns (rm -rf /, git push --force, DROP TABLE, curl|sh, etc.), exits 2 to block. Fail-open if policy missing.',
+    steps: [
+      'Read .harness/mcp-policy.json for the dangerous-pattern list (fail-open → exit 0 if absent)',
+      'Parse the stdin JSON payload and extract the Bash command field',
+      'Regex-match the command against 17 dangerous patterns (rm -rf /, git push --force, DROP TABLE, curl|sh, mkfs, chmod -R 777, …)',
+      'Exit 2 on a match to block the call before it runs; exit 0 to allow',
     ]
   },
   {
@@ -2423,7 +2447,15 @@ const GUIDE_PT = {
         <span class="g-chip">Vault de ADRs</span>
         <span class="g-chip">CLAUDE.md</span>
       </div>
-    </div>`,
+    </div>
+    <div class="g-substrate">
+      <span class="g-substrate-label">governado declarativamente por .harness/</span>
+      <span class="g-chip">manifest.json</span>
+      <span class="g-chip">mcp-policy.json</span>
+      <span class="g-chip">README.md</span>
+      <span class="g-chip">check-harness-manifest.sh</span>
+    </div>
+    <p class="g-lead">Regras de segurança viram código diffable e exigível em CI: <code>manifest.json</code> guarda fingerprints sha256 de config crítica de segurança; <code>mcp-policy.json</code> declara governança MCP (defaultDeny, 17 regexes de padrões perigosos, call budget, timeout, approved servers). O JSON é a fonte da verdade — o AGENTS.md o espelha em prosa, e <code>scripts/check-harness-manifest.sh</code> verifica fingerprints + invariantes de policy em CI.</p>`,
 
   'g-quickstart': `
     <div class="g-eyebrow">Início rápido · ~5 min</div>
@@ -2555,6 +2587,8 @@ const GUIDE_PT = {
       <div class="g-rule"><span class="g-rule-n">04</span><span><b>State-check antes de mutação</b> — consulte o estado atual primeiro; pule se já satisfeito. Idempotente por padrão.</span></div>
       <div class="g-rule"><span class="g-rule-n">05</span><span><b>Sem rewrites big-bang sem gate de demanda</b> — meça o uso primeiro, prototipe uma unidade, depois comprometa.</span></div>
       <div class="g-rule"><span class="g-rule-n">06</span><span><b>Protocolo de travamento</b> — mais de 2 tentativas sem progresso → exponha, troque de abordagem, depois escale. Nunca repita em silêncio.</span></div>
+      <div class="g-rule"><span class="g-rule-n">07</span><span><b>Protocolo de Descoberta de Padrões (obrigatório antes de implementar)</b> — "Search First, Reuse Always, Create Only When Necessary." Antes de qualquer trabalho não-trivial: busque specs (<code>recall</code>/grep <code>docs/specs/</code>) → busque na codebase (grep/glob) → busque no histórico da sessão (<code>recall</code>) → consulte docs → validação arquitetural (roteie para <code>@oracle</code> em casos não-óbvios). Encadeie <code>context-pack</code> antes de <code>plan</code>/<code>scope-and-execute</code>/<code>refactor</code>. Edits triviais de arquivo único (&lt;20 linhas, caminho conhecido) são isentos.</span></div>
+      <div class="g-rule"><span class="g-rule-n">08</span><span><b>Gate de Independência (agentes review/security/critic)</b> — Agentes de review, segurança e critic DEVEM ser subagentes independentes — nunca colapsados na lane do implementador. Roles que DEVEM ser independentes: <code>code-reviewer</code>, <code>security-reviewer</code>, <code>critic</code>. Read-only-by-construction é sobre permissões de ferramenta (sem write/edit). Independência é sobre separação de lane — mesmo sem ferramentas de escrita, um reviewer rodando no mesmo contexto que o implementador tem objetividade comprometida. Spawne um subagente de review independente: após <code>@fixer</code> concluir → <code>@code-reviewer</code> ou <code>@oracle</code>; antes do merge → <code>@code-reviewer</code>; sensível a segurança → <code>@security-reviewer</code>; alto risco → <code>critic</code>.</span></div>
     </div>`,
 
   'g-foot': `

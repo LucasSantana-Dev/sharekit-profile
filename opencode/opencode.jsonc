@@ -1,0 +1,131 @@
+{
+  // ShareKit portable default for OpenCode.
+  // OpenCode Go (provider id: "opencode") is the primary gateway; OpenRouter
+  // (provider id: "openrouter") is the fallback. High-efficiency model tiering
+  // mirrors the operator's CLAUDE.md discipline: Sonnet-class for coding,
+  // Flash/Haiku-class for mechanical work, cheapest for titles.
+  //
+  // This is a *portable default* — it ships via `sharekit install` and does NOT
+  // touch your personal ~/.config/opencode/opencode.jsonc. OpenCode merges
+  // project (.opencode/) + global (~/.config/opencode/) configs, so installing
+  // this gives you sane defaults while leaving personal overrides intact.
+
+  "$schema": "https://opencode.ai/config.json",
+
+  // Default model for the built-in "build" agent when no agent overrides.
+  // Sonnet-class: high-quality coding at reasonable token cost.
+  "model": "opencode/anthropic/claude-sonnet-4-5",
+
+  // Smaller/faster model for background mechanical work (summarization,
+  // formatting, ref numbering). Flash-class: cheap and fast.
+  "small_model": "opencode/google/gemini-2.5-flash",
+
+  // Provider configuration. OpenCode Go is the hosted gateway; OpenRouter is
+  // configured as a fallback so if the primary gateway is unavailable or a
+  // model is missing, OpenCode can route through OpenRouter instead.
+  "provider": {
+    // OpenCode Go — primary. API key read from OPENCODE_API_KEY env var
+    // (set via `opencode auth login` or your shell). No key hardcoded here.
+    "opencode": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OpenCode Go",
+      "options": {
+        "baseURL": "https://api.opencode.ai/v1",
+        "apiKey": "{env:OPENCODE_API_KEY}"
+      },
+      "models": {
+        "anthropic/claude-sonnet-4-5": { "name": "Claude Sonnet 4.5" },
+        "anthropic/claude-haiku-4-5": { "name": "Claude Haiku 4.5" },
+        "google/gemini-2.5-flash": { "name": "Gemini 2.5 Flash" },
+        "google/gemini-2.5-flash-lite": { "name": "Gemini 2.5 Flash Lite" }
+      }
+    },
+
+    // OpenRouter — fallback gateway. allow_fallbacks lets OpenCode fall through
+    // to OpenRouter when the primary model/provider is unavailable. API key
+    // read from OPENROUTER_API_KEY env var (never hardcoded).
+    "openrouter": {
+      "npm": "@openrouter/ai-sdk-provider",
+      "name": "OpenRouter",
+      "options": {
+        "apiKey": "{env:OPENROUTER_API_KEY}",
+        "allow_fallbacks": true
+      },
+      "models": {
+        "anthropic/claude-sonnet-4.5": { "name": "Claude Sonnet 4.5 (OpenRouter)" },
+        "anthropic/claude-haiku-4.5": { "name": "Claude Haiku 4.5 (OpenRouter)" },
+        "google/gemini-2.5-flash": { "name": "Gemini 2.5 Flash (OpenRouter)" }
+      }
+    }
+  },
+
+  // Agent tiering. Each agent pins a model + permission level appropriate to
+  // its role. Analysis roles are read-only by construction (matches the
+  // "Analysis subagents are read-only by construction" hard rule in CLAUDE.md).
+  // `permission` uses allow/deny per tool category — the deprecated `tools`
+  // field is intentionally avoided.
+  "agent": {
+    // Primary coding agent — Sonnet-class for quality implementation work.
+    "build": {
+      "model": "opencode/anthropic/claude-sonnet-4-5",
+      "mode": "primary",
+      "permission": { "edit": "allow", "bash": "allow" }
+    },
+
+    // Cheap mechanical agent — formatting, renames, lookups, transcription.
+    // Flash-class: lowest token cost for low-judgement work.
+    "task": {
+      "description": "Mechanical work: formatting, renames, symbol lookups, transcription. Use for low-judgement edits where speed and token cost matter more than deep reasoning.",
+      "model": "opencode/google/gemini-2.5-flash",
+      "mode": "subagent",
+      "permission": { "edit": "allow", "bash": "allow" }
+    },
+
+    // Architectural / planning agent — Sonnet-class for multi-step reasoning.
+    // Read-only: produces plans and ADRs, never edits code directly.
+    "architect": {
+      "description": "Architectural analysis and ADR drafting. Read-only: produces plans and decision records, never edits code directly.",
+      "model": "opencode/anthropic/claude-sonnet-4-5",
+      "mode": "subagent",
+      "temperature": 0.1,
+      "permission": { "edit": "deny", "bash": "deny" }
+    },
+
+    // Planner agent — breaks work into phases. Read-only by construction.
+    "planner": {
+      "description": "Breaks work into ordered phases with stop conditions. Read-only by construction; hands the plan to an implementer.",
+      "model": "opencode/anthropic/claude-sonnet-4-5",
+      "mode": "subagent",
+      "temperature": 0.1,
+      "permission": { "edit": "deny", "bash": "deny" }
+    },
+
+    // Critic / reviewer agent — read-only review and risk analysis.
+    "critic": {
+      "description": "Code review and risk analysis. Read-only: surfaces verdict + top findings; never edits code.",
+      "model": "opencode/anthropic/claude-sonnet-4-5",
+      "mode": "subagent",
+      "temperature": 0.1,
+      "permission": { "edit": "deny", "bash": "deny" }
+    },
+
+    // Title agent — generates session/conversation titles. Cheapest model.
+    "title": {
+      "model": "opencode/google/gemini-2.5-flash-lite",
+      "mode": "primary",
+      "permission": { "edit": "deny", "bash": "deny" }
+    }
+  },
+
+  // Workspace instructions injected into the system prompt. These encode the
+  // operator's efficiency discipline so portable installs inherit it.
+  "instructions": [
+    "Prefer the most efficient model that can do the task well. Haiku/Flash for mechanical work, Sonnet for implementation, Opus only for deep reasoning (critic, architecture, decisions).",
+    "OpenRouter is the fallback provider when the primary gateway is unavailable or rate-limited.",
+    "Analysis subagents are read-only by construction (deny edit/bash) — never grant write tools to review/explore agents.",
+    "Token optimization: use /caveman for ~75% token compression (drop filler/articles, keep technical accuracy). Use /optimize-context when context is bloated or responses are slow. Use /token-audit to analyze historical token spend and find savings. Use /context-pack before large changes to pull only relevant context.",
+    "Minimal solutions: use /ponytail to force the simplest, shortest, most minimal solution (YAGNI, stdlib before deps, one line before fifty). Use /ponytail-audit to find over-engineering across a repo, /ponytail-review to lint a diff for complexity, /ponytail-debt to track deferred shortcuts.",
+    "Knowledge brain: use /recall for one-shot semantic lookup against the local RAG index (~21k chunks across memory, plans, handoffs, skills, code). Use /graphify to turn code/docs into a knowledge graph. Use /bootstrap-project to stand up a new project's memory + central graph. Use /codebase-memory for structural code queries (call chains, dead code, fan-out).",
+    "RAG maintenance: use /rag-maintenance for the full retrieval index audit (quality → coverage → drift → curate). Use /rag-quality to measure retrieval quality, /adt-rag-coverage for corpus gaps, /adt-rag-drift for stale chunks, /rag-curate to fix weak chunks, /rag-eval for retrieval regression gates."
+  ]
+}

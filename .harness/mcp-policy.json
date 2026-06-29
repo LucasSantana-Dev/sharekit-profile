@@ -1,0 +1,40 @@
+{
+  "schema": "https://json-schema.org/draft/2020-12/schema",
+  "policy_version": "1.0",
+  "defaultDeny": true,
+  "allowShell": false,
+  "allowNetwork": false,
+  "allowFileWrite": false,
+  "comment_on_allowFlags": "Native tools (Bash, Read, Write, Edit) govern these at the tool layer; MCP servers are denied by default and must be explicitly approved",
+  "dangerousPatterns": [
+    "rm\\s+-rf\\s+/\\b",
+    "git\\s+reset\\s+--hard\\b",
+    "git\\s+clean\\s+-f\\b",
+    "git\\s+push.*--force\\b",
+    "git\\s+push\\s+origin\\s+main\\s+--force\\b",
+    "DROP\\s+TABLE\\b",
+    "DROP\\s+DATABASE\\b",
+    "DELETE\\s+FROM\\b",
+    "dd\\s+if=/dev/zero\\b",
+    "mkfs\\b",
+    "chmod\\s+-R\\s+777\\b",
+    "pkill\\b",
+    "kill\\s+-9\\b",
+    "sudo\\s+rm\\b",
+    "docker\\s+rm\\s+-f\\b",
+    "docker\\s+rmi\\b",
+    "curl.+\\|\\s*(sh|bash)\\b"
+  ],
+  "maxToolCallsPerTurn": 80,
+  "toolTimeoutMs": 300000,
+  "approvedServers": [
+    "rag-index",
+    "github",
+    "filesystem",
+    "git",
+    "fetch",
+    "context7",
+    "memory",
+    "firecrawl"
+  ]
+}

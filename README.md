@@ -1,15 +1,26 @@
-# Claude Code Harness Documentation
+# Operator Harness Documentation
 
-**Comprehensive reference guide for a fully-configured Claude Code operator environment with 325+ skills, 40+ agents, automated hook pipeline, RAG retrieval, memory persistence, and integrated MCP servers.**
+**Comprehensive reference guide for a fully-configured OpenCode / Claude Code operator environment with 325+ skills, 40+ agents, automated hook pipeline, RAG retrieval, memory persistence, and integrated MCP servers.**
+
+> **Harnesses:** OpenCode (primary, `opencode.json`) → Claude Code (supported) → OpenRouter (fallback provider). The skill/agent/hook library is harness-agnostic and works across both.
 
 ---
 
 ## Quick Start: Daily Operations
 
 ### Starting a session
+
+**OpenCode (preferred):**
+```bash
+opencode   # Opens OpenCode — reads opencode.json, routes via primary provider
+```
+
+**Claude Code (supported):**
 ```bash
 claude   # Opens Claude Code CLI
 ```
+
+**Fallback provider:** when the primary provider is rate-limited or unavailable, OpenCode routes through OpenRouter. Configure once with `opencode auth login openrouter` (set `OPENROUTER_API_KEY`).
 
 The session start hook chain fires automatically:
 - Auto-pulls latest state from `~/.claude-env`
@@ -84,7 +95,24 @@ Example: User says "refactor this module."
 ├── adrs/                               # Architecture Decision Records
 ├── hooks/                              # Env-level hooks
 └── ... (config, memory, scripts)
+
+~/.config/opencode/                     # OpenCode portable default (mirrored by sharekit)
+├── opencode.jsonc                       # Go primary + OpenRouter fallback + agent tiering
+└── agents/                              # OpenCode agent overrides (architect, planner, critic, task)
+
+~/.gjc/                                 # Gajae-Code portable default (mirrored by sharekit)
+├── config.yml                          # Provider retry budgets (requestMaxRetries, streamMaxRetries, ...)
+└── agents/                             # gjc role agent references (executor, architect, planner, critic)
 ```
+
+### OpenCode + OpenRouter + Gajae-Code integration
+
+`sharekit install` now mirrors two additional tool roots alongside `claude/` and `cursor/`:
+
+- **`opencode/`** → `~/.config/opencode/`. Ships a portable `opencode.jsonc` with OpenCode Go (`opencode` provider) as the primary gateway and OpenRouter as the fallback (`options.provider.allow_fallbacks: true`). API keys are read from env vars (`OPENCODE_API_KEY`, `OPENROUTER_API_KEY`) — never hardcoded. Agent tiering mirrors the CLAUDE.md discipline: Sonnet-class for `build`/`architect`/`planner`/`critic`, Flash-class for `task`, cheapest for `title`. Analysis roles (architect, planner, critic) are read-only by construction (`permission: { edit: deny, bash: deny }`). This is a *portable default* — your personal `~/.config/opencode/opencode.jsonc` is left intact; OpenCode merges project + global configs.
+- **`gjc/`** → `~/.gjc/`. Ships the documented `config.yml` retry budget (the user-facing config surface). gjc is an external runner that sits beside OpenCode/Claude Code and adds the `deep-interview → ralplan → ultragoal` workflow loop (optional `team` for parallel tmux workers). Model/provider selection in gjc uses a separate `models.yml` + `modelBindings` system; this profile intentionally does not override that. The four role-agent markdown files (`executor`, `architect`, `planner`, `critic`) are reference templates aligned with the operator's CLAUDE.md hard rules.
+
+Both ship as **portable defaults**: installing this profile gives sane starting configs without clobbering personal overrides.
 
 ---
 
@@ -296,6 +324,34 @@ For ≥2 independent units (parallel investigations, multi-repo sweeps, batch fi
 - **Large file warning:** >25KB read emits warning
 
 If context bloat builds: `/compact` (saves ~30-40% tokens)
+
+### Token Optimization
+| Goal | Skill | What it does |
+|------|-------|--------------|
+| ~75% token compression | `/caveman` | Drops filler/articles/pleasantries while keeping full technical accuracy. Persists until toggled off. |
+| Minimal solutions | `/ponytail` | Forces simplest, shortest, most minimal solution (YAGNI, stdlib before deps, one line before fifty). |
+| Audit repo for bloat | `/ponytail-audit` | Whole-repo audit for over-engineering — ranked list of what to delete/simplify. |
+| Lint a diff for complexity | `/ponytail-review` | Review focused exclusively on over-engineering in a diff. |
+| Track deferred shortcuts | `/ponytail-debt` | Harvest `ponytail:` comments into a tracked debt ledger. |
+| Historical token spend | `/token-audit` | Analyze Claude Code session JSONLs — spend, cache hit rates, weekly trends. |
+| Context bloat | `/optimize-context` | Reduce token consumption when context is bloated or responses are slow. |
+| Load only relevant context | `/context-pack` | Build a task-aware context bundle before large changes or unfamiliar work. |
+
+### Knowledge-Brain & RAG
+The profile ships a **Megabrain** system: one vault for all projects (memory + graphs + RAG).
+
+| Goal | Skill | What it does |
+|------|-------|--------------|
+| Semantic lookup | `/recall` | One-shot lookup against the local RAG index (~21k chunks across memory, plans, handoffs, skills, code). |
+| Code → knowledge graph | `/graphify` | Turn code/docs/papers/images into a knowledge graph for structural queries. |
+| Structural code queries | `/codebase-memory` | Knowledge graph for call chains, dead code, fan-out, impact analysis. |
+| New project brain | `/bootstrap-project` | Stand up a new project's memory + central graph in one ritual. |
+| RAG index audit | `/rag-maintenance` | Full pipeline: quality → coverage → drift → curate. |
+| Retrieval quality | `/rag-quality` | Evaluate retrieval quality from the local RAG index. |
+| Corpus coverage gaps | `/adt-rag-coverage` | Audit corpus distribution by source type; find under-indexed topics. |
+| Stale chunks | `/adt-rag-drift` | Detect and fix stale chunks (files changed/deleted since indexing). |
+| Improve weak chunks | `/rag-curate` | Add missing docs, rewrite weak chunks, fill retrieval gaps. |
+| Retrieval regression gate | `/rag-eval` | Hit@5/MRR regression gate against a frozen baseline. |
 
 ---
 

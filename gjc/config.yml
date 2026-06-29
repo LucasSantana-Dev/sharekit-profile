@@ -1,0 +1,30 @@
+# ShareKit portable default for Gajae-Code (gjc).
+#
+# gjc is an external coding-agent runner that sits beside OpenCode/Claude Code
+# and adds a small workflow loop: deep-interview → ralplan → ultragoal
+# (optional team for parallel tmux workers). It does NOT replace them.
+#
+# This file ships the provider retry budget — the documented user-facing
+# config surface in ~/.gjc/config.yml. Model/provider selection in gjc uses
+# a separate models.yml + modelBindings system; this profile intentionally
+# does not override that, leaving your personal provider config intact.
+#
+# Portable default: safe retry budgets. Fail-fast on permanent errors
+# (invalid auth, unsupported models, malformed requests, context overflow,
+# user aborts, quota failures) — those are NOT hidden by retry loops.
+
+retry:
+  # Provider SDK/fetch retries before a stream is established.
+  # Counts retries, not the initial request.
+  requestMaxRetries: 4
+
+  # Replay-safe stream retries: only when a provider can safely replay a
+  # transient stream failure before user-visible content.
+  streamMaxRetries: 100
+
+  # Session-level terminal-error retries: retries a failed assistant turn
+  # after a terminal transient error reaches the session.
+  maxRetries: 3
+
+  # Cap backoff so a stalled provider doesn't hang for many minutes.
+  maxDelayMs: 300000

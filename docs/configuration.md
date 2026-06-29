@@ -1,6 +1,6 @@
 # Configuration: Hard Rules & Defaults
 
-Reference guide for how the Claude Code operator harness is configured, including non-negotiable rules, default behaviors, and model tiering.
+Reference guide for how the operator harness (OpenCode primary, Claude Code supported) is configured, including non-negotiable rules, default behaviors, model tiering, and the OpenRouter fallback provider.
 
 ---
 
@@ -132,22 +132,33 @@ Treat injected `# Knowledge graph context` blocks as the primary map.
 
 ## Model Tiering
 
+**Efficiency-first policy:** match model strength to task — high result per token. Do not override tier for speculative speed.
+
 ### Main Loop (Default)
-- **Model:** Claude Sonnet 4.6
+- **Model:** Claude Sonnet 4.5 (OpenCode: `anthropic/claude-sonnet-4-5`)
 - **Use for:** Implementation, feature work, code review, test generation, single-phase sub-agent dispatch
 
 ### Subagents (Mechanical)
-- **Model:** Claude Haiku 4.5
-- **Use for:** Formatting, symbol lookups, grep/regex searches, simple renames, transcription, batch mechanical work
+- **Model:** Claude Haiku 4.5 (OpenCode: `anthropic/claude-haiku-4-5`)
+- **Use for:** Formatting, symbol lookups, grep/regex searches, simple renames, transcription, batch mechanical work, planning drafts
 
 ### Opus (Explicit)
 - **Model:** Claude Opus 4.8
 - **Use for:**
-  - Orchestration layer (composite skill entrypoints)
-  - Critic role (architecture review, decision challenges)
+  - Critic role (architecture review, decision challenges) — only agents explicitly assigned Opus
   - Cross-session synthesis
   - Architectural decisions requiring ≥5-step reasoning chains
   - ADR writing
+
+### OpenRouter Fallback Provider
+
+OpenCode routes through OpenRouter when the primary provider is unavailable or rate-limited. Configure once:
+
+```bash
+opencode auth login openrouter   # set OPENROUTER_API_KEY
+```
+
+OpenRouter exposes the same tier-appropriate models (`anthropic/claude-sonnet-4.5`, `anthropic/claude-haiku-4.5`, `google/gemini-2.5-flash`, `deepseek/deepseek-chat`). The efficiency tier policy above applies identically on the fallback provider.
 
 ### Smart Model Select
 

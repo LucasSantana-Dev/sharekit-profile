@@ -1,0 +1,47 @@
+{
+  "schema": "harness-constitution/v1",
+  "rank": [
+    "protected_invariants",
+    "branch_policy",
+    "verification_policy",
+    "escalate_when",
+    "memory",
+    "handoffs"
+  ],
+  "protected_invariants": [
+    "no-ai-attribution",
+    "pr-automation-halt",
+    "independence-gate",
+    "read-only-by-construction",
+    "idempotency-check",
+    "storage-policy"
+  ],
+  "branch_policy": {
+    "main": "protected",
+    "release": "protected",
+    "feature": "pr-required"
+  },
+  "verification_policy": {
+    "pre-commit": ["lint", "type-check"],
+    "pre-push": ["test", "build"],
+    "pre-merge": ["ci-pass", "review-approved"]
+  },
+  "escalate_when": [
+    "security-sensitive",
+    "production-impacting",
+    "irreversible",
+    "ambiguous-intent"
+  ],
+  "memory": {
+    "source_of_truth": "repository",
+    "per_project_path": ".agents/memory/",
+    "global_path": "~/.claude/projects/<slug>/memory/",
+    "session_state": "~/.claude/handoffs/<project>/latest.md"
+  },
+  "handoffs": {
+    "trigger": "context-approaching-limit | session-end | explicit-save",
+    "location": "~/.claude/handoffs/<project>/latest.md",
+    "required_fields": ["task", "current_step", "completed", "next_action", "git_state"],
+    "archive_on_complete": "~/.claude/handoffs/<project>/<timestamp>-completed.md"
+  }
+}
