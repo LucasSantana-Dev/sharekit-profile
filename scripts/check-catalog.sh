@@ -32,4 +32,30 @@ chk "agents tab-count"      "${TC_AGENTS:-?}"   "$AGENTS"
 if [ "$fail" = 0 ]; then
   echo "catalog counts consistent: $SKILLS skills, $AGENTS agents, $CATS categories"
 fi
+
+# Skill-count guardrail — prevents skill bloat from truncating Claude Code's
+# skill listing (skillListingBudgetFraction in ~/.claude/settings.json).
+# ~/.codex/skills and ~/.claude/skills both symlink to ~/.agents/skills.
+check_skill_count() {
+  local dirs=( "$HOME/.agents/skills" "$HOME/.codex/skills" "$HOME/.claude/skills" )
+  local count=0
+  for d in "${dirs[@]}"; do
+    if [ -d "$d" ]; then
+      local n
+      n=$(find -L "$d" -name SKILL.md -type f 2>/dev/null | wc -l | tr -d ' ')
+      if [ "$n" -gt "$count" ]; then count=$n; fi
+      break
+    fi
+  done
+  if [ "$count" -gt 350 ]; then
+    echo "FAIL: skill count $count exceeds 350 — run skill-maintainer to prune duplicates, or raise skillListingBudgetFraction"
+    fail=1
+  elif [ "$count" -gt 250 ]; then
+    echo "WARN: skill count $count exceeds 250 — consider pruning duplicates or raising skillListingBudgetFraction"
+  else
+    echo "skill count $count within guardrail (warn>250, fail>350)"
+  fi
+}
+check_skill_count
+
 exit "$fail"

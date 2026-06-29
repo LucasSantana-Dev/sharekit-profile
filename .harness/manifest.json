@@ -1,0 +1,14 @@
+{
+  "schema": "https://json-schema.org/draft/2020-12/schema",
+  "manifest_version": "1.0",
+  "generated_at": "2026-06-29T00:36:43Z",
+  "hosts": ["claude-code", "opencode", "codex"],
+  "files": {
+    ".harness/mcp-policy.json": "3b2c773c766ec6ed53b58a471e5d635f9885f964deb0c4885bae5dfb19ab5ef4",
+    "AGENTS.md": "2461c70bce0307a83cd9db19f6edadc9d58f6b111178aa05bcd0a3e574bfd317"
+  },
+  "meta": {
+    "adr_anchor": "Adopted from ruflo meta-harness pattern: declarative governance directory converts prose security rules into diffable, CI-enforceable code.",
+    "source": "https://github.com/ruvnet/ruflo"
+  }
+}
