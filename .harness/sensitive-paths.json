@@ -1,0 +1,30 @@
+{
+  "_comment": "Sensitive-path deny-list. These paths are checked FIRST by security hooks and audit skills. They are NON-OVERRIDABLE — no skill, agent, or hook may read, write, or reference these paths. Violations block the operation and surface a CRITICAL finding.",
+  "schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0",
+  "description": "Hardcoded sensitive paths that must never be accessed by harness tools. Checked before any file operation. Non-overridable by allowlists or skill exceptions.",
+  "paths": [
+    "~/.ssh/*",
+    "~/.aws/credentials",
+    "~/.aws/config",
+    "~/.gnupg/*",
+    "~/.kube/config",
+    "~/.docker/config.json",
+    "~/.config/gcloud/*",
+    "~/.azure/*",
+    "~/.netrc",
+    "~/.npmrc",
+    "~/.claude/.credentials.json",
+    "~/.codex/auth.json"
+  ],
+  "notes": {
+    "~/.npmrc": "Flagged only if it contains an auth token (//registry.npmjs.org/:_authToken=). Plain npmrc without tokens is safe.",
+    "wildcards": "Patterns ending in /* match all files under that directory. Patterns without wildcards match exact paths.",
+    "expansion": "The ~ prefix expands to $HOME at runtime. Hooks must expand before matching."
+  },
+  "enforcement": {
+    "check_order": "FIRST — before any other path validation or allowlist checks",
+    "on_match": "Block the operation, log CRITICAL finding, exit non-zero",
+    "override": "NONE — these paths cannot be allowlisted by any mechanism"
+  }
+}

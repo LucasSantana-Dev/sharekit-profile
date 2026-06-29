@@ -1,6 +1,16 @@
 # AGENTS.md — sharekit-profile
 
+> See `SOUL.md` for identity and philosophy. See `RULES.md` for constraints and hard rules.
+
 This repo is the **sharekit operator harness profile**. It ships a portable Claude Code / OpenCode workflow: skills, agents, hooks, standards, and a memory system.
+
+## Governance
+
+- `.harness/constitution.json` — source of truth for enforced invariants, branch policy, verification policy
+- `.harness/constitution.md` — human-readable mirror of the JSON
+- `.harness/mcp-policy.json` — MCP server policy (defaultDeny, approved servers, dangerous patterns)
+- `docs/THREAT_MODEL.md` — committed threat model artifact
+- `docs/hook-firing-order.md` — hook/skill firing order contract
 
 ## Primary harness: OpenCode
 
@@ -17,49 +27,42 @@ Match model strength to task — high result per token:
 
 - **Haiku** — mechanical work: formatting, symbol lookups, grep, simple renames, exploration, planning drafts.
 - **Sonnet** — implementation, feature work, code review, single-phase dispatch.
-- **Opus** — only deep reasoning: critic role, architecture review, cross-session synthesis, ADRs, ≥5-step reasoning.
+- **Opus** — only deep reasoning: critic role, architecture review, cross-session synthesis, ADRs, >=5-step reasoning.
 
 Do not override tier for speculative speed. Use `/smart-model-select` when ambiguous.
 
-## Analysis agents are read-only by construction
+## Agent routing
 
-Any subagent dispatched for analysis (review, explore, plan, audit) must deny write/edit tools in its `permission` block — not just a prompt instruction. Edits from analysis are applied by the orchestrator or a separate implementer stage.
+| Complexity | Signals | Model tier |
+|-----------|---------|------------|
+| **Low** | Single-file edit, grep, config change | Haiku |
+| **Medium** | Multi-file feature, bug fix, test writing | Sonnet |
+| **High** | Architecture, cross-repo, security audit | Opus |
 
-## Pattern Discovery Protocol (mandatory before implementation)
+### OpenCode Go tier (`opencode-go/*` namespace)
+The `opencode-go/*` namespace exposes 13 models via the OpenCode Go subscription gateway. Route by capability: `glm-5.2`/`deepseek-v4-pro`/`qwen3.7-max` for implementation, `deepseek-v4-flash`/`mimo-v2.5` for mechanical work, `kimi-k2.7-code` for code-tuned tasks.
 
-Before any non-trivial implementation (new feature, multi-file change, unfamiliar area), search first — do not implement from scratch when a pattern, prior decision, or existing code already solves the problem.
+### Role agents (subagents in `agent/roles/`)
+- `critic` — adversarial multi-perspective review of plans/code (read-only)
+- `code-reviewer` — severity-rated review, SOLID/logic/security checks (read-only)
+- `security-reviewer` — OWASP Top 10, secrets, unsafe patterns (read-only)
+- `debugger` — root-cause analysis, regression isolation (write-capable)
+- `test-engineer` — TDD, integration/e2e coverage, flake hardening (write-capable)
 
-Search order:
-1. **Specs** — `recall` or grep `docs/specs/` for prior decisions about this domain
-2. **Codebase** — grep/glob for existing implementations of the same pattern
-3. **Session history** — `recall` for prior reasoning on this topic
-4. **Docs** — check `docs/`, `~/.claude/standards/`, README, CONTRIBUTING
-5. **Architectural validation** — for non-obvious cases, route to @oracle for a recommendation before implementing
+## Skill auto-invoke
 
-Philosophy: "Search First, Reuse Always, Create Only When Necessary."
+Auto-trigger without being asked: `self-heal`/`debug` on errors, `eval` on LLM output, `context` at >=50%, `memory` at session end, `secure` on auth/payments, `verify` before every PR.
 
-This chains `context-pack` before `plan` / `scope-and-execute` / `refactor` — the auto-invoke already partially does this. The rule makes it explicit: skipping pattern discovery for non-trivial work is a defect.
+### Composite-first principle
+When the user's intent matches a composite skill, ALWAYS invoke the composite — never the individual sub-skills. The full trigger map lives in `~/.agents/skills/standards/skill-auto-invoke.md`.
 
-Trivial single-file edits (<20 lines, known path) are exempt.
+## Session budget
 
-## Independence Gate (review/security/critic agents)
-
-Review, security, and critic agents MUST be independent subagents — never collapsed into the implementer lane.
-
-Roles that MUST be independent (not collapsible):
-- **code-reviewer** — reviews implementation; cannot review its own work
-- **security-reviewer** — audits for vulnerabilities; independence is the audit's value
-- **critic** — adversarial multi-perspective review; collapsing it defeats the purpose
-
-This extends the existing "Analysis agents are read-only by construction" rule: read-only is about tool permissions (no write/edit). Independence is about lane separation — even with no write tools, a reviewer running in the same context as the implementer has compromised objectivity.
-
-When to spawn an independent review subagent:
-- After @fixer completes implementation → dispatch @code-reviewer or @oracle for review
-- Before merge → dispatch @code-reviewer for final gate
-- For security-sensitive changes → dispatch @security-reviewer
-- For high-stakes decisions → dispatch @critic for adversarial challenge
-
-The orchestrator (or human) gates on the review subagent's exit state before advancing.
+- `model_reasoning_effort = "medium"` is the default — only escalate for genuinely complex tasks
+- After every 12 messages: warn "Context at ~45%"
+- After every 18 messages: warn "Context ~70% — compact immediately"
+- After every 22 messages: auto-generate a handoff file at `~/.claude/handoffs/<project>/latest.md`
+- Commit after each functional step — smaller commits mean less re-work if a session ends
 
 ## Harness files
 
@@ -72,3 +75,19 @@ The orchestrator (or human) gates on the review subagent's exit state before adv
 ## Storage
 
 Live harness lives at `~/.claude/` (runtime) with tracked source at `~/.claude-env/`. Keep both in sync — the drift detector (`hooks/check-harness-drift.sh`) expects identical `agents/` and `hooks/` between them.
+
+## Gotchas
+
+- **Pre-commit hooks**: Always run before commits — use `HUSKY=0` prefix to skip only for non-code changes
+- **Branch protection**: Cannot push directly to `main` — all changes must go through PR
+- **Test coverage**: Don't game the system with trivial tests — focus on business logic
+- **Bundle size**: Check bundle impact before adding new dependencies
+- **Error handling**: Always handle promises — unhandled rejections crash the app
+- **Context limits**: At 20+ messages, save state to handoff and start a fresh session
+- **siza commitlint**: `subject-case: sentence-case` enforced — commit subject must start uppercase
+- **Lucky commitlint**: lowercase subject + max 72 chars header — `subject-case: lower-case` enforced
+- **Lucky SonarCloud**: >=80% coverage on new code required. `resetMocks: true` wipes jest.fn() impls — re-set in `beforeEach`.
+- **Lucky branch protection**: TWO enforcement layers — legacy branch protection AND Repository Ruleset. Ruleset is authoritative. `--admin` bypass is impossible.
+- **yt-dlp stream**: `once('data')` consumes first chunk — use PassThrough to re-inject. Pass `process.execPath` as `--js-runtimes` not hardcoded path.
+- **SonarCloud CPD**: <=3% duplication on new code. Spec files excluded via `sonar.cpd.exclusions=**/*.spec.ts`.
+- **mcp-gateway CI**: Only triggers on `[main, dev, release/*, feature/*, feat/*]` — use `feat/` prefix
