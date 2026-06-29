@@ -1,0 +1,6 @@
+name = "openrouter-warp-proxy"
+main = "openrouter-proxy.js"
+compatibility_date = "2024-12-01"
+
+# Set the API key via: wrangler secret put OPENROUTER_API_KEY
+# Do NOT put the key in this file.
