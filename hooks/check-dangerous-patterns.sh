@@ -7,6 +7,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 POLICY="$ROOT/.harness/mcp-policy.json"
+SENSITIVE_PATHS="$ROOT/.harness/sensitive-paths.json"
 
 if [[ ! -f "$POLICY" ]]; then
   echo "WARN: .harness/mcp-policy.json not found — dangerous-pattern hook disabled (fail-open)" >&2
@@ -41,5 +42,20 @@ while IFS= read -r pattern; do
     exit 2
   fi
 done < <(jq -r '.dangerousPatterns[]?' "$POLICY")
+
+# Check file paths against sensitive-paths deny-list (non-overridable, checked FIRST).
+if [[ -f "$SENSITIVE_PATHS" ]]; then
+  while IFS= read -r pattern; do
+    [[ -z "$pattern" ]] && continue
+    # Convert glob pattern to regex: * → [^/]*, ** → .*, ? → [^/]
+    regex="$(printf '%s' "$pattern" | sed 's/\*\*/.*/g; s/\*/[^/]*/g; s/?/[^/]/g')"
+    if printf '%s' "$command" | grep -Eq "$regex"; then
+      echo "BLOCKED by .harness/sensitive-paths.json (non-overridable):" >&2
+      echo "  pattern:  $pattern" >&2
+      echo "  command:  $command" >&2
+      exit 2
+    fi
+  done < <(jq -r '.paths[]?' "$SENSITIVE_PATHS" 2>/dev/null || jq -r '.[]?' "$SENSITIVE_PATHS" 2>/dev/null)
+fi
 
 exit 0
