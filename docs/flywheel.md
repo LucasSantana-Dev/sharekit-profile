@@ -90,22 +90,34 @@ failures; the context-guard defends the context window.
 - **evaluator ≠ agent** — the judge never ships in the harness; the reviewer is
   not the implementer (lumos, gearbox, auto-harness).
 
-### Optimize (P1 → P2)
+### Optimize (P2 — shipped in this wave)
 
-A proposer reads the full iteration history (non-Markovian — *why* things
-failed, not just that they failed), proposes targeted evidence-backed edits
-with predicted impact, and is gated.
+The optimize half closes the loop: a proposer reads the full non-Markovian
+iteration history, proposes evidence-backed edits, is gated, deployed, watched,
+and auto-reverted on regression. The contract is copied from meta-agent /
+harness-evolver / hermes-evolution — NOT a dependency. No DSPy/GEPA/LangSmith.
 
-- **constraint gates** — tests pass, size limits (skills ≤15KB), cache
-  compatibility (no mid-conversation changes), semantic preservation.
-- **held-out split** — the proposer never sees the per-task labels of the
-  held-out set; acceptance is gated on held-out improvement.
-- **Pareto selection** — keep variants that are better on at least one axis
-  without regressing others.
-- **auto-rollback on regression** — post-deploy monitoring; revert
-  automatically if a metric drops (selftune `watch`, Distill-Agent).
+- **iteration history** — `hooks/history.sh` is the #1 lever. Append-only JSONL
+  of every proposal + its eval result + WHY it failed/regressed. NEVER prunes —
+  the meta-harness result is that pruning history to recent-only drops
+  performance to best-of-N levels. `why <target>` surfaces the failure reasons.
+- **evolutionary proposer** — `hooks/propose.sh` assembles a non-Markovian
+  proposal context: iteration history (the why) + latest diagnosis + staged
+  distill candidates + current file content + a constraint-gate checklist. The
+  proposing model fills in the edit + predicted impact. NEVER commits directly.
+- **constraint gate** — `hooks/gate.sh` validates before review: tests pass,
+  skill size ≤15KB, cache compatibility (no mid-conversation change), semantic
+  preservation (held-out eval lift ≥ 0), Pareto selection. The gate reads the
+  held-out eval results the proposer did NOT author (meta-agent pattern).
+- **auto-rollback + deploy-watch** — `hooks/deploy-watch.sh` monitors post-deploy
+  metrics; auto-backs-up before any revert; reverts to git HEAD on regression;
+  records the regression in history so the proposer learns from it next time.
+- **repo map** — `hooks/repo-map.sh` produces a bounded, cache-stable structural
+  map (file tree + symbol index, ≤8KB budget) so the proposer targets edits
+  correctly without flooding context (lost-in-the-middle defense).
 - **all edits human-reviewed via PR** — evolved variants never commit directly
-  (hermes-evolution guardrail #5).
+  (hermes-evolution guardrail #5). The proposer proposes; the gate validates; the
+  host agent reviews and opens the PR.
 
 ## Why this works across any model
 

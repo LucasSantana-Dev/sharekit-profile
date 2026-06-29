@@ -179,6 +179,16 @@ The evaluate/optimize scripts that consume the trajectory log. They are run on-d
 - `hooks/diagnose.sh` — self-diagnosis: clusters failures in the trajectory log, detects repeated errors / tool overuse / blind retries / token-waste patterns (SkillForge + AHE Agent Debugger). Writes a digest + machine-readable clusters.
 - `hooks/observe-otel.sh` — two-knob observability (pdhoolia): level (off/metrics/trace) + destination (jsonl/stderr/otel). GenAI semantic span names, context-breach scanning, idempotent ±1 feedback scores. Local JSONL by default.
 
+### Self-improvement flywheel (optimize half — P2)
+
+The optimize half closes the loop: a proposer reads the full non-Markovian iteration history, proposes evidence-backed edits, is gated, deployed, watched, and auto-reverted on regression. Contract copied from meta-agent / harness-evolver / hermes-evolution — NOT a dependency (no DSPy/GEPA/LangSmith).
+
+- `hooks/history.sh` — the #1 lever: append-only iteration history store. Every proposal + eval result + WHY it failed is preserved so the proposer reads WHY prior attempts failed (non-Markovian full-history search beats best-of-N, per the meta-harness result). NEVER prunes. `why <target>` surfaces failure reasons.
+- `hooks/propose.sh` — evolutionary proposer: assembles a non-Markovian proposal context (iteration history + diagnosis + distill candidates + current file content + gate checklist) for the proposing model to fill in. NEVER commits directly.
+- `hooks/gate.sh` — constraint gate: tests pass, skill size ≤15KB, cache compatibility, semantic preservation (held-out eval lift ≥ 0), Pareto selection. The gate reads the held-out eval results the proposer did NOT author.
+- `hooks/deploy-watch.sh` — auto-rollback: monitors post-deploy metrics, auto-backs-up before any revert, reverts to git HEAD on regression, records the regression in history so the proposer learns from it.
+- `hooks/repo-map.sh` — bounded, cache-stable structural map (file tree + symbol index, ≤8KB) so the proposer targets edits without flooding context.
+
 ---
 
 ## Agents: Specialized Worker Types
