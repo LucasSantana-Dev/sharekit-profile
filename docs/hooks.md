@@ -178,21 +178,26 @@ Persist all state so work can resume without loss.
 
 ## Hook Configuration
 
-### Timing Out
-Hooks timeout at 3-5s by default. To increase:
+Hooks are registered to lifecycle events in [`claude/settings.json`](../claude/settings.json) (the committed, version-controlled wiring). The scripts themselves live in [`hooks/`](../hooks/). Before `settings.json` existed, the scripts were orphan artifacts — nothing fired.
 
-```bash
-# In ~/.claude/settings.json
-{
-  "hooks": {
-    "timeout": {
-      "SessionStart": 10000,   # ms
-      "UserPromptSubmit": 5000,
-      "PreToolUse": 2000
-    }
-  }
-}
-```
+### Registered events
+
+| Event | Script(s) | Blocks? |
+|-------|-----------|---------|
+| `SessionStart` | `session-start-load.sh` (drift check + CORE load) | no |
+| `PreToolUse` (Bash) | `check-dangerous-patterns.sh`, `check-pr-automation-halt.sh`, `check-stuck-loop.sh`, `check-idempotency.sh` | yes (exit 2) |
+| `PreToolUse` (Write/Edit) | `check-idempotency.sh` | no (hint) |
+| `PostToolUse` | `trajectory-log.sh` (the observe half of the flywheel) | no |
+| `SubagentStart` | `check-read-only-subagent.sh` | yes (exit 2) |
+| `PreCompact` | `snapshot-compact.sh` | no |
+| `PostCompact` | `reinject-compact.sh` (re-inject CORE) | no |
+| `Stop` | `post-incident-adr.sh` | no |
+| `SessionEnd` | `session-end-flush.sh` (session record + distill queue) | no |
+
+Exit code 2 is the only blocking code; all other exits are advisory/log-only. See [`hook-firing-order.md`](hook-firing-order.md) for the positional contract and [`flywheel.md`](flywheel.md) for how the observe hooks feed the self-improvement loop.
+
+### Timing Out
+Hooks timeout at 2-10s per the `timeout` field in `settings.json`. To increase:
 
 ### Debugging
 
