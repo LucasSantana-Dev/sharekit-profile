@@ -197,6 +197,17 @@ P3 makes the loop runnable as one command and ships the last two context-enginee
 - `hooks/tool-shortlist.sh` (UserPromptSubmit) — surfaces only the tools whose keywords match the prompt instead of the full catalog, cutting system-prompt context (contextweaver 92.2% route-prompt reduction, agentforge deferred-tools 60-70% cut). CLI: `suggest "<prompt>"`, `--status`.
 - `hooks/model-cache-guard.sh` (UserPromptSubmit + PostCompact) — flags mid-conversation model switches as cache-unsafe (switching mid-stream discards the cached prompt prefix). The only cache-safe switch boundaries are first-turn and post-compaction (Copilot pattern). CLI: `--status`, `--reset`.
 
+### Self-improvement flywheel (convergent cross-cutting patterns — P4)
+
+P4 layers the five convergent cross-cutting patterns the Wave-5 research tracks agreed on: context control, governance, temporal memory, progressive disclosure, and deterministic orchestration. Each is advisory-or-gated, never trust-the-model.
+
+- `hooks/compaction-guard.sh` (PreCompact) — hybrid context control: audits tool-call/result adjacency preservation during compaction so execution drift cannot hide in a condensed window, threshold-triggered budget warnings, cache-prefix stability advisory. Advisory; never blocks.
+- `hooks/policy-gate.sh` (PreToolUse) — deterministic governance layer: emits ALLOW/DENY/REQUIRE_APPROVAL verdicts from `mcp-policy.json` outside the model, appends each decision to a hash-chained tamper-evident ledger bound to context hash, exits 2 on DENY. CLI: `--verify` ledger integrity, `--status` verdict counts.
+- `hooks/memory-consolidate.sh` — sleep-cycle memory consolidation: clusters related facts, finds supersede candidates, finds compression clusters, decays stale+low-confidence facts — all staged to `.harness/forge/` and never auto-applied. Extends the promotion ladder with bi-temporal validity windows; see [`claude/memory-structure/TEMPORAL_KG.md`](claude/memory-structure/TEMPORAL_KG.md). CLI: `--dir <path>`, `--status`.
+- `hooks/skill-index.sh` — progressive-disclosure skill index: builds a metadata-only index of the skill catalog (name + description + triggers + size class, never bodies) so the host loads one skill body on demand instead of load-all. CLI: `--dir <path>`, `--status`.
+- `hooks/skill-prune.sh` — telemetry-based skill pruning: reads the trajectory and stages never-hit / low-hit skills as archive candidates. Archive, never `rm`. CLI: `--dir <path>`, `--status`.
+- `hooks/dispatch.sh` — deterministic orchestration substrate: a fixed state machine (intake → triage → plan → research → implement → review_gate → eval → merge_gate → done, with BLOCKED first-class) where no LLM decides what fires next. Bounded workers (including the P2 proposer/evaluator) execute steps; the substrate owns transitions and the two human-in-the-loop gates. See [`docs/handoff-schema.md`](docs/handoff-schema.md). CLI: `--intake`, `--advance`, `--block`, `--allow-gate`, `--status`, `--list`.
+
 ---
 
 ## Agents: Specialized Worker Types

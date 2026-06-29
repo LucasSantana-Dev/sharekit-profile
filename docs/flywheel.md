@@ -142,6 +142,46 @@ single command and ships the last two context-engineering defenses.
   switch boundaries are first-turn and post-compaction (Copilot pattern).
   Advisory; never blocks.
 
+### Convergent cross-cutting patterns (P4 — shipped in this wave)
+
+The P0-P3 scripts defined the loop and made it exercisable; P4 layers the five
+convergent cross-cutting patterns the Wave-5 research tracks agreed on. These
+are the defenses that keep the loop honest as it scales: context control,
+governance, temporal memory, progressive disclosure, and deterministic
+orchestration. Each is advisory-or-gated, never trust-the-model.
+
+- **hybrid context control** — `hooks/compaction-guard.sh` (PreCompact):
+  audits tool-call/result adjacency preservation during compaction so execution
+drift cannot hide in a condensed window, emits threshold-triggered budget
+warnings (~70% redis pattern), and advises cache-prefix stability. Advisory;
+never blocks (championswimmer/pi-context-prune, OpenHands condenser, agentcache).
+- **deterministic governance layer** — `hooks/policy-gate.sh` (PreToolUse):
+  emits explicit ALLOW/DENY/REQUIRE_APPROVAL verdicts from `mcp-policy.json`
+outside the model, appends each decision to a hash-chained tamper-evident
+ledger bound to context hash, and exits 2 on DENY. Includes `--verify` ledger
+integrity and `--status` verdict counts (microsoft/agent-governance-toolkit,
+cordum, provenex, agence Merkle chain).
+- **temporal-KG consolidation** — `hooks/memory-consolidate.sh`: a sleep-cycle
+  scan that clusters related facts, finds supersede candidates, finds
+compression clusters, and decays stale+low-confidence facts — all staged to
+`.harness/forge/` and never auto-applied. Extends the existing promotion ladder
+with bi-temporal validity windows (supersede-not-overwrite, decay-not-delete).
+See `claude/memory-structure/TEMPORAL_KG.md` (graphiti, agmem, hdviettt,
+apattichis).
+- **progressive-disclosure skills** — `hooks/skill-index.sh` builds a
+  metadata-only index of the skill catalog (name + description + triggers +
+size class, never bodies) so the host loads one skill body on demand instead of
+load-all; `hooks/skill-prune.sh` reads the trajectory and stages never-hit /
+low-hit skills as archive candidates. Archive, never `rm` (microsoft 4-tier,
+openai/codex metadata-only preload, TAKEOFF69 retrospective).
+- **deterministic orchestration** — `hooks/dispatch.sh` is the routing
+  substrate: a fixed state machine (intake -> triage -> plan -> research ->
+implement -> review_gate -> eval -> merge_gate -> done, with BLOCKED
+first-class) where NO LLM decides what fires next. Bounded workers (including
+the P2 proposer/evaluator) execute steps; the substrate owns transitions and
+the two human-in-the-loop gates. See `docs/handoff-schema.md` (division-sh/swarm,
+Malphite10, SMALL protocol, tascade).
+
 ## Why this works across any model
 
 The model is held fixed; what evolves is the **harness around it** — prompts,
