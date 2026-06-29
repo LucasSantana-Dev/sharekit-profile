@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Pre-commit hook — runs quality gates before each commit
+
+set -e
+
+echo "Running pre-commit checks..."
+
+# Check for bot Co-authored-by trailers
+python3 scripts/check-coauthor-trailers.py
+
+# Check harness/app boundary
+bash scripts/check-harness-boundary.sh
+
+# Check harness manifest fingerprints
+bash scripts/check-harness-manifest.sh
+
+echo "Pre-commit checks passed."

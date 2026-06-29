@@ -1,0 +1,31 @@
+name: Harness Gates
+
+on:
+  pull_request:
+    branches: [main, release]
+  push:
+    branches: [main, release]
+
+jobs:
+  harness-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check harness/app boundary
+        run: bash scripts/check-harness-boundary.sh
+
+  coauthor-trailers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check for bot Co-authored-by trailers
+        run: python3 scripts/check-coauthor-trailers.py
+
+  harness-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify harness manifest fingerprints
+        run: bash scripts/check-harness-manifest.sh

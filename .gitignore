@@ -1,0 +1,7 @@
+# Wrangler local cache (contains account id)
+warp/.wrangler/
+
+# Scratch / example / backup files not part of the profile
+src/
+index.html.bak-*
+.agent-native/

@@ -1,6 +1,8 @@
-# Claude Code Harness: Overview
+# Operator Harness: Overview
 
-**Quick reference guide for the complete Claude Code operator environment with 162+ skills, ~40 agents, automated hooks, RAG retrieval, and persistent memory.**
+**Quick reference guide for the complete OpenCode / Claude Code operator environment with 162+ skills, ~40 agents, automated hooks, RAG retrieval, and persistent memory.**
+
+> **Primary harness:** OpenCode (`opencode.json`). Claude Code remains supported. OpenRouter is the fallback provider when the primary is rate-limited.
 
 ---
 
