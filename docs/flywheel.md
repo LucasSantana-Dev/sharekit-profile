@@ -119,6 +119,29 @@ harness-evolver / hermes-evolution — NOT a dependency. No DSPy/GEPA/LangSmith.
   (hermes-evolution guardrail #5). The proposer proposes; the gate validates; the
   host agent reviews and opens the PR.
 
+### Exercise the loop (P3 — shipped in this wave)
+
+The P0/P1/P2 scripts defined the loop contract; P3 makes it exercisable as a
+single command and ships the last two context-engineering defenses.
+
+- **end-to-end cycle runner** — `hooks/cycle.sh` chains the full loop in one
+  command: diagnose → distill → propose → gate → report. It skips steps
+  gracefully from a cold start (empty trajectory, no candidates) and NEVER
+  commits — it produces a cycle report the host agent reviews. This is the
+  command that makes the flywheel runnable on demand (or on a schedule):
+  `hooks/cycle.sh` for a full step, `--dry-run` to preview, `--status` to
+  re-read the last report, `--target <file>` to anchor the proposal.
+- **bounded tool shortlist** — `hooks/tool-shortlist.sh` (UserPromptSubmit):
+  surfaces only the tools whose keywords match the prompt instead of the full
+  catalog, cutting system-prompt context (contextweaver 92.2% route-prompt
+  reduction, agentforge deferred-tools 60-70% system-prompt cut). Advisory;
+  never blocks.
+- **cache-aware model routing** — `hooks/model-cache-guard.sh` (UserPromptSubmit
+  + PostCompact): flags mid-conversation model switches as cache-unsafe, since
+  switching mid-stream discards the cached prompt prefix. The only cache-safe
+  switch boundaries are first-turn and post-compaction (Copilot pattern).
+  Advisory; never blocks.
+
 ## Why this works across any model
 
 The model is held fixed; what evolves is the **harness around it** — prompts,
