@@ -177,9 +177,12 @@ Hooks fire in a deterministic order tied to lifecycle events. The order matters:
     3d. Push-to-main block — protect shared history
  4. [Tool executes]
  5. PostToolUse:
-    5a. Doc-update detect  — catch documentation drift
-    5b. Prettier/mdlint    — auto-format changed files
-    5c. RTK miss detector  — flag token-saving opportunities
+    5a. Trajectory log      — append structured tool-call event (observe)
+    5b. Context guard       — tool-result firewall + lost-in-the-middle audit
+    5c. OTEL observe        — emit GenAI span + context-breach scan
+    5d. Doc-update detect   — catch documentation drift
+    5e. Prettier/mdlint     — auto-format changed files
+    5f. RTK miss detector   — flag token-saving opportunities
  6. SessionEnd            — persist all state, generate handoff
 ```
 
