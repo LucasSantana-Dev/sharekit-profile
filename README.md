@@ -189,6 +189,14 @@ The optimize half closes the loop: a proposer reads the full non-Markovian itera
 - `hooks/deploy-watch.sh` — auto-rollback: monitors post-deploy metrics, auto-backs-up before any revert, reverts to git HEAD on regression, records the regression in history so the proposer learns from it.
 - `hooks/repo-map.sh` — bounded, cache-stable structural map (file tree + symbol index, ≤8KB) so the proposer targets edits without flooding context.
 
+### Self-improvement flywheel (exercise the loop — P3)
+
+P3 makes the loop runnable as one command and ships the last two context-engineering defenses (both advisory — they never block).
+
+- `hooks/cycle.sh` — end-to-end cycle runner: chains diagnose → distill → propose → gate → report in a single command, skipping steps gracefully from a cold start. NEVER commits — it writes a cycle report the host agent reviews. `--dry-run` previews, `--status` re-reads the last report, `--target <file>` anchors the proposal. This is the command that makes the flywheel exercisable on demand or on a schedule.
+- `hooks/tool-shortlist.sh` (UserPromptSubmit) — surfaces only the tools whose keywords match the prompt instead of the full catalog, cutting system-prompt context (contextweaver 92.2% route-prompt reduction, agentforge deferred-tools 60-70% cut). CLI: `suggest "<prompt>"`, `--status`.
+- `hooks/model-cache-guard.sh` (UserPromptSubmit + PostCompact) — flags mid-conversation model switches as cache-unsafe (switching mid-stream discards the cached prompt prefix). The only cache-safe switch boundaries are first-turn and post-compaction (Copilot pattern). CLI: `--status`, `--reset`.
+
 ---
 
 ## Agents: Specialized Worker Types
@@ -415,5 +423,5 @@ The profile ships a **Megabrain** system: one vault for all projects (memory + g
 
 ---
 
-**Last updated:** 2026-06-24  
+**Last updated:** 2026-06-29  
 **Harness version:** Agent-OS (v6+), 325 skills, 40+ agents, 30+ hooks, 6 MCP servers
