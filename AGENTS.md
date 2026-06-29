@@ -6,7 +6,7 @@ This repo is the **sharekit operator harness profile**. It ships a portable Clau
 
 OpenCode is the **first-choice harness** for this profile. Claude Code remains supported; OpenCode is preferred where its multi-provider routing and lower token overhead matter.
 
-- Config: `opencode.json` at repo root.
+- Config: `opencode/opencode.jsonc` (OpenCode config, primary harness).
 - Default model: `anthropic/claude-sonnet-4-5` (Sonnet tier — implementation).
 - Small/planning model: `anthropic/claude-haiku-4-5` (Haiku tier — mechanical/planning).
 - **Fallback provider: OpenRouter** — used when the primary provider is rate-limited or unavailable. Configure via `opencode auth login openrouter` (set `OPENROUTER_API_KEY`).
