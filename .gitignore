@@ -9,3 +9,8 @@ index.html.bak-*
 # Harness runtime (hook trajectory logs, session records, compaction snapshots,
 # incident stubs, distill pending queue). Append-only, machine-generated.
 .harness/runtime/
+
+# Harness forge (distill-staged candidate learnings + assembled proposals).
+# Machine-generated runtime fuel; graduated learnings are promoted into
+# committed memory/skills via review.sh, so the staging area itself is not tracked.
+.harness/forge/

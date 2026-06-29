@@ -2,6 +2,22 @@
   "schema": "harness-settings/v1",
   "comment": "Registers the sharekit-profile hook scripts to Claude Code lifecycle events. This file is the missing enforcement layer — without it, the hooks/ scripts are orphan artifacts and 9/15 RULES.md 'Must Always' rules are advisory-only. Exit code 2 is the only blocking code; all other exits are advisory/log-only. Hosts that do not implement a given event ignore its entry.",
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/tool-shortlist.sh\"",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/model-cache-guard.sh\"",
+            "timeout": 2000
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "hooks": [
@@ -105,6 +121,11 @@
             "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/reinject-compact.sh\"",
             "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "OBSERVE_HOOK_EVENT=PostCompact bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/model-cache-guard.sh\"",
+            "timeout": 2000
           }
         ]
       }
