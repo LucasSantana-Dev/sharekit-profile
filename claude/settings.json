@@ -69,6 +69,16 @@
             "timeout": 2000
           }
         ]
+      },
+      {
+        "comment": "P4 deterministic governance: ALLOW/DENY/REQUIRE_APPROVAL verdicts from mcp-policy.json, outside the model. Exit 2 on DENY.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/policy-gate.sh\"",
+            "timeout": 2000
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -109,6 +119,12 @@
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/snapshot-compact.sh\"",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "comment": "P4 context control: audit tool-call/result adjacency preservation, budget warnings, cache-prefix stability. Advisory.",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/compaction-guard.sh\"",
             "timeout": 3000
           }
         ]
