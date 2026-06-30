@@ -1,6 +1,6 @@
 ---
 name: error-handling-audit
-description: Focused one-call audit of the unhappy path — swallowed/mishandled errors, resource leaks (handles, timers, listeners, unbounded caches), and secrets/stack-traces leaking on error paths. Framework-aware (won't flag Prisma-pooled connections, discord.js auto-cleanup, supervised uncaught-exception). Scope-tightenable (path / --changed / --category / --severity); read-only/advisory. Use when you want JUST error+leak signal fast (e.g. a risky module, remote-driving) — for a full multi-dimension review use /code-review, which also covers this.
+description: Focused one-call audit of the unhappy path — swallowed/mishandled errors, resource leaks (handles, timers, listeners, unbounded caches), and secrets/stack-traces leaking on error paths. Framework-aware (won't flag Prisma-pooled connections, discord.js auto-cleanup, supervised uncaught-exception). Scope-tightenable (path / --changed / --category / --severity); read-only/advisory. Use for JUST error+leak signal fast — for a full multi-dimension review use /code-review, which covers this.
 user-invocable: true
 argument-hint: "[<path> | --changed] [--category errors,leaks,disclosure] [--severity low|med|high] [--budget N]"
 metadata:

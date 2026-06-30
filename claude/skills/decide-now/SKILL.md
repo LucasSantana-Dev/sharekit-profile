@@ -1,6 +1,6 @@
 ---
 name: decide-now
-description: Make fast, context-aware decisions using project memory, current git state, open PRs, plans, and docs — NOT for architectural choices requiring formal research (use /decide for those). Trigger when the user asks "should I X or Y?", "which approach fits best?", "is this worth doing?", "merge now or wait?", "fix this or defer?", "approach A or B?", or any choice where the right answer depends on understanding what's currently in flight. Reads available context before recommending. Outputs a clear verdict with evidence — no ADR, no research phase.
+description: Make fast, context-aware decisions using project memory, git state, open PRs, plans, and docs — NOT for architectural choices needing formal research (use /decide). Trigger when the user asks "should I X or Y?", "which approach fits best?", "merge now or wait?", "fix this or defer?", or any choice where the right answer depends on what's currently in flight. Outputs a clear verdict with evidence — no ADR, no research phase.
 ---
 
 # decide-now

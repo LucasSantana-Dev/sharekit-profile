@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Build a compact, validation-gated implementation plan for multi-step, risky, or ambiguous work — typically when phases need explicit checkpoints, the change touches multiple files/services, or the user wants alignment before execution. Output goes to `.claude/plans/<topic>.md` (or `.agents/plans/`) with goal, in/out-of-scope, phased steps, validation per phase, and replanning triggers. Skip for trivial single-file fixes, bug investigations (use `tracer`), or open-ended exploration (use `explore`). Pair with `ship` once the plan ends and merge work begins.
+description: Build a compact, validation-gated implementation plan for multi-step, risky, or ambiguous work — when phases need explicit checkpoints, the change touches multiple files/services, or the user wants alignment before execution. Output goes to `.claude/plans/<topic>.md` (or `.agents/plans/`) with goal, in/out-of-scope, phased steps, validation per phase, and replanning triggers. Skip for trivial fixes, bug investigations (use `tracer`), or open-ended exploration (use `explore`).
 triggers:
   - create a plan
   - plan this

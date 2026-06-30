@@ -1,6 +1,6 @@
 ---
 name: shadcn
-description: Comprehensive guidance for shadcn/ui project setup, component composition, form patterns, and Next.js integration. Manages adding, searching, fixing, debugging, styling, and composing components. Provides project context, component docs, usage examples, and setup guidance. Apply when working with shadcn/ui, component registries, presets, --preset codes, any project with a components.json file, or when asked for shadcn component patterns. Auto-triggers for "shadcn init", "create app with --preset", "switch to --preset".
+description: Guidance for shadcn/ui project setup, component composition, form patterns, and Next.js integration. Manages adding, searching, fixing, debugging, styling, and composing components. Provides project context, component docs, usage examples, and setup guidance. Apply when working with shadcn/ui, component registries, presets, --preset codes, any project with a components.json file, or shadcn component patterns. Auto-triggers for "shadcn init", "create app with --preset", "switch to --preset".
 user-invocable: false
 metadata:
   owner: global-agents
