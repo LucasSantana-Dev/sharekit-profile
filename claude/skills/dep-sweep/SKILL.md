@@ -1,7 +1,6 @@
 ---
 name: dep-sweep
-description: Audits dependencies for known vulnerabilities, stale versions, and license compliance, then proposes a remediation plan.
-  Composite skill — batch-process the queue of open Dependabot / Renovate / npm-bot PRs by grouping them by risk, auto-merging the safe ones into `release`, and surfacing only the risky ones for human review. Chains gh PR enumeration → risk classification (devDeps / patch / minor / major / lockfile-only) → pr-merge-readiness per group → auto-merge safe group → flag risky group → optional /pr-to-release for batch entry on release. Use when bot-PR noise has piled up; reduces a 20-PR queue to "merged 14, 6 need eyes".
+description: Audit and clean up project dependencies across the stack. Identifies unused, outdated, duplicate, and vulnerable packages. Checks for unused dependencies by scanning imports/requires, flags outdated versions, detects duplicates, and cross-references vulnerability databases. Supports npm, pip, yarn, pnpm, cargo, go mod, and maven. Use when the user says "clean up deps", "audit dependencies", "remove unused packages", or when a project has accumulated technical debt in its dependency tree.
 user-invocable: true
 auto-invoke: >-
   "dependabot PRs", "renovate queue", "clean up bot PRs", "update deps", weekly if ≥10 open bot PRs

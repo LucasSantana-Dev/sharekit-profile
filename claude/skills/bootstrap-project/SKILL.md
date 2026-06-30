@@ -1,15 +1,6 @@
 ---
 name: bootstrap-project
-description: Scaffolds a new project with the sharekit harness (AGENTS.md, hooks, skills) so a harness session starts productive immediately.
-  Stand up a NEW project's place in the centralized knowledge-brain in one ritual: memory
-  scaffold (One-Brain symlink), seed memories inferred from the repo, an initial CLAUDE.md/
-  context doc, and a CENTRALIZED graph (graphify output stored in the brain, not per-repo).
-  Registers the project in the brain index and ships with the sharekit-profile so every
-  machine bootstraps identically. Complements /onboard-new-repo (which UNDERSTANDS existing
-  repos) — this CREATES the brain presence for a new/greenfield project, then auto-chains
-  onboard-new-repo if the repo already has code.
-  Triggers: "bootstrap this project", "set up the brain for <X>", "initialize knowledge for",
-  "new project memory structure", "centralized graph for this repo", "onboard new project".
+description: Stand up a NEW project's place in the centralized knowledge-brain: memory scaffold, seed memories, initial CLAUDE.md/context doc, and a centralized graph. Registers the project in the brain index so every machine bootstraps identically. Complements /onboard-new-repo — creates the brain presence for a new/greenfield project, then auto-chains onboard-new-repo if the repo has code. Triggers: "bootstrap this project", "set up the brain for <X>".
 ---
 
 # bootstrap-project

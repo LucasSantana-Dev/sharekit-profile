@@ -1,7 +1,6 @@
 ---
 name: dispatch
-description: Routes the current task to the right composite or sub-skill based on intent, scope, and active state.
-  Parallelize independent evidence-gathering or audit work by splitting into ≥2 concurrent agent tracks; reconcile results into single verdict + action. Also dispatches named agent-box task scripts or ad-hoc prompts to remote homelab infrastructure over SSH. Use when (1) sub-tasks are cleanly separable with no output deps, (2) each would block progress if sequential, (3) running serially wastes turns, or (4) invoking a remote agent-box task/prompt. Examples: multi-repo scans, concurrent CI/lint/test audits, N-package dependency sweeps, parallel PR review passes, remote health/ci-watch scripts. Skip when tasks depend on prior output — use loop or plan instead.
+description: Parallelize independent evidence-gathering or audit work into ≥2 concurrent agent tracks; reconcile into a single verdict and action. Also dispatches named agent-box task scripts or ad-hoc prompts to remote homelab infrastructure over SSH. Use when sub-tasks are cleanly separable with no output dependencies and running serially wastes turns. Examples: multi-repo scans, concurrent CI/lint/test audits, N-package dependency sweeps. Skip when tasks depend on prior output.
 triggers:
   - dispatch
   - parallelize this

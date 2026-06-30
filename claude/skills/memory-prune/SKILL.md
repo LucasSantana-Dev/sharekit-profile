@@ -1,6 +1,6 @@
 ---
 name: memory-prune
-description: Audit project memory files for stale entries — items where the cited PR is merged, the cited bug is fixed, the cited file/function no longer exists, or the gotcha was patched out of the codebase. Proposes archival or deletion per entry. Read-only by default; prompts before any change. Use periodically (monthly) or when memory recall starts surfacing entries that contradict current code. Pair with `sync-memories` (write fresh notes) and `adt-rag-drift` (which handles the RAG index, not the memory files themselves).
+description: Clean up and consolidate the memory store. Removes duplicate memories, merges overlapping entries, archives stale ones, and reorganizes categories. Identifies memories that haven't been referenced in recent sessions, flags contradictions, and proposes a streamlined memory set. Use when the user says "clean up memory", "prune memories", "consolidate memory", or when memory retrieval is slow or returning too many results. Output: pruned memory store with summary of changes.
 triggers:
   - prune memory
   - audit memory

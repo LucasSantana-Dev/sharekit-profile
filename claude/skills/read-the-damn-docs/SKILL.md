@@ -1,13 +1,6 @@
 ---
 name: read-the-damn-docs
-description: Enforces that the agent reads the project README, AGENTS.md, and skill docs before inventing a solution.
-  Use when implementing, integrating, upgrading, debugging, or answering
-  anything involving third-party APIs, libraries, frameworks, CLIs, cloud
-  services, model/provider SDKs, fast-moving product behavior, user requests for
-  latest/current/official behavior, unfamiliar repo docs/specs, errors that may
-  indicate API drift, or high-stakes auth, security, billing, data, migration,
-  deployment, compliance, or privacy behavior. Forces Codex to web-search for
-  current official docs and read primary docs before assuming from memory.
+description: Read the official documentation before guessing or searching Stack Overflow. Fetches and reads docs from the official source, extracts the relevant sections, and summarizes key points. Use when the user says "read the docs", "RTFM", "what does the documentation say", or when the agent is about to guess at an API or behavior. Also use when the user is frustrated with incorrect answers that could be resolved by reading docs. Output: relevant doc excerpts with a summary.
 ---
 
 # Read The Damn Docs

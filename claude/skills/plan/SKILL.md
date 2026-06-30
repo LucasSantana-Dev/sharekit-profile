@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Build a compact, validation-gated implementation plan for multi-step, risky, or ambiguous work — typically when phases need explicit checkpoints, the change touches multiple files/services, or the user wants alignment before execution. Output goes to `.claude/plans/<topic>.md` (or `.agents/plans/`) with goal, in/out-of-scope, phased steps, validation per phase, and replanning triggers. Skip for trivial single-file fixes, bug investigations (use `tracer`), or open-ended exploration (use `explore`). Pair with `ship` once the plan ends and merge work begins.
+description: Create a structured implementation plan before starting complex work. Breaks down tasks into phases, identifies dependencies, estimates effort, and defines acceptance criteria. Produces a plan document with problem statement, current state, proposed changes, and risk assessment. Use when the user says "plan this", "create a plan", "break this down", or when a task has multiple phases or unknowns. Also use when the agent needs to think before acting on complex tasks.
 triggers:
   - create a plan
   - plan this

@@ -1,6 +1,6 @@
 ---
 name: loop
-description: Default execution rhythm — inspect → act → verify → checkpoint — applied iteratively until the task is done or a clear blocker emerges. Use when working through a known plan, draining a queue (PRs, issues, dependency bumps), or executing a multi-step recipe where each step's output informs the next. Each iteration must produce a concrete artifact (commit, comment, decision) and a one-line state update. Stop on first unrecoverable error rather than retrying blindly. Pair with `ship` for merge-bound work and `handoff` if budget runs out mid-loop.
+description: Detect when the agent is repeating the same action or approach without progress, then break the cycle. Identifies loop patterns: trying the same fix repeatedly, re-reading the same files, re-running the same commands, or circling between alternatives. Injects a pattern interrupt, suggests alternative approaches, and forces a different strategy. Use when the agent seems stuck in a loop, when the user says "you're going in circles", or when the same error recurs after 3+ attempts.
 triggers:
   - loop
   - execute this plan

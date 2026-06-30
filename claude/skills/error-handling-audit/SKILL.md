@@ -1,6 +1,6 @@
 ---
 name: error-handling-audit
-description: Focused one-call audit of the unhappy path — swallowed/mishandled errors, resource leaks (handles, timers, listeners, unbounded caches), and secrets/stack-traces leaking on error paths. Framework-aware (won't flag Prisma-pooled connections, discord.js auto-cleanup, supervised uncaught-exception). Scope-tightenable (path / --changed / --category / --severity); read-only/advisory. Use when you want JUST error+leak signal fast (e.g. a risky module, remote-driving) — for a full multi-dimension review use /code-review, which also covers this.
+description: Audit error handling across a codebase. Identifies unhandled promises, empty catch blocks, swallowed errors, missing error boundaries, and inconsistent error propagation. Checks for proper async/await error handling, try/catch coverage, error logging, and user-facing error messages. Use when the user says "audit error handling", "check for unhandled errors", or when a codebase has reliability issues. Output: categorized list of error handling issues with severity and fix suggestions.
 user-invocable: true
 argument-hint: "[<path> | --changed] [--category errors,leaks,disclosure] [--severity low|med|high] [--budget N]"
 metadata:

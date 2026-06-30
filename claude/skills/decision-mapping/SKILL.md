@@ -1,11 +1,6 @@
 ---
 name: decision-mapping
-description: Maps a decision space into a structured tree of options, criteria, and trade-offs before committing to a path.
-  Build a DAG of parallel investigation tickets from a loose idea; drive them to resolution one ticket at a time.
-  Creates a markdown decision map (single compact file, git-tracked) that sequences research/prototype/discuss tickets
-  with dependencies (blocked_by edges). Use when (1) a problem requires >1 multi-turn session to decide,
-  (2) you need to resolve N independent investigations in parallel while blocking on their outputs,
-  (3) pushing back fog of war on a complex architecture or design decision.
+description: Capture decisions as structured records with context, alternatives considered, and rationale. Creates decision logs (ADR-style) that survive across sessions and team members. Use when making architecture or design decisions, when the user says "log this decision", "record why we chose X", or "create an ADR". Also use when revisiting past decisions to understand why a choice was made. Output: structured decision record with date, status, context, options, and decision.
 metadata:
   owner: decision-architecture
   tier: planning
