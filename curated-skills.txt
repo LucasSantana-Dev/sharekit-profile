@@ -52,7 +52,6 @@ plugin-claude-code-setup-claude-automation-recommender
 plugin-claude-md-management-claude-md-improver
 plugin-claude-mem-mem-search
 plugin-coderabbit-code-review
-plugin-skill-creator-skill-creator
 ponytail
 ponytail-audit
 ponytail-debt
