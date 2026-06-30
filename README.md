@@ -1,6 +1,6 @@
 # Operator Harness Documentation
 
-**Comprehensive reference guide for a fully-configured OpenCode / Claude Code operator environment with 233 skills, 40+ agents, automated hook pipeline, RAG retrieval, memory persistence, and integrated MCP servers.**
+**Comprehensive reference guide for a fully-configured OpenCode / Claude Code operator environment with 50 skills, 40+ agents, automated hook pipeline, RAG retrieval, memory persistence, and integrated MCP servers.**
 
 > **Harnesses:** OpenCode (primary, `opencode.json`) → Claude Code (supported) → OpenRouter (fallback provider). The skill/agent/hook library is harness-agnostic and works across both.
 
@@ -83,7 +83,7 @@ Example: User says "refactor this module."
 └── skills -> ~/.agents/skills/
 
 ~/.agents/                              # Canonical skill and agent definitions
-├── skills/                             # 233 skill folders
+├── skills/                             # 50 skill folders
 ├── standards/                          # Policy and discipline docs (~20 files)
 ├── agents/                             # Agent definition mirrors
 ├── bin/                                # Utilities (sync binary)
@@ -275,49 +275,29 @@ See `~/.claude/agents/` for full definitions.
 
 ---
 
-## Skills: 195 listed (228 on disk) — progressive disclosure applied
+## Skills: 50 repo-tracked (consolidated from 103 → 50)
 
-Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete reference, [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) for the competitive analysis + reduction plan (235 → 195 listed via dedup + hiding sub-skills + per-agent permissions), and [`docs/harness-research-synthesis.md`](docs/harness-research-synthesis.md) for the 52-repo deep-research survey that informs P8.
+Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete reference, [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) for the competitive analysis + reduction plan (103 → 50 via skill-family merges, stack-specific removal, and project-specific removal), and [`docs/harness-research-synthesis.md`](docs/harness-research-synthesis.md) for the 52-repo deep-research survey that informs P8.
 
-**Progressive disclosure**: skills with `invocation_type: internal` (33 composite sub-skills) are hidden from the always-loaded listing but resolvable by composites by path. `invocation_type: slash` skills are invoked only via `/<name>`. The host loads a metadata-only index, then loads one skill body on demand.
+**Consolidated catalog**: the skill catalog was reduced from 103 repo-tracked skills to 50 by merging skill families (ponytail×5→1, RAG×6→1, debug×2→1, test×6→1, session×2→1, refactor×2→1), removing stack-specific skills (shadcn, tailwind-design-system, webapp-testing), plugin-injected meta-skills, and project-specific skills. 53 skills archived in `claude/skills/.archive/` (recoverable).
 
-**Session & Context** (10): wake-up, session-bootstrap*, resume, context-pack, handoff, session-wrap-up, session-cleanup, etc.
+**Core Development** (14): add, debug, fallback, impeccale, loop, plan, ponytail, refactor, review, scope-it, ship, tdd, test-driven-development, verify
 
-**Planning & Execution** (14): plan, route, next-priority, loop, dispatch, orchestrate, add, scope-and-execute*, parallel-phases*, feature-from-zero*, fallback
+**Architecture & Design** (7): architecture-patterns, codebase-design, decide, decide-now, domain-modeling, frontend-design, prototype
 
-**Code Quality** (14): code-review, refactor, refactor-plan, refactor-pipeline*, verify, verify-before-done*, quality-gates, impeccable, simplify
+**Context & Memory** (8): codebase-memory, context-pack, context-save, graphify, handoff, knowledge-loop, memory-prune, resume
 
-**Testing** (12): tdd, test-health, test-cleanup, generate-tests, coverage-gap, mutation-test, fix-the-suite*, webapp-testing, playwright-best-practices
+**Orchestration** (5): dispatch, loop-engineer, next-priority, orchestrate, three-man-team
 
-**Debugging** (6): debug, debug-deep*, systematic-debugging, diagnosing-bugs
+**Session** (1): session-bootstrap
 
-**Security** (7): secure, security-audit, security-sweep, semgrep, harness-audit, audit-deep*
+**Quality & Release** (8): changelog-update, ci-watch, dep-sweep, pr-merge-readiness, quality-assurance, quality-gates, setup-pre-commit, version-bump
 
-**Git & PR** (11): pr-flow, pr-merge-readiness, pr-snapshot, branch-hygiene, merge-confidently, hotfix, version-bump, release-cut, gh-fix-ci
+**RAG** (2): rag-maintenance, recall
 
-**Ship & Deploy** (4): ship, ship-it, vercel-deploy, cloudflare-deploy
+**Planning & Meta** (5): brainstorming, request-refactor-plan, secure, skill-creator-plugin, xp
 
-**RAG & Memory** (15): recall, adt-rag, rag-quality, sync-memories, memory-prune, knowledge-loop*, adt-memory, mem-search
-
-**Architecture & ADRs** (10): adr-write, adr-gap, architecture-patterns, codebase-design, domain-modeling, coupling-map, orphan-hunt, graphify
-
-**Repository Management** (11): onboard-new-repo*, adt-repo-intake, backlog*, triage, to-issues, to-prd, ecosystem-health, repo-state-snapshot
-
-**CI/CD** (3): ci-watch, dep-sweep*, adt-schedule
-
-**Observability** (8): observe, sentry, langfuse-observe, observability-bootstrap*, observability-audit*
-
-**MCP & Plugins** (8): mcp-audit, mcp-care*, mcp-builder, adt-mcp-health, hook-effectiveness, plugin-audit
-
-**AI & Agents** (10): ai-sdk, smart-model-select, agent-browser, adt-eval, adt-multi-agent, efficiency-advisor
-
-**Skills & Plugin Management** (8): skill-creator, skill-maintainer, skill-effectiveness-audit, docs-sync, find-skills
-
-**Performance & Cost** (6): token-audit, smart-commands, rate-limit-watch, mac-optimize, insights, metrics
-
-**Standards & Research** (7): research-and-decide, adt-research, standards, adt-plan-change, automation-workflows, brainstorming
-
-*= composite (auto-chains sub-skills)
+The full catalog with triggers and frontmatter details is indexed by `hooks/skill-index.sh` and listed in `~/.claude/SKILLS.md`. Archived skills can be restored from `claude/skills/.archive/`.
 
 ---
 
