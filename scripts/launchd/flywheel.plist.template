@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  flywheel.plist.template — macOS launchd schedule for the nightly flywheel cycle.
+
+  This is a TEMPLATE. scripts/install-scheduler.sh expands __HOME__ and __ROOT__
+  and installs the result at ~/Library/LaunchAgents/dev.sharekit.flywheel.plist.
+
+  The cycle writes to .harness/runtime/ which is per-project, so __ROOT__ must
+  point at a specific project checkout. Do NOT install globally — install once
+  per project you want the flywheel to improve.
+
+  Schedule: nightly at 02:00 local (off-hours). Adjust the StartCalendarInterval
+  below if a different cadence is desired.
+
+  The cycle runs --no-maintain by default (the maintain track is cheap but
+  noisy in a scheduled run; run it manually when you want the full sweep).
+  Override the arguments in the ProgramArguments below.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>dev.sharekit.flywheel</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>__HOME__/.claude/hooks/cycle.sh</string>
+    <string>--no-maintain</string>
+    <string>--eval</string>
+    <string>harness</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__ROOT__</string>
+
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>2</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <!-- If the machine was asleep at 02:00, run as soon as it wakes. -->
+  <key>RunAtLoad</key>
+  <false/>
+
+  <key>StandardOutPath</key>
+  <string>__ROOT__/.harness/runtime/scheduler-stdout.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>__ROOT__/.harness/runtime/scheduler-stderr.log</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+</dict>
+</plist>

@@ -29,6 +29,14 @@ block() {
   exit 2
 }
 
+# --- --admin bypass protection (any git/gh command) -------------------------
+# --admin bypasses branch protection regardless of subcommand (gh pr merge,
+# gh pr review, git push, etc.), so check it before any subcommand-specific
+# branch. Surfaced by the P3 eval bench (pr-admin-bypass task).
+if printf '%s' "$command" | grep -Eq '\b(git|gh)\b.*--admin\b'; then
+  block "--admin bypass is not permitted; branch protection is authoritative."
+fi
+
 # --- Push protection (positions 3d in hook-firing-order) ---
 if printf '%s' "$command" | grep -Eq '\bgit\s+push\b'; then
   # direct push to protected branch
@@ -39,10 +47,7 @@ if printf '%s' "$command" | grep -Eq '\bgit\s+push\b'; then
   if printf '%s' "$command" | grep -Eq 'git\s+push.*(--force|-f\b|--force-with-lease)'; then
     block "force-push rewrites shared history (protected invariant: no force-push)."
   fi
-  # admin bypass
-  if printf '%s' "$command" | grep -Eq '\-\-admin\b'; then
-    block "--admin bypass is not permitted; branch protection is authoritative."
-  fi
+  # (--admin is checked above for all git/gh commands, not just push.)
 fi
 
 # --- No AI attribution in commit messages ---
