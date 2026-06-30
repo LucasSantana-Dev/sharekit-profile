@@ -209,6 +209,39 @@ the P2 proposer/evaluator) execute steps; the substrate owns transitions and
 the two human-in-the-loop gates. See `docs/handoff-schema.md` (division-sh/swarm,
 Malphite10, SMALL protocol, tascade).
 
+### Operational phase (P6 — shipped in this wave)
+
+P6 makes the flywheel actually operate in production: it schedules the cycle,
+seeds the trajectory for cold starts, fixes the first real finding the eval
+bench surfaced, and runs the first end-to-end propose → gate cycle against a
+live target. This is the phase where the loop stops being a contract and
+starts improving the harness.
+
+- **trajectory seed** — `hooks/trajectory-seed.sh`: synthesizes a small
+  representative trajectory (mixed success/error/blocked tool-call events) so
+  the improve track has fuel from a cold start. Idempotent — refuses to
+  overwrite a non-empty trajectory; real sessions replace it. CLI: `--force`,
+  `--status`.
+- **first real fix driven by the bench** — `check-pr-automation-halt.sh` now
+  blocks `--admin` on ANY git/gh command (not just `git push`), since
+  `--admin` bypasses branch protection regardless of subcommand. The eval
+  bench surfaced this gap (`gh pr merge --admin` slipped through); a held-out
+  task `pr-admin-review` locks the regression. The held-out lift rose from
+  0.545 to 0.667.
+- **first real cycle** — ran `cycle.sh --target hooks/check-pr-automation-halt.sh
+  --eval harness` end-to-end: maintain track (memory-consolidate, skill-index,
+  skill-prune) + improve track (diagnose, distill, propose, gate) all passed.
+  Gate held-out lift=0.667 (with=12/12, without=4/12). Every load-bearing
+  subsystem fired in sequence against a real edit.
+- **nightly scheduler** — `scripts/launchd/flywheel.plist.template` +
+  `scripts/install-scheduler.sh`: opt-in macOS launchd agent that runs the
+  cycle nightly at 02:00. Per-project (the cycle writes to `.harness/runtime/`);
+  install once per project you want the flywheel to improve. CLI: `install
+  [root]`, `uninstall`, `status`, `run`.
+- **operational runbook** — `docs/operations.md`: cold-start → warm-start,
+  scheduler install, reading a cycle report, interpreting the held-out lift,
+  rollback procedure.
+
 ### The target architecture (P5 — shipped in this wave)
 
 P5 is the integration target: the flywheel from P0-P2 + the convergent patterns
@@ -267,4 +300,4 @@ The loop **shape** is adopted; the heavy runtimes are not:
   (LangSmith/DSPy/GEPA) — reference the loop contract, do not install. Wire a
   local proposer only once telemetry + the eval gate exist.
 
-*Last updated: 2026-06-29 (P3 eval-bench shipped)*
+*Last updated: 2026-06-30 (P6 operational phase shipped)*
