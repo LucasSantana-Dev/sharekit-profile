@@ -1,0 +1,6 @@
+{
+  "schema": "https://json-schema.org/draft/2020-12/schema",
+  "policy_version": "1.0",
+  "comment": "Learned prefix rules for Smart Approvals (P9.1). The hook SUGGESTS rules on unmatched REQUIRE_APPROVAL; the host persists them via `policy-gate.sh --learn`. Governance stays outside the model: this file is declarative and the model cannot rewrite it. A matching ALLOW rule upgrades REQUIRE_APPROVAL->ALLOW (auto-approve, logged); a matching DENY rule forces DENY; no match falls through to the base verdict.",
+  "rules": []
+}
