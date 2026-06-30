@@ -1,6 +1,6 @@
 ---
 name: three-man-team
-description: >
+description: Coordinates three roles (driver, navigator, reviewer) within a single session to simulate a small team workflow.
   Parallel Architect→Builder→Reviewer pattern for complex multi-phase tasks.
   Dispatches 3 agents in parallel: Architect (Opus) reads codebase and writes a
   detailed plan with phases and acceptance criteria; Builder (Sonnet) implements

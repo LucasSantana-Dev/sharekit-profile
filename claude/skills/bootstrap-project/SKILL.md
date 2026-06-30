@@ -1,6 +1,6 @@
 ---
 name: bootstrap-project
-description: |
+description: Scaffolds a new project with the sharekit harness (AGENTS.md, hooks, skills) so a harness session starts productive immediately.
   Stand up a NEW project's place in the centralized knowledge-brain in one ritual: memory
   scaffold (One-Brain symlink), seed memories inferred from the repo, an initial CLAUDE.md/
   context doc, and a CENTRALIZED graph (graphify output stored in the brain, not per-repo).

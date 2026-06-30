@@ -1,6 +1,6 @@
 ---
 name: context-pack
-description: >-
+description: Packs the most relevant context (files, docs, prior decisions) into a compact payload for injection into the next agent turn.
   Build a task-aware context bundle before large changes, reviews, or unfamiliar work. Pul
   l only the code, standards, plans, RAG hits, and notes that matter instead of reading wi
   de. Use before refactors, cross-file fixes, unfamiliar repos, or when starting a session

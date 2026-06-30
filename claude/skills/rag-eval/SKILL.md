@@ -1,6 +1,6 @@
 ---
 name: rag-eval
-description: |
+description: Evaluates the retrieval-augmented generation pipeline on held-out questions for recall, faithfulness, and latency.
   Run retrieval regression gate (hitgate) against current repo state vs frozen baseline.
   Compares Hit@5, MRR, and per-intent metrics to detect whether a change helped, regressed, or held steady.
   Use when (1) shipping changes to ragcore/retrieval code, (2) validating retriever retuning before merge,

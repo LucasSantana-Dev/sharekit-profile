@@ -1,6 +1,6 @@
 ---
 name: decision-mapping
-description: |
+description: Maps a decision space into a structured tree of options, criteria, and trade-offs before committing to a path.
   Build a DAG of parallel investigation tickets from a loose idea; drive them to resolution one ticket at a time.
   Creates a markdown decision map (single compact file, git-tracked) that sequences research/prototype/discuss tickets
   with dependencies (blocked_by edges). Use when (1) a problem requires >1 multi-turn session to decide,
