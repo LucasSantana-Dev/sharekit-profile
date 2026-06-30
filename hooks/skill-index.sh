@@ -15,9 +15,19 @@
 #
 # What it does (read-only over the catalog):
 #   1. Walk SKILL.md files under the catalog dir (default ~/.claude/skills).
-#   2. Parse frontmatter: name, description, triggers.
+#   2. Parse frontmatter: name, description, triggers, invocation_type, allow_implicit.
 #   3. Classify size: tiny (<2KB), small (2-4KB), medium (4-8KB), large (>8KB).
 #   4. Emit a compact index line per skill to .harness/forge/skill-index.md.
+#
+# invocation_type controls how a skill may be triggered:
+#   auto    — auto-invoked by the harness when triggers match (default)
+#   slash   — only via explicit /<name> invocation (lower token cost)
+#   internal— only invoked by other skills/composites, never by the host directly
+#
+# allow_implicit controls auto-invocation policy for sensitive skills:
+#   true    — harness may auto-invoke when triggers match (default)
+#   false   — requires explicit confirmation even if triggers match
+#             (set for destructive/high-stakes: hotfix, release-cut, prod-rebuild)
 #
 # Usage:
 #   hooks/skill-index.sh                    # index ~/.claude/skills
@@ -67,6 +77,8 @@ mapfile -t skill_files < <(fd -t f -e md '^SKILL\.md$' "$CATALOG" 2>/dev/null \
 
 total=${#skill_files[@]}
 tiny=0; small=0; medium=0; large=0
+auto=0; slash=0; internal=0
+restricted=0  # count of allow_implicit=false skills
 rows=""
 
 for f in "${skill_files[@]}"; do
@@ -78,6 +90,23 @@ for f in "${skill_files[@]}"; do
   # triggers may be a YAML list; collapse to a compact string.
   triggers="$(printf '%s' "$triggers" | tr -d '[]' | tr -s ' ' | head -c 120)"
   [[ -z "$desc" ]] && desc="(no description)"
+  # invocation_type: auto (default), slash-only, or internal
+  inv_type="$(extract_field "$f" 'invocation_type')"
+  [[ -z "$inv_type" ]] && inv_type="auto"
+  case "$inv_type" in
+    auto)      auto=$((auto+1)) ;;
+    slash)     slash=$((slash+1)) ;;
+    internal)  internal=$((internal+1)) ;;
+    *)         inv_type="auto"; auto=$((auto+1)) ;;  # unknown -> default
+  esac
+  # allow_implicit: true (default) or false (restricted — needs confirmation)
+  allow_implicit="$(extract_field "$f" 'allow_implicit')"
+  if [[ "$allow_implicit" == "false" ]]; then
+    restricted=$((restricted+1))
+    policy="🔒"
+  else
+    policy=""
+  fi
   # Size class from file bytes.
   bytes="$(stat -f %z "$f" 2>/dev/null || stat -c %s "$f" 2>/dev/null || echo 0)"
   if   [[ "$bytes" -lt 2048 ]];  then class="tiny";   tiny=$((tiny+1))
@@ -85,9 +114,9 @@ for f in "${skill_files[@]}"; do
   elif [[ "$bytes" -lt 8192 ]];  then class="medium"; medium=$((medium+1))
   else                            class="large";  large=$((large+1))
   fi
-  # One compact row: name | class | desc (truncated) | triggers (truncated)
+  # One compact row: name | class | inv_type | desc (truncated) | triggers (truncated)
   desc_short="$(printf '%s' "$desc" | head -c 80)"
-  rows="${rows}| ${name} | ${class} | ${desc_short} | ${triggers}\n"
+  rows="${rows}| ${name} | ${class} | ${inv_type} | ${policy} | ${desc_short} | ${triggers}\n"
 done
 
 {
@@ -100,18 +129,23 @@ done
   printf '## Summary\n\n'
   printf -- '- total: %s\n' "$total"
   printf -- '- tiny: %s, small: %s, medium: %s, large: %s\n' "$tiny" "$small" "$medium" "$large"
-  printf '\n## Catalog (name | size | description | triggers)\n\n'
-  printf '| name | size | description | triggers |\n'
-  printf '|------|------|-------------|----------|\n'
+  printf -- '- invocation: auto=%s, slash=%s, internal=%s\n' "$auto" "$slash" "$internal"
+  printf -- '- restricted (allow_implicit=false): %s%s\n' "$restricted" "$([[ $restricted -gt 0 ]] && echo ' — requires explicit confirmation to auto-invoke' || echo '')"
+  printf '\n## Catalog (name | size | inv_type | policy | description | triggers)\n\n'
+  printf '| name | size | inv_type | policy | description | triggers |\n'
+  printf '|------|------|----------|--------|-------------|----------|\n'
   printf '%b' "$rows"
   printf '\n## Next\n\n'
   printf -- '- Load only the skill body you need; do not load-all.\n'
+  printf -- '- Skills with invocation_type=slash are NOT auto-invoked; use /<name>.\n'
+  printf -- '- Skills with 🔒 (allow_implicit=false) require explicit confirmation even on trigger match.\n'
   printf -- '- Run hooks/skill-prune.sh to find low-hit pruning candidates from trajectory.\n'
+  printf -- '- Run hooks/skill-validate.sh to validate frontmatter schema + security.\n'
 } > "$report"
 
-printf '{"ts":"%s","event":"skill-index","total":%s,"tiny":%s,"small":%s,"medium":%s,"large":%s,"report":"%s"}\n' \
-  "$ts" "$total" "$tiny" "$small" "$medium" "$large" "$report" >> "$RUNTIME/skill-index.jsonl"
+printf '{"ts":"%s","event":"skill-index","total":%s,"tiny":%s,"small":%s,"medium":%s,"large":%s,"auto":%s,"slash":%s,"internal":%s,"restricted":%s,"report":"%s"}\n' \
+  "$ts" "$total" "$tiny" "$small" "$medium" "$large" "$auto" "$slash" "$internal" "$restricted" "$report" >> "$RUNTIME/skill-index.jsonl"
 
-echo "skill-index: indexed $total skills (tiny=$tiny small=$small medium=$medium large=$large)" >&2
+echo "skill-index: indexed $total skills (tiny=$tiny small=$small medium=$medium large=$large | auto=$auto slash=$slash internal=$internal restricted=$restricted)" >&2
 echo "  index staged -> $report" >&2
 exit 0

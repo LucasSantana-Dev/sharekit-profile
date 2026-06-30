@@ -111,7 +111,13 @@ filter_split() {
 cmd="${1:-}"; shift || true
 case "$cmd" in
   list)
-    split="${1:-all}"
+    split="all"
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --split) split="$2"; shift 2 ;;
+        *) shift ;;
+      esac
+    done
     emit_tasks | filter_split "$split" | jq -r '.id + "\t" + .split + "\t" + .hook + "\t" + .expected + "\t" + .note'
     ;;
   show)
@@ -120,7 +126,13 @@ case "$cmd" in
     emit_tasks | jq -c --arg i "$id" 'select(.id==$i)' | head -1
     ;;
   count)
-    split="${1:-all}"
+    split="all"
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --split) split="$2"; shift 2 ;;
+        *) shift ;;
+      esac
+    done
     emit_tasks | filter_split "$split" | jq -s 'length'
     ;;
   emit)  # internal: emit all tasks as JSONL (used by eval-run.sh)
