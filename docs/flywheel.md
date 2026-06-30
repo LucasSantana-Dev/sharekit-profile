@@ -242,6 +242,45 @@ starts improving the harness.
   scheduler install, reading a cycle report, interpreting the held-out lift,
   rollback procedure.
 
+### Close-the-loop (P7 — shipped in this wave)
+
+P6 ran the first real cycle, but the gate measured the *live* hook on disk — to
+validate a proposal the host had to mutate the live hook, run the gate, and
+revert on failure. P7 closes that gap: the gate now validates a PROPOSED edit
+in isolation, and deploy-watch is wired into the cycle so a post-merge
+regression is detectable. The loop is now genuinely closed.
+
+- **isolated candidate gating** — `hooks/trial-apply.sh` materializes the
+  proposed diff from a proposal `.md` into a *trial copy* at
+  `.harness/forge/trial/<proposal-id>/` (the live hook is never touched). It
+  rejects a leftover `FILL IN` placeholder or a malformed diff. `hooks/gate.sh
+  --proposal <file>` runs the held-out bench against the trial copy via
+  `eval-run.sh --candidate <hook> <path>`. On PASS the candidate path is
+  recorded; on FAIL the trial dir is discarded. The live hook is byte-identical
+  before and after the gate run.
+- **candidate-aware eval runner** — `hooks/eval-run.sh --candidate <hook> <path>`
+  invokes the candidate file instead of the live `$HOOKS/<hook>` for the `with`
+  variant. The `without` variant is unaffected. This is what makes isolated
+  gating possible without a schema change.
+- **stateful-hook eval isolation** — `check-stuck-loop.sh` now reads
+  `STUCK_STATE_FILE` (env override) so the eval harness can isolate per-task
+  state via a temp file. The bench seeds N identical-hash entries (the task's
+  `seed` field) so the live call presents as the (N+1)th attempt.
+- **stuck-loop eval coverage** — `eval-tasks.sh` grew from 21 to 25 tasks (2
+  seen, 2 heldout) for the Stuck-protocol hook, the fifth enforcement hook.
+  Before P7 it had zero coverage; a regression there was invisible to the gate.
+- **deploy-watch wired into the cycle** — on a gate PASS, `cycle.sh` calls
+  `deploy-watch.sh start <pid> <target> heldout-lift <pre-deploy-lift>`, so a
+  post-merge regression is detectable. The cycle report's "what to do next"
+  now instructs the host to run `deploy-watch.sh check` after the PR merges and
+  `revert` on REGRESSION.
+- **proof** — ran `gate.sh --proposal` end-to-end against a real edit to
+  `check-stuck-loop.sh` (threshold 3 -> 2). The gate materialized the
+  candidate, ran the held-out bench AGAINST THE CANDIDATE (lift=0.654), and
+  the live hook stayed byte-identical pre/post (same sha256). A deliberately
+  broken candidate failed the gate, the trial dir was discarded, and the live
+  hook was still untouched.
+
 ### The target architecture (P5 — shipped in this wave)
 
 P5 is the integration target: the flywheel from P0-P2 + the convergent patterns
@@ -300,4 +339,4 @@ The loop **shape** is adopted; the heavy runtimes are not:
   (LangSmith/DSPy/GEPA) — reference the loop contract, do not install. Wire a
   local proposer only once telemetry + the eval gate exist.
 
-*Last updated: 2026-06-30 (P6 operational phase shipped)*
+*Last updated: 2026-06-30 (P7 close-the-loop shipped)*
