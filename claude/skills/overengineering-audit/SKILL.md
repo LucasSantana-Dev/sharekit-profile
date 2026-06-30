@@ -1,6 +1,6 @@
 ---
 name: overengineering-audit
-description: >-
+description: Scans code for speculative abstractions, unused flexibility, and reinvented stdlib that can be cut.
   Flag over-engineering — speculative abstractions, premature generalization, single-use "flexibility", unnecessary indirection, config for things that never vary, and patterns heavier than the project needs. Scope-tightenable by design — audit a path, the current diff, specific categories, or a severity floor (default narrow, never whole-repo unprompted). Read-only / advisory: proposes the simpler alternative with its cost, never rewrites. Use in review, before merge, or when a module "feels" too clever for what it does.
 user-invocable: true
 argument-hint: "[<path> | --changed] [--category abstraction,indirection,config,generalization,premature-opt,types] [--severity low|med|high] [--budget N]"

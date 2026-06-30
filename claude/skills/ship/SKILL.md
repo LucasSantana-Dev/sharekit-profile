@@ -1,6 +1,6 @@
 ---
 name: ship
-description: >-
+description: End-to-end shipping: version bump, changelog update, tag, GitHub release, deploy, and post-deploy verification.
   Take a branch from feature done to actually merged or release cut without skipping CI or
    review gates. Validates PR goal, required checks, review state, and risk. Handles versi
   on bump, changelog, tag, and post-merge verification when releasing. Refuses to use admi

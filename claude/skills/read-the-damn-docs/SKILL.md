@@ -1,6 +1,6 @@
 ---
 name: read-the-damn-docs
-description: >-
+description: Enforces that the agent reads the project README, AGENTS.md, and skill docs before inventing a solution.
   Use when implementing, integrating, upgrading, debugging, or answering
   anything involving third-party APIs, libraries, frameworks, CLIs, cloud
   services, model/provider SDKs, fast-moving product behavior, user requests for

@@ -1,6 +1,6 @@
 ---
 name: plow-ahead
-description: >-
+description: Continues work from the last known-good state without re-planning, assuming the current trajectory is still valid.
   Use when the user explicitly wants autonomous progress without routine
   clarification stops: "plow ahead", "do not stop", "use your best judgment",
   "keep going until done", "finish while I am away", "do not ask questions
