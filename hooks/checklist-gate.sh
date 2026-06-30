@@ -20,10 +20,8 @@
 #   testing.md     — failure case tested, edge cases, explicit mocks
 #   performance.md — N+1 queries, unbounded growth, hot path complexity
 #
-# Modes (controlled by CHECKLIST_GATE_MODE env var):
-#   shadow  — log only, never block (Wave 1 rollout, default)
-#   warn    — emit warning on stderr, do not block (Wave 2)
-#   block   — exit 2 on any unchecked/failed item (Wave 3)
+# Mode (controlled by CHECKLIST_GATE_MODE env var):
+#   shadow  — log requirement, eval gate enforces (default, only supported mode)
 #
 # Wire in claude/settings.json PreToolUse with matcher Write|Edit.
 set -uo pipefail
@@ -127,22 +125,9 @@ jq -nc \
   '{ts: $ts, event: "checklist-gate", tool: $tool, file: $file, mode: $mode, dimensions: $dims, total_items: $total}' \
   >> "$LOG"
 
-case "$MODE" in
-  shadow)
-    exit 0
-    ;;
-  warn)
-    echo "checklist-gate: WARNING — $total_items checklist items must be verified (mode=warn)" >&2
-    exit 0
-    ;;
-  block)
-    # In block mode, we cannot parse the agent's response from within this hook
-    # (PreToolUse fires before the tool runs). Block mode is enforced by the
-    # eval gate reading the log and failing files that lack checklist evidence.
-    # This hook logs the requirement; the eval gate enforces it.
-    echo "checklist-gate: BLOCK mode — $total_items items must be verified. Eval gate will enforce." >&2
-    exit 0
-    ;;
-esac
+# The original design had warn/block modes, but both were identical to shadow
+# (all paths exit 0). PreToolUse fires before the tool runs, so we cannot parse
+# the agent's response from within this hook — enforcement must happen at the
+# eval gate, which reads the log and fails files that lack checklist evidence.
 
 exit 0
