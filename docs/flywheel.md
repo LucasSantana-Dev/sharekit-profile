@@ -368,4 +368,44 @@ The loop **shape** is adopted; the heavy runtimes are not:
   (LangSmith/DSPy/GEPA) — reference the loop contract, do not install. Wire a
   local proposer only once telemetry + the eval gate exist.
 
-*Last updated: 2026-06-30 (P8 deep-research synthesis shipped — LongContextReorder, binary-checklist gates, transcript scanners)*
+### Smart Approvals, reflection, TextGrad (P9 — shipped in this wave)
+
+P9 lands the three higher-value/higher-risk cherrypicks the synthesis deferred
+after P8: Smart Approvals prefix-rule learning, inline retry-with-reflection
+(Reflexion), and TextGrad textual-gradient optimization. Each is advisory — none
+blocks, none mutates memory directly, all preserve the eight load-bearing
+invariants.
+
+- **Smart Approvals (P9.1)** — `hooks/policy-gate.sh` gains prefix-rule
+  learning backed by a tracked `.harness/approval-rules.json`. A matching ALLOW
+  rule upgrades REQUIRE_APPROVAL->ALLOW (auto-approve, logged); a matching DENY
+  rule forces DENY (defense in depth); an ALLOW rule can never override a base
+  DENY (the hard floor). The hook SUGGESTS rules on unmatched REQUIRE_APPROVAL;
+  the host persists them via `--learn` (governance stays outside the model).
+  Every auto-decision still appends to the tamper-evident ledger with
+  `reason=auto:<prefix>`. CLI: `--rules`, `--learn <ALLOW|DENY> <prefix>
+  --rationale "..."`.
+- **Inline retry-with-reflection (P9.2, Reflexion)** — `hooks/reflect-retry.sh`:
+  per-task reflection on a gate FAIL, distinct from the batch flywheel. Produces
+  a structured `{what_failed, why, what_to_avoid, what_to_try_next}` digest to
+  `.harness/forge/reflections/`; `propose.sh` injects it into section 3.5 so the
+  next proposal retries WITH the reflection as context. Bounded by a max-retry
+  cap (N=3 without an intervening gate PASS) — after the cap, the target is
+  parked BLOCKED for human intervention (the Reflexion bound; honors do-not-adopt
+  #2). Fires only on eval-gated failures (honors contradiction #1).
+- **TextGrad textual-gradient (P9.3)** — `hooks/textgrad.sh`: a TextGrad-style
+  optimization pass that complements (not replaces) the evolutionary proposer.
+  Where the reflection is narrative (what failed and why), the gradient is
+  PRESCRIPTIVE (which lines/sections to change and how). `propose.sh` injects it
+  into section 3.6 so the proposing model anchors on the gradient in addition
+  to the non-Markovian history + reflection. Opt-in: one gradient per reflection
+  (textgrad refuses without a reflection — no loss signal to backpropagate).
+  Honors do-not-adopt #7 (textgrad is NOT the sole optimizer — it is one of an
+  ensemble).
+- **cycle.sh wiring** — on a gate FAIL (step 8), the cycle runs reflect-retry
+  then textgrad as advisory sub-steps before the report (step 9). The step count
+  stays 9; reflection+gradient are sub-steps of the gate-fail branch, not new
+  top-level steps. The cycle report's gate-fail note now records the reflection
+  retry count.
+
+*Last updated: 2026-06-30 (P9 shipped — Smart Approvals, inline reflection, TextGrad)*
