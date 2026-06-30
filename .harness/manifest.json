@@ -1,7 +1,7 @@
 {
   "schema": "https://json-schema.org/draft/2020-12/schema",
   "manifest_version": "1.0",
-  "generated_at": "2026-06-29T22:50:00Z",
+  "generated_at": "2026-06-30T13:15:00Z",
   "hosts": [
     "claude-code",
     "opencode",
@@ -10,7 +10,10 @@
   "files": {
     ".harness/mcp-policy.json": "3b2c773c766ec6ed53b58a471e5d635f9885f964deb0c4885bae5dfb19ab5ef4",
     "AGENTS.md": "3a69e4d3d14d99807e87d54d658af4b244a7011fe314447cc2e22ddb68adf147",
-    "claude/settings.json": "f7280e5ba5b453e0091ccfd72b621cbfe9f45a3ed9b258c5cce690d3b4cbfebb"
+    "claude/settings.json": "f7280e5ba5b453e0091ccfd72b621cbfe9f45a3ed9b258c5cce690d3b4cbfebb",
+    "hooks/skill-index.sh": "a218a7274d7412439a2cd3367b52ca8d999d4ceb26bca570523b9b0a161880da",
+    "hooks/skill-validate.sh": "47b263e785f83459bbe6a5009c068b576055c4c46641472c17f6c3daf4acb672",
+    "hooks/skill-prune.sh": "a8f2e3d3799f9d14325d1a80a7f10bd7fd11b3e2ba16024f1d0db8ad0ce664d4"
   },
   "meta": {
     "adr_anchor": "Adopted from ruflo meta-harness pattern: declarative governance directory converts prose security rules into diffable, CI-enforceable code. + Wave-4 self-improvement flywheel: settings.json un-orphaning the hooks and enabling the observe→evaluate→optimize loop.",

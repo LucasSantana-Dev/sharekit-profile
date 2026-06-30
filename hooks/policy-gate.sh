@@ -32,10 +32,13 @@
 # Usage (CLI):
 #   hooks/policy-gate.sh --verify     # walk the ledger, report chain integrity
 #   hooks/policy-gate.sh --status     # decision counts by verdict
+#   hooks/policy-gate.sh --rules      # list learned prefix rules (P9.1)
+#   hooks/policy-gate.sh --learn <ALLOW|DENY> <prefix> --rationale "..."   # P9.1
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 POLICY="$ROOT/.harness/mcp-policy.json"
+RULES_FILE="$ROOT/.harness/approval-rules.json"
 RUNTIME="$ROOT/.harness/runtime"
 LEDGER="$RUNTIME/policy-ledger.jsonl"
 mkdir -p "$RUNTIME"
@@ -82,6 +85,49 @@ if [[ "${1:-}" == "--status" ]]; then
     c="$(jq -c --arg v "$v" 'select(.verdict==$v)' "$LEDGER" 2>/dev/null | grep -c . )"
     echo "  $v: ${c:-0}"
   done
+  echo "  auto-approved/denied via learned prefix rules: $(jq -r 'select(.reason|startswith("auto:"))' "$LEDGER" 2>/dev/null | grep -c . || echo 0)"
+  exit 0
+fi
+
+# --- CLI: --rules (list learned prefix rules) --------------------------------
+if [[ "${1:-}" == "--rules" ]]; then
+  [[ -f "$RULES_FILE" ]] || { echo "policy-gate: no approval-rules.json yet"; exit 0; }
+  count="$(jq '.rules | length' "$RULES_FILE" 2>/dev/null || echo 0)"
+  echo "learned prefix rules: $count"
+  jq -r '.rules[] | "  \(.verdict)  \(.prefix)  — \(.rationale // "no rationale") (learned \(.learned_at // "?"))"' "$RULES_FILE" 2>/dev/null
+  exit 0
+fi
+
+# --- CLI: --learn <verdict> <prefix> --rationale "..." (host-only persist) ---
+# Persists a prefix rule the hook SUGGESTED on an unmatched REQUIRE_APPROVAL.
+# Governance stays outside the model: only the host runs --learn; the hook
+# itself never auto-learns. The new rule takes effect on the next hook call.
+if [[ "${1:-}" == "--learn" ]]; then
+  shift
+  l_verdict="${1:-}"; shift || true
+  l_prefix="${1:-}"; shift || true
+  l_rationale=""
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --rationale) l_rationale="$2"; shift 2 ;;
+      *) echo "policy-gate --learn: unknown arg: $1" >&2; exit 2 ;;
+    esac
+  done
+  [[ "$l_verdict" == "ALLOW" || "$l_verdict" == "DENY" ]] \
+    || { echo "policy-gate --learn: verdict must be ALLOW or DENY" >&2; exit 2; }
+  [[ -n "$l_prefix" ]] || { echo "policy-gate --learn: requires <prefix>" >&2; exit 2; }
+  [[ -f "$RULES_FILE" ]] || printf '{"rules":[]}\n' > "$RULES_FILE"
+  l_ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  # Append the rule (supersede-not-overwrite: an identical prefix is replaced,
+  # not duplicated, so the latest verdict wins without losing the audit trail
+  # in the ledger).
+  tmp="$(mktemp)"
+  jq --arg v "$l_verdict" --arg p "$l_prefix" --arg r "$l_rationale" --arg t "$l_ts" \
+    '.rules |= (map(select(.prefix != $p)) + [{prefix:$p, verdict:$v, rationale:$r, learned_at:$t, source:"host-learn"}])' \
+    "$RULES_FILE" > "$tmp" && mv "$tmp" "$RULES_FILE"
+  echo "policy-gate: learned rule — $l_verdict  $l_prefix"
+  echo "  rationale: $l_rationale"
+  echo "  takes effect on the next hook call; prior ledger entries are unchanged (audit trail)"
   exit 0
 fi
 
@@ -128,6 +174,58 @@ fi
 # gated here. Per mcp-policy.json, allowFileWrite governs MCP servers; native
 # tools are governed at the tool layer by check-idempotency.sh and
 # check-dangerous-patterns.sh. policy-gate focuses on MCP least-privilege scope.
+
+# --- Rule 2: Smart Approvals prefix-rule learning (P9.1) --------------------
+# OpenAI Codex CLI pattern: when a command is escalated for approval, the system
+# proposes a prefix_rule that persists so similar commands auto-approve/deny in
+# future. Governance stays OUTSIDE the model — the hook only SUGGESTS rules on
+# unmatched REQUIRE_APPROVAL; the host persists them via --learn (the model
+# cannot rewrite approval-rules.json). A matching ALLOW rule upgrades
+# REQUIRE_APPROVAL->ALLOW (auto-approve, logged); a matching DENY rule forces
+# DENY; no match falls through to the base verdict. Every auto-decision still
+# appends to the tamper-evident ledger with reason=auto:<prefix>, so the chain
+# stays auditable.
+rule_hit=""
+if [[ -f "$RULES_FILE" ]]; then
+  # Build the match key: tool_name + the input string (the prefix rules match
+  # against the start of this key, e.g. "mcp__github__create_issue title=chore:").
+  input_str="$(printf '%s' "$input" | jq -rc '.tool_input // .input // {}' 2>/dev/null | tr -d '\n')"
+  match_key="$tool_name $input_str"
+  # First-match-wins: rules are ordered; the host controls order in the file.
+  while IFS= read -r r; do
+    [[ -n "$r" ]] || continue
+    r_prefix="$(printf '%s' "$r" | jq -r '.prefix')"
+    r_verdict="$(printf '%s' "$r" | jq -r '.verdict')"
+    if [[ -n "$r_prefix" ]] && [[ "$match_key" == "$r_prefix"* ]]; then
+      rule_hit="$r_prefix"
+      if [[ "$r_verdict" == "ALLOW" ]]; then
+        # An ALLOW rule can only RELAX a REQUIRE_APPROVAL, never override a DENY
+        # (a DENY from base policy is a hard floor; learned rules cannot weaken it).
+        if [[ "$verdict" == "REQUIRE_APPROVAL" ]]; then
+          verdict="ALLOW"
+          reason="auto-approved by learned prefix rule: $r_prefix"
+        fi
+      elif [[ "$r_verdict" == "DENY" ]]; then
+        # A DENY rule can strengthen any verdict (defense in depth).
+        verdict="DENY"
+        reason="auto-denied by learned prefix rule: $r_prefix"
+      fi
+      break
+    fi
+  done < <(jq -c '.rules[]' "$RULES_FILE" 2>/dev/null)
+fi
+
+# On an unmatched REQUIRE_APPROVAL, suggest a prefix rule for the host to learn.
+# The hook NEVER auto-learns — it only surfaces the candidate. The host reviews
+# and persists via `policy-gate.sh --learn <verdict> <prefix> --rationale "..."`.
+if [[ "$verdict" == "REQUIRE_APPROVAL" && -z "$rule_hit" ]]; then
+  # Suggest a conservative prefix (tool name only) so the host can broaden it.
+  suggested_prefix="$tool_name"
+  echo "policy-gate: SUGGESTED prefix rule (host: review then --learn):" >&2
+  echo "  prefix: $suggested_prefix" >&2
+  echo "  to auto-approve:  policy-gate.sh --learn ALLOW '$suggested_prefix' --rationale \"...\"" >&2
+  echo "  to auto-deny:     policy-gate.sh --learn DENY  '$suggested_prefix' --rationale \"...\"" >&2
+fi
 
 # --- Append to the hash-chained ledger --------------------------------------
 prev_hash="GENESIS"

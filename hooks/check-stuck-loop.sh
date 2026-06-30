@@ -11,7 +11,9 @@
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-STATE="$ROOT/.harness/runtime/stuck-state.jsonl"
+# STUCK_STATE_FILE override lets the eval harness isolate state per task
+# (each task gets a fresh temp state file) without touching the live state.
+STATE="${STUCK_STATE_FILE:-$ROOT/.harness/runtime/stuck-state.jsonl}"
 mkdir -p "$(dirname "$STATE")"
 
 input="$(cat)"
