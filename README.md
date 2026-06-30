@@ -1,6 +1,6 @@
 # Operator Harness Documentation
 
-**Comprehensive reference guide for a fully-configured OpenCode / Claude Code operator environment with 325+ skills, 40+ agents, automated hook pipeline, RAG retrieval, memory persistence, and integrated MCP servers.**
+**Comprehensive reference guide for a fully-configured OpenCode / Claude Code operator environment with 233 skills, 40+ agents, automated hook pipeline, RAG retrieval, memory persistence, and integrated MCP servers.**
 
 > **Harnesses:** OpenCode (primary, `opencode.json`) → Claude Code (supported) → OpenRouter (fallback provider). The skill/agent/hook library is harness-agnostic and works across both.
 
@@ -83,7 +83,7 @@ Example: User says "refactor this module."
 └── skills -> ~/.agents/skills/
 
 ~/.agents/                              # Canonical skill and agent definitions
-├── skills/                             # 325 skill folders
+├── skills/                             # 233 skill folders
 ├── standards/                          # Policy and discipline docs (~20 files)
 ├── agents/                             # Agent definition mirrors
 ├── bin/                                # Utilities (sync binary)
@@ -206,15 +206,16 @@ P4 layers the five convergent cross-cutting patterns the Wave-5 research tracks 
 - `hooks/compaction-guard.sh` (PreCompact) — hybrid context control: audits tool-call/result adjacency preservation during compaction so execution drift cannot hide in a condensed window, threshold-triggered budget warnings, cache-prefix stability advisory. Advisory; never blocks.
 - `hooks/policy-gate.sh` (PreToolUse) — deterministic governance layer: emits ALLOW/DENY/REQUIRE_APPROVAL verdicts from `mcp-policy.json` outside the model, appends each decision to a hash-chained tamper-evident ledger bound to context hash, exits 2 on DENY. CLI: `--verify` ledger integrity, `--status` verdict counts.
 - `hooks/memory-consolidate.sh` — sleep-cycle memory consolidation: clusters related facts, finds supersede candidates, finds compression clusters, decays stale+low-confidence facts — all staged to `.harness/forge/` and never auto-applied. Extends the promotion ladder with bi-temporal validity windows; see [`claude/memory-structure/TEMPORAL_KG.md`](claude/memory-structure/TEMPORAL_KG.md). CLI: `--dir <path>`, `--status`.
-- `hooks/skill-index.sh` — progressive-disclosure skill index: builds a metadata-only index of the skill catalog (name + description + triggers + size class, never bodies) so the host loads one skill body on demand instead of load-all. CLI: `--dir <path>`, `--status`.
+- `hooks/skill-index.sh` — progressive-disclosure skill index: builds a metadata-only index of the skill catalog (name + description + triggers + invocation_type + allow_implicit + size class, never bodies) so the host loads one skill body on demand instead of load-all. Skills with `invocation_type=slash` are excluded from auto-invocation; skills with `allow_implicit=false` (🔒) require explicit confirmation even on trigger match. CLI: `--dir <path>`, `--status`.
 - `hooks/skill-prune.sh` — telemetry-based skill pruning: reads the trajectory and stages never-hit / low-hit skills as archive candidates. Archive, never `rm`. CLI: `--dir <path>`, `--status`.
+- `hooks/skill-validate.sh` — frontmatter schema + security validation gate: validates all SKILL.md files for schema compliance (name ≤100 chars, description 20–500 chars, no body leaking into description, valid `invocation_type` and `allow_implicit` values) and scans for security threats (pipe-to-shell installers, secret exfiltration, reverse shells, obfuscated execution, prompt-injection lures). Exit 2 on critical findings; `--strict` exits 2 on any finding. CLI: `--dir <path>`, `--status`, `--strict`.
 - `hooks/dispatch.sh` — deterministic orchestration substrate: a fixed state machine (intake → triage → plan → research → implement → review_gate → eval → merge_gate → done, with BLOCKED first-class) where no LLM decides what fires next. Bounded workers (including the P2 proposer/evaluator) execute steps; the substrate owns transitions and the two human-in-the-loop gates. See [`docs/handoff-schema.md`](docs/handoff-schema.md). CLI: `--intake`, `--advance`, `--block`, `--allow-gate`, `--status`, `--list`.
 
 ### Self-improvement flywheel (target architecture — P5)
 
 P5 is the integration target: the flywheel from P0-P2 + the convergent patterns from P4, operating as a single closed loop. `hooks/cycle.sh` now exercises the whole architecture as one command, with two tracks run in sequence:
 
-- **TRACK A — MAINTAIN** (the P4 substrate, periodic hygiene): `memory-consolidate.sh` (sleep-cycle), `skill-index.sh` (progressive-disclosure index), `skill-prune.sh` (telemetry-based archive candidates). Advisory; stages reports, never auto-applies.
+- **TRACK A — MAINTAIN** (the P4 substrate, periodic hygiene): `memory-consolidate.sh` (sleep-cycle), `skill-index.sh` (progressive-disclosure index with invocation_type + allow_implicit policy tagging), `skill-prune.sh` (telemetry-based archive candidates), `skill-validate.sh` (schema + security validation gate). Advisory; stages reports, never auto-applies.
 - **TRACK B — IMPROVE** (the P0-P3 flywheel, routed via `dispatch.sh`): `diagnose.sh` → `distill.sh` → `propose.sh` (at dispatch `implement` → `review_gate`) → `gate.sh` (at `eval`, with the held-out eval set the proposer never saw). On gate pass, dispatch advances to `merge_gate`; on regression, dispatch parks BLOCKED so the proposer reads WHY next time.
 
 The cycle closes the evaluate→optimize loop through the deterministic substrate — never trusting the model to self-route or self-promote. See [`docs/target-architecture.md`](docs/target-architecture.md) for the five load-bearing subsystems and the eight load-bearing invariants. CLI: `--target <file>`, `--eval <set>`, `--dry-run`, `--status`, `--no-maintain`.
@@ -255,9 +256,9 @@ See `~/.claude/agents/` for full definitions.
 
 ---
 
-## Skills: 235 Total — efficiency audit in progress
+## Skills: 233 Total — catalog reduction in progress
 
-Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete reference, and [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) for the competitive analysis + reduction plan (235 listed vs a lean-harness median of ~10-43; the plan targets ~183 listed via dedup + hiding sub-skills + per-agent permissions).
+Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete reference, and [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) for the competitive analysis + reduction plan (233 listed vs a lean-harness median of ~10-43; the plan targets ~195 listed via hiding sub-skills + per-agent permissions). See also [`docs/harness-research-synthesis.md`](docs/harness-research-synthesis.md) for the 52-repo deep-research survey that informs the next phase (P8).
 
 **Session & Context** (10): wake-up, session-bootstrap*, resume, context-pack, handoff, session-wrap-up, session-cleanup, etc.
 
@@ -465,5 +466,5 @@ The profile ships a **Megabrain** system: one vault for all projects (memory + g
 
 ---
 
-**Last updated:** 2026-06-29  
-**Harness version:** Agent-OS (v6+), 325 skills, 40+ agents, 35 hooks, 6 MCP servers
+**Last updated:** 2026-06-30  
+**Harness version:** Agent-OS (v6+), 325 skills, 40+ agents, 36 hooks, 6 MCP servers
