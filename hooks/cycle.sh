@@ -12,15 +12,16 @@
 #     1. MEMORY-CONSOLIDATE  -- sleep-cycle: cluster/supersede/decay candidates
 #     2. SKILL-INDEX         -- metadata-only catalog index (progressive disclosure)
 #     3. SKILL-PRUNE         -- never/low-hit skill archive candidates
+#     4. TRANSCRIPT-SCAN     -- hooks/transcript-scanner.sh (systemic pattern scan)
 #
 #   TRACK B -- IMPROVE (the P0-P3 flywheel, now routed through dispatch.sh):
-#     4. DIAGNOSE  -- hooks/diagnose.sh    (cluster failures in the trajectory)
-#     5. DISTILL   -- hooks/distill.sh     (mine trajectory -> staged candidates)
-#     6. PROPOSE   -- dispatch.sh advances implement -> review_gate
+#     5. DIAGNOSE  -- hooks/diagnose.sh    (cluster failures in the trajectory)
+#     6. DISTILL   -- hooks/distill.sh     (mine trajectory -> staged candidates)
+#     7. PROPOSE   -- dispatch.sh advances implement -> review_gate
 #                    (hooks/propose.sh is the bounded worker at implement)
-#     7. GATE      -- dispatch.sh --allow-gate review_gate -> eval
+#     8. GATE      -- dispatch.sh --allow-gate review_gate -> eval
 #                    (hooks/gate.sh is the bounded worker at eval)
-#     8. REPORT    -- this script          (human/agent-readable cycle summary)
+#     9. REPORT    -- this script          (human/agent-readable cycle summary)
 #
 # The dispatch.sh routing is the P4 deterministic orchestration substrate: no
 # LLM decides what fires next. The proposer and gate are bounded workers; the
@@ -95,7 +96,7 @@ run_step() {
   # run_step <num> <name> <cmd...>
   local num="$1"; shift
   local name="$1"; shift
-  echo "─── cycle [$num/8] $name ───"
+  echo "─── cycle [$num/9] $name ───"
   if [[ $dry_run -eq 1 ]]; then
     echo "  (dry-run) would run: $*"
     record_step "$name" "skipped" "dry-run"
@@ -130,7 +131,7 @@ if [[ $maintain -eq 1 ]]; then
   # Step 1: memory-consolidate (sleep-cycle: cluster/supersede/decay).
   # Reads memory/ (if present) and stages a consolidation report. No memory/
   # dir -> no-op (the sleep cycle is a no-op until memory exists).
-  echo "─── cycle [1/8] memory-consolidate ───"
+  echo "─── cycle [1/9] memory-consolidate ───"
   if [[ $dry_run -eq 1 ]]; then
     echo "  (dry-run) would run: memory-consolidate.sh"
     record_step "memory-consolidate" "skipped" "dry-run"
@@ -147,7 +148,7 @@ if [[ $maintain -eq 1 ]]; then
   fi
 
   # Step 2: skill-index (metadata-only progressive-disclosure index).
-  echo "─── cycle [2/8] skill-index ───"
+  echo "─── cycle [2/9] skill-index ───"
   if [[ $dry_run -eq 1 ]]; then
     echo "  (dry-run) would run: skill-index.sh"
     record_step "skill-index" "skipped" "dry-run"
@@ -165,7 +166,7 @@ if [[ $maintain -eq 1 ]]; then
 
   # Step 3: skill-prune (telemetry-based archive candidates).
   # Needs the trajectory to exist; skips gracefully otherwise.
-  echo "─── cycle [3/8] skill-prune ───"
+  echo "─── cycle [3/9] skill-prune ───"
   if [[ $dry_run -eq 1 ]]; then
     echo "  (dry-run) would run: skill-prune.sh"
     record_step "skill-prune" "skipped" "dry-run"
@@ -183,29 +184,53 @@ if [[ $maintain -eq 1 ]]; then
       record_step "skill-prune" "skip" "no catalog/trajectory"
     fi
   fi
+
+  # Step 4: transcript-scan (systemic pattern scan, complements diagnose).
+  # Scans the trajectory for refusals, eval-awareness, env-drift, hallucination,
+  # excessive-agency, and injection-tells -- patterns per-task evals miss.
+  # Advisory: stages findings to .harness/forge/, never blocks.
+  echo "─── cycle [4/9] transcript-scan ───"
+  if [[ $dry_run -eq 1 ]]; then
+    echo "  (dry-run) would run: transcript-scanner.sh"
+    record_step "transcript-scan" "skipped" "dry-run"
+  elif [[ ! -s "$RUNTIME/trajectory.jsonl" ]]; then
+    echo "  ⊘ transcript-scan: no trajectory yet (run a session first)"
+    record_step "transcript-scan" "skip" "no trajectory"
+  else
+    out_file="$RUNTIME/cycle-${ts//[:]/-}-transcript-scan.log"
+    if bash "$ROOT/hooks/transcript-scanner.sh" >"$out_file" 2>&1; then
+      signals="$(grep -oE 'refusals=[0-9]+' "$out_file" | grep -oE '[0-9]+' || echo 0)"
+      echo "  ✓ transcript-scan: $signals refusal(s) flagged (log: $out_file)"
+      record_step "transcript-scan" "pass" "refusals=$signals"
+    else
+      echo "  ⊘ transcript-scan: no trajectory to scan (log: $out_file)"
+      record_step "transcript-scan" "skip" "no trajectory"
+    fi
+  fi
 else
   record_step "memory-consolidate" "skip" "--no-maintain"
   record_step "skill-index" "skip" "--no-maintain"
   record_step "skill-prune" "skip" "--no-maintain"
+  record_step "transcript-scan" "skip" "--no-maintain"
 fi
 
 # --- TRACK B: IMPROVE (the P0-P3 flywheel, routed via dispatch.sh) ------------
 
-# --- Step 4: Diagnose (observe → signal) -------------------------------------
+# --- Step 5: Diagnose (observe → signal) -------------------------------------
 # Clusters failures in the trajectory log. Skips gracefully if no trajectory.
 if [[ ! -f "$RUNTIME/trajectory.jsonl" ]]; then
-  echo "─── cycle [4/8] diagnose ───"
+  echo "─── cycle [5/9] diagnose ───"
   echo "  ⊘ no trajectory log yet -- nothing to diagnose (run a session first)"
   record_step "diagnose" "skip" "no trajectory log"
 else
-  run_step 4 "diagnose" bash "$ROOT/hooks/diagnose.sh"
+  run_step 5 "diagnose" bash "$ROOT/hooks/diagnose.sh"
 fi
 
-# --- Step 5: Distill (observe → candidates) ----------------------------------
+# --- Step 6: Distill (observe → candidates) ----------------------------------
 # Mines the trajectory for staged candidate learnings.
-run_step 5 "distill" bash "$ROOT/hooks/distill.sh"
+run_step 6 "distill" bash "$ROOT/hooks/distill.sh"
 
-# --- Step 6: Propose (optimize → proposal, routed via dispatch.sh) ------------
+# --- Step 7: Propose (optimize → proposal, routed via dispatch.sh) ------------
 # Assembles a non-Markovian proposal for the target (or the top forge candidate).
 # P5: routed through dispatch.sh's deterministic state machine. The propose step
 # is the `implement` state; propose.sh is the bounded worker. After it assembles,
@@ -222,7 +247,7 @@ if [[ -z "$propose_target" ]]; then
   fi
 fi
 
-echo "─── cycle [6/8] propose ───"
+echo "─── cycle [7/9] propose ───"
 # Dispatch task id for this cycle's proposal (deterministic routing).
 dispatch_task="cycle-${ts//[:]/-}"
 if [[ -x "$ROOT/hooks/dispatch.sh" ]]; then
@@ -269,13 +294,13 @@ else
   proposal_id=""
 fi
 
-# --- Step 7: Gate (optimize → validate, routed via dispatch.sh review_gate) ----
+# --- Step 8: Gate (optimize → validate, routed via dispatch.sh review_gate) ----
 # Runs the constraint gate on the proposal (if one was assembled). P5: the gate
 # is the bounded worker at the `eval` state; dispatch.sh's review_gate must be
 # passed first. We --allow-gate review_gate (the host agent's cycle-level
 # approval to run the gate), then run gate.sh, then the report notes merge_gate
 # still awaits a human allow before merge.
-echo "─── cycle [7/8] gate ───"
+echo "─── cycle [8/9] gate ───"
 pre_deploy_lift=""
 if [[ $dry_run -eq 1 ]]; then
   echo "  (dry-run) would run: gate.sh ${proposal_id:-<no-proposal>}"
@@ -316,9 +341,9 @@ else
   record_step "gate" "skip" "no proposal"
 fi
 
-# --- Step 8: Report (synthesize) ---------------------------------------------
+# --- Step 9: Report (synthesize) ---------------------------------------------
 # The cycle report the host agent reviews.
-echo "─── cycle [8/8] report ───"
+echo "─── cycle [9/9] report ───"
 echo "  writing cycle report → $report"
 
 pass_count=0

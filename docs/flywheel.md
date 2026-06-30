@@ -281,6 +281,34 @@ regression is detectable. The loop is now genuinely closed.
   broken candidate failed the gate, the trial dir was discarded, and the live
   hook was still untouched.
 
+### Deep-research synthesis -> P8 (shipped in this wave)
+
+A 52-repo survey (see `docs/harness-research-synthesis.md`) named the next
+10 cherrypicks; P8 lands the four that compound the flywheel without adding
+runtime dependencies or trusting the model to self-police. Each is advisory —
+none blocks, none mutates memory directly.
+
+- **LongContextReorder (P8.1)** — `hooks/reorder-context.sh` (PostToolUse):
+  reorders retrieved chunks so the highest-scoring land at the start and end
+  of the window (the attention-favorable positions), the LlamaIndex
+  LongContextReorder finding that the middle is the "lost" region. Advisory;
+  writes a digest to `.harness/runtime/reordered-chunks/`, never blocks.
+- **Binary-checklist gates (P8.2)** — `hooks/checklist-gate.sh` (PreToolUse):
+  the awesome-cursorrules binary-checklist pattern made concrete. A tracked
+  checklist at `.harness/checklists/security.md` gates security-sensitive
+  work; each item is a yes/no, not prose for the model to interpret.
+- **Transcript scanners (P8.3)** — `hooks/transcript-scanner.sh`: complements
+  `diagnose.sh` (the "what broke" half) with the inspect-ai "scanners" half
+  (the "what the agent did that evals wouldn't flag" signals): refusals
+  (capability loss masked as success), evaluation-awareness (test-gaming),
+  environment-drift (unremediated missing deps), hallucination signals (cited
+  paths that failed to read), excessive-agency (force-push / `rm -rf` /
+  `sudo` / `chmod 777` without an explicit ask), and prompt-injection tells
+  (untrusted tool output followed as instructions). Findings stage to
+  `.harness/forge/` for host-agent review, like `distill`. Wired into
+  `cycle.sh` TRACK A as step 4 (maintain/hygiene), so the loop scans for
+  systemic patterns every cycle, not just failure clusters.
+
 ### The target architecture (P5 — shipped in this wave)
 
 P5 is the integration target: the flywheel from P0-P2 + the convergent patterns
@@ -288,7 +316,8 @@ from P4, operating as a single closed loop. `hooks/cycle.sh` now exercises the
 whole architecture as one command, with two tracks:
 
 - **TRACK A — MAINTAIN**: `memory-consolidate.sh` (sleep-cycle), `skill-index.sh`
-  (progressive disclosure), `skill-prune.sh` (telemetry-based archive candidates).
+  (progressive disclosure), `skill-prune.sh` (telemetry-based archive candidates),
+  `transcript-scanner.sh` (systemic pattern scan — complements `diagnose.sh`).
 - **TRACK B — IMPROVE**: `diagnose.sh` -> `distill.sh` -> `propose.sh` (routed at
   dispatch `implement` -> `review_gate`) -> `gate.sh` (routed at `eval`, with the
   held-out eval set the proposer never saw) -> on pass, dispatch advances to
@@ -339,4 +368,4 @@ The loop **shape** is adopted; the heavy runtimes are not:
   (LangSmith/DSPy/GEPA) — reference the loop contract, do not install. Wire a
   local proposer only once telemetry + the eval gate exist.
 
-*Last updated: 2026-06-30 (P7 close-the-loop shipped)*
+*Last updated: 2026-06-30 (P8 deep-research synthesis shipped — LongContextReorder, binary-checklist gates, transcript scanners)*
