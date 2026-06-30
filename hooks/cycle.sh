@@ -276,6 +276,7 @@ fi
 # approval to run the gate), then run gate.sh, then the report notes merge_gate
 # still awaits a human allow before merge.
 echo "─── cycle [7/8] gate ───"
+pre_deploy_lift=""
 if [[ $dry_run -eq 1 ]]; then
   echo "  (dry-run) would run: gate.sh ${proposal_id:-<no-proposal>}"
   record_step "gate" "skipped" "dry-run"
@@ -286,9 +287,21 @@ elif [[ -n "$proposal_id" ]]; then
   gate_args=("$proposal_id")
   [[ -n "$target" ]] && gate_args+=(--target "$target")
   [[ -n "$eval_set" ]] && gate_args+=(--eval "$eval_set")
+  # P7: when a proposal file exists, gate the PROPOSED edit in isolation
+  # (trial-apply.sh materializes a candidate; the live hook is never mutated).
+  [[ -n "$proposal_file" && -f "$ROOT/$proposal_file" ]] && gate_args+=(--proposal "$ROOT/$proposal_file")
   if bash "$ROOT/hooks/gate.sh" "${gate_args[@]}" >"$out_file" 2>&1; then
     echo "  ✓ gate PASSED (log: $out_file)"
     record_step "gate" "pass" "proposal $proposal_id ready for merge_gate"
+    # Capture the pre-deploy lift so deploy-watch can detect a post-merge regression.
+    pre_deploy_lift="$(grep -oE 'lift=[0-9.-]+' "$out_file" | head -1 | sed 's/lift=//')"
+    # P7: start a deploy-watch so a post-merge regression is detectable. The
+    # watch records the pre-deploy baseline (the held-out lift); after the PR
+    # merges, the host runs deploy-watch.sh check to compare.
+    if [[ -n "$target" && -n "$pre_deploy_lift" ]]; then
+      bash "$ROOT/hooks/deploy-watch.sh" start "$proposal_id" "$target" heldout-lift "$pre_deploy_lift" >/dev/null 2>&1 \
+        && echo "  ✓ deploy-watch started (baseline heldout-lift=$pre_deploy_lift)" || true
+    fi
     # Advance the dispatch state machine: eval -> merge_gate. merge_gate is the
     # final human-in-the-loop gate; the host agent passes it before merging via PR.
     [[ -x "$ROOT/hooks/dispatch.sh" ]] && bash "$ROOT/hooks/dispatch.sh" "$dispatch_task" --advance >/dev/null 2>&1 || true
@@ -358,6 +371,12 @@ done
       "${proposal_file:-.harness/forge/proposals/}" "$proposal_id"
     printf -- '  validate. If it passes, pass merge_gate via `hooks/dispatch.sh %s --allow-gate merge_gate`\n' "$dispatch_task"
     printf -- '  and open a human-reviewed PR.\n'
+  fi
+  if [[ -n "$proposal_id" && -n "$pre_deploy_lift" ]]; then
+    printf -- '- **Post-merge watch.** A deploy-watch was started with baseline heldout-lift=%s.\n' "$pre_deploy_lift"
+    printf -- '  After the PR merges, re-run the held-out bench and compare:\n'
+    printf -- '  `hooks/deploy-watch.sh check %s <post-merge-lift>`.\n' "$proposal_id"
+    printf -- '  If it reports REGRESSION, revert with `hooks/deploy-watch.sh revert %s %s`.\n' "$proposal_id" "${target:-<target>}"
   fi
   if [[ $skip_count -gt 0 ]]; then
     printf -- '- **Skipped steps.** The loop is exercisable but had nothing to act on\n'
