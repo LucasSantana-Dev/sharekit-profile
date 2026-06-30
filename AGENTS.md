@@ -72,6 +72,27 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
 - `scripts/check-catalog.sh` — validate the showcase skill catalog; also enforces a skill-count guardrail (warn >250, fail >350).
 - `~/.claude/settings.json` sets `skillListingBudgetFraction: 0.05` to keep Claude Code's skill listing from truncating at 200+ skills. If count grows past 300, raise the fraction OR run `skill-maintainer` to prune duplicates.
 
+## Current state (2026-06-30)
+
+**Schema validation:** `skill-validate.sh` reports `errors=0` after PRs #13-14 fixed 55 frontmatter errors (28 block-scalar descriptions → single-line, 2 missing `description:` fields inserted). 262 non-blocking warnings remain (261 "no triggers field" + 1 "description exceeds 500 chars") — these are tracked in [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) but do not fail CI.
+
+**Hook count:** 42 hook scripts in `hooks/` (up from 30+ at session start).
+
+**Skill count:** 230 on disk, 102 repo-tracked in `claude/skills/`, 195 listed (228 indexed, 33 hidden via `invocation_type: internal`).
+
+**P8+P9 hooks shipped:**
+- `hooks/reorder-context.sh` — post-compaction attention reordering (LlamaIndex-style)
+- `hooks/checklist-gate.sh` — binary security/release checklist enforcement
+- `hooks/transcript-scanner.sh` — 6 pattern scanners (refusals, eval-awareness, env-drift, hallucination, excessive-agency, injection tells)
+- `hooks/trial-apply.sh` — materializes candidate hook edits into `.harness/forge/trial/` for isolated gating
+- `hooks/gate.sh` — gains `--proposal` + `--candidate` modes
+- `hooks/eval-run.sh` — gains `--seed` parameter for stateful hooks
+- `hooks/cycle.sh` — wires deploy-watch post-merge hook
+- `hooks/check-stuck-loop.sh` — gains real state file
+- `hooks/reflect-retry.sh` + `hooks/textgrad.sh` — advisory reflection + textual gradient
+
+**Known limitation:** `skill-validate.sh` grep-based extractor cannot parse YAML block scalars (`|`, `>`, `>-`). Accepted as-is — block scalars are valid YAML but fail the validator; skill authors should use single-line descriptions.
+
 ## Storage
 
 Live harness lives at `~/.claude/` (runtime) with tracked source at `~/.claude-env/`. Keep both in sync — the drift detector (`hooks/check-harness-drift.sh`) expects identical `agents/` and `hooks/` between them.
