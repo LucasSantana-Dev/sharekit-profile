@@ -1,6 +1,6 @@
 ---
 name: ponytail-debt
-description: >
+description: Catalogs deliberate simplifications that should be upgraded later (lazy shims, naive heuristics) with a known ceiling.
   Harvest every `ponytail:` comment in the codebase into a debt ledger, so the
   deliberate shortcuts and deferrals ponytail leaves behind get tracked instead
   of rotting into "later means never". Use when the user says "ponytail debt",

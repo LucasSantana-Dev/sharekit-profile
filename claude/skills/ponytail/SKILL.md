@@ -1,6 +1,6 @@
 ---
 name: ponytail
-description: >
+description: Forces the laziest working solution: stdlib and native first, one-liners preferred, deletion over addition.
   Forces the laziest solution that actually works, simplest, shortest, most
   minimal. Channels a senior dev who has seen everything: question whether the
   task needs to exist at all (YAGNI), reach for the standard library before

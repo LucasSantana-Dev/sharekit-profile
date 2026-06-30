@@ -1,6 +1,6 @@
 ---
 name: changelog-update
-description:
+description: Updates CHANGELOG.md from recent commits, grouping entries by type (feat/fix/docs/breaking) with semantic version headings.
   Update CHANGELOG.md by promoting [Unreleased] content to a versioned section
   and bumping the package version. Follows Keep a Changelog format. Use when
   preparing a release or when [Unreleased] has accumulated work that needs to
