@@ -177,6 +177,7 @@ The evaluate/optimize scripts that consume the trajectory log. They are run on-d
 - `hooks/review.sh` — host-agent review CLI: `list`, `show <date>`, `graduate <id> --rationale "..."`, `reject <id> --reason "..."`, `reopen`, `decisions`. Graduation requires a rationale (no rubber-stamping) and writes staleness frontmatter.
 - `hooks/eval-baseline.sh` — with-skill vs no-skill baseline gate: `init`, `record`, `compare`, `gate <name> <threshold>`. Gates on measurable lift (selftune `baseline` pattern).
 - `hooks/diagnose.sh` — self-diagnosis: clusters failures in the trajectory log, detects repeated errors / tool overuse / blind retries / token-waste patterns (SkillForge + AHE Agent Debugger). Writes a digest + machine-readable clusters.
+- `hooks/transcript-scanner.sh` (P8.3) — post-hoc transcript scanners (inspect-ai): scans the trajectory for systemic patterns per-task evals miss — refusals, evaluation-awareness, environment-drift, hallucination signals, excessive-agency, prompt-injection tells. Complements `diagnose.sh` (failure clustering). Stages findings to `.harness/forge/`; never blocks. CLI: `--since <iso>`, `--status`.
 - `hooks/observe-otel.sh` — two-knob observability (pdhoolia): level (off/metrics/trace) + destination (jsonl/stderr/otel). GenAI semantic span names, context-breach scanning, idempotent ±1 feedback scores. Local JSONL by default.
 
 ### Self-improvement flywheel (optimize half — P2)
@@ -215,7 +216,7 @@ P4 layers the five convergent cross-cutting patterns the Wave-5 research tracks 
 
 P5 is the integration target: the flywheel from P0-P2 + the convergent patterns from P4, operating as a single closed loop. `hooks/cycle.sh` now exercises the whole architecture as one command, with two tracks run in sequence:
 
-- **TRACK A — MAINTAIN** (the P4 substrate, periodic hygiene): `memory-consolidate.sh` (sleep-cycle), `skill-index.sh` (progressive-disclosure index with invocation_type + allow_implicit policy tagging), `skill-prune.sh` (telemetry-based archive candidates), `skill-validate.sh` (schema + security validation gate). Advisory; stages reports, never auto-applies.
+- **TRACK A — MAINTAIN** (the P4 substrate, periodic hygiene): `memory-consolidate.sh` (sleep-cycle), `skill-index.sh` (progressive-disclosure index with invocation_type + allow_implicit policy tagging), `skill-prune.sh` (telemetry-based archive candidates), `skill-validate.sh` (schema + security validation gate), `transcript-scanner.sh` (systemic pattern scan — complements `diagnose.sh`, P8.3). Advisory; stages reports, never auto-applies.
 - **TRACK B — IMPROVE** (the P0-P3 flywheel, routed via `dispatch.sh`): `diagnose.sh` → `distill.sh` → `propose.sh` (at dispatch `implement` → `review_gate`) → `gate.sh` (at `eval`, with the held-out eval set the proposer never saw). On gate pass, dispatch advances to `merge_gate`; on regression, dispatch parks BLOCKED so the proposer reads WHY next time.
 
 The cycle closes the evaluate→optimize loop through the deterministic substrate — never trusting the model to self-route or self-promote. See [`docs/target-architecture.md`](docs/target-architecture.md) for the five load-bearing subsystems and the eight load-bearing invariants. CLI: `--target <file>`, `--eval <set>`, `--dry-run`, `--status`, `--no-maintain`.
@@ -239,6 +240,14 @@ P7 closes the loop between the gate and deploy. Before P7, the gate measured the
 - `hooks/cycle.sh` (P7) — on gate PASS, starts a `deploy-watch` with the pre-deploy held-out lift as the baseline, and the report's "what to do next" instructs the host to run `deploy-watch.sh check` after the PR merges and `revert` on REGRESSION.
 - `check-stuck-loop.sh` (P7) — now reads `STUCK_STATE_FILE` (env override) so the eval harness isolates per-task state. The bench grew from 21 to 25 tasks (the fifth enforcement hook, `check-stuck-loop.sh`, now has eval coverage — 2 seen, 2 heldout).
 - [`docs/operations.md`](docs/operations.md) (P7) — adds the post-merge watch flow and the close-the-loop gating section. [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) — competitive analysis of lean harnesses (~10-43 skills vs our 235) + a concrete reduction plan (dedup, hide sub-skills, per-agent permissions, guardrail tightening).
+
+### Self-improvement flywheel (deep-research synthesis — P8)
+
+P8 lands the four cherrypicks from the 52-repo deep-research survey ([`docs/harness-research-synthesis.md`](docs/harness-research-synthesis.md)) that compound the flywheel without adding runtime dependencies. Each is advisory — none blocks, none mutates memory directly.
+
+- `hooks/reorder-context.sh` (PostToolUse) — LongContextReorder (LlamaIndex): reorders retrieved chunks so the highest-scoring land at the start/end of the window (the attention-favorable positions), since the middle is the "lost" region. Writes a digest to `.harness/runtime/reordered-chunks/`; never blocks.
+- `hooks/checklist-gate.sh` (PreToolUse) — binary-checklist gates (awesome-cursorrules): a tracked checklist at `.harness/checklists/security.md` gates security-sensitive work; each item is a yes/no, not prose for the model to interpret.
+- `hooks/transcript-scanner.sh` — transcript scanners (inspect-ai): complements `diagnose.sh` (the "what broke" half) with the "what the agent did that evals wouldn't flag" half — refusals (capability loss masked as success), evaluation-awareness (test-gaming), environment-drift (unremediated missing deps), hallucination signals (cited paths that failed to read), excessive-agency (force-push / `rm -rf` / `sudo` / `chmod 777` without an explicit ask), and prompt-injection tells (untrusted tool output followed as instructions). Findings stage to `.harness/forge/` for host-agent review, like `distill`. Wired into `cycle.sh` TRACK A as step 4. CLI: `--since <iso>`, `--status`.
 
 ---
 
