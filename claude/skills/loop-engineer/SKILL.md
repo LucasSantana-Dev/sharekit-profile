@@ -1,6 +1,6 @@
 ---
 name: loop-engineer
-description: >
+description: Redesigns agent loops to reduce turns, token waste, and blind retries while preserving output quality.
   Designs AND implements autonomous agent loops for any task. Trigger this skill
   whenever the user wants to stop manually prompting agents and instead build a
   self-running feedback cycle — coding automation, research pipelines, content

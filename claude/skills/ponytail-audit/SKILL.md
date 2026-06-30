@@ -1,6 +1,6 @@
 ---
 name: ponytail-audit
-description: >
+description: Whole-repo scan for over-engineering: reinvented stdlib, single-impl interfaces, dead config, ranked by size of the cut.
   Whole-repo audit for over-engineering. Like ponytail-review, but scans the
   entire codebase instead of a diff: a ranked list of what to delete, simplify,
   or replace with stdlib/native equivalents. Use when the user says "audit this

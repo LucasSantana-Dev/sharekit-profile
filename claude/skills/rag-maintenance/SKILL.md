@@ -1,6 +1,6 @@
 ---
 name: rag-maintenance
-description: |
+description: Keeps the RAG index current by rechunking changed files, retiring dead entries, and re-embedding drifted content.
   Composite RAG maintenance skill — runs a full retrieval index audit end-to-end: measure quality, find corpus gaps, detect stale chunks, and curate (add missing docs, rewrite weak chunks). Chains: rag-quality → adt-rag-coverage → adt-rag-drift → rag-curate. Use when: retrieval is stale/weak, recall scores drop, users report missing docs, or weekly maintenance cycle. Replaces "run four separate RAG skills and hope they talk to each other."
 user-invocable: true
 auto-invoke: weekly-maintenance + low-relevance-recall-hits + corpus-drift-detected

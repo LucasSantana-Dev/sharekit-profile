@@ -1,6 +1,6 @@
 ---
 name: quality-gates
-description:
+description: Defines binary quality gates (lint-pass, tests-green, no-secret-leaks) that must all pass before a PR is mergeable.
   Run the repository-native verification gates such as lint, type-check,
   tests, docs, build, and security checks. Use when the user wants confidence before
   a commit, PR, merge, or release.

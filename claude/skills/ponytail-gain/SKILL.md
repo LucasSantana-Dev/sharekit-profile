@@ -1,6 +1,6 @@
 ---
 name: ponytail-gain
-description: >
+description: Documents cases where the laziest solution measurably outperformed a more complex alternative.
   Show ponytail's measured impact as a compact scoreboard: less code, less
   cost, more speed, from the benchmark medians. One-shot display, not a
   persistent mode, and not a per-repo number. Trigger: /ponytail-gain,

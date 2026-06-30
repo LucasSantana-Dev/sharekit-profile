@@ -1,6 +1,6 @@
 ---
 name: ponytail-help
-description: >
+description: Surfaces the ponytail ladder and intensity levels on demand when the user is unsure how lazy to be.
   Quick-reference card for all ponytail modes, skills, and commands.
   One-shot display, not a persistent mode. Trigger: /ponytail-help,
   "ponytail help", "what ponytail commands", "how do I use ponytail".

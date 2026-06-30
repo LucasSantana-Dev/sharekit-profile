@@ -1,6 +1,6 @@
 ---
 name: naming-consistency
-description: >-
+description: Audits symbol, file, and directory names across the codebase for consistent casing and vocabulary.
   Detect naming conventions from existing code, then audit new or all symbols for violations. Reports inconsistencies across files without enforcing a single style. Use when reviewing a PR for naming regressions, auditing a module before a refactor, or establishing a naming baseline. Triggers: "naming consistency", "naming audit", "naming violations", "inconsistent names", "naming conventions", "check naming".
 metadata:
   owner: global-agents
