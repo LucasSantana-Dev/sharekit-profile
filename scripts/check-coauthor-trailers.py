@@ -24,6 +24,15 @@ BOT_PATTERNS = [
 
 COMPILED = [re.compile(p, re.IGNORECASE) for p in BOT_PATTERNS]
 
+# AI agents approved via human review (allowed despite matching BOT_PATTERNS)
+ALLOWED_COAUTHORS = [
+    r"\boz\b\s*<\[[^\]]+\]>",  # Warp Oz — any placeholder in brackets <[...]>
+    r"\boz\b.*@warp\.dev",   # Warp Oz — @warp.dev address
+    r"\boz\b.*@ai\.dev",     # Warp Oz — legacy @ai.dev address
+    r"\boz\b.*\.ai\b",       # Warp Oz — any email ending with .ai domain
+]
+ALLOWED_COMPILED = [re.compile(p, re.IGNORECASE) for p in ALLOWED_COAUTHORS]
+
 TRAILER_RE = re.compile(
     r"^Co-authored-by:\s*(.+)$", re.IGNORECASE | re.MULTILINE
 )
@@ -54,6 +63,10 @@ def scan(log: str) -> list[tuple[str, str]]:
         body = "\n".join(lines[1:])
         for match in TRAILER_RE.finditer(body):
             value = match.group(1).strip()
+            # Skip if matches an allowed AI co-author
+            if any(allowed.search(value) for allowed in ALLOWED_COMPILED):
+                continue
+            # Otherwise check bot patterns
             for pattern in COMPILED:
                 if pattern.search(value):
                     offenses.append((sha, value))
