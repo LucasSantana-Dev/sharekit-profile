@@ -11,9 +11,21 @@
 - **Fixed (executed)**: all 10 `adt-*` frontmatter `name:` fields now carry the
   `adt-` prefix, matching their folder names. `adt-auto-invoke` was already
   correct. Verified: no duplicate frontmatter names remain across the catalog.
-- **Catalog**: 235 → 233 active.
-- **NOT executed**: the broader P0 "fold/delete" list below. Two independent
-  audits proposed merging `add`+`fallback`+`request-refactor-plan`+
+- **Catalog**: 235 → 233 active on disk; **228 indexed → 195 listed, 33 hidden**
+  via `invocation_type: internal` (P1 applied).
+- **P1 applied (executed)**: 33 composite sub-skills marked
+  `invocation_type: internal` so they drop out of the always-loaded listing.
+  Composites still resolve them by path. The hide is enforced by
+  `skill-index.sh` (internal skills are counted but NOT emitted).
+- **Fixed (executed)**: `three-man-team/skill.md` renamed to `SKILL.md` — it
+  was invisible to the indexer (matches `^SKILL.md$`).
+- **Security validate gate**: `skill-validate.sh` gained a `security_exempt:`
+  allowlist. 3 skills that document dangerous patterns by design
+  (`skill-security-scan`, `harness-audit`, `nano-banana`) are exempted;
+  security criticals dropped 6 → 0. 55 schema errors (short descriptions)
+  remain as a separate cleanup.
+- **NOT executed**: the broader P0 "fold/delete" list. Two independent audits
+  proposed merging `add`+`fallback`+`request-refactor-plan`+
   `ponytail-*` into broader skills, but direct inspection showed these are
   distinct skills with concrete workflows — they were mislabeled by
   description-only judgments. Destroying them would be a capability loss. The
@@ -150,8 +162,9 @@ as internal. That is achievable with P1 applied aggressively.
 
 1. ~~Run P0 dedup~~ — done for the 3 confirmed duplicates; the rest is blocked
    on evidence (see P0 status above).
-2. Extend `skill-index.sh` to skip `hidden: true`, then mark the P1 sub-skills
-   (-35 listed, no capability loss). This is the next safe move.
+2. ~~Extend `skill-index.sh` to skip `hidden: true`~~ — done via
+   `invocation_type: internal`; 33 sub-skills hidden, listed catalog
+   228 → 195.
 3. ~~Fix the `adt-*` folder/name mismatch~~ — done.
 
 ## Telemetry prerequisite
@@ -162,3 +175,10 @@ is 1.4 KB of synthetic test events. Run the harness against real sessions for
 2-4 weeks before treating never-hit as an archive signal. Until then, only
 structural dedup (duplicate frontmatter names, byte-identical bodies) is a
 reliable signal — and those are now resolved.
+
+## Remaining work
+
+- Fix the 55 schema errors (short descriptions) flagged by `skill-validate.sh`.
+- Move Criativaria skills (`notion-tasks`, `criativaria-brain-sync`,
+  `shorts-edit`) to that project's `.claude/skills/` once telemetry confirms
+  low cross-project usage.

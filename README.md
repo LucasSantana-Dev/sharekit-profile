@@ -256,9 +256,11 @@ See `~/.claude/agents/` for full definitions.
 
 ---
 
-## Skills: 233 Total — catalog reduction in progress
+## Skills: 195 listed (228 on disk) — progressive disclosure applied
 
-Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete reference, and [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) for the competitive analysis + reduction plan (233 listed vs a lean-harness median of ~10-43; the plan targets ~195 listed via hiding sub-skills + per-agent permissions). See also [`docs/harness-research-synthesis.md`](docs/harness-research-synthesis.md) for the 52-repo deep-research survey that informs the next phase (P8).
+Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete reference, [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) for the competitive analysis + reduction plan (235 → 195 listed via dedup + hiding sub-skills + per-agent permissions), and [`docs/harness-research-synthesis.md`](docs/harness-research-synthesis.md) for the 52-repo deep-research survey that informs P8.
+
+**Progressive disclosure**: skills with `invocation_type: internal` (33 composite sub-skills) are hidden from the always-loaded listing but resolvable by composites by path. `invocation_type: slash` skills are invoked only via `/<name>`. The host loads a metadata-only index, then loads one skill body on demand.
 
 **Session & Context** (10): wake-up, session-bootstrap*, resume, context-pack, handoff, session-wrap-up, session-cleanup, etc.
 
@@ -467,4 +469,4 @@ The profile ships a **Megabrain** system: one vault for all projects (memory + g
 ---
 
 **Last updated:** 2026-06-30  
-**Harness version:** Agent-OS (v6+), 325 skills, 40+ agents, 36 hooks, 6 MCP servers
+**Harness version:** Agent-OS (v8+), 195 listed skills (228 on disk), 40+ agents, 37 hooks, 6 MCP servers
