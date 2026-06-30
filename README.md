@@ -219,6 +219,15 @@ P5 is the integration target: the flywheel from P0-P2 + the convergent patterns 
 
 The cycle closes the evaluate→optimize loop through the deterministic substrate — never trusting the model to self-route or self-promote. See [`docs/target-architecture.md`](docs/target-architecture.md) for the five load-bearing subsystems and the eight load-bearing invariants. CLI: `--target <file>`, `--eval <set>`, `--dry-run`, `--status`, `--no-maintain`.
 
+### Self-improvement flywheel (operational phase — P6)
+
+P6 makes the flywheel actually operate in production: it schedules the cycle, seeds the trajectory for cold starts, fixes the first real finding the eval bench surfaced, and runs the first end-to-end propose → gate cycle against a live target.
+
+- `hooks/trajectory-seed.sh` — cold-start trajectory fuel: synthesizes a small representative trajectory (mixed success/error/blocked events) so the improve track is exercisable before any real session runs. Idempotent — refuses to overwrite a non-empty trajectory; real sessions replace it. CLI: `--force`, `--status`.
+- `check-pr-automation-halt.sh` (P6 fix) — now blocks `--admin` on ANY git/gh command (not just `git push`), since `--admin` bypasses branch protection regardless of subcommand. The eval bench surfaced this gap; a held-out task `pr-admin-review` locks the regression. This is the first real harness improvement driven by the bench — proof the loop works.
+- `scripts/launchd/flywheel.plist.template` + `scripts/install-scheduler.sh` — opt-in macOS launchd agent that runs the cycle nightly at 02:00. Per-project (the cycle writes to `.harness/runtime/`); install once per project you want the flywheel to improve. CLI: `install [root]`, `uninstall`, `status`, `run`.
+- [`docs/operations.md`](docs/operations.md) — operational runbook: cold-start → warm-start, scheduler install, reading a cycle report, interpreting the held-out lift, rollback procedure. The first real cycle (against the `--admin` fix) passed end-to-end with held-out lift=0.667.
+
 ---
 
 ## Agents: Specialized Worker Types
@@ -446,4 +455,4 @@ The profile ships a **Megabrain** system: one vault for all projects (memory + g
 ---
 
 **Last updated:** 2026-06-29  
-**Harness version:** Agent-OS (v6+), 325 skills, 40+ agents, 34 hooks, 6 MCP servers
+**Harness version:** Agent-OS (v6+), 325 skills, 40+ agents, 35 hooks, 6 MCP servers
