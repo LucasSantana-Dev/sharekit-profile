@@ -22,8 +22,13 @@
 - **Security validate gate**: `skill-validate.sh` gained a `security_exempt:`
   allowlist. 3 skills that document dangerous patterns by design
   (`skill-security-scan`, `harness-audit`, `nano-banana`) are exempted;
-  security criticals dropped 6 → 0. 55 schema errors (short descriptions)
-  remain as a separate cleanup.
+  security criticals dropped 6 → 0.
+- **Schema errors resolved (PR #14)**: all 55 schema validation errors cleared.
+  27 repo-tracked skills converted from YAML block scalar descriptions (`|`,
+  `>`, `>-`) to single-line plain strings; 2 missing `description:` fields
+  inserted (`changelog-update`, `quality-gates`). Validator now reports
+  `errors=0`. The grep-based `extract_field` in `skill-validate.sh` cannot
+  parse block scalars — this is a known limitation, not a fix target.
 - **NOT executed**: the broader P0 "fold/delete" list. Two independent audits
   proposed merging `add`+`fallback`+`request-refactor-plan`+
   `ponytail-*` into broader skills, but direct inspection showed these are
@@ -178,7 +183,12 @@ reliable signal — and those are now resolved.
 
 ## Remaining work
 
-- Fix the 55 schema errors (short descriptions) flagged by `skill-validate.sh`.
+- ~~Fix the 55 schema errors~~ — done (PR #13, PR #14). Validator: `errors=0`.
 - Move Criativaria skills (`notion-tasks`, `criativaria-brain-sync`,
   `shorts-edit`) to that project's `.claude/skills/` once telemetry confirms
   low cross-project usage.
+- Ponytail audit findings (~2084 lines reducible) flagged in PR #13 review —
+  tracked as future refactor work: dead `run_step`/`record_step` in
+  `cycle.sh`, 6 duplicate awk scanners in `transcript-scanner.sh`, shared
+  boilerplate in `reflect-retry.sh`+`textgrad.sh`, dead modes in
+  `checklist-gate.sh`, duplicate plugin dirs.
