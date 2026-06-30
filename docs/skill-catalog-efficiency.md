@@ -1,11 +1,33 @@
 # Skill catalog efficiency
 
-> 235 skills listed vs a lean-harness median of ~10-43. This is the analysis and
-> the concrete reduction plan.
+> 233 skills listed vs a lean-harness median of ~10-43. This is the analysis,
+> the concrete reduction plan, and a record of what was actually executed.
+
+## Execution status (2026-06-30)
+
+- **Archived (executed)**: `skill-creator-local` (explicitly superseded by the
+  official plugin), `tdd` (explicit alias of `test-driven-development`), and
+  `plugin-claude-mem-mem-search` (byte-identical duplicate of `mem-search`).
+- **Fixed (executed)**: all 10 `adt-*` frontmatter `name:` fields now carry the
+  `adt-` prefix, matching their folder names. `adt-auto-invoke` was already
+  correct. Verified: no duplicate frontmatter names remain across the catalog.
+- **Catalog**: 235 → 233 active.
+- **NOT executed**: the broader P0 "fold/delete" list below. Two independent
+  audits proposed merging `add`+`fallback`+`request-refactor-plan`+
+  `ponytail-*` into broader skills, but direct inspection showed these are
+  distinct skills with concrete workflows — they were mislabeled by
+  description-only judgments. Destroying them would be a capability loss. The
+  deeper reduction requires (a) real session telemetry (the trajectory is
+  synthetic only — `skill-prune.sh` reports 229 never-hit, but that is
+  starved data) and (b) a per-skill relationship audit against the
+  composite-first routing map.
+- **Plugin-namespace collisions** (4 plugin symlinks whose frontmatter `name:`
+  drops the `plugin-*` prefix) are by design of the plugin system and are
+  gitignored here; they are a plugin-system concern, not a sharekit bug.
 
 ## The problem
 
-The sharekit catalog lists **235 skills** to the agent at startup. Competitive
+The sharekit catalog lists **233 skills** to the agent at startup. Competitive
 analysis of lean harnesses shows the always-listed catalog median is **~10-43
 items**:
 
@@ -18,49 +40,53 @@ items**:
 | Cursor | rules + skills | glob-scoped progressive disclosure; `alwaysApply: false` |
 | Warp | ~12 bundled | typed registries (agents != workflows != rules) |
 
-sharekit lists 235 because it lists **every sub-skill individually** alongside
+sharekit lists 233 because it lists **every sub-skill individually** alongside
 its composite, plus duplicates, aliases, and project-specific skills. The
 composite-first principle (AGENTS.md) says "always invoke composites, never the
 individual sub-skills" -- yet all the sub-skills are in the top-level listing,
 doubling the apparent catalog size.
 
-## What the audit found
+## What the audit found (and what was verified)
 
 - **~50 individually-listed skills are sub-skills of at least one composite.**
   Per the composite-first principle, the agent should never invoke these
   directly -- they appear in the listing only because there is no hide mechanism.
-- **~15 skills are trivial, persona toggles, or project-specific** (Criativaria
-  skills, `caveman`, `plow-ahead`, `setup-matt-pocock-skills`, etc.).
-- **Duplicate clusters** (specific names): 3x `skill-creator`, 2x `code-review`
-  (+ plugin), 2x `graphify`, 2x `impeccable`, 2x `mem-search` (+ plugin),
-  `tdd` is an explicit alias of `test-driven-development`.
-- **`adt-*` namespace bug**: all 11 `adt-*` folders have a frontmatter `name:`
-  that drops the `adt-` prefix, so the folder name and the frontmatter name
-  disagree -- a latent collision with non-adt skills of the same name.
-- **Telemetry is not yet a usable signal**: `skill-prune.sh` reports 229
-  never-hit / 0 active, but the trajectory is only synthetic test events. Real
-  session telemetry has not been logged yet.
+  NOTE: a re-verification found only **1** nested `SKILL.md` at depth 3
+  (`agents/forge-ai-init-dev/SKILL.md`); the "~35 sub-skills" the audit
+  referenced are top-level skills that composites chain by name, not nested
+  files. The hide mechanism (P1) must therefore operate on top-level skills,
+  not nested files.
+- **Duplicate clusters**: verified that prior sessions had already archived
+  most duplicates. Remaining true duplicates (`skill-creator-local`, `tdd`,
+  `plugin-claude-mem-mem-search`) were archived in this pass. The `adt-*`
+  namespace mismatch was the real latent bug and is now fixed.
 
 ## The reduction plan (prioritized)
 
-### P0 -- Dedup/merge (~17 skills, no capability loss)
+### P0 -- Dedup/merge (status: partly executed; the rest is blocked on evidence)
 
-| Action | Skills | Reduction |
-|---|---|---|
-| Delete `skill-creator-local` (self-described superseded); consolidate to plugin `skill-creator` | skill-creator, skill-creator-local, skill-creator-plugin | -2 |
-| Delete flat `code-review`; keep plugin CodeRabbit + `review` | code-review | -1 |
-| Delete one duplicate `graphify` | graphify | -1 |
-| Delete one duplicate `impeccable` | impeccable | -1 |
-| Delete `tdd` (explicit alias of `test-driven-development`) | tdd | -1 |
-| Merge `plugin-claude-mem-mem-search` into `mem-search` | mem-search, plugin-claude-mem-mem-search | -1 |
-| Fold `diagnosing-bugs` into `debug-deep` | diagnosing-bugs | -1 |
-| Fold `request-refactor-plan` into `refactor-plan` | request-refactor-plan | -1 |
-| Fold `ponytail-review` + `ponytail-audit` into `overengineering-audit` | ponytail-review, ponytail-audit | -2 |
-| Fold `decision-mapping` into `plan` | decision-mapping | -1 |
-| Delete `add` (vague; overlaps `plan`+`scope-it`) | add | -1 |
-| Delete `fallback` (meta-skill, no concrete behavior) | fallback | -1 |
-| Move `setup-matt-pocock-skills` to a one-time script | setup-matt-pocock-skills | -1 |
-| Move Criativaria skills to that project's `.claude/skills/` | notion-tasks, criativaria-brain-sync, shorts-edit | -3 |
+Executed (no capability loss):
+- Archived `skill-creator-local` (superseded by the official plugin).
+- Archived `tdd` (explicit alias of `test-driven-development`).
+- Archived `plugin-claude-mem-mem-search` (byte-identical duplicate of
+  `mem-search`).
+
+Blocked (proposed but NOT executed — direct inspection showed these are
+NOT duplicates; merging would be a capability loss):
+- `add`, `fallback` — distinct skills with concrete workflows and rewrite
+  gates, despite short descriptions.
+- `request-refactor-plan`, `refactor-plan` — both produce plans but with
+  distinct workflows (interview+GitHub-issue vs. in-repo plan). Not aliases.
+- `ponytail-review`, `ponytail-audit`, `overengineering-audit` — distinct
+  scopes (diff-focused, whole-repo, architectural). Not duplicates.
+- `decision-mapping`, `plan` — distinct outputs (decision asset map vs.
+  execution plan). Not aliases.
+
+Remaining candidates that ARE likely safe but need a human decision (not done
+here to avoid unilateral capability removal):
+- Move `setup-matt-pocock-skills` to a one-time script.
+- Move Criativaria skills (`notion-tasks`, `criativaria-brain-sync`,
+  `shorts-edit`) to that project's `.claude/skills/`.
 
 ### P1 -- Hide sub-skills from the listing (~35 listed, on-disk unchanged)
 
@@ -75,7 +101,13 @@ standalone trigger (e.g. `pr-flow`, `pr-merge-readiness`, `version-bump`,
 standalone trigger (`adr-write`, `docs-sync`, `plan`, `brainstorming`,
 `deployment-automation`).
 
-**Combined P0+P1: listed catalog 235 -> ~183.**
+**Prerequisite**: extend `skill-index.sh` to skip `hidden: true` entries
+(currently it lists every SKILL.md it finds; the `hidden` field is not yet
+read). This is the structural lever — it must land before the hide list is
+applied, otherwise hidden skills still appear.
+
+**Combined P0+P1 (revised): listed catalog 233 -> ~195 after the safe
+archivals already done plus hiding.**
 
 ### P2 -- Per-agent skill permissions (OpenCode model)
 
@@ -114,9 +146,19 @@ To reach the lean-harness median (~10-43), the catalog must expose **only
 composites + true standalone skills** (~60-70 items) and treat everything else
 as internal. That is achievable with P1 applied aggressively.
 
-## Highest-leverage first 3 moves
+## Highest-leverage first 3 moves (revised after execution)
 
-1. Run P0 dedup (-17, no capability loss).
-2. Add `hidden: true` to `skill-index.sh` and mark the 35 P1 sub-skills (-35
-   listed, no capability loss).
-3. Fix the `adt-*` folder/name mismatch (prevents latent bugs).
+1. ~~Run P0 dedup~~ — done for the 3 confirmed duplicates; the rest is blocked
+   on evidence (see P0 status above).
+2. Extend `skill-index.sh` to skip `hidden: true`, then mark the P1 sub-skills
+   (-35 listed, no capability loss). This is the next safe move.
+3. ~~Fix the `adt-*` folder/name mismatch~~ — done.
+
+## Telemetry prerequisite
+
+Before any further deletion/merge, the trajectory must carry real session data.
+The `skill-prune.sh` hook is architecturally sound but starved: the trajectory
+is 1.4 KB of synthetic test events. Run the harness against real sessions for
+2-4 weeks before treating never-hit as an archive signal. Until then, only
+structural dedup (duplicate frontmatter names, byte-identical bodies) is a
+reliable signal — and those are now resolved.
