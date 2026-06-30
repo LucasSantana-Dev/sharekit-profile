@@ -69,8 +69,8 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
 - `claude/CLAUDE.md` — operator config for Claude Code.
 - `opencode.json` — OpenCode config (primary harness).
 - `docs/` — reference docs (overview, configuration, hooks, agents, composites).
-- `scripts/check-catalog.sh` — validate the showcase skill catalog; also enforces a skill-count guardrail (warn >250, fail >350).
-- `~/.claude/settings.json` sets `skillListingBudgetFraction: 0.05` to keep Claude Code's skill listing from truncating at 200+ skills. If count grows past 300, raise the fraction OR run `skill-maintainer` to prune duplicates.
+- `scripts/check-catalog.sh` — validate the showcase skill catalog; also enforces a skill-count guardrail (warn >50, fail >75).
+- `~/.claude/settings.json` sets `skillListingBudgetFraction: 0.05` to keep Claude Code's skill listing from truncating at 200+ skills. If count grows past 75, run `skill-maintainer` to prune duplicates.
 
 ## Current state (2026-06-30)
 
@@ -78,7 +78,7 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
 
 **Hook count:** 42 hook scripts in `hooks/` (up from 30+ at session start).
 
-**Skill count:** 230 on disk, 102 repo-tracked in `claude/skills/`, 195 listed (228 indexed, 33 hidden via `invocation_type: internal`).
+**Skill count:** 50 repo-tracked in `claude/skills/` (down from 103; 53 archived in `claude/skills/.archive/` for recoverability — 102 repo-tracked → 50 after consolidation). `~/.claude/skills/` holds 151 user-level skills independently of this repo.
 
 **P8+P9 hooks shipped:**
 - `hooks/reorder-context.sh` — post-compaction attention reordering (LlamaIndex-style)
