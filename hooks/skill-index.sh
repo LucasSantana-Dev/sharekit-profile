@@ -17,12 +17,17 @@
 #   1. Walk SKILL.md files under the catalog dir (default ~/.claude/skills).
 #   2. Parse frontmatter: name, description, triggers, invocation_type, allow_implicit.
 #   3. Classify size: tiny (<2KB), small (2-4KB), medium (4-8KB), large (>8KB).
-#   4. Emit a compact index line per skill to .harness/forge/skill-index.md.
+#   4. Emit a compact index line per LISTED skill to .harness/forge/skill-index.md.
+#      Skills with invocation_type=internal are counted but NOT emitted — they
+#      are resolvable by composites by path, but hidden from the always-loaded
+#      listing. This is the progressive-disclosure lever: the host sees only
+#      auto + slash skills; composites still chain internal ones by path.
 #
 # invocation_type controls how a skill may be triggered:
 #   auto    — auto-invoked by the harness when triggers match (default)
 #   slash   — only via explicit /<name> invocation (lower token cost)
 #   internal— only invoked by other skills/composites, never by the host directly
+#             (hidden from the listing; resolvable by path)
 #
 # allow_implicit controls auto-invocation policy for sensitive skills:
 #   true    — harness may auto-invoke when triggers match (default)
@@ -79,6 +84,7 @@ total=${#skill_files[@]}
 tiny=0; small=0; medium=0; large=0
 auto=0; slash=0; internal=0
 restricted=0  # count of allow_implicit=false skills
+listed=0       # count of skills emitted to the catalog (auto + slash)
 rows=""
 
 for f in "${skill_files[@]}"; do
@@ -114,6 +120,10 @@ for f in "${skill_files[@]}"; do
   elif [[ "$bytes" -lt 8192 ]];  then class="medium"; medium=$((medium+1))
   else                            class="large";  large=$((large+1))
   fi
+  # Progressive disclosure: internal skills are counted but NOT emitted to the
+  # always-loaded listing. Composites still resolve them by path.
+  [[ "$inv_type" == "internal" ]] && continue
+  listed=$((listed+1))
   # One compact row: name | class | inv_type | desc (truncated) | triggers (truncated)
   desc_short="$(printf '%s' "$desc" | head -c 80)"
   rows="${rows}| ${name} | ${class} | ${inv_type} | ${policy} | ${desc_short} | ${triggers}\n"
@@ -121,13 +131,16 @@ done
 
 {
   printf '# Skill catalog index - %s\n\n' "$ts"
-  printf 'METADATA-ONLY index of `%s` (%s skills). Bodies are NOT loaded here.\n' "$CATALOG" "$total"
-  printf 'Progressive disclosure: load this index, then load ONE skill body on demand.\n\n'
+  printf 'METADATA-ONLY index of `%s` (%s skills on disk, %s listed). Bodies are NOT loaded here.\n' "$CATALOG" "$total" "$listed"
+  printf 'Progressive disclosure: load this index, then load ONE skill body on demand.\n'
+  printf 'Internal skills (invocation_type=internal) are hidden from this listing but resolvable by composites by path.\n\n'
   printf 'Size classes: tiny <2KB, small 2-4KB, medium 4-8KB, large >8KB.\n'
   printf 'WARN: large skills (>8KB) are candidates to split into references/.\n'
   printf 'WARN: at >250 skills consider skill-prune.sh to retire low-hit skills.\n\n'
   printf '## Summary\n\n'
-  printf -- '- total: %s\n' "$total"
+  printf -- '- total on disk: %s\n' "$total"
+  printf -- '- listed: %s (auto + slash)\n' "$listed"
+  printf -- '- hidden: %s (internal — resolvable by path, not listed)\n' "$internal"
   printf -- '- tiny: %s, small: %s, medium: %s, large: %s\n' "$tiny" "$small" "$medium" "$large"
   printf -- '- invocation: auto=%s, slash=%s, internal=%s\n' "$auto" "$slash" "$internal"
   printf -- '- restricted (allow_implicit=false): %s%s\n' "$restricted" "$([[ $restricted -gt 0 ]] && echo ' — requires explicit confirmation to auto-invoke' || echo '')"
@@ -143,9 +156,9 @@ done
   printf -- '- Run hooks/skill-validate.sh to validate frontmatter schema + security.\n'
 } > "$report"
 
-printf '{"ts":"%s","event":"skill-index","total":%s,"tiny":%s,"small":%s,"medium":%s,"large":%s,"auto":%s,"slash":%s,"internal":%s,"restricted":%s,"report":"%s"}\n' \
-  "$ts" "$total" "$tiny" "$small" "$medium" "$large" "$auto" "$slash" "$internal" "$restricted" "$report" >> "$RUNTIME/skill-index.jsonl"
+printf '{"ts":"%s","event":"skill-index","total":%s,"listed":%s,"hidden":%s,"tiny":%s,"small":%s,"medium":%s,"large":%s,"auto":%s,"slash":%s,"internal":%s,"restricted":%s,"report":"%s"}\n' \
+  "$ts" "$total" "$listed" "$internal" "$tiny" "$small" "$medium" "$large" "$auto" "$slash" "$internal" "$restricted" "$report" >> "$RUNTIME/skill-index.jsonl"
 
-echo "skill-index: indexed $total skills (tiny=$tiny small=$small medium=$medium large=$large | auto=$auto slash=$slash internal=$internal restricted=$restricted)" >&2
+echo "skill-index: indexed $total skills ($listed listed, $internal hidden | tiny=$tiny small=$small medium=$medium large=$large | auto=$auto slash=$slash internal=$internal restricted=$restricted)" >&2
 echo "  index staged -> $report" >&2
 exit 0
