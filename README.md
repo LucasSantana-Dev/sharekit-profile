@@ -488,4 +488,4 @@ The profile ships a **Megabrain** system: one vault for all projects (memory + g
 ---
 
 **Last updated:** 2026-06-30  
-**Harness version:** Agent-OS (v8+), 195 listed skills (228 on disk), 40+ agents, 37 hooks, 6 MCP servers
+**Harness version:** Agent-OS (v8+), 195 listed skills (228 on disk), 40+ agents, 37 hooks, 6 MCP servers, skill-validate errors=0 (PRs #13-14)
