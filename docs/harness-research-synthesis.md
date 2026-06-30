@@ -49,7 +49,7 @@ scaffolds*, and *checklist-style pre-completion gates*.
   — this just reorders it.
 - **Effort**: 1-2 days.
 
-### 3. Smart Approvals prefix-rule learning (lever 2)
+### 3. Smart Approvals prefix-rule learning (lever 2) — SHIPPED in P9.1
 - **From**: OpenAI Codex CLI
 - **Mechanism**: when a command is escalated for approval, the system
   proposes a `prefix_rule` pattern that persists so similar commands
@@ -61,7 +61,7 @@ scaffolds*, and *checklist-style pre-completion gates*.
   safety — builds on the existing tamper-evident ledger.
 - **Effort**: 2-3 days.
 
-### 4. Inline retry-with-reflection (lever 6)
+### 4. Inline retry-with-reflection (lever 6) — SHIPPED in P9.2
 - **From**: Reflexion (NeurIPS 2023)
 - **Mechanism**: on eval failure, generate a self-reflection (what went
   wrong), store in episodic memory, retry with the reflection as context.
@@ -116,7 +116,7 @@ scaffolds*, and *checklist-style pre-completion gates*.
 - **Why it fits**: inline learning between flywheel cycles.
 - **Effort**: 3-4 days.
 
-### 9. Textual gradient descent for prompt optimization (levers 6+7)
+### 9. Textual gradient descent for prompt optimization (levers 6+7) — SHIPPED in P9.3
 - **From**: TextGrad (Nature, March 2025)
 - **Mechanism**: forward pass (agent execution) → loss (eval failure) →
   backward pass (LLM-generated criticism) → step (update prompt).
@@ -195,10 +195,12 @@ build directly on existing hooks:
   trajectory log.
 
 Recommendations #4 (inline reflection), #3 (smart approvals), and #9
-(TextGrad) are higher-value but higher-risk and should follow in P9 once P8
-validates the patterns. Recommendations requiring new abstractions (#7 memory
-blocks, #8 dreaming) should be designed against the target architecture
-(`docs/target-architecture.md`) before implementation.
+(TextGrad) were the higher-value/higher-risk cherrypicks and SHIPPED in P9
+(P9.1 smart approvals, P9.2 reflect-retry, P9.3 textgrad) after P8 validated
+the patterns. Recommendations requiring new abstractions (#7 memory blocks,
+#8 dreaming, #6 red-team adversarial tests, #10 ExpeL insight extraction)
+should be designed against the target architecture (`docs/target-architecture.md`)
+before implementation; they remain the P10+ outlook.
 
 ## What sharekit already has that others are still building
 
