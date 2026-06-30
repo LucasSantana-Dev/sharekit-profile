@@ -117,6 +117,37 @@ out="$PROPOSALS/${ts//[:]/-}-$(basename "$target").md"
     printf 'No diagnosis available yet. Run `hooks/diagnose.sh` to generate one.\n\n'
   fi
 
+  printf '## 3.5. Latest reflection for this target (Reflexion, P9.2)\n\n'
+  printf 'If a prior proposal for this target FAILED the gate, reflect-retry.sh staged a\n'
+  printf 'reflection. Read it BEFORE writing the proposed edit (section 6) — do not repeat\n'
+  printf 'the dead end the reflection already diagnosed. This is the inline retry-with-\n'
+  printf 'reflection pattern: retry WITH the reflection as context, not blind.\n\n'
+  last_reflection="$(ls -t "$FORGE"/reflections/*-reflection.md 2>/dev/null | head -1)"
+  if [[ -n "$last_reflection" && -f "$last_reflection" ]]; then
+    printf '```\n'
+    bat -p "$last_reflection" 2>/dev/null || cat "$last_reflection"
+    printf '\n```\n\n'
+  else
+    printf 'No prior reflection for this target. This is the first proposal (or the last\n'
+    printf 'gate PASS reset the retry counter).\n\n'
+  fi
+
+  printf '## 3.6. Textual gradient (TextGrad, P9.3)\n\n'
+  printf 'If a reflection (section 3.5) exists, textgrad.sh staged a PRESCRIPTIVE gradient\n'
+  printf '— a diff-oriented criticism of the current target text w.r.t. the eval loss.\n'
+  printf 'Anchor on it when writing the proposed edit (section 6): it says WHICH lines to\n'
+  printf 'change and HOW, distinct from the reflection narrative (what failed and why).\n'
+  printf 'Per the do-not-adopt list, textgrad is NOT the sole optimizer — it is one of an\n'
+  printf 'ensemble (this gradient + the non-Markovian history + the reflection).\n\n'
+  last_gradient="$(ls -t "$FORGE"/gradients/*-gradient.md 2>/dev/null | head -1)"
+  if [[ -n "$last_gradient" && -f "$last_gradient" ]]; then
+    printf '```\n'
+    bat -p "$last_gradient" 2>/dev/null || cat "$last_gradient"
+    printf '\n```\n\n'
+  else
+    printf 'No gradient for this target (textgrad.sh runs only when a reflection exists).\n\n'
+  fi
+
   printf '## 4. Staged distill candidates\n\n'
   if [[ -n "$candidate" ]]; then
     printf 'Anchored on candidate: %s\n\n' "$candidate"

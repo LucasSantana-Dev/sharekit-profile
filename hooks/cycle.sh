@@ -333,6 +333,38 @@ elif [[ -n "$proposal_id" ]]; then
   else
     echo "  ✗ gate FAILED -- regression recorded (log: $out_file)"
     record_step "gate" "fail" "regression recorded (non-Markovian learning)"
+    # P9.2/P9.3: on a gate FAIL, run the inline retry-with-reflection (Reflexion)
+    # then the TextGrad textual-gradient optimization. Both are ADVISORY sub-steps
+    # (never block, never mutate memory); they stage digests to .harness/forge/
+    # so the next proposal for this target retries WITH the reflection + gradient
+    # as context (propose.sh sections 3.5 + 3.6). Distinct from the batch flywheel.
+    if [[ -n "$target" ]]; then
+      gate_fail_reasons="$(grep -oE 'gate failed: [^ ]+' "$out_file" | head -1)"
+      echo "  ↳ reflect-retry (Reflexion, P9.2)..."
+      reflect_log="$RUNTIME/cycle-${ts//[:]/-}-reflect-retry.log"
+      if bash "$ROOT/hooks/reflect-retry.sh" "$target" "$proposal_id" "$gate_fail_reasons" >"$reflect_log" 2>&1; then
+        retry_n="$(grep -oE 'retry [0-9]+/[0-9]+' "$reflect_log" | head -1)"
+        echo "    ✓ reflection staged ($retry_n)"
+        # P9.2 max-retry cap: if reflect-retry hit the cap, park BLOCKED for human
+        # intervention (the loop does not spin forever — the Reflexion bound).
+        if grep -q 'MAX RETRY CAP' "$reflect_log" 2>/dev/null; then
+          echo "    ⊘ max-retry cap hit — parking BLOCKED for human intervention"
+          [[ -x "$ROOT/hooks/dispatch.sh" ]] && bash "$ROOT/hooks/dispatch.sh" "$dispatch_task" --block "max-retry cap on $target" >/dev/null 2>&1 || true
+        else
+          # P9.3: run textgrad only when a reflection exists (one gradient per
+          # reflection). It refuses gracefully if reflect-retry hit the cap.
+          echo "  ↳ textgrad (TextGrad, P9.3)..."
+          tg_log="$RUNTIME/cycle-${ts//[:]/-}-textgrad.log"
+          if bash "$ROOT/hooks/textgrad.sh" "$target" "$proposal_id" >"$tg_log" 2>&1; then
+            echo "    ✓ textual gradient staged (log: $tg_log)"
+          else
+            echo "    ⊘ textgrad: no reflection to anchor on (log: $tg_log)"
+          fi
+        fi
+      else
+        echo "    ⊘ reflect-retry: nothing to reflect on (log: $reflect_log)"
+      fi
+    fi
     # On regression, park the task as BLOCKED so the proposer reads WHY next time.
     [[ -x "$ROOT/hooks/dispatch.sh" ]] && bash "$ROOT/hooks/dispatch.sh" "$dispatch_task" --block "gate regression on held-out eval" >/dev/null 2>&1 || true
   fi
