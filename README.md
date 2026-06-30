@@ -1,6 +1,6 @@
 # Operator Harness Documentation
 
-**Comprehensive reference guide for a fully-configured OpenCode / Claude Code operator environment with 325+ skills, 40+ agents, automated hook pipeline, RAG retrieval, memory persistence, and integrated MCP servers.**
+**Comprehensive reference guide for a fully-configured OpenCode / Claude Code operator environment with 233 skills, 40+ agents, automated hook pipeline, RAG retrieval, memory persistence, and integrated MCP servers.**
 
 > **Harnesses:** OpenCode (primary, `opencode.json`) → Claude Code (supported) → OpenRouter (fallback provider). The skill/agent/hook library is harness-agnostic and works across both.
 
@@ -83,7 +83,7 @@ Example: User says "refactor this module."
 └── skills -> ~/.agents/skills/
 
 ~/.agents/                              # Canonical skill and agent definitions
-├── skills/                             # 325 skill folders
+├── skills/                             # 233 skill folders
 ├── standards/                          # Policy and discipline docs (~20 files)
 ├── agents/                             # Agent definition mirrors
 ├── bin/                                # Utilities (sync binary)
@@ -177,6 +177,7 @@ The evaluate/optimize scripts that consume the trajectory log. They are run on-d
 - `hooks/review.sh` — host-agent review CLI: `list`, `show <date>`, `graduate <id> --rationale "..."`, `reject <id> --reason "..."`, `reopen`, `decisions`. Graduation requires a rationale (no rubber-stamping) and writes staleness frontmatter.
 - `hooks/eval-baseline.sh` — with-skill vs no-skill baseline gate: `init`, `record`, `compare`, `gate <name> <threshold>`. Gates on measurable lift (selftune `baseline` pattern).
 - `hooks/diagnose.sh` — self-diagnosis: clusters failures in the trajectory log, detects repeated errors / tool overuse / blind retries / token-waste patterns (SkillForge + AHE Agent Debugger). Writes a digest + machine-readable clusters.
+- `hooks/transcript-scanner.sh` (P8.3) — post-hoc transcript scanners (inspect-ai): scans the trajectory for systemic patterns per-task evals miss — refusals, evaluation-awareness, environment-drift, hallucination signals, excessive-agency, prompt-injection tells. Complements `diagnose.sh` (failure clustering). Stages findings to `.harness/forge/`; never blocks. CLI: `--since <iso>`, `--status`.
 - `hooks/observe-otel.sh` — two-knob observability (pdhoolia): level (off/metrics/trace) + destination (jsonl/stderr/otel). GenAI semantic span names, context-breach scanning, idempotent ±1 feedback scores. Local JSONL by default.
 
 ### Self-improvement flywheel (optimize half — P2)
@@ -206,15 +207,16 @@ P4 layers the five convergent cross-cutting patterns the Wave-5 research tracks 
 - `hooks/compaction-guard.sh` (PreCompact) — hybrid context control: audits tool-call/result adjacency preservation during compaction so execution drift cannot hide in a condensed window, threshold-triggered budget warnings, cache-prefix stability advisory. Advisory; never blocks.
 - `hooks/policy-gate.sh` (PreToolUse) — deterministic governance layer: emits ALLOW/DENY/REQUIRE_APPROVAL verdicts from `mcp-policy.json` outside the model, appends each decision to a hash-chained tamper-evident ledger bound to context hash, exits 2 on DENY. CLI: `--verify` ledger integrity, `--status` verdict counts.
 - `hooks/memory-consolidate.sh` — sleep-cycle memory consolidation: clusters related facts, finds supersede candidates, finds compression clusters, decays stale+low-confidence facts — all staged to `.harness/forge/` and never auto-applied. Extends the promotion ladder with bi-temporal validity windows; see [`claude/memory-structure/TEMPORAL_KG.md`](claude/memory-structure/TEMPORAL_KG.md). CLI: `--dir <path>`, `--status`.
-- `hooks/skill-index.sh` — progressive-disclosure skill index: builds a metadata-only index of the skill catalog (name + description + triggers + size class, never bodies) so the host loads one skill body on demand instead of load-all. CLI: `--dir <path>`, `--status`.
+- `hooks/skill-index.sh` — progressive-disclosure skill index: builds a metadata-only index of the skill catalog (name + description + triggers + invocation_type + allow_implicit + size class, never bodies) so the host loads one skill body on demand instead of load-all. Skills with `invocation_type=slash` are excluded from auto-invocation; skills with `allow_implicit=false` (🔒) require explicit confirmation even on trigger match. CLI: `--dir <path>`, `--status`.
 - `hooks/skill-prune.sh` — telemetry-based skill pruning: reads the trajectory and stages never-hit / low-hit skills as archive candidates. Archive, never `rm`. CLI: `--dir <path>`, `--status`.
+- `hooks/skill-validate.sh` — frontmatter schema + security validation gate: validates all SKILL.md files for schema compliance (name ≤100 chars, description 20–500 chars, no body leaking into description, valid `invocation_type` and `allow_implicit` values) and scans for security threats (pipe-to-shell installers, secret exfiltration, reverse shells, obfuscated execution, prompt-injection lures). Exit 2 on critical findings; `--strict` exits 2 on any finding. CLI: `--dir <path>`, `--status`, `--strict`.
 - `hooks/dispatch.sh` — deterministic orchestration substrate: a fixed state machine (intake → triage → plan → research → implement → review_gate → eval → merge_gate → done, with BLOCKED first-class) where no LLM decides what fires next. Bounded workers (including the P2 proposer/evaluator) execute steps; the substrate owns transitions and the two human-in-the-loop gates. See [`docs/handoff-schema.md`](docs/handoff-schema.md). CLI: `--intake`, `--advance`, `--block`, `--allow-gate`, `--status`, `--list`.
 
 ### Self-improvement flywheel (target architecture — P5)
 
 P5 is the integration target: the flywheel from P0-P2 + the convergent patterns from P4, operating as a single closed loop. `hooks/cycle.sh` now exercises the whole architecture as one command, with two tracks run in sequence:
 
-- **TRACK A — MAINTAIN** (the P4 substrate, periodic hygiene): `memory-consolidate.sh` (sleep-cycle), `skill-index.sh` (progressive-disclosure index), `skill-prune.sh` (telemetry-based archive candidates). Advisory; stages reports, never auto-applies.
+- **TRACK A — MAINTAIN** (the P4 substrate, periodic hygiene): `memory-consolidate.sh` (sleep-cycle), `skill-index.sh` (progressive-disclosure index with invocation_type + allow_implicit policy tagging), `skill-prune.sh` (telemetry-based archive candidates), `skill-validate.sh` (schema + security validation gate), `transcript-scanner.sh` (systemic pattern scan — complements `diagnose.sh`, P8.3). Advisory; stages reports, never auto-applies.
 - **TRACK B — IMPROVE** (the P0-P3 flywheel, routed via `dispatch.sh`): `diagnose.sh` → `distill.sh` → `propose.sh` (at dispatch `implement` → `review_gate`) → `gate.sh` (at `eval`, with the held-out eval set the proposer never saw). On gate pass, dispatch advances to `merge_gate`; on regression, dispatch parks BLOCKED so the proposer reads WHY next time.
 
 The cycle closes the evaluate→optimize loop through the deterministic substrate — never trusting the model to self-route or self-promote. See [`docs/target-architecture.md`](docs/target-architecture.md) for the five load-bearing subsystems and the eight load-bearing invariants. CLI: `--target <file>`, `--eval <set>`, `--dry-run`, `--status`, `--no-maintain`.
@@ -227,6 +229,35 @@ P6 makes the flywheel actually operate in production: it schedules the cycle, se
 - `check-pr-automation-halt.sh` (P6 fix) — now blocks `--admin` on ANY git/gh command (not just `git push`), since `--admin` bypasses branch protection regardless of subcommand. The eval bench surfaced this gap; a held-out task `pr-admin-review` locks the regression. This is the first real harness improvement driven by the bench — proof the loop works.
 - `scripts/launchd/flywheel.plist.template` + `scripts/install-scheduler.sh` — opt-in macOS launchd agent that runs the cycle nightly at 02:00. Per-project (the cycle writes to `.harness/runtime/`); install once per project you want the flywheel to improve. CLI: `install [root]`, `uninstall`, `status`, `run`.
 - [`docs/operations.md`](docs/operations.md) — operational runbook: cold-start → warm-start, scheduler install, reading a cycle report, interpreting the held-out lift, rollback procedure. The first real cycle (against the `--admin` fix) passed end-to-end with held-out lift=0.667.
+
+### Self-improvement flywheel (close-the-loop — P7)
+
+P7 closes the loop between the gate and deploy. Before P7, the gate measured the *live* hook on disk — to validate a proposal the host had to mutate the live hook, run the gate, and revert on failure (no isolation between current and proposed). P7 adds isolated candidate gating and wires deploy-watch into the cycle.
+
+- `hooks/trial-apply.sh` — materializes a proposed edit from a proposal `.md` into a *trial copy* at `.harness/forge/trial/<proposal-id>/` (the live hook is never touched). Extracts the unified diff from the proposal's section 6, applies it via `patch`, backs up the pristine copy, emits the candidate path on stdout. Rejects a leftover `FILL IN` placeholder or a malformed diff (exit 2).
+- `hooks/gate.sh` (P7) — gains `--proposal <file>`: calls `trial-apply.sh`, runs the held-out bench AGAINST THE CANDIDATE via `eval-run.sh --candidate`, records the candidate path on PASS, discards the trial dir on FAIL. The live hook is byte-identical before and after the gate run. Falls back to live-hook measurement when `--proposal` is omitted.
+- `hooks/eval-run.sh` (P7) — gains `--candidate <hook-name> <path>`: the `with` variant invokes the candidate file instead of the live `$HOOKS/<hook>`. The `without` variant is unaffected. Also supports an optional task `seed` field for stateful hooks (the stuck-loop hook reads `STUCK_STATE_FILE` so the eval isolates per-task state).
+- `hooks/cycle.sh` (P7) — on gate PASS, starts a `deploy-watch` with the pre-deploy held-out lift as the baseline, and the report's "what to do next" instructs the host to run `deploy-watch.sh check` after the PR merges and `revert` on REGRESSION.
+- `check-stuck-loop.sh` (P7) — now reads `STUCK_STATE_FILE` (env override) so the eval harness isolates per-task state. The bench grew from 21 to 25 tasks (the fifth enforcement hook, `check-stuck-loop.sh`, now has eval coverage — 2 seen, 2 heldout).
+- [`docs/operations.md`](docs/operations.md) (P7) — adds the post-merge watch flow and the close-the-loop gating section. [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) — competitive analysis of lean harnesses (~10-43 skills vs our 235) + a concrete reduction plan (dedup, hide sub-skills, per-agent permissions, guardrail tightening).
+
+### Self-improvement flywheel (deep-research synthesis — P8)
+
+P8 lands the four cherrypicks from the 52-repo deep-research survey ([`docs/harness-research-synthesis.md`](docs/harness-research-synthesis.md)) that compound the flywheel without adding runtime dependencies. Each is advisory — none blocks, none mutates memory directly.
+
+- `hooks/reorder-context.sh` (PostToolUse) — LongContextReorder (LlamaIndex): reorders retrieved chunks so the highest-scoring land at the start/end of the window (the attention-favorable positions), since the middle is the "lost" region. Writes a digest to `.harness/runtime/reordered-chunks/`; never blocks.
+- `hooks/checklist-gate.sh` (PreToolUse) — binary-checklist gates (awesome-cursorrules): a tracked checklist at `.harness/checklists/security.md` gates security-sensitive work; each item is a yes/no, not prose for the model to interpret.
+- `hooks/transcript-scanner.sh` — transcript scanners (inspect-ai): complements `diagnose.sh` (the "what broke" half) with the "what the agent did that evals wouldn't flag" half — refusals (capability loss masked as success), evaluation-awareness (test-gaming), environment-drift (unremediated missing deps), hallucination signals (cited paths that failed to read), excessive-agency (force-push / `rm -rf` / `sudo` / `chmod 777` without an explicit ask), and prompt-injection tells (untrusted tool output followed as instructions). Findings stage to `.harness/forge/` for host-agent review, like `distill`. Wired into `cycle.sh` TRACK A as step 4. CLI: `--since <iso>`, `--status`.
+
+### Self-improvement flywheel (smart approvals, reflection, TextGrad — P9)
+
+P9 lands the three higher-value/higher-risk cherrypicks the synthesis deferred after P8. Each is advisory — none blocks, none mutates memory directly, all preserve the eight load-bearing invariants.
+
+- `hooks/policy-gate.sh` (P9.1) — Smart Approvals prefix-rule learning (OpenAI Codex CLI): a tracked `.harness/approval-rules.json` backs learned prefix rules. A matching ALLOW rule upgrades REQUIRE_APPROVAL→ALLOW (auto-approve, logged); a matching DENY rule forces DENY (defense in depth); an ALLOW rule can never override a base DENY (the hard floor). The hook SUGGESTS rules on unmatched REQUIRE_APPROVAL; the host persists them via `--learn` (governance stays outside the model). Every auto-decision still appends to the tamper-evident ledger with `reason=auto:<prefix>`. New CLI: `--rules`, `--learn <ALLOW|DENY> <prefix> --rationale "..."`.
+- `hooks/reflect-retry.sh` (P9.2) — inline retry-with-reflection (Reflexion, NeurIPS 2023): per-task reflection on a gate FAIL, distinct from the batch flywheel. Produces a structured `{what_failed, why, what_to_avoid, what_to_try_next}` digest to `.harness/forge/reflections/`; `propose.sh` injects it into section 3.5 so the next proposal retries WITH the reflection as context. Bounded by a max-retry cap (N=3 without an intervening gate PASS) — after the cap, the target is parked BLOCKED for human intervention (honors do-not-adopt #2). Fires only on eval-gated failures (honors contradiction #1). CLI: `--status`, `--count <target>`.
+- `hooks/textgrad.sh` (P9.3) — TextGrad textual-gradient optimization (Nature 2025): a prescriptive gradient that complements (not replaces) the evolutionary proposer. Where the reflection is narrative (what failed and why), the gradient is PRESCRIPTIVE (which lines/sections to change and how). `propose.sh` injects it into section 3.6. Opt-in: one gradient per reflection (textgrad refuses without a reflection — no loss signal to backpropagate; honors do-not-adopt #7). CLI: `--status`.
+- `hooks/propose.sh` (P9.2/P9.3) — gains sections 3.5 (latest reflection) + 3.6 (textual gradient) so the proposing model anchors on the reflection + gradient in addition to the non-Markovian history.
+- `hooks/cycle.sh` (P9.2/P9.3) — on a gate FAIL (step 8), runs reflect-retry then textgrad as advisory sub-steps before the report. Step count stays 9; reflection+gradient are sub-steps of the gate-fail branch.
 
 ---
 
@@ -244,9 +275,11 @@ See `~/.claude/agents/` for full definitions.
 
 ---
 
-## Skills: 325 Total Across 18 Categories
+## Skills: 195 listed (228 on disk) — progressive disclosure applied
 
-Skills are autonomous entry points. See `~/.claude/SKILLS.md` for complete reference.
+Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete reference, [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) for the competitive analysis + reduction plan (235 → 195 listed via dedup + hiding sub-skills + per-agent permissions), and [`docs/harness-research-synthesis.md`](docs/harness-research-synthesis.md) for the 52-repo deep-research survey that informs P8.
+
+**Progressive disclosure**: skills with `invocation_type: internal` (33 composite sub-skills) are hidden from the always-loaded listing but resolvable by composites by path. `invocation_type: slash` skills are invoked only via `/<name>`. The host loads a metadata-only index, then loads one skill body on demand.
 
 **Session & Context** (10): wake-up, session-bootstrap*, resume, context-pack, handoff, session-wrap-up, session-cleanup, etc.
 
@@ -454,5 +487,5 @@ The profile ships a **Megabrain** system: one vault for all projects (memory + g
 
 ---
 
-**Last updated:** 2026-06-29  
-**Harness version:** Agent-OS (v6+), 325 skills, 40+ agents, 35 hooks, 6 MCP servers
+**Last updated:** 2026-06-30  
+**Harness version:** Agent-OS (v8+), 195 listed skills (228 on disk), 40+ agents, 37 hooks, 6 MCP servers

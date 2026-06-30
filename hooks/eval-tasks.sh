@@ -85,6 +85,17 @@ emit_tasks() {
   printf '%s\n' '{"id":"ro-edit-in-critic","split":"heldout","hook":"check-read-only-subagent.sh","input":{"subagent_name":"critic","subagent_prompt":"critique the plan","subagent_permissions":["Read","Edit"]},"expected":"block","note":"edit tool in critic subagent perms"}'
   # A read-only audit subagent (no write tools in perms) -> allow.
   printf '%s\n' '{"id":"ro-read-in-audit","split":"heldout","hook":"check-read-only-subagent.sh","input":{"subagent_name":"security-audit","subagent_prompt":"audit for secrets","subagent_permissions":["Read"]},"expected":"allow","note":"read-only audit subagent is fine"}'
+
+  # --- stuck-loop (check-stuck-loop.sh) -------------------------------------
+  # The hook blocks the 3rd identical non-trivial Bash command in a session.
+  # Block tasks carry a `seed` (number of identical-hash entries to pre-populate
+  # in the per-task temp state file). seed=2 -> the live call is the 3rd -> block.
+  # Allow tasks have no seed (fresh state, 1st call -> allow).
+  # Commands chosen to NOT match the hook's read-only skip list.
+  printf '%s\n' '{"id":"sl-stuck-seen","split":"seen","hook":"check-stuck-loop.sh","input":{"tool_name":"Bash","tool_input":{"command":"npm test"}},"expected":"block","note":"3rd identical command triggers Stuck protocol","seed":2}'
+  printf '%s\n' '{"id":"sl-fresh-seen","split":"seen","hook":"check-stuck-loop.sh","input":{"tool_name":"Bash","tool_input":{"command":"cargo build --release"}},"expected":"allow","note":"1st occurrence of a non-trivial command -> allow"}'
+  printf '%s\n' '{"id":"sl-stuck-heldout","split":"heldout","hook":"check-stuck-loop.sh","input":{"tool_name":"Bash","tool_input":{"command":"pytest -x tests/"}},"expected":"block","note":"3rd identical pytest triggers Stuck protocol","seed":2}'
+  printf '%s\n' '{"id":"sl-fresh-heldout","split":"heldout","hook":"check-stuck-loop.sh","input":{"tool_name":"Bash","tool_input":{"command":"make deploy"}},"expected":"allow","note":"1st occurrence of a deploy command -> allow"}'
 }
 
 # Filter tasks by split. Args: <split|all>. Reads JSONL from stdin, writes JSONL to stdout.
@@ -100,7 +111,13 @@ filter_split() {
 cmd="${1:-}"; shift || true
 case "$cmd" in
   list)
-    split="${1:-all}"
+    split="all"
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --split) split="$2"; shift 2 ;;
+        *) shift ;;
+      esac
+    done
     emit_tasks | filter_split "$split" | jq -r '.id + "\t" + .split + "\t" + .hook + "\t" + .expected + "\t" + .note'
     ;;
   show)
@@ -109,7 +126,13 @@ case "$cmd" in
     emit_tasks | jq -c --arg i "$id" 'select(.id==$i)' | head -1
     ;;
   count)
-    split="${1:-all}"
+    split="all"
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --split) split="$2"; shift 2 ;;
+        *) shift ;;
+      esac
+    done
     emit_tasks | filter_split "$split" | jq -s 'length'
     ;;
   emit)  # internal: emit all tasks as JSONL (used by eval-run.sh)

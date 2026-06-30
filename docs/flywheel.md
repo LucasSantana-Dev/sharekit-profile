@@ -242,6 +242,73 @@ starts improving the harness.
   scheduler install, reading a cycle report, interpreting the held-out lift,
   rollback procedure.
 
+### Close-the-loop (P7 — shipped in this wave)
+
+P6 ran the first real cycle, but the gate measured the *live* hook on disk — to
+validate a proposal the host had to mutate the live hook, run the gate, and
+revert on failure. P7 closes that gap: the gate now validates a PROPOSED edit
+in isolation, and deploy-watch is wired into the cycle so a post-merge
+regression is detectable. The loop is now genuinely closed.
+
+- **isolated candidate gating** — `hooks/trial-apply.sh` materializes the
+  proposed diff from a proposal `.md` into a *trial copy* at
+  `.harness/forge/trial/<proposal-id>/` (the live hook is never touched). It
+  rejects a leftover `FILL IN` placeholder or a malformed diff. `hooks/gate.sh
+  --proposal <file>` runs the held-out bench against the trial copy via
+  `eval-run.sh --candidate <hook> <path>`. On PASS the candidate path is
+  recorded; on FAIL the trial dir is discarded. The live hook is byte-identical
+  before and after the gate run.
+- **candidate-aware eval runner** — `hooks/eval-run.sh --candidate <hook> <path>`
+  invokes the candidate file instead of the live `$HOOKS/<hook>` for the `with`
+  variant. The `without` variant is unaffected. This is what makes isolated
+  gating possible without a schema change.
+- **stateful-hook eval isolation** — `check-stuck-loop.sh` now reads
+  `STUCK_STATE_FILE` (env override) so the eval harness can isolate per-task
+  state via a temp file. The bench seeds N identical-hash entries (the task's
+  `seed` field) so the live call presents as the (N+1)th attempt.
+- **stuck-loop eval coverage** — `eval-tasks.sh` grew from 21 to 25 tasks (2
+  seen, 2 heldout) for the Stuck-protocol hook, the fifth enforcement hook.
+  Before P7 it had zero coverage; a regression there was invisible to the gate.
+- **deploy-watch wired into the cycle** — on a gate PASS, `cycle.sh` calls
+  `deploy-watch.sh start <pid> <target> heldout-lift <pre-deploy-lift>`, so a
+  post-merge regression is detectable. The cycle report's "what to do next"
+  now instructs the host to run `deploy-watch.sh check` after the PR merges and
+  `revert` on REGRESSION.
+- **proof** — ran `gate.sh --proposal` end-to-end against a real edit to
+  `check-stuck-loop.sh` (threshold 3 -> 2). The gate materialized the
+  candidate, ran the held-out bench AGAINST THE CANDIDATE (lift=0.654), and
+  the live hook stayed byte-identical pre/post (same sha256). A deliberately
+  broken candidate failed the gate, the trial dir was discarded, and the live
+  hook was still untouched.
+
+### Deep-research synthesis -> P8 (shipped in this wave)
+
+A 52-repo survey (see `docs/harness-research-synthesis.md`) named the next
+10 cherrypicks; P8 lands the four that compound the flywheel without adding
+runtime dependencies or trusting the model to self-police. Each is advisory —
+none blocks, none mutates memory directly.
+
+- **LongContextReorder (P8.1)** — `hooks/reorder-context.sh` (PostToolUse):
+  reorders retrieved chunks so the highest-scoring land at the start and end
+  of the window (the attention-favorable positions), the LlamaIndex
+  LongContextReorder finding that the middle is the "lost" region. Advisory;
+  writes a digest to `.harness/runtime/reordered-chunks/`, never blocks.
+- **Binary-checklist gates (P8.2)** — `hooks/checklist-gate.sh` (PreToolUse):
+  the awesome-cursorrules binary-checklist pattern made concrete. A tracked
+  checklist at `.harness/checklists/security.md` gates security-sensitive
+  work; each item is a yes/no, not prose for the model to interpret.
+- **Transcript scanners (P8.3)** — `hooks/transcript-scanner.sh`: complements
+  `diagnose.sh` (the "what broke" half) with the inspect-ai "scanners" half
+  (the "what the agent did that evals wouldn't flag" signals): refusals
+  (capability loss masked as success), evaluation-awareness (test-gaming),
+  environment-drift (unremediated missing deps), hallucination signals (cited
+  paths that failed to read), excessive-agency (force-push / `rm -rf` /
+  `sudo` / `chmod 777` without an explicit ask), and prompt-injection tells
+  (untrusted tool output followed as instructions). Findings stage to
+  `.harness/forge/` for host-agent review, like `distill`. Wired into
+  `cycle.sh` TRACK A as step 4 (maintain/hygiene), so the loop scans for
+  systemic patterns every cycle, not just failure clusters.
+
 ### The target architecture (P5 — shipped in this wave)
 
 P5 is the integration target: the flywheel from P0-P2 + the convergent patterns
@@ -249,7 +316,8 @@ from P4, operating as a single closed loop. `hooks/cycle.sh` now exercises the
 whole architecture as one command, with two tracks:
 
 - **TRACK A — MAINTAIN**: `memory-consolidate.sh` (sleep-cycle), `skill-index.sh`
-  (progressive disclosure), `skill-prune.sh` (telemetry-based archive candidates).
+  (progressive disclosure), `skill-prune.sh` (telemetry-based archive candidates),
+  `transcript-scanner.sh` (systemic pattern scan — complements `diagnose.sh`).
 - **TRACK B — IMPROVE**: `diagnose.sh` -> `distill.sh` -> `propose.sh` (routed at
   dispatch `implement` -> `review_gate`) -> `gate.sh` (routed at `eval`, with the
   held-out eval set the proposer never saw) -> on pass, dispatch advances to
@@ -300,4 +368,44 @@ The loop **shape** is adopted; the heavy runtimes are not:
   (LangSmith/DSPy/GEPA) — reference the loop contract, do not install. Wire a
   local proposer only once telemetry + the eval gate exist.
 
-*Last updated: 2026-06-30 (P6 operational phase shipped)*
+### Smart Approvals, reflection, TextGrad (P9 — shipped in this wave)
+
+P9 lands the three higher-value/higher-risk cherrypicks the synthesis deferred
+after P8: Smart Approvals prefix-rule learning, inline retry-with-reflection
+(Reflexion), and TextGrad textual-gradient optimization. Each is advisory — none
+blocks, none mutates memory directly, all preserve the eight load-bearing
+invariants.
+
+- **Smart Approvals (P9.1)** — `hooks/policy-gate.sh` gains prefix-rule
+  learning backed by a tracked `.harness/approval-rules.json`. A matching ALLOW
+  rule upgrades REQUIRE_APPROVAL->ALLOW (auto-approve, logged); a matching DENY
+  rule forces DENY (defense in depth); an ALLOW rule can never override a base
+  DENY (the hard floor). The hook SUGGESTS rules on unmatched REQUIRE_APPROVAL;
+  the host persists them via `--learn` (governance stays outside the model).
+  Every auto-decision still appends to the tamper-evident ledger with
+  `reason=auto:<prefix>`. CLI: `--rules`, `--learn <ALLOW|DENY> <prefix>
+  --rationale "..."`.
+- **Inline retry-with-reflection (P9.2, Reflexion)** — `hooks/reflect-retry.sh`:
+  per-task reflection on a gate FAIL, distinct from the batch flywheel. Produces
+  a structured `{what_failed, why, what_to_avoid, what_to_try_next}` digest to
+  `.harness/forge/reflections/`; `propose.sh` injects it into section 3.5 so the
+  next proposal retries WITH the reflection as context. Bounded by a max-retry
+  cap (N=3 without an intervening gate PASS) — after the cap, the target is
+  parked BLOCKED for human intervention (the Reflexion bound; honors do-not-adopt
+  #2). Fires only on eval-gated failures (honors contradiction #1).
+- **TextGrad textual-gradient (P9.3)** — `hooks/textgrad.sh`: a TextGrad-style
+  optimization pass that complements (not replaces) the evolutionary proposer.
+  Where the reflection is narrative (what failed and why), the gradient is
+  PRESCRIPTIVE (which lines/sections to change and how). `propose.sh` injects it
+  into section 3.6 so the proposing model anchors on the gradient in addition
+  to the non-Markovian history + reflection. Opt-in: one gradient per reflection
+  (textgrad refuses without a reflection — no loss signal to backpropagate).
+  Honors do-not-adopt #7 (textgrad is NOT the sole optimizer — it is one of an
+  ensemble).
+- **cycle.sh wiring** — on a gate FAIL (step 8), the cycle runs reflect-retry
+  then textgrad as advisory sub-steps before the report (step 9). The step count
+  stays 9; reflection+gradient are sub-steps of the gate-fail branch, not new
+  top-level steps. The cycle report's gate-fail note now records the reflection
+  retry count.
+
+*Last updated: 2026-06-30 (P9 shipped — Smart Approvals, inline reflection, TextGrad)*

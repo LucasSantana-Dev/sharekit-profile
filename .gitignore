@@ -14,3 +14,8 @@ index.html.bak-*
 # Machine-generated runtime fuel; graduated learnings are promoted into
 # committed memory/skills via review.sh, so the staging area itself is not tracked.
 .harness/forge/
+
+# Harness eval run output (A/B bench results from eval-run.sh).
+# Machine-generated test artifacts; the task catalog (eval-tasks.sh) is source
+# and stays tracked, only the run output under .harness/eval/<name>/runs.jsonl is runtime.
+.harness/eval/

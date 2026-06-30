@@ -23,12 +23,23 @@
 # Usage:
 #   hooks/gate.sh <proposal-id> [--target <file>] [--eval <eval-set-name>]
 #   hooks/gate.sh <proposal-id> --target hooks/foo.sh --eval my-eval
+#   hooks/gate.sh <proposal-id> --target hooks/foo.sh --eval my-eval \
+#       --proposal .harness/forge/proposals/<ts>-foo.sh.md
+#
+# --proposal <file>: validate a PROPOSED edit in isolation. The gate calls
+# trial-apply.sh to materialize the diff from the proposal into a trial copy at
+# .harness/forge/trial/<pid>/, runs the held-out bench AGAINST THE CANDIDATE
+# (not the live hook), and reads the lift. The live hook is never mutated. On
+# PASS the candidate path is recorded so the host agent knows which trial to
+# promote via PR; on FAIL the trial dir is discarded and the regression recorded.
+# When --proposal is omitted, the gate measures the live hook (legacy behavior).
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 RUNTIME="$ROOT/.harness/runtime"
 HISTORY="$RUNTIME/iteration-history.jsonl"
 EVAL="$ROOT/.harness/eval"
+FORGE="$ROOT/.harness/forge"
 SIZE_LIMIT_KB=15
 mkdir -p "$RUNTIME"
 
@@ -38,16 +49,37 @@ pid="${1:-}"; shift || true
 
 target=""
 eval_set=""
+proposal_file=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --target) target="$2"; shift 2 ;;
     --eval) eval_set="$2"; shift 2 ;;
+    --proposal) proposal_file="$2"; shift 2 ;;
     *) echo "gate: unknown arg: $1" >&2; exit 1 ;;
   esac
 done
 
 pass=0
 fail_reasons=""
+
+# If --proposal is set, materialize the candidate BEFORE running the gates so
+# the eval (step 4) measures the trial copy, not the live hook.
+candidate_path=""
+candidate_hook=""
+if [[ -n "$proposal_file" ]]; then
+  [[ -n "$target" ]] || { echo "gate: --proposal requires --target" >&2; exit 1; }
+  [[ -f "$proposal_file" ]] || { echo "gate: proposal file not found: $proposal_file" >&2; exit 1; }
+  echo "gate: materializing candidate from $proposal_file..."
+  candidate_path="$(bash "$ROOT/hooks/trial-apply.sh" "$proposal_file" 2>/dev/null)" \
+    || { echo "  trial-apply: FAIL (could not materialize the proposed edit)"; fail_reasons="${fail_reasons}trial-apply-failed; "; pass=1; }
+  if [[ -n "$candidate_path" ]]; then
+    candidate_hook="$(basename "$target")"
+    echo "  candidate: $candidate_path"
+    # Record the candidate in history so the host agent knows which trial to promote.
+    "$ROOT/hooks/history.sh" add "$target" "$pid" "candidate" "trial" "$candidate_path" \
+      "trial candidate materialized for isolated gating" 2>/dev/null || true
+  fi
+fi
 
 record() {
   # record <status> <metric> <value> <note>
@@ -119,9 +151,19 @@ if [[ -n "$eval_set" ]]; then
   # Use a dedicated eval-set name suffixed "-heldout" so the gate's held-out
   # counts are isolated from any "seen" runs the proposer recorded under the
   # base name. This keeps the lift computation split-pure without a schema change.
+  #
+  # --proposal mode: pass --candidate so the `with` variant measures the trial
+  # copy, not the live hook. The live hook is never invoked for the candidate's
+  # hook; other hooks in the bench still run against their live versions.
   heldout_set="${eval_set}-heldout"
-  echo "  eval: running held-out bench (set=$heldout_set) via eval-run.sh --gate-authority..."
-  "$ROOT/hooks/eval-run.sh" --eval "$heldout_set" --variant with    --split heldout --gate-authority >/dev/null 2>&1 || true
+  cand_args=()
+  if [[ -n "$candidate_path" ]]; then
+    cand_args=(--candidate "$candidate_hook" "$candidate_path")
+    echo "  eval: running held-out bench (set=$heldout_set) AGAINST CANDIDATE $candidate_hook..."
+  else
+    echo "  eval: running held-out bench (set=$heldout_set) via eval-run.sh --gate-authority..."
+  fi
+  "$ROOT/hooks/eval-run.sh" --eval "$heldout_set" --variant with    --split heldout --gate-authority "${cand_args[@]}" >/dev/null 2>&1 || true
   "$ROOT/hooks/eval-run.sh" --eval "$heldout_set" --variant without --split heldout --gate-authority >/dev/null 2>&1 || true
   # The gate reads the eval results — the proposer did NOT author them (held-out).
   # If the latest "with" pass rate is not better than "without", it's a regression.
@@ -136,7 +178,7 @@ if [[ -n "$eval_set" ]]; then
       echo "  eval: PASS (lift=$lift, with=$with_pass/$with_n, without=$without_pass/$without_n)"
       record "gated" "lift" "$lift" "eval gate passed"
     else
-      echo "  eval: FAIL (lift=$lift — regression on held-out set)"
+      echo "  eval: FAIL (lift=$lift -- regression on held-out set)"
       fail_reasons="${fail_reasons}eval-regression-lift=$lift; "
       pass=1
     fi
@@ -160,10 +202,16 @@ fi
 if [[ "$pass" -eq 0 ]]; then
   record "gated" "" "" "all constraint gates passed"
   echo "gate: PASS — proposal $pid is ready for human review"
+  [[ -n "$candidate_path" ]] && echo "  candidate to promote: $candidate_path"
   exit 0
 else
   record "rejected" "" "" "gate failed: ${fail_reasons}"
   echo "gate: FAIL — proposal $pid rejected (${fail_reasons})"
   echo "  regression recorded in history; the proposer will read it next time (non-Markovian)"
+  # Discard the trial dir so a failed candidate does not linger as a stale artifact.
+  if [[ -n "$candidate_path" ]]; then
+    trial_dir="$FORGE/trial/$pid"
+    rm -rf "$trial_dir" 2>/dev/null && echo "  trial dir discarded: $trial_dir"
+  fi
   exit 1
 fi
