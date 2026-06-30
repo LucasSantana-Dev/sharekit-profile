@@ -75,7 +75,16 @@ failures; the context-guard defends the context window.
   agentic-stack `graduate.py`/`reject.py`/`reopen.py`.
 - **with-skill vs no-skill baseline** — `hooks/eval-baseline.sh` records A/B
   runs and gates on measurable lift (selftune `baseline` pattern). Local,
-  zero-dep.
+  zero-dep. Backed by a real task catalog (`hooks/eval-tasks.sh`, 20 deterministic
+  harness-behavior tasks across the enforcement hooks) and an A/B runner
+  (`hooks/eval-run.sh`) that feeds each task's synthetic tool-call event to its
+  target hook and checks the exit code matches the expected verdict. The catalog
+  is split into **seen** (proposer may inspect) and **heldout** (gate-only); the
+  held-out split is enforced — `eval-run.sh` refuses `--split heldout` unless
+  passed `--gate-authority`, which only `gate.sh` supplies (evaluator-not-agent
+  invariant). `gate.sh` auto-runs the held-out bench before reading the lift, so
+  the gate is self-sufficient: it populates its own results, never trusting runs
+  the proposer authored.
 - **self-diagnosis** — `hooks/diagnose.sh` clusters failures in the trajectory
   log, surfaces root-cause candidates, detects repeated errors / tool overuse /
   blind retries / token-waste patterns (SkillForge + AHE Agent Debugger).
@@ -122,7 +131,10 @@ harness-evolver / hermes-evolution — NOT a dependency. No DSPy/GEPA/LangSmith.
 ### Exercise the loop (P3 — shipped in this wave)
 
 The P0/P1/P2 scripts defined the loop contract; P3 makes it exercisable as a
-single command and ships the last two context-engineering defenses.
+single command and ships the last two context-engineering defenses. The P3
+follow-up ships the concrete eval bench (task catalog + held-out split + A/B
+runner) that turns the eval gate from a recording mechanism into a real
+measurement.
 
 - **end-to-end cycle runner** — `hooks/cycle.sh` chains the full loop in one
   command: diagnose → distill → propose → gate → report. It skips steps
@@ -141,6 +153,21 @@ single command and ships the last two context-engineering defenses.
   switching mid-stream discards the cached prompt prefix. The only cache-safe
   switch boundaries are first-turn and post-compaction (Copilot pattern).
   Advisory; never blocks.
+
+- **eval task catalog** — `hooks/eval-tasks.sh`: a deterministic catalog of 20
+  harness-behavior tasks (each = synthetic tool-call event + expected verdict +
+  owning hook) split into **seen** (proposer trains on) and **heldout** (gate
+  evaluates on; proposer never sees the per-task expected verdicts). The split
+  is the overfitting defense: a harness edit that hard-codes the seen cases
+  fails on held-out (meta-agent / harness-evolver pattern). CLI: `list
+  [--split seen|heldout|all]`, `show <id>`, `count [--split ...]`.
+- **A/B task runner** — `hooks/eval-run.sh`: runs each task in with/without
+  variants and records to `eval-baseline.sh`. `with` invokes the target hook on
+  the task input and checks the exit code matches the expected verdict;
+  `without` simulates the harness absent (always allow). Enforces the held-out
+  split: refuses `--split heldout` unless `--gate-authority` is passed, which
+  only `gate.sh` supplies. CLI: `--eval <name> --variant with|without
+  [--split seen|heldout|all] [--gate-authority]`.
 
 ### Convergent cross-cutting patterns (P4 — shipped in this wave)
 
@@ -240,4 +267,4 @@ The loop **shape** is adopted; the heavy runtimes are not:
   (LangSmith/DSPy/GEPA) — reference the loop contract, do not install. Wire a
   local proposer only once telemetry + the eval gate exist.
 
-*Last updated: 2026-06-29*
+*Last updated: 2026-06-29 (P3 eval-bench shipped)*

@@ -77,9 +77,18 @@ The flywheel's steps are bounded workers invoked by the substrate:
 - `propose.sh` — assembles a non-Markovian proposal (reads WHY prior attempts
   failed). Worker at the `implement` state.
 - `gate.sh` — constraint gate + held-out eval. Worker at the `eval` state.
-  The held-out set is one the proposer never saw (evaluator-not-agent).
-- `eval-baseline.sh` — with-skill vs no-skill baseline. Worker at the `eval`
-  state.
+  The held-out set is one the proposer never saw (evaluator-not-agent). `gate.sh`
+  auto-runs the held-out bench via `eval-run.sh --gate-authority` before reading
+  the lift, so the gate is self-sufficient: it populates its own results, never
+  trusting runs the proposer authored.
+- `eval-baseline.sh` — with-skill vs no-skill baseline recording + compare +
+  gate. Worker at the `eval` state.
+- `eval-tasks.sh` — deterministic task catalog (20 tasks split into seen /
+  heldout) backing the baseline. The held-out split is enforced: `eval-run.sh`
+  refuses `--split heldout` unless `--gate-authority` is passed.
+- `eval-run.sh` — A/B task runner: feeds each task's synthetic tool-call event
+  to its target hook in the `with` variant, simulates harness-absent in the
+  `without` variant, records pass/fail + latency to `eval-baseline.sh`.
 
 Each worker returns a handoff packet; the substrate validates the next
 transition and refuses to skip a gate.
