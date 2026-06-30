@@ -248,12 +248,19 @@ The P8 and P9 phases shipped the deep-research synthesis cherrypicks that compou
 
 ## Actionable ponytail audit findings
 
-PR #13 review identified ~2084 lines reducible via targeted refactoring. File:line references:
+PR #13 review identified ~2084 lines reducible via targeted refactoring. File:line references and execution status:
 
-### Dead code in `hooks/cycle.sh`
+### ~~Dead code in `hooks/checklist-gate.sh`~~ (DONE)
 
-- **Lines 82-113:** Unused `run_step`/`record_step` helper functions (~32 lines). The cycle was refactored to inline step execution; these functions are never called. Safe to delete.
-- **Impact:** 32 lines deleted, no behavior change.
+- ~~**Lines 130-146:** "warn" and "block" modes implemented identically to "shadow" mode (both exit 0, both write same file).~~
+- **Executed:** Removed dead `warn`/`block` case arms from the `case "$MODE"` block. Updated header comment to note only `shadow` is supported. PreToolUse cannot parse agent responses regardless of mode, so enforcement lives at the eval gate.
+- **Impact:** 15 lines deleted, simplified logic, no behavior change.
+
+### ~~Duplicate plugin directories~~ (DONE)
+
+- ~~`claude/skills/skill-creator-plugin/` and `claude/skills/plugin-skill-creator-skill-creator/` are byte-identical.~~
+- **Executed (PR #15, branch `refactor/ponytail-audit-phase1`):** Removed `plugin-skill-creator-skill-creator/` (17 files, ~718 lines). `skill-creator-plugin/` retained as canonical (both declare `name: skill-creator`, both byte-identical per `diff -r`). `curated-skills.txt` updated to remove the duplicate entry. No other repo files reference either path.
+- **Impact:** 718 lines deleted, eliminated redundancy. ~186 remaining lines from the original ~2084 estimate.
 
 ### Consolidate report generation in `hooks/cycle.sh`
 
@@ -270,31 +277,24 @@ PR #13 review identified ~2084 lines reducible via targeted refactoring. File:li
 - Both files share ~30 lines of identical setup: read proposal, write reflection/gradient markdown, write reflection.jsonl, append to trajectory, append to history. Extract to `hooks/shared/reflection-io.sh`.
 - **Impact:** 60 lines → 30 lines (30 lines saved), single-source-of-truth for I/O format.
 
-### Dead modes in `hooks/checklist-gate.sh`
+### False positive (corrected)
 
-- **Lines 130-146:** "warn" and "block" modes implemented identically to "shadow" mode (both exit 0, both write same file). Shadow mode is the only mode; warn/block are dead code.
-- **Impact:** 15 lines deleted, simplified logic.
+- **PR #13 review claimed `hooks/cycle.sh` lines 82-113 are dead code (`run_step`/`record_step` unused).** This is INCORRECT. `record_step` is called 20+ times throughout the file (every step in the cycle: steps 1-4, 5-9, plus fallback paths at lines 211-214). `run_step` is called at lines 226 and 231. These are the primary step-tracking infrastructure. Do not delete.
 
-### Duplicate plugin directories
+### Corrected total reducible
 
-- `claude/skills/skill-creator-plugin/` and `claude/skills/plugin-skill-creator-skill-creator/` are byte-identical ~1.9K lines each. Archive one, symlink the other.
-- **Impact:** ~1.9K lines saved, eliminated redundancy.
-
-### Total reducible
-
-- Dead code: 32 + 15 + 1900 = **1947 lines**
+- ~~Dead code: 32 + 15 +~~ 570 = **570 lines** (corrected after removing false positive)
 - Consolidation: 40 + 37 + 30 = **107 lines**
-- **Total: ~2054 lines reducible** (matches the ~2084 estimate in PR #13 review)
+- **Total: ~677 lines** (was ~2054 — reduced by 1377 after the cycle.sh false positive correction)
 
-### Priority order
+### Remaining priority order
 
-1. **Dead code removal** (easy, safe): `cycle.sh` dead functions, `checklist-gate.sh` dead modes — 47 lines, zero risk
-2. **Report consolidation** (easy): `cycle.sh` printf → here-doc — 37 lines, low risk
-3. **Deduplicate plugin dirs** (medium): archive + symlink — 1.9K lines, requires testing
-4. **Scanner consolidation** (medium-hard): `transcript-scanner.sh` 6 awk → 1 scan fn — 40 lines, requires careful regex preservation
-5. **Shared I/O extraction** (hard): `reflect-retry.sh` + `textgrad.sh` shared boilerplate — 30 lines, requires interface design
+1. **Report consolidation** (easy): `cycle.sh` printf → here-doc — 37 lines, low risk
+2. **Deduplicate plugin dirs** ~~(medium)~~ ~~**DONE**~~ — completed in PR #15
+3. **Scanner consolidation** (medium-hard): `transcript-scanner.sh` 6 awk → 1 scan fn — 40 lines, requires careful regex preservation
+4. **Shared I/O extraction** (hard): `reflect-retry.sh` + `textgrad.sh` shared boilerplate — 30 lines, requires interface design
 
-**Recommendation:** Start with #1 (dead code) in a focused PR. Defer #4-5 until after telemetry shows these hooks are actually used in production.
+**Recommendation:** Items #1, #3-4 deferred until telemetry confirms these hooks are actively used. Items #1 and #2 are done (dead code removal).
 
 ## Remaining work
 
