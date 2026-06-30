@@ -1,7 +1,9 @@
 # Skill catalog efficiency
 
-> 233 skills listed vs a lean-harness median of ~10-43. This is the analysis,
+> **50 skills listed vs a lean-harness median of ~10-43.** This is the analysis,
 > the concrete reduction plan, and a record of what was actually executed.
+>
+> **Update (2026-06-30):** Consolidation execution complete. 103 repo-tracked skills reduced to 50 via skill-family merges, stack-specific removal, and meta-skill pruning. 53 archived in `claude/skills/.archive/` (recoverable).
 
 ## Execution status (2026-06-30)
 
@@ -44,7 +46,7 @@
 
 ## The problem
 
-The sharekit catalog lists **233 skills** to the agent at startup. Competitive
+The sharekit catalog lists **50 skills** to the agent at startup (down from 103 repo-tracked). Competitive
 analysis of lean harnesses shows the always-listed catalog median is **~10-43
 items**:
 
@@ -57,7 +59,7 @@ items**:
 | Cursor | rules + skills | glob-scoped progressive disclosure; `alwaysApply: false` |
 | Warp | ~12 bundled | typed registries (agents != workflows != rules) |
 
-sharekit lists 233 because it lists **every sub-skill individually** alongside
+sharekit formerly listed every sub-skill individually alongside
 its composite, plus duplicates, aliases, and project-specific skills. The
 composite-first principle (AGENTS.md) says "always invoke composites, never the
 individual sub-skills" -- yet all the sub-skills are in the top-level listing,
