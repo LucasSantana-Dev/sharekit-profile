@@ -23,6 +23,13 @@
 #     8. No secret exfiltration (sending ~/.ssh, ~/.aws, id_rsa off-host)
 #     9. No reverse shell patterns (bash -i >& /dev/tcp, nc -e)
 #    10. No prompt-injection lures ("ignore previous instructions")
+#    11. No obfuscated execution (base64 decode + exec)
+#
+# Security exemption: skills that document dangerous patterns BY DESIGN (e.g.
+# a security-analysis skill that teaches how to detect curl|sh) set
+# `security_exempt: true` in frontmatter. Such skills skip the security pass
+# but are still schema-validated. Use sparingly — each exemption is a deliberate
+# decision to trust the skill author.
 #
 # Usage:
 #   hooks/skill-validate.sh                    # validate ~/.claude/skills
@@ -141,6 +148,13 @@ for f in "${skill_files[@]}"; do
 
   # --- SECURITY PASS ---------------------------------------------------------
   # Read the full file body (frontmatter + body) for security scanning.
+  # Skills with security_exempt: true skip this pass (they document dangerous
+  # patterns by design — e.g. a security-analysis skill). Schema still applies.
+  sec_exempt="$(extract_field "$f" 'security_exempt')"
+  if [[ "$sec_exempt" == "true" ]]; then
+    findings="${findings}INFO   | ${rel} | security_exempt=true — security pass skipped (schema still validated)\n"
+    continue
+  fi
   body="$(cat "$f" 2>/dev/null)"
 
   # 7. Pipe-to-shell installers
