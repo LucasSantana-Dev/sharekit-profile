@@ -88,19 +88,61 @@ eval: PASS (lift=0.667, with=12/12, without=4/12)
 - The held-out set is one the proposer never sees (evaluator-not-agent). The
   gate auto-runs it via `eval-run.sh --gate-authority`; the proposer cannot.
 
-## Rollback
+## Post-merge watch (P7)
 
-If a merged change regresses in production, `deploy-watch.sh` auto-reverts to
-git HEAD and records the regression:
+P7 closes the loop between the gate and deploy. When a cycle's gate PASSES, the
+runner starts a `deploy-watch` with the pre-deploy held-out lift as the
+baseline. After the proposal is merged via PR, re-run the held-out bench and
+compare to detect a post-merge regression:
 
 ```bash
-hooks/deploy-watch.sh watch    # monitors post-deploy metrics
-hooks/deploy-watch.sh revert   # manual revert (auto-backs-up first)
+# 1. The cycle already started the watch on gate PASS:
+#    hooks/deploy-watch.sh start <proposal-id> <target> heldout-lift <baseline>
+hooks/deploy-watch.sh status                          # list active watches
+
+# 2. After the PR merges, recompute the held-out lift and compare:
+hooks/eval-run.sh --eval harness-heldout --variant with    --split heldout --gate-authority
+hooks/eval-run.sh --eval harness-heldout --variant without --split heldout --gate-authority
+# (read the lift from the gate log or eval-baseline compare)
+hooks/deploy-watch.sh check <proposal-id> <post-merge-lift>
+
+# 3. If REGRESSION is reported, revert (auto-backs-up first):
+hooks/deploy-watch.sh revert <proposal-id> <target>
 ```
 
 The regression is written to `.harness/runtime/iteration-history.jsonl` so the
 next propose step reads WHY the prior change failed (non-Markovian full-history
-search — the #1 lever).
+search -- the #1 lever).
+
+## Close-the-loop gating (P7)
+
+Before P7, the gate measured the *live* hook on disk. To validate a proposal,
+the host had to mutate the live hook, run the gate, and revert on failure --
+leaving the live hook in a broken state on a failed gate, with no isolation
+between "current" and "proposed".
+
+P7 adds isolated candidate gating:
+
+- `hooks/trial-apply.sh <proposal.md>` materializes the proposed diff into a
+  *trial copy* at `.harness/forge/trial/<proposal-id>/` (the live hook is never
+  touched). It rejects a leftover `FILL IN` placeholder or a malformed diff.
+- `hooks/gate.sh --proposal <file>` runs the held-out bench against the trial
+  copy via `eval-run.sh --candidate <hook> <path>`. On PASS the candidate path
+  is recorded; on FAIL the trial dir is discarded.
+- `hooks/eval-run.sh --candidate <hook> <path>` invokes the candidate file
+  instead of the live `$HOOKS/<hook>` for the `with` variant. The `without`
+  variant is unaffected.
+
+This means the loop is now closed: a proposal is gated in isolation, and the
+live hook is byte-identical before and after the gate run. Verify with:
+
+```bash
+git diff --exit-code -- hooks/<hook>   # must exit 0 (no live mutation)
+```
+
+The cycle passes `--proposal` to the gate automatically when a proposal file
+was assembled, so `cycle.sh --target <hook> --eval harness` exercises the full
+isolated-gating path end-to-end.
 
 ## The first real cycle (P6)
 

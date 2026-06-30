@@ -228,6 +228,17 @@ P6 makes the flywheel actually operate in production: it schedules the cycle, se
 - `scripts/launchd/flywheel.plist.template` + `scripts/install-scheduler.sh` — opt-in macOS launchd agent that runs the cycle nightly at 02:00. Per-project (the cycle writes to `.harness/runtime/`); install once per project you want the flywheel to improve. CLI: `install [root]`, `uninstall`, `status`, `run`.
 - [`docs/operations.md`](docs/operations.md) — operational runbook: cold-start → warm-start, scheduler install, reading a cycle report, interpreting the held-out lift, rollback procedure. The first real cycle (against the `--admin` fix) passed end-to-end with held-out lift=0.667.
 
+### Self-improvement flywheel (close-the-loop — P7)
+
+P7 closes the loop between the gate and deploy. Before P7, the gate measured the *live* hook on disk — to validate a proposal the host had to mutate the live hook, run the gate, and revert on failure (no isolation between current and proposed). P7 adds isolated candidate gating and wires deploy-watch into the cycle.
+
+- `hooks/trial-apply.sh` — materializes a proposed edit from a proposal `.md` into a *trial copy* at `.harness/forge/trial/<proposal-id>/` (the live hook is never touched). Extracts the unified diff from the proposal's section 6, applies it via `patch`, backs up the pristine copy, emits the candidate path on stdout. Rejects a leftover `FILL IN` placeholder or a malformed diff (exit 2).
+- `hooks/gate.sh` (P7) — gains `--proposal <file>`: calls `trial-apply.sh`, runs the held-out bench AGAINST THE CANDIDATE via `eval-run.sh --candidate`, records the candidate path on PASS, discards the trial dir on FAIL. The live hook is byte-identical before and after the gate run. Falls back to live-hook measurement when `--proposal` is omitted.
+- `hooks/eval-run.sh` (P7) — gains `--candidate <hook-name> <path>`: the `with` variant invokes the candidate file instead of the live `$HOOKS/<hook>`. The `without` variant is unaffected. Also supports an optional task `seed` field for stateful hooks (the stuck-loop hook reads `STUCK_STATE_FILE` so the eval isolates per-task state).
+- `hooks/cycle.sh` (P7) — on gate PASS, starts a `deploy-watch` with the pre-deploy held-out lift as the baseline, and the report's "what to do next" instructs the host to run `deploy-watch.sh check` after the PR merges and `revert` on REGRESSION.
+- `check-stuck-loop.sh` (P7) — now reads `STUCK_STATE_FILE` (env override) so the eval harness isolates per-task state. The bench grew from 21 to 25 tasks (the fifth enforcement hook, `check-stuck-loop.sh`, now has eval coverage — 2 seen, 2 heldout).
+- [`docs/operations.md`](docs/operations.md) (P7) — adds the post-merge watch flow and the close-the-loop gating section. [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) — competitive analysis of lean harnesses (~10-43 skills vs our 235) + a concrete reduction plan (dedup, hide sub-skills, per-agent permissions, guardrail tightening).
+
 ---
 
 ## Agents: Specialized Worker Types
@@ -244,9 +255,9 @@ See `~/.claude/agents/` for full definitions.
 
 ---
 
-## Skills: 325 Total Across 18 Categories
+## Skills: 235 Total — efficiency audit in progress
 
-Skills are autonomous entry points. See `~/.claude/SKILLS.md` for complete reference.
+Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete reference, and [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) for the competitive analysis + reduction plan (235 listed vs a lean-harness median of ~10-43; the plan targets ~183 listed via dedup + hiding sub-skills + per-agent permissions).
 
 **Session & Context** (10): wake-up, session-bootstrap*, resume, context-pack, handoff, session-wrap-up, session-cleanup, etc.
 
