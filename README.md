@@ -70,7 +70,7 @@ Example: User says "refactor this module."
 ├── settings.json                       # Hook definitions + env config
 ├── settings.local.json                 # Local overrides + project-specific hooks
 ├── agents/                             # ~40 specialized agent definitions
-├── hooks/                              # ~30 shell scripts for automation
+├── hooks/                              # 42 shell scripts for automation
 ├── memory/                             # Persistent memory database
 ├── handoffs/                           # Session checkpoint packets
 ├── plans/                              # Implementation plans
@@ -488,4 +488,4 @@ The profile ships a **Megabrain** system: one vault for all projects (memory + g
 ---
 
 **Last updated:** 2026-06-30  
-**Harness version:** Agent-OS (v8+), 195 listed skills (228 on disk), 40+ agents, 37 hooks, 6 MCP servers, skill-validate errors=0 (PRs #13-14)
+**Harness version:** Agent-OS (v8+), 195 listed skills (228 on disk), 40+ agents, 42 hooks, 6 MCP servers, skill-validate errors=0 (PRs #13-14)
