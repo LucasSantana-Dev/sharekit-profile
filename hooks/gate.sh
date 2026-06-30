@@ -109,13 +109,27 @@ fi
 
 # --- 4. Semantic preservation (held-out eval) -------------------------------
 echo "gate: [4/5] checking semantic preservation (held-out eval)..."
-if [[ -n "$eval_set" && -f "$EVAL/$eval_set/runs.jsonl" ]]; then
+if [[ -n "$eval_set" ]]; then
+  # The gate evaluates on the HELD-OUT split — the proposer never sees these
+  # per-task expected verdicts (evaluator-not-agent invariant). eval-run.sh
+  # refuses --split heldout unless --gate-authority is passed, which only the
+  # gate supplies. Always re-run: the bench is cheap and deterministic, and
+  # re-running catches regressions introduced since the last gate run.
+  #
+  # Use a dedicated eval-set name suffixed "-heldout" so the gate's held-out
+  # counts are isolated from any "seen" runs the proposer recorded under the
+  # base name. This keeps the lift computation split-pure without a schema change.
+  heldout_set="${eval_set}-heldout"
+  echo "  eval: running held-out bench (set=$heldout_set) via eval-run.sh --gate-authority..."
+  "$ROOT/hooks/eval-run.sh" --eval "$heldout_set" --variant with    --split heldout --gate-authority >/dev/null 2>&1 || true
+  "$ROOT/hooks/eval-run.sh" --eval "$heldout_set" --variant without --split heldout --gate-authority >/dev/null 2>&1 || true
   # The gate reads the eval results — the proposer did NOT author them (held-out).
   # If the latest "with" pass rate is not better than "without", it's a regression.
-  with_pass="$(jq -r 'select(.variant=="with" and .outcome=="pass")' "$EVAL/$eval_set/runs.jsonl" | jq -s 'length' 2>/dev/null || echo 0)"
-  with_n="$(jq -r 'select(.variant=="with")' "$EVAL/$eval_set/runs.jsonl" | jq -s 'length' 2>/dev/null || echo 0)"
-  without_pass="$(jq -r 'select(.variant=="without" and .outcome=="pass")' "$EVAL/$eval_set/runs.jsonl" | jq -s 'length' 2>/dev/null || echo 0)"
-  without_n="$(jq -r 'select(.variant=="without")' "$EVAL/$eval_set/runs.jsonl" | jq -s 'length' 2>/dev/null || echo 0)"
+  rf="$EVAL/$heldout_set/runs.jsonl"
+  with_pass="$(jq -r 'select(.variant=="with" and .outcome=="pass")' "$rf" | jq -s 'length' 2>/dev/null || echo 0)"
+  with_n="$(jq -r 'select(.variant=="with")' "$rf" | jq -s 'length' 2>/dev/null || echo 0)"
+  without_pass="$(jq -r 'select(.variant=="without" and .outcome=="pass")' "$rf" | jq -s 'length' 2>/dev/null || echo 0)"
+  without_n="$(jq -r 'select(.variant=="without")' "$rf" | jq -s 'length' 2>/dev/null || echo 0)"
   if [[ "$with_n" -gt 0 && "$without_n" -gt 0 ]]; then
     lift="$(awk "BEGIN{printf \"%.3f\", ($with_pass/$with_n) - ($without_pass/$without_n)}")"
     if awk "BEGIN{exit !($lift >= 0)}"; then
