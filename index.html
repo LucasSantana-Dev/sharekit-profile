@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agent OS — Claude Code Operator Harness Guide</title>
-  <meta name="description" content="A clear guide to the Claude Code operator harness — how skills, composites, sub-agents, and lifecycle hooks fit together, plus a searchable catalog of every skill, agent, hook, MCP server, and plugin.">
+  <meta name="description" content="A clear guide to the OpenCode / Claude Code operator harness — 50 active skills, composites, sub-agents, lifecycle hooks, MCP servers, and plugin integrations.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -774,7 +774,7 @@
       Guide
     </button>
     <button class="nav-tab" data-panel="skills">
-      Skills <span class="tab-count" id="tc-skills">260</span>
+      Skills <span class="tab-count" id="tc-skills">50</span>
     </button>
     <button class="nav-tab" data-panel="agents">
       Agents <span class="tab-count" id="tc-agents">39</span>
@@ -832,18 +832,18 @@
           <div class="g-hero-badge"><span class="dot"></span> Operator harness · live reference</div>
           <h1>Your autonomous engineering operator.</h1>
           <p class="g-hero-sub">
-            A fully-wired Claude Code environment: reusable <strong>skills</strong> you invoke,
+            A fully-wired OpenCode / Claude Code environment: 50 active repo-tracked <strong>skills</strong> you invoke,
             <strong>composites</strong> that chain them with gates, <strong>sub-agents</strong> that do
             isolated work in parallel, and <strong>hooks</strong> that fire automatically on every prompt.
             This page is the map — start here, then dive into the catalog.
           </p>
 
           <div class="g-stats">
-            <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">240+</div><div class="g-stat-label">Skills</div></div>
-            <div class="g-stat"><div class="g-stat-num" style="color:var(--violet)" id="st-composites">55+</div><div class="g-stat-label">Composites</div></div>
+            <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">50</div><div class="g-stat-label">Skills ativas</div></div>
+            <div class="g-stat"><div class="g-stat-num" style="color:var(--violet)" id="st-composites">6</div><div class="g-stat-label">Composites</div></div>
             <div class="g-stat"><div class="g-stat-num" style="color:var(--blue)" id="st-agents">39</div><div class="g-stat-label">Agents</div></div>
             <div class="g-stat"><div class="g-stat-num" style="color:var(--amber)">9</div><div class="g-stat-label">Hook events</div></div>
-            <div class="g-stat"><div class="g-stat-num" style="color:var(--green)" id="st-mcp">12</div><div class="g-stat-label">MCP + cloud</div></div>
+            <div class="g-stat"><div class="g-stat-num" style="color:var(--green)" id="st-mcp">18</div><div class="g-stat-label">MCP + cloud</div></div>
             <div class="g-stat"><div class="g-stat-num" style="color:var(--pink)">58</div><div class="g-stat-label">Standards</div></div>
           </div>
 
@@ -865,7 +865,7 @@
               <div class="g-nodes">
                 <div class="g-node">
                   <div class="g-node-title"><span class="pip" style="background:var(--cyan)"></span>Skills</div>
-                  <div class="g-node-desc">One well-scoped task — <code>/ship</code>, <code>/code-review</code>, <code>/debug</code>. Run in your context, read-only by default. Invoke with <code>/name</code> or let the router auto-detect.</div>
+                  <div class="g-node-desc">One well-scoped task — <code>/ship</code>, <code>/review</code>, <code>/debug</code>. Run in your context, read-only by default. Invoke with <code>/name</code> or let the router auto-detect.</div>
                 </div>
                 <div class="g-node">
                   <div class="g-node-title"><span class="pip" style="background:var(--violet)"></span>Composites</div>
@@ -915,13 +915,13 @@
         <div class="g-section" id="g-quickstart">
           <div class="g-eyebrow">Quickstart · ~5 min</div>
           <h2 class="g-h2">Your first autonomous task</h2>
-          <p class="g-lead">Prerequisites: Claude Code CLI installed, this profile in <code>~/.claude/</code>, a git repo to work in.</p>
+          <p class="g-lead">Prerequisites: OpenCode or Claude Code installed, this profile in <code>~/.claude/</code>, and a git repo to work in.</p>
           <div class="g-steps">
             <div class="g-step">
               <div class="g-step-num">1</div>
               <div class="g-step-body">
-                <div class="g-step-title">Open the CLI — the SessionStart hook primes everything</div>
-                <div class="g-code"><span class="c-cmd">$ claude</span>
+                <div class="g-step-title">Open the harness — the SessionStart hook primes everything</div>
+                <div class="g-code"><span class="c-cmd">$ opencode</span>
 <span class="c-out">⟳ pull memories + ADRs · reindex drifted RAG · branch/drift checks</span>
 <span class="c-ok">✓ session ready</span></div>
               </div>
@@ -947,9 +947,9 @@
             <div class="g-step">
               <div class="g-step-num">4</div>
               <div class="g-step-body">
-                <div class="g-step-title">Stuck or unsure which skill? Let it route you</div>
-                <div class="g-code"><span class="c-cmd">&gt; /route "I need to refactor the auth module safely"</span>
-<span class="c-out">→ picks /refactor-pipeline, explains why</span></div>
+                <div class="g-step-title">Need a safe module refactor? Invoke the skill directly</div>
+                <div class="g-code"><span class="c-cmd">&gt; /refactor "the auth module"</span>
+<span class="c-out">→ surgical, behavior-preserving cleanup with validation</span></div>
               </div>
             </div>
           </div>
@@ -963,12 +963,12 @@
             <div class="g-card">
               <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h8l-1 8 10-12h-8l1-8Z"/></svg></span>Skill</div>
               <div class="g-card-body">A reusable, well-scoped workflow invoked with <code>/name</code>. Runs in your current context; most are read-only and hand you findings to apply.</div>
-              <div class="g-card-eg"><b>e.g.</b> <code>/code-review</code> reads your diff → returns severity-rated findings.</div>
+              <div class="g-card-eg"><b>e.g.</b> <code>/review</code> reads your diff → returns standards + spec findings.</div>
             </div>
             <div class="g-card">
               <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>Composite</div>
               <div class="g-card-body">A skill that auto-chains several sub-skills with a gate between phases. The router fires <code>🎯 Composite match</code> when your intent matches one. Always prefer it — running sub-skills by hand skips critical phases.</div>
-              <div class="g-card-eg"><b>e.g.</b> <code>/refactor-pipeline</code> → plan → 3-agent team → test-cleanup → ADR → docs-sync.</div>
+              <div class="g-card-eg"><b>e.g.</b> <code>/three-man-team</code> → architect → builder → reviewer.</div>
             </div>
             <div class="g-card">
               <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="8" width="6" height="6" rx="1"/><circle cx="6" cy="5" r="1"/><circle cx="18" cy="5" r="1"/><circle cx="6" cy="19" r="1"/><circle cx="18" cy="19" r="1"/></svg></span>Sub-agent</div>
@@ -988,7 +988,7 @@
             <div class="g-card">
               <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><circle cx="8" cy="6" r="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="12" cy="12" r="2"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="16" cy="18" r="2"/></svg></span>Model tiering</div>
               <div class="g-card-body">Match model strength to task. <b>Haiku</b> for mechanical work, <b>Sonnet</b> for implementation, <b>Opus</b> for orchestration &amp; architecture. A hook hints the tier each turn.</div>
-              <div class="g-card-eg"><b>e.g.</b> <code>/smart-model-select</code> before any multi-agent job.</div>
+              <div class="g-card-eg"><b>e.g.</b> a UserPromptSubmit hook hints Haiku → Sonnet → Opus each turn.</div>
             </div>
             <div class="g-card">
               <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v10l6 6"/></svg></span>Autonomy</div>
@@ -1012,15 +1012,15 @@
             <button class="g-task" data-search="next-priority"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v10l6 6"/></svg></span><span class="g-task-main"><span class="g-task-want">Know what to work on</span><span class="g-task-skill">/next-priority</span></span></button>
             <button class="g-task" data-search="plan"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18v16H3V4z"/><path d="M3 10h18M7 4v6M12 4v6M17 4v6"/></svg></span><span class="g-task-main"><span class="g-task-want">Plan multi-step work</span><span class="g-task-skill">/plan</span></span></button>
             <button class="g-task" data-search="dispatch"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8M4 10l6-6m4 6l6 6"/></svg></span><span class="g-task-main"><span class="g-task-want">Run independent tasks in parallel</span><span class="g-task-skill">/dispatch · /orchestrate</span></span></button>
-            <button class="g-task" data-search="review"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span><span class="g-task-main"><span class="g-task-want">Review code before merge</span><span class="g-task-skill">/code-review</span></span></button>
-            <button class="g-task" data-search="debug"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10h10M8 14h2M14 14h2M7 10a4 4 0 0 0-2.83 7M17 10a4 4 0 0 1 2.83 7"/></svg></span><span class="g-task-main"><span class="g-task-want">Debug a failing test or prod issue</span><span class="g-task-skill">/debug · /debug-deep</span></span></button>
+            <button class="g-task" data-search="review"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span><span class="g-task-main"><span class="g-task-want">Review code before merge</span><span class="g-task-skill">/review</span></span></button>
+            <button class="g-task" data-search="debug"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10h10M8 14h2M14 14h2M7 10a4 4 0 0 0-2.83 7M17 10a4 4 0 0 1 2.83 7"/></svg></span><span class="g-task-main"><span class="g-task-want">Debug a failing test or prod issue</span><span class="g-task-skill">/debug</span></span></button>
             <button class="g-task" data-search="ship"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v14m0 0L7 11m5 5l5-5"/></svg></span><span class="g-task-main"><span class="g-task-want">Ship work to production</span><span class="g-task-skill">/ship</span></span></button>
-            <button class="g-task" data-search="refactor"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20m-2 8v4m-16-4v4m4-12v16m8-16v16"/></svg></span><span class="g-task-main"><span class="g-task-want">Refactor a module safely</span><span class="g-task-skill">/refactor-pipeline</span></span></button>
-            <button class="g-task" data-search="audit"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span><span class="g-task-main"><span class="g-task-want">Audit the whole project</span><span class="g-task-skill">/audit-deep</span></span></button>
-            <button class="g-task" data-search="secure"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1L2 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-10-4z"/></svg></span><span class="g-task-main"><span class="g-task-want">Security pass before deploy</span><span class="g-task-skill">/secure · /security-sweep</span></span></button>
-            <button class="g-task" data-search="decide"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></svg></span><span class="g-task-main"><span class="g-task-want">Make &amp; record a decision</span><span class="g-task-skill">/research-and-decide · /decide</span></span></button>
+            <button class="g-task" data-search="refactor"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20m-2 8v4m-16-4v4m4-12v16m8-16v16"/></svg></span><span class="g-task-main"><span class="g-task-want">Refactor a module safely</span><span class="g-task-skill">/refactor</span></span></button>
+            <button class="g-task" data-search="audit"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span><span class="g-task-main"><span class="g-task-want">Audit the whole project</span><span class="g-task-skill">/quality-gates</span></span></button>
+            <button class="g-task" data-search="secure"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1L2 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-10-4z"/></svg></span><span class="g-task-main"><span class="g-task-want">Security pass before deploy</span><span class="g-task-skill">/secure</span></span></button>
+            <button class="g-task" data-search="decide"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></svg></span><span class="g-task-main"><span class="g-task-want">Make &amp; record a decision</span><span class="g-task-skill">/decide · /decide-now</span></span></button>
             <button class="g-task" data-search="handoff"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2z"/><path d="M9 8V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span><span class="g-task-main"><span class="g-task-want">Save state before stopping</span><span class="g-task-skill">/handoff</span></span></button>
-            <button class="g-task" data-search="memory"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v12H8z"/><path d="M5 16h14a2 2 0 0 1 2 2v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a2 2 0 0 1 2-2z"/></svg></span><span class="g-task-main"><span class="g-task-want">Recall or persist knowledge</span><span class="g-task-skill">/recall · /adt-memory</span></span></button>
+            <button class="g-task" data-search="memory"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v12H8z"/><path d="M5 16h14a2 2 0 0 1 2 2v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a2 2 0 0 1 2-2z"/></svg></span><span class="g-task-main"><span class="g-task-want">Recall or persist knowledge</span><span class="g-task-skill">/recall · /knowledge-loop</span></span></button>
           </div>
         </div>
 
@@ -1050,7 +1050,7 @@
             <div class="g-rule"><span class="g-rule-n">04</span><span><b>State-check before mutation</b> — query current state first; skip if already satisfied. Idempotent by default.</span></div>
             <div class="g-rule"><span class="g-rule-n">05</span><span><b>No big-bang rewrites without a demand gate</b> — measure usage first, prototype one unit, then commit.</span></div>
             <div class="g-rule"><span class="g-rule-n">06</span><span><b>Stuck protocol</b> — &gt; 2 attempts without progress → surface it, switch approach, then escalate. Never silently loop.</span></div>
-            <div class="g-rule"><span class="g-rule-n">07</span><span><b>Pattern Discovery Protocol (mandatory before implementation)</b> — "Search First, Reuse Always, Create Only When Necessary." Before any non-trivial work: search specs (<code>recall</code>/grep <code>docs/specs/</code>) → search codebase (grep/glob) → search session history (<code>recall</code>) → consult docs → architectural validation (route to <code>@oracle</code> for non-obvious cases). Chain <code>context-pack</code> before <code>plan</code>/<code>scope-and-execute</code>/<code>refactor</code>. Trivial single-file edits (&lt;20 lines, known path) are exempt.</span></div>
+            <div class="g-rule"><span class="g-rule-n">07</span><span><b>Pattern Discovery Protocol (mandatory before implementation)</b> — "Search First, Reuse Always, Create Only When Necessary." Before any non-trivial work: search specs (<code>recall</code>/grep <code>docs/specs/</code>) → search codebase (grep/glob) → search session history (<code>recall</code>) → consult docs → architectural validation (route to <code>@oracle</code> for non-obvious cases). Chain <code>context-pack</code> before <code>plan</code>/<code>scope-it</code>/<code>refactor</code>. Trivial single-file edits (&lt;20 lines, known path) are exempt.</span></div>
             <div class="g-rule"><span class="g-rule-n">08</span><span><b>Independence Gate (review/security/critic agents)</b> — Review, security, and critic agents MUST be independent subagents — never collapsed into the implementer lane. Roles that MUST be independent: <code>code-reviewer</code>, <code>security-reviewer</code>, <code>critic</code>. Read-only-by-construction is about tool permissions (no write/edit). Independence is about lane separation — even with no write tools, a reviewer running in the same context as the implementer has compromised objectivity. Spawn an independent review subagent: after <code>@fixer</code> completes → <code>@code-reviewer</code> or <code>@oracle</code>; before merge → <code>@code-reviewer</code>; security-sensitive → <code>@security-reviewer</code>; high-stakes → <code>critic</code>.</span></div>
           </div>
         </div>
@@ -1090,7 +1090,7 @@
       <div class="grid-header">
         <div>
           <div class="grid-header-title" id="grid-title">All Skills</div>
-          <div class="grid-header-sub" id="grid-sub">260 skills across 24 categories — invoke autonomously or with /<i>name</i></div>
+          <div class="grid-header-sub" id="grid-sub">50 skills across 15 categories — invoke autonomously or with /<i>name</i></div>
         </div>
         <div class="result-count" id="result-count"></div>
       </div>
@@ -1186,637 +1186,127 @@
 // ══ DATA ════════════════════════════════════════════════════════════════════
 
 const CATEGORIES = [
-  { id: 'session',      label: 'Session & Context',           color: '#06b6d4', guide: 'Use at the start or end of a session. wake-up and resume are daily entry points; handoff is the exit. Composites chain these automatically.' },
-  { id: 'planning',     label: 'Planning & Execution',        color: '#6366f1', guide: 'Use when scoping work before touching code. plan for non-trivial tasks; route when unsure; dispatch/orchestrate when work decomposes into independent parallel tracks.' },
-  { id: 'quality',      label: 'Code Quality & Review',       color: '#a78bfa', guide: 'Use after writing code or before merging. verify is the lightweight pre-merge gate; refactor-pipeline is the full composite for larger cleanups.' },
-  { id: 'testing',      label: 'Testing',                     color: '#22d3ee', guide: 'Reach for test-health first (read-only), then test-cleanup to prune, mutation-test to validate survivors. tdd for new features built test-first.' },
-  { id: 'debugging',    label: 'Debugging',                   color: '#f87171', guide: 'Start with debug for most bugs. Escalate to debug-deep (composite) when the issue spans CI, Sentry, and multiple services.' },
-  { id: 'security',     label: 'Security',                    color: '#fb923c', guide: 'secure before any deploy touching auth, secrets, or infra. security-sweep (composite) for a full pass. socket-audit for supply-chain risk.' },
-  { id: 'git',          label: 'Git & PR',                    color: '#4ade80', guide: 'pr-flow for the full PR cycle. merge-confidently before any merge. branch-hygiene to clean up stale branches. first-pr* for onboarding into unfamiliar repos.' },
-  { id: 'release',      label: 'Release & Deployment',        color: '#34d399', guide: 'ship for tagging a release after merge; ship-it* (composite) for the full bump → changelog → tag → deploy chain. hotfix only for production emergencies.' },
-  { id: 'architecture', label: 'Architecture & Decisions',    color: '#fbbf24', guide: 'adr-write after any significant technical decision. research-and-decide* when exploring options before deciding. grill-me to stress-test your plan.' },
-  { id: 'frontend',     label: 'Frontend & UI',               color: '#f472b6', guide: 'ui-expert for production-quality interfaces; ai-slop-audit after any AI-generated UI. design-build* for the full design-to-verified loop.' },
-  { id: 'backend',      label: 'Backend',                     color: '#94a3b8', guide: 'Reference skills — load on demand when working in that layer. supabase any time Supabase is involved.' },
-  { id: 'observability',label: 'Observability & Monitoring',  color: '#38bdf8', guide: 'observe routes to the right sub-skill. observability-bootstrap for new services. sentry when investigating a production error.' },
-  { id: 'mcp-dev',      label: 'MCP Development',             color: '#a3e635', guide: 'adt-mcp-patterns for building a new MCP server. mcp-care* for a full health check. adt-mcp-doctor when a server fails to start.' },
-  { id: 'ai-agents',    label: 'AI & Agents',                 color: '#c084fc', guide: 'adt-multi-agent for orchestrating parallel agent teams. smart-model-select before any multi-agent job. adt-eval to measure LLM output quality.' },
-  { id: 'rag',          label: 'RAG & Memory',                color: '#fb7185', guide: 'recall for a quick semantic lookup before reading files. adt-memory to persist decisions. memory-prune when the memory index feels stale.' },
-  { id: 'skill-mgmt',   label: 'Skill & Plugin Management',   color: '#60a5fa', guide: 'write-a-skill to create a new skill. skill-effectiveness-audit when a skill is being bypassed. docs-sync after editing any skill.' },
-  { id: 'repo-mgmt',    label: 'Repository Management',       color: '#34d399', guide: 'onboard-new-repo on first touch of an unfamiliar codebase. backlog to turn audit findings into a prioritized issue board. audit-deep* for full health check.' },
-  { id: 'cicd',         label: 'CI/CD',                       color: '#f59e0b', guide: 'ci-watch when PR checks are red. dep-sweep* to batch-process Dependabot/Renovate PRs. adt-schedule to define recurring automated runs.' },
-  { id: 'incident',     label: 'Incident Management',         color: '#ef4444', guide: 'incident-response to coordinate a live production issue. production-incident* for the full triage-to-fix-to-ADR chain.' },
-  { id: 'sync-docs',    label: 'Sync & Documentation',        color: '#e879f9', guide: 'docs-sync after editing any skill, standard, or hook. graphify to turn a codebase or docs folder into a queryable knowledge graph.' },
-  { id: 'performance',  label: 'Performance & Cost',          color: '#94a3b8', guide: 'token-audit for weekly spend review. smart-model-select before long or expensive tasks. rate-limit-watch auto-fires; no manual invoke needed.' },
-  { id: 'standards',    label: 'Standards & Research',        color: '#64748b', guide: 'adt-research for deep investigation before a decision. standards to load repo-specific coding standards. adt-plan-change before any multi-file edit.' },
-  { id: 'ponytail',    label: 'Ponytail',                    color: '#84cc16', guide: 'Minimalism discipline — ponytail before over-engineering. Use ponytail-audit to scan the full repo, ponytail-review in PRs, ponytail-debt to track shortcuts.' },
-  { id: 'writing',     label: 'Writing',                     color: '#f97316', guide: 'Writing and content skills. writing-beats for article structure, writing-shape for drafting from raw material, writing-fragments for mining ideas.' },
+  { id: 'session',      label: 'Session & Context',           color: '#06b6d4', guide: 'Use session-bootstrap to start focused, resume to rehydrate work, context-pack/context-save for context control, and handoff when switching sessions.' },
+  { id: 'planning',     label: 'Planning & Execution',        color: '#6366f1', guide: 'Use plan for non-trivial work, scope-it to bound blast radius, loop for iterative execution, and dispatch/orchestrate/three-man-team when work decomposes cleanly.' },
+  { id: 'quality',      label: 'Code Quality & Review',       color: '#a78bfa', guide: 'Use review for two-axis diff review, verify for the narrow pre-ship gate, refactor for behavior-preserving cleanup, and quality-gates for repo-native checks.' },
+  { id: 'testing',      label: 'Testing',                     color: '#22d3ee', guide: 'Use tdd or test-driven-development when building behavior test-first.' },
+  { id: 'debugging',    label: 'Debugging',                   color: '#f87171', guide: 'Start with debug for most bugs. Pair with ci-watch or pr-merge-readiness when the issue spans CI or release gates.' },
+  { id: 'security',     label: 'Security',                    color: '#fb923c', guide: 'Use secure before work touching credentials, auth, dependencies, infra, or deployment shortcuts.' },
+  { id: 'git',          label: 'Git & PR',                    color: '#4ade80', guide: 'Use pr-merge-readiness before merge to combine CI, review, coverage, Sonar, and conflict signals.' },
+  { id: 'release',      label: 'Release & Deployment',        color: '#34d399', guide: 'Use ship for validated release/deploy flow, changelog-update for release notes, version-bump for versioning, and ci-watch when checks block release.' },
+  { id: 'architecture', label: 'Architecture & Decisions',    color: '#fbbf24', guide: 'Use decide for durable architectural choices, decide-now for context-aware quick calls, and domain/codebase design skills for structural work.' },
+  { id: 'frontend',     label: 'Frontend & UI',               color: '#f472b6', guide: 'Use frontend-design for expressive UI concepts and impeccable for production polish.' },
+  { id: 'rag',          label: 'RAG & Memory',                color: '#fb7185', guide: 'Use recall for semantic lookup, codebase-memory for structural queries, memory-prune for stale memory cleanup, and rag-maintenance for index health.' },
+  { id: 'skill-mgmt',   label: 'Skill & Plugin Management',   color: '#60a5fa', guide: 'Use skill-creator-plugin to create, update, evaluate, and improve skills.' },
+  { id: 'sync-docs',    label: 'Sync & Documentation',        color: '#e879f9', guide: 'Use graphify to turn docs or code folders into navigable knowledge graphs.' },
+  { id: 'cicd',         label: 'CI/CD',                       color: '#f59e0b', guide: 'Use ci-watch to diagnose red checks and dep-sweep to process dependency-update PRs safely.' },
+  { id: 'ponytail',     label: 'Ponytail',                    color: '#84cc16', guide: 'Use ponytail to bias toward deleting, simplifying, and shortening before adding abstractions.' },
 ];
 
 const TRANSLATIONS = {
-  "wake-up": "Brief compacto de session-bootstrap — responde 'o que estava fazendo, o que está bloqueando, qual é o próximo passo' em ~600-900 tokens.",
-  "session-bootstrap": "Composite de início do dia. Encadeia wake-up → next-priority → pr-snapshot → context-pack.",
-  "resume": "Reidrata a tarefa atual a partir de handoffs, planos, tarefas, notas de memória e estado do git.",
-  "context-pack": "Monta um bundle de contexto sensível à tarefa (código relevante + padrões + decisões passadas) via RAG, limitado por orçamento de tokens.",
-  "context-save": "Captura o estado atual da tarefa para que o trabalho possa ser retomado depois sem redescoberta.",
-  "handoff": "Compacta a conversa atual em um documento de handoff para outro agente pegar.",
-  "session-wrap-up": "Encerra uma sessão de desenvolvimento enviando trabalho, capturando memória e escrevendo handoff.",
-  "session-cleanup": "Limpa o estado atual da sessão para que o trabalho possa transicionar de forma limpa para a próxima sessão.",
-  "zoom-out": "Pede ao agente uma perspectiva mais ampla ou de nível superior sobre código desconhecido.",
-  "optimize-context": "Otimiza o uso de contexto reduzindo bloat, melhorando eficiência de tokens e focando em áreas relevantes.",
-  "plan": "Monta um plano de implementação compacto e validado para trabalho multi-etapa, arriscado ou ambíguo.",
-  "route": "Decide a skill, agente ou chain certa para a requisição atual antes de gastar tokens no caminho errado.",
-  "next-priority": "Decide a coisa de maior valor e segura para fazer agora no repo ou workspace ativo.",
-  "loop": "Ritmo de execução padrão — inspecionar → agir → verificar → checkpoint — aplicado iterativamente até pronto.",
-  "dispatch": "Divide trabalho de investigação claramente separável em trilhas paralelas e depois reconcilia resultados.",
-  "orchestrate": "Coordena equipes multi-agente, trabalho multi-etapa ou multi-repo entre planos, skills, worktrees e investigações paralelas.",
-  "add": "Adiciona uma feature, teste, config, doc ou automação com segurança com escopo claro e validação.",
-  "scope-and-execute": "Entende um problema, planeja o trabalho, executa e envia tudo em um workflow encadeado.",
-  "parallel-investigate": "Distribui N investigações independentes como agentes paralelos em um único bloco de tool-use e depois agrega resultados.",
-  "parallel-phases": "Pega um plano em fases com tarefas independentes por fase, distribui agentes por onda, controla entre fases.",
-  "subagent-driven-development": "Executa planos de implementação com tarefas independentes usando subagentes paralelos na sessão atual.",
-  "feature-from-zero": "Mega-composite — feature greenfield completa de ideia para produção: research → scope → design → test → merge → ship.",
-  "fallback": "Recupera-se com segurança quando a ferramenta, skill ou caminho preferido falha.",
-  "code-review": "Code review que prioriza bugs, regressões, problemas de segurança e erros de lógica sobre estilo.",
-  "refactor": "Melhoria cirúrgica de código sem mudar comportamento — elimina code smells preservando comportamento.",
-  "refactor-plan": "Planeja um refactor multi-arquivo com sequência apropriada e passos de rollback.",
-  "refactor-pipeline": "Refatora com segurança um módulo ponta a ponta: plan → three-man-team → fix-the-suite → ADR → docs-sync.",
-  "verify": "Executa a sequência de validação mais estreita e significativa antes de merge, release ou handoff.",
-  "verify-before-done": "Gate de verificação pré-ship: lint/type/build → tests → coverage → Sonar → CI → Sentry.",
-  "quality-assurance": "Escolhe e sequencia as skills e checks QA certas para uma mudança ou release.",
-  "quality-gates": "Executa gates de verificação nativos do repositório como lint, type-check e testes.",
-  "improve-codebase-architecture": "Encontra oportunidades de aprofundamento informadas por CONTEXT.md e ADRs — refactoring, testabilidade, consolidação de módulos.",
-  "impeccable": "Polida interfaces frontend: UX review, hierarquia visual, acessibilidade, comportamento responsivo, design systems.",
-  "tdd": "Desenvolvimento orientado por testes com loop red-green-refactor — escreve testes falhando primeiro, implementa, refatora.",
-  "test-health": "Diagnóstico somente leitura reportando o estado da suite de testes do projeto — contagem, cobertura, tempo de execução, flakiness, testes mortos.",
-  "test-cleanup": "Audita e poda uma suite de testes inchada até o mínimo de testes que atingem limiar de cobertura e guardando comportamento real.",
-  "generate-tests": "Analisa mudanças de código e propõe ou gera testes significativos que cobrem a mudança.",
-  "coverage-gap": "Encontra e preenche gaps de cobertura de testes para um PR analisando diffs e escrevendo novos testes.",
-  "mutation-test": "Executa mutation testing para verificar que testes realmente pegam falhas quando código fonte está quebrado.",
-  "fix-the-suite": "Diagnostica, repara e valida uma suite de testes: test-health → config-drift → test-cleanup → mutation-test → ADR.",
-  "backend-testing": "Guia de backend testing abrangente para testes unitários, integração, autenticação e API.",
-  "webapp-testing": "Testa uma aplicação web local com scripts baseados em Playwright, screenshots e fluxos de interação.",
-  "playwright-best-practices": "Guia de testes Playwright — E2E, component, API, visual, accessibility, security e Electron testing.",
-  "performance-test": "Identifica gargalos de performance e coleta métricas sob carga realista.",
-  "debug": "Análise sistemática de causa raiz para bugs, erros e comportamento inesperado.",
-  "debug-deep": "Composite completo para bugs complexos multi-service: Sentry → CI logs → code trace → fix → regression test.",
-  "systematic-debugging": "Aplica o protocolo de debugging 4-fase: observe → hypothesize → isolate → fix. Bloqueia tentativas de racionalização.",
-  "diagnosing-bugs": "Workflow de diagnóstico de bug estruturado — reproduz, isola causa raiz, documenta evidência antes de tocar código.",
-  "secure": "Executa uma passada security-first para config, credenciais, risco de dependência e atalhos operacionais inseguros.",
-  "security-audit": "Auditoria de segurança ampla através de secrets, dependências, caminhos de código e riscos OWASP.",
-  "security-scan": "Executa passos de segurança scanning concretos incluindo Trivy, npm audit e detecção de secrets.",
-  "security-sweep": "Passada de segurança completa: security-audit + socket-audit + semgrep + code-security em paralelo.",
-  "semgrep": "Executa scans de análise estática Semgrep e cria regras de detecção customizadas para scanning baseado em padrões.",
-  "socket-audit": "Executa auditoria de segurança de supply chain Socket.dev em dependências npm para pacotes maliciosos e typosquatting.",
-  "sonar-check": "Preflight de gate SonarCloud pré-push — scans para ReDoS, SSRF e gaps de cobertura.",
-  "config-drift-detect": "Audita gates de projeto (thresholds jest/vitest, tsconfig, eslint, husky, Sonar, proteção de branch) para drift.",
-  "pr-flow": "Gerenciamento de ciclo de vida PR completo — cria, atualiza, revisa e faz merge com convenções apropriadas.",
-  "pr-merge-readiness": "Veredicto combinado antes de merge: status CI, estado de review, cobertura, Sonar e verificação de conflito.",
-  "pr-snapshot": "Snapshot de todos os PRs abertos entre repos — status, staleness, merge-readiness e issues bloqueadores.",
-  "merge-confidently": "Executa todos os checks pré-merge e confirma segurança antes de fazer commit do merge.",
-  "branch-hygiene": "Limpeza one-pass de branches locais stale, worktrees mortos, branches mergeadas e branches remotas de PR abandonadas.",
-  "using-git-worktrees": "Cria git worktrees isoladas para trabalho de feature que não deve reutilizar o checkout principal.",
-  "gh-address-comments": "Responde aos comentários de review no PR GitHub aberto para o branch atual.",
-  "gh-fix-ci": "Debugar e corrigir checks falhando de GitHub PR.",
-  "hotfix": "Bypass emergencial de branch de release quando produção está quebrada e não pode esperar o próximo release.",
-  "ship": "Envia mudanças validadas — tag, GitHub release e verificação pós-ship.",
-  "ship-it": "Leva um PR mergeado todo o caminho até produção: version-bump → changelog → tag → deploy → verify.",
-  "release-cut": "Promove branch de release para main, corta uma versão, limpa. Agrupa muitos PRs em um release.",
-  "version-bump": "Automatiza version bumping em monorepos npm com promoção CHANGELOG e automação de PR.",
-  "changelog-update": "Atualiza CHANGELOG.md promovendo conteúdo [Unreleased] para uma seção versionada.",
-  "deployment-automation": "Automatiza deployment de aplicação para plataformas e servidores cloud.",
-  "vercel-deploy": "Faz deploy de aplicações e websites para Vercel.",
-  "cloudflare-deploy": "Faz deploy de aplicações e infraestrutura para Cloudflare — Workers, Pages, KV, R2.",
-  "prod-rebuild": "Reconstrói e reinicia serviços Docker de produção em servidor remoto com monitoramento assíncrono.",
-  "repo-bootstrap": "Configura um repo novo para o workflow release-branch: cria release branch, CHANGELOG, config dep-sweep, PR.",
-  "adr-write": "Captura um Architecture Decision Record — o que foi decidido, por quê, alternativas, quando revisitar.",
-  "adr-gap": "Encontra decisões que deveriam ter um ADR mas não têm — scana código para escolhas arquiteturais não documentadas.",
-  "research-and-decide": "Composite — research → critic challenge → plan → ADR. Força o pareamento research-to-decision.",
-  "grill-me": "Entrevista o usuário implacavelmente sobre um plano ou design até atingir entendimento compartilhado.",
-  "grill-with-docs": "Sessão de grilling que desafia seu plano contra o modelo de domínio existente e atualiza documentação inline.",
+  "add": "Adiciona feature, teste, configuração, documentação ou automação com escopo claro e validação.",
+  "architecture-patterns": "Escolhe e aplica padrões de arquitetura backend como Clean Architecture, DDD e CQRS.",
   "brainstorming": "Facilita exploração colaborativa de ideias e transforma conceitos brutos em propostas estruturadas.",
-  "api-design-principles": "Domina princípios de design REST e GraphQL API para APIs intuitivas e escaláveis.",
-  "architecture-patterns": "Escolhe e aplica padrões de arquitetura backend — Clean Architecture, DDD, CQRS e mais.",
-  "prototype": "Constrói um protótipo descartável para detalhar um design antes de comprometer.",
-  "domain-modeling": "Modela a camada de domínio com entidades, value objects, agregados e invariantes.",
-  "codebase-design": "Analisa e melhora o design geral e estrutura da codebase.",
-  "repaint": "Ponto de entrada único para TODA construção/restyling frontend — qualquer página, componente, dashboard, hero, seção de pricing ou data table.",
-  "ui-expert": "Constrói interfaces frontend de nível produção que parecem Linear, Vercel, Stripe ou Notion — não output genérico de LLM.",
-  "frontend-design": "Cria interfaces frontend ousadas e art-directed para trabalho explicitamente criativo ou expressivo.",
-  "design-build": "Design, scaffold, constrói e verifica uma UI: ui-audit → shadcn/tailwind → impeccable → webapp-testing.",
-  "shadcn": "Gerencia componentes shadcn — adição, busca, correção, debugging e configuração.",
-  "tailwind-design-system": "Guia Tailwind CSS v4 design-system para tokens, theming e padrões de componentes.",
-  "ai-slop-audit": "Passada de QA pós-geração que linta output frontend contra anti-padrões conhecidos 'AI made that'.",
-  "design-an-interface": "Design uma interface UI com spec estruturada, decisões de layout e breakdown de componentes.",
-  "docker-expert": "Guia Docker focado em produção para design de imagem, builds multi-stage e orquestração.",
-  "supabase-postgres-best-practices": "Otimização de performance Postgres e best practices do Supabase.",
-  "supabase": "Use para QUALQUER tarefa envolvendo Supabase — Database, Auth, Edge Functions, Realtime, Storage, RLS, migrations.",
-  "prisma-migrate": "Executa migrações Prisma com segurança com checks pré-flight e guia de rollback.",
-  "trigger-dev": "Constrói agentes AI, workflows e tarefas de background duráveis com Trigger.dev.",
-  "observe": "Ponto de entrada unificado para trabalho observability + monitoring — roteia para o membro certo da família.",
-  "langfuse-observe": "Configura observabilidade Langfuse LLM para traçar chamadas Claude API com custos, tokens e latência.",
-  "sentry": "Inspeciona problemas ou eventos Sentry, sumariza erros, correlaciona com deploys recentes.",
-  "mcp-builder": "Guia para criar servidores MCP de alta qualidade do zero.",
-  "mcp-audit": "Diagnóstico somente leitura — scana transcrições de sessão para surfar quais servidores/ferramentas MCP você realmente usa. Flag servidores zero-uso.",
-  "mcp-care": "Auditoria completa e reparo de ciclo de vida do servidor MCP: mcp-audit → mcp-health → mcp-doctor → sugestões mcp-builder.",
-  "adt-mcp-health": "Valida saúde de provedor MCP ao vivo — separa problemas de config de falhas de auth e conectividade.",
-  "hook-development": "Cria hooks para plugins Claude Code — eventos de hook, config, exit codes, contratos stdin/stdout.",
-  "hook-effectiveness": "Audita hooks Claude Code para frequência de disparo, latência, exit codes e valor de output. Executa após cabear novos hooks.",
-  "ai-sdk": "Responde perguntas sobre o AI SDK e ajuda a construir features powered por AI.",
-  "smart-model-select": "Escolhe o modelo mais leve ou tier de reasoning que pode fazer a tarefa bem.",
-  "agent-browser": "Executa automação de browser baseada em ref com agent-browser para navegação rápida e scraping.",
-  "efficiency-advisor": "Analisa um workflow multi-agente proposto para desperdício de tokens e gargalos de tempo.",
-  "recall": "Busca semântica one-shot contra o índice RAG local — fuzzy, cross-file ou sobre raciocínio anterior.",
-  "adt-rag": "Constrói e debugar pipelines Retrieval-Augmented Generation — chunking, embedding, retrieval, reranking.",
-  "adt-rag-coverage": "Audita distribuição de corpus por tipo de fonte e repo; identifica gaps de cobertura e tópicos underindexados.",
-  "adt-rag-drift": "Detecta e corrige chunks stale — arquivos que mudaram ou foram deletados desde last indexing.",
-  "sync-memories": "Sincroniza conhecimento de projeto ou sessão durável nos sistemas de memória disponíveis.",
-  "memory-prune": "Audita arquivos de memória de projeto para entradas stale — onde PRs citadas mergearam, bugs foram corrigidos ou arquivos não existem mais.",
-  "knowledge-loop": "Consulta, captura, melhora e persiste conhecimento: recall → sync-memories → rag-curate → handoff.",
-  "rag-quality": "Avalia qualidade de retrieval do índice RAG local.",
-  "find-skills": "Descobre skills instaláveis relevantes do ecossistema de skills disponível.",
-  "skill-creator": "Cria ou atualiza skills instaladas com descrições de trigger claras, naming estável e estrutura SKILL.md.",
-  "skill-maintainer": "Audita, normaliza, mescla e melhora o catálogo de skills local para que routing permaneça claro e útil.",
-  "skill-effectiveness-audit": "Scana JSONLs de sessão para skills que falharam, retornaram 'out of scope' ou executaram diagnósticos sem ação.",
-  "plugin-audit": "Diagnóstico somente leitura — flag plugins habilitados com zero uso, plugins não registrados, plugins desabilitados-mas-instalados.",
-  "docs-sync": "Detecta e reconcilia drift entre skills/padrões canônicos e suas cópias espelhadas.",
-  "harness-audit": "Audita o harness Claude Code completo para drift, skills stale, hooks mal configurados e agentes mortos.",
-  "onboard-new-repo": "Workflow first-touch: adt-repo-intake → audit-deep → config-drift-detect → init CLAUDE.md.",
-  "backlog": "Construtor de backlog end-to-end: audit-deep → ROI-rank → specs → plan → GitHub issues → project board.",
-  "triage": "Faz triage de issues através de uma state machine dirigida por papéis de triage.",
-  "to-issues": "Quebra um plano, spec ou PRD em GitHub issues independentemente-grabáveis usando vertical slices.",
-  "to-prd": "Transforma o contexto de conversa atual em um PRD e publica no rastreador de issues do projeto.",
-  "audit-deep": "Verificação de saúde completa do projeto entre testing, config, hooks, performance, segurança, MCP e plugins.",
-  "ecosystem-health": "Scana um workspace ou monorepo e retorna um snapshot de saúde bruto de repos, pacotes e CI.",
-  "repo-state-snapshot": "Tira um snapshot rotulado do estado do repo (SHA, issues abertas, PRs abertas, release mais recente) e diffa contra anterior.",
-  "ci-watch": "Inspeciona estado CI atual, identifica o primeiro bloqueador real e monitora até checks ficarem verdes ou entendidos.",
-  "dep-sweep": "Processa em lote PRs abertos Dependabot/Renovate: agrupa por risco → auto-merge seguro → flag arriscado.",
-  "incident-response": "Coordena resposta de incidente usando Sentry, Linear e GitHub para fazer triage, correlacionar e rastrear problemas de produção.",
-  "graphify": "Transforma qualquer pasta de arquivos em um grafo de conhecimento navegável. Use para qualquer pergunta de codebase ou documento.",
-  "sync-sharekit-profile": "Sincroniza este perfil de harness para seu repositório remoto (skills, padrões, hooks, config).",
-  "token-audit": "Analisa uso histórico de tokens Claude Code a partir de arquivos JSONL de sessão — gasto, taxas de cache hit, tendências semanais.",
-  "smart-commands": "Guia de decisão para quando usar proativamente comandos slash Claude Code — /think, /model, /compact, /clear.",
-  "insights": "Gera um relatório de insights de produtividade ou uso para sessões Claude Code.",
-  "metrics": "Mostra métricas de produtividade concretas e analytics de sessão — tokens, tarefas, tempo e throughput de PR.",
-  "standards": "Acessa e aplica padrões de codificação e workflow do projeto.",
-  "adt-research": "Pesquisa profunda sobre um tópico usando busca web, docs e análise de codebase.",
-  "automation-workflows": "Design automação reutilizável para loops de desenvolvimento repetitivos.",
-  "deep-research": "Pesquisa multi-fonte verificada por fatos — verifica reivindicações, avalia fornecedores, gera comparações.",
-  "read-the-damn-docs": "Referência para APIs de terceiros, bibliotecas, frameworks, CLIs e serviços cloud antes de codificar.",
-  "teach": "Ensina uma nova skill ou conceito neste workspace.",
-  "caveman": "Comunicação ultra-comprimida — corta 75% dos tokens eliminando preenchimento mantendo precisão técnica.",
-  "focus": "Foca contexto em uma área de desenvolvimento específica para reduzir ruído ao mudar de domínios.",
-  "task-start": "Bootstraps sessão via 3 agentes paralelos: handoff reader, git state, project intake.",
-  "session-close": "Composite memory close — sync-memories → handoff → knowledge-loop.",
-  "visual-plan": "Transforma planos de texto em planos visuais com diagramas, mapas de arquivo, código, perguntas e protótipos.",
-  "visual-recap": "Transforma um PR, branch ou commit em um visual recap com diagramas e resumos de API/schema.",
-  "scope-it": "Mapeia raio de explosão antes de codificar — identifica arquivos afetados, dependências e superfície de testes.",
-  "plow-ahead": "Progresso autônomo sem paradas de esclarecimento rotineiras — sem perguntas de preenchimento.",
-  "brief-and-drill": "Briefa um subagent com contexto, depois pratica compreensão antes de delegar trabalho real.",
-  "three-man-team": "Paralelo Arquiteto → Builder → Reviewer para features complexas e PRs grandes.",
-  "loop-engineer": "Design e implementa loops de agente autônomos — para prompting manual, auto-itera.",
-  "agent-box-dispatch": "Submete jobs assíncronos para container Docker agent-box — coloca arquivos na fila, verifica resultados assincronamente.",
-  "agent-teams": "Coordena múltiplas sessões de agente para implementação paralela, review e síntese entre workstreams.",
-  "review": "Code review dois-eixo: Padrões (convenções?) e Spec (corresponde ao issue?).",
-  "overengineering-audit": "Flag over-engineering — abstrações especulativas, generalização prematura, indireção desnecessária.",
-  "error-handling-audit": "Audita o caminho infeliz — erros engolidos, vazamentos de recursos, secrets em caminhos de erro.",
-  "orphan-hunt": "Scana código morto: arquivos não importados, exports não usados, dependências não declaradas.",
-  "naming-consistency": "Detecta convenções de nomenclatura e audita violações entre arquivos.",
-  "backend-slop-audit": "Linta código backend contra anti-padrões: erros engolidos, input não validado, timeouts faltando.",
-  "dependency-scout": "Encontra pacotes npm para substituir boilerplate feito à mão. Veta para segurança, manutenção e adoção.",
-  "request-refactor-plan": "Cria um plano de refactor via entrevista, arquivado como um GitHub issue com tiny commits.",
-  "setup-pre-commit": "Configura hooks Husky com lint-staged, type checking e testes.",
-  "qodo-get-rules": "Carrega regras Qodo relevantes para a tarefa atual via busca semântica.",
-  "qodo-pr-resolver": "Revisa feedback Qodo PR — vê por severidade, aplica correções interativamente ou em lote.",
-  "coupling-map": "Mapeia acoplamento de módulo via grafo de import — identifica nós fan-in/fan-out e ciclos.",
-  "grill-with-options": "Entrevista de decisão estruturada usando 2-4 opções limitadas. Stress-test rápido com trade-offs explícitos.",
-  "architecture-improvement": "Auditoria composite de codebase — coupling-map → orphan-hunt → improve → domain-modeling → adr-write.",
-  "decide": "Decisão roteada por modo: veredicto Quick Mode ou Full Mode research → decision → ADR → memory.",
-  "decision-mapping": "Constrói uma DAG de tickets de investigação paralela — cria mapa de decisão e impulsiona para resolução.",
-  "test-driven-development": "Força TDD: loop red-green-refactor — escreve testes falhando antes de código de implementação.",
-  "test-sweep": "Composite três-fase de melhoria de testes — test-health → test-cleanup → mutation-test.",
-  "adt-self-heal": "Recuperação autônoma de erro — detecta falhas, diagnostica causa raiz, aplica correções e retoma.",
-  "skill-security-scan": "Scana corpos de skill e hook para padrões maliciosos (pipe-to-shell, eval suspeito).",
-  "autofix": "Revisa com segurança e aplica feedback CodeRabbit PR com aprovação por mudança.",
-  "adt-ship-check": "Verifica trabalho antes de fazer commit, push ou solicitar review — executa comandos de verificação.",
-  "pr-to-release": "Composite — branch → release com changelog, PR e verificação de deploy readiness.",
-  "ui-ux-pro-max": "Biblioteca de referência UI/UX: 97 paletas, 57 fontes, 50+ componentes, padrões e design systems.",
-  "browser-use": "Automatiza interações de browser para testing, preenchimento de formulário, screenshots e extração de dados.",
-  "use-my-browser": "Usa sessão de browser ao vivo ou estado visível versus fetches estáticas.",
-  "nano-banana": "Gera imagens com modelos nativos Google Gemini — text-to-image e manipulação de imagem.",
-  "shorts-edit": "Edita vídeos curtos verticais 9:16 (TikTok/Reels/Shorts) com captions estilizadas.",
-  "agent-forge": "Transforma qualquer skill em um agente especializado persistente, salvo em ~/.claude/agents/.",
-  "mem-search": "Busca trabalho anterior entre sessões — encontra soluções prévias, how-tos e queries de timeline.",
-  "codebase-memory": "Usa grafo de conhecimento de codebase para queries estruturais — arquitetura, callers, dependências.",
-  "rag-curate": "Melhora corpus RAG — adiciona docs faltando, reescreve chunks fracos, preenche gaps de cobertura.",
-  "rag-eval": "Gate de regressão de retrieval vs baseline — compara Hit@5, MRR e métricas per-intent.",
-  "rag-maintenance": "Composite auditoria RAG completa — mede qualidade, encontra gaps, detecta chunks stale, curate.",
-  "harness-doctor": "Diagnostica saúde do harness: servidores MCP, filesystem, git sync, graph freshness, hooks, settings.",
-  "harness-sync": "Sync bidirecional do harness com proteção de fork — puxa updates upstream sem sobrescrever customizações. Manifest-driven: substituições ({{TOKEN}}→value), renames (path mapping), globs protegidos (nunca sobrescritos), replaced (avisa em mudança upstream), conflict_strategy (upstream-wins|local-wins|prompt|three-way). 5 modos: pull, push, diff, init, validate.",
-  "skill-creator-local": "Fork skill-creator local com unique init_skill.py para compatibilidade histórica.",
-  "adt-auto-invoke": "Tabela de roteamento meta-skill — quando aplicar outras skills automaticamente sem ser perguntado.",
-  "rtk-health": "Verifica probes de reescrita rtk para exit code ask-rule após uma atualização rtk.",
-  "adt-repo-intake": "Integra em um repositório desconhecido rápido — lê docs, detecta stack, sumariza estrutura.",
-  "repo-setup": "Composite — configura um repo novo: bootstrap → config-drift-detect → CLAUDE.md.",
-  "adt-specs-spec-new": "Cria spec committed per-feature com frontmatter — promove planos efêmeros em artefatos persistentes.",
-  "adt-specs-aggregate-roadmap": "Roadmap cross-repo percorrendo frontmatter de specs de repos curados — executa no início da sessão para orientação.",
-  "plan-to-issues": "Cria um GitHub issue por tarefa de plano com phase-labels e milestone opcional.",
-  "extract-package": "Scana módulos low-coupling extraíveis em um pacote npm standalone.",
-  "extract-product": "Scana repo para capacidades inteiras spinnable como seu próprio projeto — OSS, CLI, SaaS ou template.",
-  "session-insights": "Analytics de token e sessão — custo (daily/statusline), stats do workspace (git/GitHub).",
-  "stay-within-limits": "Respeita limites de uso 5-hour e weekly — verifica uso entre ondas, pausa perto do cap.",
-  "performance-audit": "Audita performance do sistema — saúde, roteamento, caching e gargalos de escalabilidade.",
-  "efficient-frontier": "Delega research/coding/testing a subagents mais baratos; mantém planning/synthesis com modelo expensive.",
-  "criativaria-brain-sync": "Sincroniza memórias de projeto Criativaria com o brain GitHub canônico.",
-  "ponytail": "Solução mais preguiçosa que funciona — delete, simplifica, encurta código antes de over-engineering.",
-  "ponytail-audit": "Scan whole-repo de over-engineering — lista ranqueada do que deletar, simplificar ou parar de fazer.",
-  "ponytail-debt": "Colhe comentários ponytail em um ledger de debt — rastreia atalhos deliberados.",
-  "ponytail-gain": "Mostra impacto ponytail: menos código, menos custo, mais speed (medido a partir de medianas).",
-  "ponytail-help": "Referência rápida para modos ponytail, skills e comandos.",
-  "ponytail-review": "Code review focado em over-engineering — encontra o que deletar.",
-  "writing-beats": "Molda um artigo como uma jornada de beats — escreve um beat por vez a partir de material bruto.",
-  "writing-fragments": "Minera por fragmentos de escrita (reivindicações, vinhetas, frases) — constrói uma compilação.",
-  "writing-great-skills": "Referência para escrever skills bem — vocabulário e princípios para previsibilidade.",
-  "writing-shape": "Molda material bruto markdown em um artigo via conversa — draft openings, cresce aos poucos.",
-  "nextjs": "Construa e otimize aplicativos Next.js com renderização no servidor e melhores práticas de deploy.",
-  "vercel-agent": "Use capacidades de agente Vercel para workflows serverless e automação alimentados por IA.",
-  "vercel-api": "Gerencie projetos, deployments e ambientes Vercel através da API Vercel.",
-  "vercel-cli": "Implante e gerencie projetos Vercel pela linha de comando.",
-  "vercel-firewall": "Configure e gerencie regras de Firewall Vercel para proteção DDoS e filtragem de tráfego.",
-  "vercel-flags": "Gerencie feature flags para rollouts graduais, testes A/B e recursos experimentais.",
-  "vercel-functions": "Construa e implante funções serverless na plataforma Vercel.",
-  "vercel-queues": "Use Vercel Queues para processamento confiável de jobs assíncrono e tarefas em background.",
-  "vercel-sandbox": "Teste e valide mudanças de código em um ambiente isolado de sandbox Vercel.",
-  "vercel-services": "Gerencie serviços, integrações e add-ons Vercel para funcionalidade estendida.",
-  "vercel-storage": "Use Vercel Storage para bancos de dados, KV store e soluções de blob storage.",
-  "auth": "Implemente autenticação segura com OAuth, JWT e gerenciamento de sessão.",
-  "chat-sdk": "Construa recursos de chat em tempo real usando o AI SDK ou protocolos WebSocket.",
-  "cms": "Integre e gerencie conteúdo com plataformas de CMS headless.",
-  "cron-jobs": "Agende e gerencie tarefas recorrentes em background com cron jobs.",
-  "deployments-cicd": "Configure pipelines CI/CD para testes, build e deploy automatizados.",
-  "email": "Envie e gerencie email transacional e de marketing em escala.",
-  "env-vars": "Gerencie variáveis de ambiente e secrets com segurança entre ambientes.",
-  "investigation-mode": "Depure e investigue problemas em ambientes de desenvolvimento, staging e produção.",
-  "marketplace": "Descubra e integre parceiros e extensões do marketplace Vercel.",
-  "payments": "Processe pagamentos e gerencie assinaturas com Stripe ou provedores similares.",
-  "react-best-practices": "Aplique melhores práticas de performance, acessibilidade e manutenibilidade em aplicações React.",
-  "routing-middleware": "Construa roteamento personalizado e camadas de middleware para manipulação de requisições.",
-  "sign-in-with-vercel": "Implemente autenticação single sign-on usando o provedor OAuth da Vercel.",
-  "v0-dev": "Gere componentes e interfaces de UI usando a geração de código alimentada por IA do v0.",
-  "verification": "Verifique deploys, saúde do build e comportamento da aplicação em produção.",
-  "firecrawl-agent": "Use Firecrawl para web scraping autônomo e extração de dados estruturados.",
-  "firecrawl-crawl": "Rastreie sites inteiros e extraia todos os links, conteúdo e metadados.",
-  "firecrawl-scrape": "Raspe páginas web individuais e extraia dados estruturados ou não estruturados.",
-  "firecrawl-search": "Pesquise e extraia informações direcionadas de páginas web com assistência LLM.",
-  "firecrawl-map": "Gere mapas de site e descubra estrutura de navegação entre websites.",
-  "firecrawl-instruct": "Extraia dados de páginas web usando prompts e instruções personalizadas.",
-  "firecrawl-download": "Baixe e processe conteúdo web, PDFs e arquivos de URLs.",
-  "firecrawl-cli": "Use Firecrawl da linha de comando para workflows de web scraping em batch.",
-  "github": "Automatize workflows GitHub, gerencie issues, PRs, releases e repositórios.",
-  "yeet": "Delete com segurança e limpe branches GitHub e referências obsoletas.",
+  "changelog-update": "Atualiza CHANGELOG.md a partir de commits recentes, agrupando por tipo e versão semântica.",
+  "ci-watch": "Diagnostica CI vermelho, separa ruído do primeiro bloqueador real e aponta o menor fix viável.",
+  "codebase-design": "Analisa e melhora o design geral e a estrutura da codebase.",
+  "codebase-memory": "Usa grafo de conhecimento da codebase para consultas estruturais sobre arquitetura, callers e dependências.",
+  "context-pack": "Monta um bundle de contexto sensível à tarefa com código, padrões e decisões relevantes.",
+  "context-save": "Captura o estado atual para retomar depois sem redescoberta.",
+  "debug": "Análise sistemática de causa raiz para bugs, erros e comportamento inesperado.",
+  "decide": "Decisão estruturada: pesquisa, crítica, plano e ADR quando a escolha cria dívida ou lock-in.",
+  "decide-now": "Toma decisões rápidas baseadas em contexto atual: git, PRs, planos, docs e memória.",
+  "dep-sweep": "Processa PRs de dependências em lote: agrupa por risco, auto-merge seguro e destaca casos arriscados.",
+  "dispatch": "Divide investigações independentes em trilhas paralelas e reconcilia os resultados.",
+  "domain-modeling": "Modela domínio com entidades, value objects, agregados e invariantes.",
+  "fallback": "Recupera com segurança quando ferramenta, skill ou caminho preferido falha.",
+  "frontend-design": "Cria interfaces frontend ousadas e art-directed para trabalho criativo ou expressivo.",
+  "graphify": "Transforma pastas de arquivos em um grafo de conhecimento navegável.",
+  "handoff": "Compacta a conversa atual em handoff para outro agente continuar.",
+  "impeccable": "Polimento de interface: UX, hierarquia visual, acessibilidade, responsividade e design system.",
+  "knowledge-loop": "Consulta, captura, melhora e persiste conhecimento: recall, memórias, RAG e handoff.",
+  "loop": "Ritmo padrão: inspecionar, agir, verificar e checkpoint até ficar pronto.",
+  "loop-engineer": "Redesenha loops de agente para reduzir turnos, desperdício de tokens e retries cegos.",
+  "memory-prune": "Audita memórias de projeto para entradas obsoletas e referências que não existem mais.",
+  "next-priority": "Escolhe a próxima ação mais valiosa e segura no repo ou workspace ativo.",
+  "orchestrate": "Coordena equipes multi-agente, trabalho multi-etapa ou multi-repo com planos e worktrees.",
+  "plan": "Monta plano compacto e validado para trabalho multi-etapa, arriscado ou ambíguo.",
+  "ponytail": "Solução mais simples que funciona: delete, simplifique e encurte antes de over-engineering.",
+  "pr-merge-readiness": "Veredito pré-merge combinando CI, reviews, cobertura, Sonar e conflitos.",
+  "prototype": "Constrói protótipo descartável para detalhar um design antes de comprometer.",
+  "quality-assurance": "Escolhe e sequencia checks de QA certos para uma mudança ou release.",
+  "quality-gates": "Executa gates nativos do repo como lint, type-check e testes.",
+  "rag-maintenance": "Mantém o índice RAG atual: qualidade, cobertura, drift e curation.",
+  "recall": "Busca semântica one-shot contra o índice RAG local.",
+  "refactor": "Melhoria cirúrgica sem mudar comportamento, preservando funcionalidade.",
+  "request-refactor-plan": "Cria plano detalhado de refactor com commits pequenos e registra como issue.",
+  "resume": "Reidrata a tarefa atual a partir de handoffs, planos, memória e estado do git.",
+  "review": "Review de diff em dois eixos: padrões do repo e aderência à spec.",
+  "scope-it": "Mapeia blast radius antes de codar: arquivos, dependências, testes e limites de escopo.",
+  "secure": "Passada security-first em configuração, credenciais, dependências e atalhos operacionais.",
+  "session-bootstrap": "Composite de início de sessão: orientação, prioridade, fila de PRs e contexto relevante.",
+  "setup-pre-commit": "Configura Husky, lint-staged, Prettier, typecheck e testes no pre-commit.",
+  "ship": "Envia mudanças validadas: tag, release e verificação pós-ship.",
+  "skill-creator-plugin": "Cria, atualiza, avalia e melhora skills com o workflow oficial do Skill Creator.",
+  "tdd": "Desenvolvimento orientado por testes: red, green, refactor.",
+  "test-driven-development": "Aplica TDD com teste falhando antes da implementação e refactor em verde.",
+  "three-man-team": "Coordena architect, builder e reviewer para trabalho complexo multi-fase.",
+  "verify": "Executa a validação mais estreita e significativa antes de merge, release ou handoff.",
+  "version-bump": "Automatiza version bump em monorepos npm com CHANGELOG e PR.",
+  "xp": "Extreme Programming para par humano-IA: ciclos pequenos, testes, refactor e releases frequentes.",
 };
 
 const SKILLS = [
-  // ── Session & Context
-  { name: 'wake-up',              cat: 'session',       composite: false, desc: 'Compact session-bootstrap brief — answers "what was I doing, what\'s blocking, what\'s next" in ~600-900 tokens.' },
-  { name: 'session-bootstrap',    cat: 'session',       composite: true,  desc: 'Start-of-day composite. Chains wake-up → next-priority → pr-snapshot → context-pack.' },
-  { name: 'resume',               cat: 'session',       composite: false, desc: 'Rehydrate the current task from handoffs, plans, tasks, memory notes, and git state.' },
-  { name: 'context-pack',         cat: 'session',       composite: false, desc: 'Build a task-aware context bundle (relevant code + standards + past decisions) via RAG, capped at a token budget.' },
-  { name: 'context-save',         cat: 'session',       composite: false, desc: 'Capture current task state so work can be resumed later without re-discovery.' },
-  { name: 'handoff',              cat: 'session',       composite: false, desc: 'Compact the current conversation into a handoff document for another agent to pick up.' },
-  { name: 'session-wrap-up',      cat: 'session',       composite: false, desc: 'Close out a development session by shipping work, capturing memory, and writing handoff.' },
-  { name: 'session-cleanup',      cat: 'session',       composite: false, desc: 'Clean up current session state so work can transition cleanly to the next session.' },
-  { name: 'zoom-out',             cat: 'session',       composite: false, desc: 'Tell the agent to give broader context or a higher-level perspective on unfamiliar code.' },
-  { name: 'optimize-context',     cat: 'session',       composite: false, desc: 'Optimize context usage by reducing bloat, improving token efficiency, and focusing on relevant areas.' },
-
-  // ── Planning & Execution
-  { name: 'plan',                 cat: 'planning',      composite: false, desc: 'Build a compact, validation-gated implementation plan for multi-step, risky, or ambiguous work.' },
-  { name: 'route',                cat: 'planning',      composite: false, desc: 'Decide the right skill, agent, or chain for the current request before spending tokens on the wrong path.' },
-  { name: 'next-priority',        cat: 'planning',      composite: false, desc: 'Decide the highest-value safe thing to do right now in the active repo or workspace.' },
-  { name: 'loop',                 cat: 'planning',      composite: false, desc: 'Default execution rhythm — inspect → act → verify → checkpoint — applied iteratively until done.' },
-  { name: 'dispatch',             cat: 'planning',      composite: false, desc: 'Split cleanly separable investigation work into parallel tracks, then reconcile results.' },
-  { name: 'orchestrate',          cat: 'planning',      composite: false, desc: 'Coordinate multi-agent teams, multi-step or multi-repo work across plans, skills, worktrees, and parallel investigations.' },
-  { name: 'add',                  cat: 'planning',      composite: false, desc: 'Add a feature, test, config, doc, or automation safely with clear scope and validation.' },
-  { name: 'scope-and-execute',    cat: 'planning',      composite: true,  desc: 'Understand a problem, plan the work, execute it, and ship it in one chained workflow.' },
-  { name: 'parallel-investigate', cat: 'planning',      composite: false, desc: 'Fan out N independent investigations as parallel agents in a single tool-use block, then roll up results.' },
-  { name: 'parallel-phases',      cat: 'planning',      composite: true,  desc: 'Take a phased plan with independent tasks per phase, fan out agents per wave, gate between phases.' },
-  { name: 'subagent-driven-development', cat: 'planning', composite: false, desc: 'Execute implementation plans with independent tasks using parallel subagents in the current session.' },
-  { name: 'feature-from-zero',    cat: 'planning',      composite: true,  desc: 'Mega-composite — full greenfield feature from idea to live: research → scope → design → test → merge → ship.' },
-  { name: 'fallback',             cat: 'planning',      composite: false, desc: 'Recover cleanly when the preferred tool, skill, or path fails.' },
-
-  // ── Code Quality & Review
-  { name: 'code-review',          cat: 'quality',       composite: false, desc: 'Code review that prioritizes bugs, regressions, security issues, and logic errors over style.' },
-  { name: 'refactor',             cat: 'quality',       composite: false, desc: 'Surgical code improvement without changing behavior — eliminate code smells while preserving behavior.' },
-  { name: 'refactor-plan',        cat: 'quality',       composite: false, desc: 'Plan a multi-file refactor with proper sequencing and rollback steps.' },
-  { name: 'refactor-pipeline',    cat: 'quality',       composite: true,  desc: 'Safely refactor a module end-to-end: plan → three-man-team → fix-the-suite → ADR → docs-sync.' },
-  { name: 'verify',               cat: 'quality',       composite: false, desc: 'Run the narrowest meaningful validation sequence before merge, release, or handoff.' },
-  { name: 'verify-before-done',   cat: 'quality',       composite: true,  desc: 'Pre-ship verification gate: lint/type/build → tests → coverage → Sonar → CI → Sentry.' },
-  { name: 'quality-assurance',    cat: 'quality',       composite: false, desc: 'Choose and sequence the right QA skills and checks for a change or release.' },
-  { name: 'quality-gates',        cat: 'quality',       composite: false, desc: 'Run repository-native verification gates such as lint, type-check, and tests.' },
-  { name: 'improve-codebase-architecture', cat: 'quality', composite: false, desc: 'Find deepening opportunities informed by CONTEXT.md and ADRs — refactoring, testability, module consolidation.' },
-  { name: 'impeccable',           cat: 'quality',       composite: false, desc: 'Polish frontend interfaces: UX review, visual hierarchy, accessibility, responsive behavior, design systems.' },
-
-  // ── Testing
-  { name: 'tdd',                  cat: 'testing',       composite: false, desc: 'Test-driven development with red-green-refactor loop — write failing tests first, implement, refactor.' },
-  { name: 'test-health',          cat: 'testing',       composite: false, desc: 'Read-only diagnostic reporting the state of a project\'s test suite — count, coverage, runtime, flakiness, dead tests.' },
-  { name: 'test-cleanup',         cat: 'testing',       composite: false, desc: 'Audit and prune a bloated test suite down to minimum tests that hit coverage threshold and guard real behavior.' },
-  { name: 'generate-tests',       cat: 'testing',       composite: false, desc: 'Analyze code changes and propose or generate meaningful tests that cover the change.' },
-  { name: 'coverage-gap',         cat: 'testing',       composite: false, desc: 'Find and fill test coverage gaps for a PR by analyzing diffs and writing new tests.' },
-  { name: 'mutation-test',        cat: 'testing',       composite: false, desc: 'Run mutation testing to verify tests actually catch failures when source code is broken.' },
-  { name: 'fix-the-suite',        cat: 'testing',       composite: true,  desc: 'Diagnose, repair, and validate a test suite: test-health → config-drift → test-cleanup → mutation-test → ADR.' },
-  { name: 'backend-testing',      cat: 'testing',       composite: false, desc: 'Comprehensive backend testing guidance for unit, integration, authentication, and API tests.' },
-  { name: 'webapp-testing',       cat: 'testing',       composite: false, desc: 'Test a local web application with Playwright-based scripts, screenshots, and interaction flows.' },
-  { name: 'playwright-best-practices', cat: 'testing',  composite: false, desc: 'Playwright testing guidance — E2E, component, API, visual, accessibility, security, and Electron testing.' },
-  { name: 'performance-test',     cat: 'testing',       composite: false, desc: 'Identify performance bottlenecks and gather metrics under realistic load.' },
-
-  // ── Debugging
-  { name: 'debug',                cat: 'debugging',     composite: false, desc: 'Systematic root-cause analysis for bugs, errors, and unexpected behavior.' },
-  { name: 'debug-deep',           cat: 'debugging',     composite: true,  desc: 'Full composite for complex multi-service bugs: Sentry → CI logs → code trace → fix → regression test.' },
-  { name: 'systematic-debugging', cat: 'debugging',     composite: false, desc: 'Apply the 4-phase debugging protocol: observe → hypothesize → isolate → fix. Blocks rationalization attempts.' },
-  { name: 'diagnosing-bugs',      cat: 'debugging',     composite: false, desc: 'Structured bug diagnosis workflow — reproduce, isolate root cause, document evidence before touching code.' },
-
-  // ── Security
-  { name: 'secure',               cat: 'security',      composite: false, desc: 'Run a security-first pass for config, credentials, dependency risk, and unsafe operational shortcuts.' },
-  { name: 'security-audit',       cat: 'security',      composite: false, desc: 'Broad security audit across secrets, dependencies, code paths, and OWASP risks.' },
-  { name: 'security-scan',        cat: 'security',      composite: false, desc: 'Run concrete security scanning steps including Trivy, npm audit, and secrets detection.' },
-  { name: 'security-sweep',       cat: 'security',      composite: true,  desc: 'Full security pass: security-audit + socket-audit + semgrep + code-security in parallel.' },
-  { name: 'semgrep',              cat: 'security',      composite: false, desc: 'Run Semgrep static analysis scans and create custom detection rules for pattern-based scanning.' },
-  { name: 'socket-audit',         cat: 'security',      composite: false, desc: 'Run Socket.dev supply chain security audit on npm dependencies for malicious packages and typosquatting.' },
-  { name: 'sonar-check',          cat: 'security',      composite: false, desc: 'Pre-push SonarCloud gate preflight — scans for ReDoS, SSRF, and coverage gaps.' },
-  { name: 'config-drift-detect',  cat: 'security',      composite: false, desc: 'Audit project gates (jest/vitest thresholds, tsconfig, eslint, husky, Sonar, branch protection) for drift.' },
-
-  // ── Git & PR
-  { name: 'pr-flow',              cat: 'git',           composite: false, desc: 'Full PR lifecycle management — create, update, review, and merge with proper conventions.' },
-  { name: 'pr-merge-readiness',   cat: 'git',           composite: false, desc: 'Combined verdict before merge: CI status, review state, coverage, Sonar, and conflict check.' },
-  { name: 'pr-snapshot',          cat: 'git',           composite: false, desc: 'Snapshot of all open PRs across repos — status, staleness, merge-readiness, and blocking issues.' },
-  { name: 'merge-confidently',    cat: 'git',           composite: false, desc: 'Run all pre-merge checks and confirm safety before committing the merge.' },
-  { name: 'branch-hygiene',       cat: 'git',           composite: true,  desc: 'One-pass cleanup of stale local branches, dead worktrees, merged branches, and abandoned remote PR branches.' },
-  { name: 'using-git-worktrees',  cat: 'git',           composite: false, desc: 'Create isolated git worktrees for feature work that should not reuse the main checkout.' },
-  { name: 'gh-address-comments',  cat: 'git',           composite: false, desc: 'Address review comments on the open GitHub PR for the current branch.' },
-  { name: 'gh-fix-ci',            cat: 'git',           composite: false, desc: 'Debug and fix failing GitHub PR checks.' },
-  { name: 'hotfix',               cat: 'git',           composite: true,  desc: 'Emergency bypass of release branch when production is broken and can\'t wait for next release.' },
-
-  // ── Release & Deployment
-  { name: 'ship',                 cat: 'release',       composite: false, desc: 'Ship validated changes — tag, GitHub release, and post-ship verification.' },
-  { name: 'ship-it',              cat: 'release',       composite: true,  desc: 'Take a merged PR all the way to production: version-bump → changelog → tag → deploy → verify.' },
-  { name: 'release-cut',          cat: 'release',       composite: true,  desc: 'Promote release branch to main, cut a version, clean up. Batches many PRs into one release.' },
-  { name: 'version-bump',         cat: 'release',       composite: false, desc: 'Automate version bumping in npm monorepos with CHANGELOG promotion and PR automation.' },
-  { name: 'changelog-update',     cat: 'release',       composite: false, desc: 'Update CHANGELOG.md by promoting [Unreleased] content to a versioned section.' },
-  { name: 'deployment-automation',cat: 'release',       composite: false, desc: 'Automate application deployment to cloud platforms and servers.' },
-  { name: 'vercel-deploy',        cat: 'release',       composite: false, desc: 'Deploy applications and websites to Vercel.' },
-  { name: 'cloudflare-deploy',    cat: 'release',       composite: false, desc: 'Deploy applications and infrastructure to Cloudflare — Workers, Pages, KV, R2.' },
-  { name: 'prod-rebuild',         cat: 'release',       composite: false, desc: 'Rebuild and restart production Docker services on remote server with async monitoring.' },
-  { name: 'repo-bootstrap',       cat: 'release',       composite: true,  desc: 'Configure a fresh repo for the release-branch workflow: create release branch, CHANGELOG, dep-sweep config, PR.' },
-
-  // ── Architecture & Decisions
-  { name: 'adr-write',            cat: 'architecture',  composite: false, desc: 'Capture an Architecture Decision Record — what was decided, why, alternatives, when to revisit.' },
-  { name: 'adr-gap',              cat: 'architecture',  composite: false, desc: 'Find decisions that should have an ADR but don\'t — scan code for undocumented architectural choices.' },
-  { name: 'research-and-decide',  cat: 'architecture',  composite: true,  desc: 'Composite — research → critic challenge → plan → ADR. Forces the research-to-decision pairing.' },
-  { name: 'grill-me',             cat: 'architecture',  composite: false, desc: 'Interview the user relentlessly about a plan or design until reaching shared understanding.' },
-  { name: 'grill-with-docs',      cat: 'architecture',  composite: false, desc: 'Grilling session that challenges your plan against the existing domain model and updates documentation inline.' },
-  { name: 'brainstorming',        cat: 'architecture',  composite: false, desc: 'Facilitate collaborative idea exploration and turn rough concepts into structured proposals.' },
-  { name: 'api-design-principles',cat: 'architecture',  composite: false, desc: 'Master REST and GraphQL API design principles for intuitive, scalable APIs.' },
-  { name: 'architecture-patterns',cat: 'architecture',  composite: false, desc: 'Choose and apply backend architecture patterns — Clean Architecture, DDD, CQRS, and more.' },
-  { name: 'prototype',            cat: 'architecture',  composite: false, desc: 'Build a throwaway prototype to flesh out a design before committing.' },
-  { name: 'domain-modeling',      cat: 'architecture',  composite: false, desc: 'Model the domain layer with entities, value objects, aggregates, and invariants.' },
-  { name: 'codebase-design',      cat: 'architecture',  composite: false, desc: 'Analyze and improve the overall design and structure of the codebase.' },
-
-  // ── Frontend & UI
-  { name: 'repaint',              cat: 'frontend',      composite: false, desc: 'Single entry point for ALL frontend building/restyling — any page, component, dashboard, hero, pricing section, or data table.' },
-  { name: 'ui-expert',            cat: 'frontend',      composite: false, desc: 'Build production-grade frontend interfaces that look like Linear, Vercel, Stripe, or Notion — not generic LLM output.' },
-  { name: 'frontend-design',      cat: 'frontend',      composite: false, desc: 'Create bold, art-directed frontend interfaces for explicitly creative or expressive work.' },
-  { name: 'design-build',         cat: 'frontend',      composite: true,  desc: 'Design, scaffold, build, and verify a UI: ui-audit → shadcn/tailwind → impeccable → webapp-testing.' },
-  { name: 'shadcn',               cat: 'frontend',      composite: false, desc: 'Manage shadcn components — adding, searching, fixing, debugging, and configuration.' },
-  { name: 'tailwind-design-system',cat: 'frontend',     composite: false, desc: 'Tailwind CSS v4 design-system guidance for tokens, theming, and component patterns.' },
-  { name: 'ai-slop-audit',        cat: 'frontend',      composite: false, desc: 'Post-generation QA pass that lints frontend output against known "AI made that" anti-patterns.' },
-  { name: 'design-an-interface',  cat: 'frontend',      composite: false, desc: 'Design a UI interface with structured spec, layout decisions, and component breakdown.' },
-
-  // ── Backend
-  { name: 'docker-expert',        cat: 'backend',       composite: false, desc: 'Production-focused Docker guidance for image design, multi-stage builds, and orchestration.' },
-  { name: 'supabase-postgres-best-practices', cat: 'backend', composite: false, desc: 'Postgres performance optimization and best practices from Supabase.' },
-  { name: 'supabase',             cat: 'backend',       composite: false, desc: 'Use for ANY task involving Supabase — Database, Auth, Edge Functions, Realtime, Storage, RLS, migrations.' },
-  { name: 'prisma-migrate',       cat: 'backend',       composite: false, desc: 'Run Prisma migrations safely with pre-flight checks and rollback guidance.' },
-  { name: 'trigger-dev',          cat: 'backend',       composite: false, desc: 'Build AI agents, workflows, and durable background tasks with Trigger.dev.' },
-
-  // ── Observability & Monitoring
-  { name: 'observe',              cat: 'observability', composite: false, desc: 'Unified entry point for observability + monitoring work — routes to the right family member.' },
-  { name: 'langfuse-observe',     cat: 'observability', composite: false, desc: 'Set up Langfuse LLM observability to trace Claude API calls with costs, tokens, and latency.' },
-  { name: 'sentry',               cat: 'observability', composite: false, desc: 'Inspect Sentry issues or events, summarize errors, correlate with recent deploys.' },
-
-  // ── MCP Development
-  { name: 'mcp-builder',          cat: 'mcp-dev',       composite: false, desc: 'Guide for creating high-quality MCP servers from scratch.' },
-  { name: 'mcp-audit',            cat: 'mcp-dev',       composite: false, desc: 'Read-only diagnostic — scan session transcripts to surface which MCP servers/tools you actually use. Flag zero-use servers.' },
-  { name: 'mcp-care',             cat: 'mcp-dev',       composite: true,  desc: 'Full MCP server lifecycle audit and repair: mcp-audit → mcp-health → mcp-doctor → mcp-builder suggestions.' },
-  { name: 'adt-mcp-health',       cat: 'mcp-dev',       composite: false, desc: 'Validate live MCP provider health — separate config issues from auth and connectivity failures.' },
-  { name: 'hook-development',     cat: 'mcp-dev',       composite: false, desc: 'Create hooks for Claude Code plugins — hook events, config, exit codes, stdin/stdout contracts.' },
-  { name: 'hook-effectiveness',   cat: 'mcp-dev',       composite: false, desc: 'Audit Claude Code hooks for fire frequency, latency, exit codes, and output value. Run after wiring new hooks.' },
-
-  // ── AI & Agents
-  { name: 'ai-sdk',               cat: 'ai-agents',     composite: false, desc: 'Answer questions about the AI SDK and help build AI-powered features.' },
-  { name: 'smart-model-select',   cat: 'ai-agents',     composite: false, desc: 'Pick the lightest model or reasoning tier that can do the task well.' },
-  { name: 'agent-browser',        cat: 'ai-agents',     composite: false, desc: 'Run ref-based browser automation with agent-browser for quick navigation and scraping.' },
-  { name: 'efficiency-advisor',   cat: 'ai-agents',     composite: false, desc: 'Analyze a proposed multi-agent workflow for token waste and time bottlenecks.' },
-
-  // ── RAG & Memory
-  { name: 'recall',               cat: 'rag',           composite: false, desc: 'One-shot semantic lookup against the local RAG index — fuzzy, cross-file, or about prior reasoning.' },
-  { name: 'adt-rag',              cat: 'rag',           composite: false, desc: 'Build and debug Retrieval-Augmented Generation pipelines — chunking, embedding, retrieval, reranking.' },
-  { name: 'adt-rag-coverage',     cat: 'rag',           composite: false, desc: 'Audit corpus distribution by source type and repo; identify coverage gaps and underindexed topics.' },
-  { name: 'adt-rag-drift',        cat: 'rag',           composite: false, desc: 'Detect and fix stale chunks — files that changed or were deleted since last indexing.' },
-  { name: 'sync-memories',        cat: 'rag',           composite: false, desc: 'Sync durable project or session knowledge into the available memory systems.' },
-  { name: 'memory-prune',         cat: 'rag',           composite: false, desc: 'Audit project memory files for stale entries — where cited PRs merged, bugs fixed, or files no longer exist.' },
-  { name: 'knowledge-loop',       cat: 'rag',           composite: true,  desc: 'Query, capture, improve, and persist knowledge: recall → sync-memories → rag-curate → handoff.' },
-  { name: 'rag-quality',          cat: 'rag',           composite: false, desc: 'Evaluate retrieval quality from the local RAG index.' },
-
-  // ── Skill & Plugin Management
-  { name: 'find-skills',          cat: 'skill-mgmt',    composite: false, desc: 'Discover relevant installable skills from the available skill ecosystem.' },
-  { name: 'skill-creator',        cat: 'skill-mgmt',    composite: false, desc: 'Create or update installed skills with clear trigger descriptions, stable naming, and SKILL.md structure.' },
-  { name: 'skill-maintainer',     cat: 'skill-mgmt',    composite: false, desc: 'Audit, normalize, merge, and improve the local skill catalog so routing stays clear and useful.' },
-  { name: 'skill-effectiveness-audit', cat: 'skill-mgmt', composite: false, desc: 'Scan session JSONLs for skills that bailed, returned "out of scope", or ran diagnostics without action.' },
-  { name: 'plugin-audit',         cat: 'skill-mgmt',    composite: false, desc: 'Read-only diagnostic — flag enabled plugins with zero usage, unregistered plugins, disabled-but-installed plugins.' },
-  { name: 'docs-sync',            cat: 'skill-mgmt',    composite: false, desc: 'Detect and reconcile drift between canonical skills/standards and their mirrored copies.' },
-  { name: 'harness-audit',        cat: 'skill-mgmt',    composite: false, desc: 'Audit the full Claude Code harness for drift, stale skills, misconfigured hooks, and dead agents.' },
-
-  // ── Repository Management
-  { name: 'onboard-new-repo',     cat: 'repo-mgmt',     composite: true,  desc: 'First-touch workflow: adt-repo-intake → audit-deep → config-drift-detect → init CLAUDE.md.' },
-  { name: 'backlog',              cat: 'repo-mgmt',     composite: true,  desc: 'End-to-end backlog builder: audit-deep → ROI-rank → specs → plan → GitHub issues → project board.' },
-  { name: 'triage',               cat: 'repo-mgmt',     composite: false, desc: 'Triage issues through a state machine driven by triage roles.' },
-  { name: 'to-issues',            cat: 'repo-mgmt',     composite: false, desc: 'Break a plan, spec, or PRD into independently-grabbable GitHub issues using vertical slices.' },
-  { name: 'to-prd',               cat: 'repo-mgmt',     composite: false, desc: 'Turn the current conversation context into a PRD and publish it to the project issue tracker.' },
-  { name: 'audit-deep',           cat: 'repo-mgmt',     composite: true,  desc: 'Full project health check across testing, config, hooks, performance, security, MCP, and plugins.' },
-  { name: 'ecosystem-health',     cat: 'repo-mgmt',     composite: false, desc: 'Scan a workspace or monorepo and return a raw health snapshot of repos, packages, and CI.' },
-  { name: 'repo-state-snapshot',  cat: 'repo-mgmt',     composite: false, desc: 'Take a labeled snapshot of repo state (SHA, open issues, open PRs, latest release) and diff against prior.' },
-
-  // ── CI/CD
-  { name: 'ci-watch',             cat: 'cicd',          composite: false, desc: 'Inspect current CI state, identify the first real blocker, and monitor until checks are green or understood.' },
-  { name: 'dep-sweep',            cat: 'cicd',          composite: true,  desc: 'Batch-process open Dependabot/Renovate PRs: group by risk → auto-merge safe → flag risky.' },
-
-  // ── Incident Management
-  { name: 'incident-response',    cat: 'incident',      composite: false, desc: 'Coordinate incident response using Sentry, Linear, and GitHub to triage, correlate, and track production issues.' },
-
-  // ── Sync & Documentation
-  { name: 'graphify',             cat: 'sync-docs',     composite: false, desc: 'Turn any folder of files into a navigable knowledge graph. Use for any codebase or document question.' },
-  { name: 'sync-sharekit-profile',cat: 'sync-docs',     composite: false, desc: 'Sync this harness profile to its remote repository (skills, standards, hooks, config).' },
-
-  // ── Performance & Cost
-  { name: 'token-audit',          cat: 'performance',   composite: false, desc: 'Analyze historical Claude Code token usage from session JSONL files — spend, cache hit rates, weekly trends.' },
-  { name: 'smart-commands',       cat: 'performance',   composite: false, desc: 'Decision guide for when to proactively use Claude Code slash commands — /think, /model, /compact, /clear.' },
-  { name: 'insights',             cat: 'performance',   composite: false, desc: 'Generate a productivity or usage insights report for Claude Code sessions.' },
-  { name: 'metrics',              cat: 'performance',   composite: false, desc: 'Show concrete productivity metrics and session analytics — tokens, tasks, time, and PR throughput.' },
-
-  // ── Standards & Research
-  { name: 'standards',            cat: 'standards',     composite: false, desc: 'Access and apply project coding and workflow standards.' },
-  { name: 'adt-research',         cat: 'standards',     composite: false, desc: 'Deep research on a topic using web search, docs, and codebase analysis.' },
-  { name: 'automation-workflows', cat: 'standards',     composite: false, desc: 'Design reusable automation for repetitive development loops.' },
-  { name: 'deep-research',        cat: 'standards',     composite: false, desc: 'Multi-source fact-checked research — fact-check claims, evaluate vendors, generate comparisons.' },
-  { name: 'read-the-damn-docs',   cat: 'standards',     composite: false, desc: 'Reference for third-party APIs, libraries, frameworks, CLIs, and cloud services before coding.' },
-  { name: 'teach',                cat: 'standards',     composite: false, desc: 'Teach a new skill or concept in this workspace.' },
-
-  // ── Session additions
-  { name: 'caveman',              cat: 'session',       composite: false, desc: 'Ultra-compressed communication — cuts 75% tokens by dropping filler while keeping technical accuracy.' },
-  { name: 'focus',                cat: 'session',       composite: false, desc: 'Focus context on a specific development area to reduce noise when switching domains.' },
-  { name: 'task-start',           cat: 'session',       composite: false, desc: 'Bootstrap session via 3 parallel agents: handoff reader, git state, project intake.' },
-  { name: 'session-close',        cat: 'session',       composite: true,  desc: 'Composite memory close — sync-memories → handoff → knowledge-loop.' },
-  { name: 'visual-plan',          cat: 'session',       composite: false, desc: 'Turn text plans into visual plans with diagrams, file maps, code, questions, and prototypes.' },
-  { name: 'visual-recap',         cat: 'session',       composite: false, desc: 'Turn a PR, branch, or commit into a visual recap with diagrams and API/schema summaries.' },
-
-  // ── Planning additions
-  { name: 'scope-it',             cat: 'planning',      composite: false, desc: 'Map blast radius before coding — identify affected files, dependencies, and test surface.' },
-  { name: 'plow-ahead',           cat: 'planning',      composite: false, desc: 'Autonomous progress without routine clarification stops — no filler questions.' },
-  { name: 'brief-and-drill',      cat: 'planning',      composite: false, desc: 'Brief a subagent with context, then drill comprehension before delegating real work.' },
-  { name: 'three-man-team',       cat: 'planning',      composite: false, desc: 'Parallel Architect → Builder → Reviewer for complex features and large PRs.' },
-  { name: 'loop-engineer',        cat: 'planning',      composite: false, desc: 'Design and implement autonomous agent loops — stop manual prompting, self-iterate.' },
-  { name: 'agent-box-dispatch',   cat: 'planning',      composite: false, desc: 'Submit async jobs to agent-box Docker container — drop files into queue, check results asynchronously.' },
-  { name: 'agent-teams',          cat: 'planning',      composite: false, desc: 'Coordinate multiple agent sessions for parallel implementation, review, and synthesis across workstreams.' },
-
-  // ── Code Quality additions
-  { name: 'review',               cat: 'quality',       composite: false, desc: 'Two-axis code review: Standards (conventions?) and Spec (matches issue?).' },
-  { name: 'overengineering-audit',cat: 'quality',       composite: false, desc: 'Flag over-engineering — speculative abstractions, premature generalization, unnecessary indirection.' },
-  { name: 'error-handling-audit', cat: 'quality',       composite: false, desc: 'Audit the unhappy path — swallowed errors, resource leaks, secrets on error paths.' },
-  { name: 'orphan-hunt',          cat: 'quality',       composite: false, desc: 'Scan for dead code: unimported files, unused exports, undeclared dependencies.' },
-  { name: 'naming-consistency',   cat: 'quality',       composite: false, desc: 'Detect naming conventions and audit for violations across files.' },
-  { name: 'backend-slop-audit',   cat: 'quality',       composite: false, desc: 'Lint backend code against anti-patterns: swallowed errors, unvalidated input, missing timeouts.' },
-  { name: 'dependency-scout',     cat: 'quality',       composite: false, desc: 'Find npm packages to replace hand-rolled boilerplate. Vets for security, maintenance, and adoption.' },
-  { name: 'request-refactor-plan',cat: 'quality',       composite: false, desc: 'Create a refactor plan via interview, filed as a GitHub issue with tiny commits.' },
-  { name: 'setup-pre-commit',     cat: 'quality',       composite: false, desc: 'Set up Husky hooks with lint-staged, type checking, and tests.' },
-  { name: 'qodo-get-rules',       cat: 'quality',       composite: false, desc: 'Load Qodo rules relevant to the current task via semantic search.' },
-  { name: 'qodo-pr-resolver',     cat: 'quality',       composite: false, desc: 'Review Qodo PR feedback — view by severity, apply fixes interactively or in batch.' },
-
-  // ── Architecture additions
-  { name: 'coupling-map',         cat: 'architecture',  composite: false, desc: 'Map module coupling via import graph — identifies fan-in/fan-out nodes and cycles.' },
-  { name: 'grill-with-options',   cat: 'architecture',  composite: false, desc: 'Structured decision interview using 2–4 bounded options. Fast stress-test with explicit trade-offs.' },
-  { name: 'architecture-improvement', cat: 'architecture', composite: true, desc: 'Composite codebase audit — coupling-map → orphan-hunt → improve → domain-modeling → adr-write.' },
-  { name: 'decide',               cat: 'architecture',  composite: true,  desc: 'Mode-routed decision: Quick Mode verdict or Full Mode research → decision → ADR → memory.' },
-  { name: 'decision-mapping',     cat: 'architecture',  composite: false, desc: 'Build a DAG of parallel investigation tickets — creates decision map and drives to resolution.' },
-
-  // ── Testing additions
-  { name: 'test-driven-development', cat: 'testing',    composite: false, desc: 'Enforce TDD: red-green-refactor loop — write failing tests before implementation code.' },
-  { name: 'test-sweep',           cat: 'testing',       composite: true,  desc: 'Composite three-phase test improvement — test-health → test-cleanup → mutation-test.' },
-
-  // ── Debugging additions
-  { name: 'adt-self-heal',        cat: 'debugging',     composite: false, desc: 'Autonomous error recovery — detect failures, diagnose root cause, apply fixes, and resume.' },
-
-  // ── Security additions
-  { name: 'skill-security-scan',  cat: 'security',      composite: false, desc: 'Scan skill and hook bodies for malicious patterns (pipe-to-shell, suspicious eval).' },
-
-  // ── Git additions
-  { name: 'autofix',              cat: 'git',           composite: false, desc: 'Safely review and apply CodeRabbit PR feedback with per-change approval.' },
-
-  // ── Release additions
-  { name: 'adt-ship-check',       cat: 'release',       composite: false, desc: 'Verify work before committing, pushing, or requesting review — runs verification commands.' },
-  { name: 'pr-to-release',        cat: 'release',       composite: true,  desc: 'Composite — branch → release with changelog, PR, and deploy readiness check.' },
-
-  // ── Frontend additions
-  { name: 'ui-ux-pro-max',        cat: 'frontend',      composite: false, desc: 'UI/UX reference library: 97 palettes, 57 fonts, 50+ components, patterns, and design systems.' },
-  { name: 'browser-use',          cat: 'frontend',      composite: false, desc: 'Automate browser interactions for testing, form filling, screenshots, and data extraction.' },
-  { name: 'use-my-browser',       cat: 'frontend',      composite: false, desc: 'Use live browser session or visible state versus static fetches.' },
-  { name: 'nano-banana',          cat: 'frontend',      composite: false, desc: 'Generate images with Google Gemini native models — text-to-image and image manipulation.' },
-  { name: 'shorts-edit',          cat: 'frontend',      composite: false, desc: 'Edit vertical 9:16 short videos (TikTok/Reels/Shorts) with styled captions.' },
-
-  // ── AI & Agents additions
-  { name: 'agent-forge',          cat: 'ai-agents',     composite: false, desc: 'Transform any skill into a persistent specialized agent, saved to ~/.claude/agents/.' },
-
-  // ── RAG & Memory additions
-  { name: 'mem-search',           cat: 'rag',           composite: false, desc: 'Search past work across sessions — find prior solutions, how-tos, and timeline queries.' },
-  { name: 'codebase-memory',      cat: 'rag',           composite: false, desc: 'Use codebase knowledge graph for structural queries — architecture, callers, dependencies.' },
-  { name: 'rag-curate',           cat: 'rag',           composite: false, desc: 'Improve RAG corpus — add missing docs, rewrite weak chunks, fill coverage gaps.' },
-  { name: 'rag-eval',             cat: 'rag',           composite: false, desc: 'Retrieval regression gate vs baseline — compare Hit@5, MRR, and per-intent metrics.' },
-  { name: 'rag-maintenance',      cat: 'rag',           composite: true,  desc: 'Composite full RAG audit — measure quality, find gaps, detect stale chunks, curate.' },
-
-  // ── Skill & Plugin Management additions
-  { name: 'harness-doctor',       cat: 'skill-mgmt',    composite: false, desc: 'Diagnose harness health: MCP servers, filesystem, git sync, graph freshness, hooks, settings.' },
-  { name: 'harness-sync',         cat: 'skill-mgmt',    composite: false, desc: 'Bidirectional harness sync with fork protection — pull upstream updates without clobbering customizations. Manifest-driven: substitutions ({{TOKEN}}→value), renames (path mapping), protected globs (never overwritten), replaced (warn on upstream change), conflict_strategy (upstream-wins|local-wins|prompt|three-way). 5 modes: pull, push, diff, init, validate.' },
-  { name: 'skill-creator-local',  cat: 'skill-mgmt',    composite: false, desc: 'Local skill-creator fork with unique init_skill.py for historical compatibility.' },
-  { name: 'adt-auto-invoke',      cat: 'skill-mgmt',    composite: false, desc: 'Meta-skill routing table — when to apply other skills automatically without being asked.' },
-  { name: 'rtk-health',           cat: 'skill-mgmt',    composite: false, desc: 'Check rtk rewrite probes for ask-rule exit code after an rtk update.' },
-
-  // ── Repository Management additions
-  { name: 'adt-repo-intake',      cat: 'repo-mgmt',     composite: false, desc: 'Onboard into an unfamiliar repository fast — reads docs, detects stack, summarizes structure.' },
-  { name: 'repo-setup',           cat: 'repo-mgmt',     composite: true,  desc: 'Composite — configure a fresh repo: bootstrap → config-drift-detect → CLAUDE.md.' },
-  { name: 'adt-specs-spec-new',   cat: 'repo-mgmt',     composite: false, desc: 'Create committed per-feature spec with frontmatter — promote ephemeral plans into persistent artifacts.' },
-  { name: 'adt-specs-aggregate-roadmap', cat: 'repo-mgmt', composite: false, desc: 'Cross-repo roadmap by walking curated repos\' spec frontmatter — run at session start for orientation.' },
-  { name: 'plan-to-issues',       cat: 'repo-mgmt',     composite: false, desc: 'Create one GitHub issue per plan task with phase-labels and optional milestone.' },
-  { name: 'extract-package',      cat: 'repo-mgmt',     composite: false, desc: 'Scan for low-coupling modules extractable into a standalone npm package.' },
-  { name: 'extract-product',      cat: 'repo-mgmt',     composite: false, desc: 'Scan repo for whole capabilities spinnable as their own project — OSS, CLI, SaaS, or template.' },
-
-  // ── Performance additions
-  { name: 'session-insights',     cat: 'performance',   composite: false, desc: 'Token and session analytics — cost (daily/statusline), workspace stats (git/GitHub).' },
-  { name: 'stay-within-limits',   cat: 'performance',   composite: false, desc: 'Respect 5-hour and weekly usage limits — check usage between waves, pause near cap.' },
-  { name: 'performance-audit',    cat: 'performance',   composite: false, desc: 'Audit system performance — health, routing, caching, and scalability bottlenecks.' },
-  { name: 'efficient-frontier',   cat: 'performance',   composite: false, desc: 'Delegate research/coding/testing to cheaper subagents; keep planning/synthesis with expensive model.' },
-
-  // ── Sync & Documentation additions
-  { name: 'criativaria-brain-sync', cat: 'sync-docs',   composite: false, desc: 'Sync Criativaria project memories with the canonical GitHub brain.' },
-
-  // ── Ponytail
-  { name: 'ponytail',             cat: 'ponytail',      composite: false, desc: 'Laziest solution that works — delete, simplify, shorten code before over-engineering.' },
-  { name: 'ponytail-audit',       cat: 'ponytail',      composite: false, desc: 'Whole-repo over-engineering scan — ranked list of what to delete, simplify, or stop doing.' },
-  { name: 'ponytail-debt',        cat: 'ponytail',      composite: false, desc: 'Harvest ponytail comments into a debt ledger — track deliberate shortcuts.' },
-  { name: 'ponytail-gain',        cat: 'ponytail',      composite: false, desc: 'Show ponytail impact: less code, less cost, more speed (measured from medians).' },
-  { name: 'ponytail-help',        cat: 'ponytail',      composite: false, desc: 'Quick reference for ponytail modes, skills, and commands.' },
-  { name: 'ponytail-review',      cat: 'ponytail',      composite: false, desc: 'Code review focused on over-engineering — find what to delete.' },
-
-  // ── Writing
-  { name: 'writing-beats',        cat: 'writing',       composite: false, desc: 'Shape an article as a journey of beats — write one beat at a time from raw material.' },
-  { name: 'writing-fragments',    cat: 'writing',       composite: false, desc: 'Mine for writing fragments (claims, vignettes, sentences) — build a compilation.' },
-  { name: 'writing-great-skills', cat: 'writing',       composite: false, desc: 'Reference for writing skills well — vocabulary and principles for predictability.' },
-  { name: 'writing-shape',        cat: 'writing',       composite: false, desc: 'Shape markdown raw material into an article via conversation — draft openings, grow piecemeal.' },
-
-  // ── Plugin Skills (Vercel, Firecrawl, GitHub)
-  { name: 'nextjs', cat: 'backend', composite: false, desc: 'Build and optimize Next.js applications with server-side rendering and deployment best practices.' },
-  { name: 'vercel-agent', cat: 'backend', composite: false, desc: 'Use Vercel agent capabilities for AI-powered serverless workflows and automation.' },
-  { name: 'vercel-api', cat: 'backend', composite: false, desc: 'Manage Vercel projects, deployments, and environments through the Vercel API.' },
-  { name: 'vercel-cli', cat: 'backend', composite: false, desc: 'Deploy and manage Vercel projects from the command line.' },
-  { name: 'vercel-firewall', cat: 'security', composite: false, desc: 'Configure and manage Vercel Firewall rules for DDoS protection and traffic filtering.' },
-  { name: 'vercel-flags', cat: 'backend', composite: false, desc: 'Manage feature flags for gradual rollouts, A/B testing, and experimental features.' },
-  { name: 'vercel-functions', cat: 'backend', composite: false, desc: 'Build and deploy serverless functions on the Vercel platform.' },
-  { name: 'vercel-queues', cat: 'backend', composite: false, desc: 'Use Vercel Queues for reliable asynchronous job processing and background tasks.' },
-  { name: 'vercel-sandbox', cat: 'backend', composite: false, desc: 'Test and validate code changes in an isolated Vercel sandbox environment.' },
-  { name: 'vercel-services', cat: 'backend', composite: false, desc: 'Manage Vercel services, integrations, and add-ons for extended functionality.' },
-  { name: 'vercel-storage', cat: 'backend', composite: false, desc: 'Use Vercel Storage for databases, KV store, and blob storage solutions.' },
-  { name: 'auth', cat: 'security', composite: false, desc: 'Implement secure authentication with OAuth, JWT, and session management.' },
-  { name: 'chat-sdk', cat: 'ai-agents', composite: false, desc: 'Build real-time chat features using the AI SDK or WebSocket protocols.' },
-  { name: 'cms', cat: 'backend', composite: false, desc: 'Integrate and manage content with headless CMS platforms.' },
-  { name: 'cron-jobs', cat: 'cicd', composite: false, desc: 'Schedule and manage recurring background tasks with cron jobs.' },
-  { name: 'deployments-cicd', cat: 'cicd', composite: false, desc: 'Set up CI/CD pipelines for automated testing, building, and deployment.' },
-  { name: 'email', cat: 'backend', composite: false, desc: 'Send and manage transactional and marketing emails at scale.' },
-  { name: 'env-vars', cat: 'backend', composite: false, desc: 'Manage environment variables and secrets securely across environments.' },
-  { name: 'investigation-mode', cat: 'debugging', composite: false, desc: 'Debug and investigate issues in development, staging, and production environments.' },
-  { name: 'marketplace', cat: 'backend', composite: false, desc: 'Discover and integrate Vercel marketplace partners and extensions.' },
-  { name: 'payments', cat: 'backend', composite: false, desc: 'Process payments and manage subscriptions with Stripe or similar providers.' },
-  { name: 'react-best-practices', cat: 'frontend', composite: false, desc: 'Apply performance, accessibility, and maintainability best practices in React applications.' },
-  { name: 'routing-middleware', cat: 'backend', composite: false, desc: 'Build custom routing and middleware layers for request handling and transformation.' },
-  { name: 'sign-in-with-vercel', cat: 'security', composite: false, desc: 'Implement single sign-on authentication using Vercel\'s OAuth provider.' },
-  { name: 'v0-dev', cat: 'frontend', composite: false, desc: 'Generate UI components and interfaces using v0\'s AI-powered code generation.' },
-  { name: 'verification', cat: 'testing', composite: false, desc: 'Verify deployments, build health, and application behavior in production.' },
-  { name: 'firecrawl-agent', cat: 'standards', composite: false, desc: 'Use Firecrawl for autonomous web scraping and structured data extraction.' },
-  { name: 'firecrawl-crawl', cat: 'standards', composite: false, desc: 'Crawl entire websites and extract all links, content, and metadata.' },
-  { name: 'firecrawl-scrape', cat: 'standards', composite: false, desc: 'Scrape individual web pages and extract structured or unstructured data.' },
-  { name: 'firecrawl-search', cat: 'standards', composite: false, desc: 'Search and extract targeted information from web pages with LLM assistance.' },
-  { name: 'firecrawl-map', cat: 'standards', composite: false, desc: 'Generate site maps and discover navigation structure across websites.' },
-  { name: 'firecrawl-instruct', cat: 'standards', composite: false, desc: 'Extract data from web pages using custom prompts and instructions.' },
-  { name: 'firecrawl-download', cat: 'standards', composite: false, desc: 'Download and process web content, PDFs, and files from URLs.' },
-  { name: 'firecrawl-cli', cat: 'standards', composite: false, desc: 'Use Firecrawl from the command line for batch web scraping workflows.' },
-  { name: 'github', cat: 'git', composite: false, desc: 'Automate GitHub workflows, manage issues, PRs, releases, and repositories.' },
-  { name: 'yeet', cat: 'git', composite: false, desc: 'Safely delete and clean up GitHub branches and stale references.' },
+  { name: 'add', cat: 'planning', composite: false, desc: 'Add a feature, test, config, doc, or automation safely with clear scope and validation.' },
+  { name: 'architecture-patterns', cat: 'architecture', composite: false, desc: 'Choose and apply backend architecture patterns such as Clean Architecture, Hexagonal Architecture, and Domain-Driven Design. Use when designing system boundaries, refactoring toward better separation, or evaluating architectural tradeoffs.' },
+  { name: 'brainstorming', cat: 'architecture', composite: false, desc: 'Facilitate collaborative idea exploration and turn rough concepts into a validated design direction before implementation starts. Use when the user is still shaping the solution and should not be pushed into code yet.' },
+  { name: 'changelog-update', cat: 'release', composite: false, desc: 'Updates CHANGELOG.md from recent commits, grouping entries by type (feat/fix/docs/breaking) with semantic version headings. Update CHANGELOG.md by promoting [Unreleased] content to a versioned section and bumping the package version. Follows Keep a Changelog format. Use when preparing a release or when [Unreleased] has accumulated work that needs to be captured under a version.' },
+  { name: 'ci-watch', cat: 'cicd', composite: false, desc: 'Diagnose failing CI checks, isolate the first real blocker (vs. noise), and surface the smallest viable fix. Use when a PR has failing checks, the pipeline is broken, or you need to understand why CI is red before proceeding with merge or release.' },
+  { name: 'codebase-design', cat: 'architecture', composite: false, desc: 'Shared vocabulary for designing deep modules. Use when the user wants to design or improve a module\'s interface, find deepening opportunities, decide where a seam goes, make code more testable or AI-navigable, or when another skill needs the deep-module vocabulary.' },
+  { name: 'codebase-memory', cat: 'rag', composite: false, desc: 'Maintains a persistent knowledge-base of codebase patterns, conventions, and historical decisions for cross-session reference. Use the codebase knowledge graph for structural code queries. Triggers on: explore the codebase, understand the architecture, what functions exist, show me the structure, who calls this function, what does X call, trace the call chain, find callers of, show dependencies, impact analysis, dead code, unused functions, high fan-out, refactor candidates, code quality audit, graph query syntax, Cypher query examples, edge types, how to use search_graph.' },
+  { name: 'context-pack', cat: 'session', composite: false, desc: 'Packs the most relevant context (files, docs, prior decisions) into a compact payload for injection into the next agent turn. Build a task-aware context bundle before large changes, reviews, or unfamiliar work. Pul l only the code, standards, plans, RAG hits, and notes that matter instead of reading wi de. Use before refactors, cross-file fixes, unfamiliar repos, or when starting a session where you will spend more than five reads exploring. Backed by the local RAG index via the rag_query MCP tool. Skip when the task touches one known file or the answer fits in a single grep.' },
+  { name: 'context-save', cat: 'session', composite: false, desc: 'Capture the current task state so the work can be resumed later without losing key decisions, blockers, or next steps. Use when the session may be interrupted or the user explicitly wants resumable context saved.' },
+  { name: 'debug', cat: 'debugging', composite: false, desc: 'Systematic root-cause analysis for bugs, errors, and unexpected behavior' },
+  { name: 'decide', cat: 'architecture', composite: true, desc: 'Makes an explicit decision with documented alternatives, criteria, and a rationale so future sessions can reconstruct the why. Composite skill — two-phase decision pipeline. Chains research-and-decide (research options + recommendation) → adr-write (document the decision). Stops after Phase 1 if research is inconclusive and needs human input. Use when making an architectural or tooling decision that needs both a recommendation and a durable record. Triggers: "decide", "research and decide", "make a decision with ADR", "evaluate options and document", "pick between X and Y and record it".' },
+  { name: 'decide-now', cat: 'architecture', composite: false, desc: 'Make fast, context-aware decisions using project memory, current git state, open PRs, plans, and docs — NOT for architectural choices requiring formal research (use /decide for those). Trigger when the user asks "should I X or Y?", "which approach fits best?", "is this worth doing?", "merge now or wait?", "fix this or defer?", "approach A or B?", or any choice where the right answer depends on understanding what\'s currently in flight. Reads available context before recommending. Outputs a clear verdict with evidence — no ADR, no research phase.' },
+  { name: 'dep-sweep', cat: 'cicd', composite: true, desc: 'Audits dependencies for known vulnerabilities, stale versions, and license compliance, then proposes a remediation plan. Composite skill — batch-process the queue of open Dependabot / Renovate / npm-bot PRs by grouping them by risk, auto-merging the safe ones into `release`, and surfacing only the risky ones for human review. Chains gh PR enumeration → risk classification (devDeps / patch / minor / major / lockfile-only) → pr-merge-readiness per group → auto-merge safe group → flag risky group → optional /pr-to-release for batch entry on release. Use when bot-PR noise has piled up; reduces a 20-PR queue to "merged 14, 6 need eyes".' },
+  { name: 'dispatch', cat: 'planning', composite: false, desc: 'Routes the current task to the right composite or sub-skill based on intent, scope, and active state. Parallelize independent evidence-gathering or audit work by splitting into ≥2 concurrent agent tracks; reconcile results into single verdict + action. Also dispatches named agent-box task scripts or ad-hoc prompts to remote homelab infrastructure over SSH. Use when (1) sub-tasks are cleanly separable with no output deps, (2) each would block progress if sequential, (3) running serially wastes turns, or (4) invoking a remote agent-box task/prompt. Examples: multi-repo scans, concurrent CI/lint/test audits, N-package dependency sweeps, parallel PR review passes, remote health/ci-watch scripts. Skip when tasks depend on prior output — use loop or plan instead.' },
+  { name: 'domain-modeling', cat: 'architecture', composite: false, desc: 'Build and sharpen a project\'s domain model. Use when the user wants to pin down domain terminology or a ubiquitous language, record an architectural decision, or when another skill needs to maintain the domain model.' },
+  { name: 'fallback', cat: 'planning', composite: false, desc: 'Recover cleanly when the preferred tool, skill, or path fails.' },
+  { name: 'frontend-design', cat: 'frontend', composite: false, desc: 'Create bold, art-directed frontend interfaces when the work is explicitly aesthetic-first, editorial, experimental, or brand-expression-heavy. Use for standout visual direction and non-routine art direction, not as the default skill for standard product UI or routine frontend implementation.' },
+  { name: 'graphify', cat: 'sync-docs', composite: false, desc: 'any input (code, docs, papers, images, videos) to knowledge graph. Use when user asks any question about a codebase, documents, or project content - especially if graphify-out/ exists, treat the question as a /graphify query.' },
+  { name: 'handoff', cat: 'session', composite: false, desc: 'Compact the current conversation into a handoff document for another agent to pick up.' },
+  { name: 'impeccable', cat: 'quality', composite: false, desc: 'Use when the user wants to design, redesign, shape, critique, audit, polish, clarify, distill, harden, optimize, adapt, animate, colorize, extract, or otherwise improve a frontend interface. Covers websites, landing pages, dashboards, product UI, app shells, components, forms, settings, onboarding, and empty states. Handles UX review, visual hierarchy, information architecture, cognitive load, accessibility, performance, responsive behavior, theming, anti-patterns, typography, fonts, spacing, layout, alignment, color, motion, micro-interactions, UX copy, error states, edge cases, i18n, and reusable design systems or tokens. Also use for design-system compliance checks, UI audits, UX framework reviews, or bland designs that need to become bolder or more delightful, loud designs that should become quieter, live browser iteration on UI elements, or ambitious visual effects that should feel technically extraordinary. Not for backend-only or non-UI tasks.' },
+  { name: 'knowledge-loop', cat: 'rag', composite: true, desc: 'Composite skill — query, capture, improve, and persist knowledge in one workflow. Chains recall (RAG query) → sync-memories (write durable note) → rag-curate (improve weak retrievals) → handoff (durable snapshot if session-ending). Use when the work involves "what did we decide", "remember this", "save where we are", or any closing checkpoint.' },
+  { name: 'loop', cat: 'planning', composite: false, desc: 'Default execution rhythm — inspect → act → verify → checkpoint — applied iteratively until the task is done or a clear blocker emerges. Use when working through a known plan, draining a queue (PRs, issues, dependency bumps), or executing a multi-step recipe where each step\'s output informs the next. Each iteration must produce a concrete artifact (commit, comment, decision) and a one-line state update. Stop on first unrecoverable error rather than retrying blindly. Pair with `ship` for merge-bound work and `handoff` if budget runs out mid-loop.' },
+  { name: 'loop-engineer', cat: 'planning', composite: false, desc: 'Redesigns agent loops to reduce turns, token waste, and blind retries while preserving output quality. Designs AND implements autonomous agent loops for any task. Trigger this skill whenever the user wants to stop manually prompting agents and instead build a self-running feedback cycle — coding automation, research pipelines, content workflows, outreach systems, CI loops, or any repeating AI-driven process. Also trigger when the user says "design a loop", "build an agent loop", "I want this to run automatically", "loop engineering", or describes a workflow they currently drive manually step-by-step. Output: complete loop spec + working implementation (SKILL.md or Workflow script) ready to run.' },
+  { name: 'memory-prune', cat: 'rag', composite: false, desc: 'Audit project memory files for stale entries — items where the cited PR is merged, the cited bug is fixed, the cited file/function no longer exists, or the gotcha was patched out of the codebase. Proposes archival or deletion per entry. Read-only by default; prompts before any change. Use periodically (monthly) or when memory recall starts surfacing entries that contradict current code. Pair with `sync-memories` (write fresh notes) and `adt-rag-drift` (which handles the RAG index, not the memory files themselves).' },
+  { name: 'next-priority', cat: 'planning', composite: false, desc: 'Decide the highest-value safe thing to do right now in the active repo or workspace.' },
+  { name: 'orchestrate', cat: 'planning', composite: false, desc: 'Coordinate multi-agent teams, multi-step or multi-repo work across plans, skills, worktrees, and parallel investigations. Use when the task is large enough to benefit from parallel work, independent workstreams, and one lead agent owning synthesis.' },
+  { name: 'plan', cat: 'planning', composite: false, desc: 'Build a compact, validation-gated implementation plan for multi-step, risky, or ambiguous work — typically when phases need explicit checkpoints, the change touches multiple files/services, or the user wants alignment before execution. Output goes to `.claude/plans/<topic>.md` (or `.agents/plans/`) with goal, in/out-of-scope, phased steps, validation per phase, and replanning triggers. Skip for trivial single-file fixes, bug investigations (use `tracer`), or open-ended exploration (use `explore`). Pair with `ship` once the plan ends and merge work begins.' },
+  { name: 'ponytail', cat: 'ponytail', composite: false, desc: 'Forces the laziest working solution: stdlib and native first, one-liners preferred, deletion over addition. Forces the laziest solution that actually works, simplest, shortest, most minimal. Channels a senior dev who has seen everything: question whether the task needs to exist at all (YAGNI), reach for the standard library before custom code, native platform features before dependencies, one line before fifty. Supports intensity levels: lite, full (default), ultra. Use whenever the user says "ponytail", "be lazy", "lazy mode", "simplest solution", "minimal solution", "yagni", "do less", or "shortest path", and whenever they complain about over-engineering, bloat, boilerplate, or unnecessary dependencies.' },
+  { name: 'pr-merge-readiness', cat: 'git', composite: false, desc: 'Aggregate every signal that gates a PR merge (CI, reviews, conflicts, branch staleness, security scans, third-party reviewers like CodeRabbit/Greptile/Sonar) into a single readiness verdict — MERGE / WAIT / FIX. Use as the one-call check before clicking merge instead of running ci-watch + gh-fix-ci + manual scan.' },
+  { name: 'prototype', cat: 'architecture', composite: false, desc: 'Build a throwaway prototype to flesh out a design before committing to it. Routes between two branches — a runnable terminal app for state/business-logic questions, or several radically different UI variations toggleable from one route. Use when the user wants to prototype, sanity-check a data model or state machine, mock up a UI, explore design options, or says "prototype this", "let me play with it", "try a few designs".' },
+  { name: 'quality-assurance', cat: 'quality', composite: false, desc: 'Choose and sequence the right QA skills and checks for a change, release, or maintenance sweep. Use when the task is to plan or orchestrate QA strategy across testing, security, and verification rather than run one narrow check.' },
+  { name: 'quality-gates', cat: 'quality', composite: false, desc: 'Defines binary quality gates (lint-pass, tests-green, no-secret-leaks) that must all pass before a PR is mergeable. Run the repository-native verification gates such as lint, type-check, tests, docs, build, and security checks. Use when the user wants confidence before a commit, PR, merge, or release.' },
+  { name: 'rag-maintenance', cat: 'rag', composite: true, desc: 'Keeps the RAG index current by rechunking changed files, retiring dead entries, and re-embedding drifted content. Composite RAG maintenance skill — runs a full retrieval index audit end-to-end: measure quality, find corpus gaps, detect stale chunks, and curate (add missing docs, rewrite weak chunks). Chains: rag-quality → adt-rag-coverage → adt-rag-drift → rag-curate. Use when: retrieval is stale/weak, recall scores drop, users report missing docs, or weekly maintenance cycle. Replaces "run four separate RAG skills and hope they talk to each other."' },
+  { name: 'recall', cat: 'rag', composite: false, desc: 'One-shot semantic lookup against the local RAG index — answers "what did we decide about X", "where did we hit this bug before", "is there a memory note for Y" in a single MCP call. Backed by the `rag_query` MCP tool over ~21k chunks (memory, plans, handoffs, skills, standards, repo docs/readmes, changelogs, specs, roadmaps, code, git commits, prior session transcripts) across the curated repos (Lucky, homelab, Craftvaria, ai-dev-toolkit, ai-dev-toolkit-setup). Auto-scopes to current repo. Use instead of grep when the question is fuzzy, cross-file, or about prior reasoning rather than current code shape. Skip for pure navigation (where is X defined → grep / serena) or single-file edits.' },
+  { name: 'refactor', cat: 'quality', composite: false, desc: 'Surgical code refactoring to improve maintainability without changing behavior. Invoke when user says "refactor this", "clean up this code", "extract functions", "this is messy", "improve maintainability", "fix code smells", "simplify this", "this function is too long", or when you see god functions, nested conditionals, duplicate logic, magic numbers, unclear naming, or dead code. Always run a discovery pass first — catalog smells before touching anything. Gradual evolution, not revolution.' },
+  { name: 'request-refactor-plan', cat: 'quality', composite: false, desc: 'Create a detailed refactor plan with tiny commits via user interview, then file it as a GitHub issue. Use when user wants to plan a refactor, create a refactoring RFC, or break a refactor into safe incremental steps.' },
+  { name: 'resume', cat: 'session', composite: false, desc: 'Rehydrate the current task from handoffs, plans, tasks, memory notes, and git state.' },
+  { name: 'review', cat: 'quality', composite: false, desc: 'Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes — Standards (does the code follow this repo\'s documented coding standards?) and Spec (does the code match what the originating issue/PRD asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".' },
+  { name: 'scope-it', cat: 'planning', composite: false, desc: 'Breaks an ambiguous task request into explicitly scoped subtasks with a clear in/out-of-scope boundary. Map the blast radius of a task before writing any code. Identifies affected files, downstream dependencies, and likely test surface. Use before starting implementation to avoid scope creep or missed impact. Triggers: "scope this", "what will this touch", "how big is this change", "before I start".' },
+  { name: 'secure', cat: 'security', composite: false, desc: 'Run a security-first pass for config, credentials, dependency risk, unsafe code patterns, and unsafe operational shortcuts. Covers OWASP Top 10, secure coding, infrastructure config (Terraform/K8s/Docker/GitHub Actions), HTTPS/CORS/CSRF/rate limiting, and credential handling.' },
+  { name: 'session-bootstrap', cat: 'session', composite: true, desc: 'Composite skill — start-of-day routine. Chains wake-up (compact brief) → next-priority (decide) → pr-snapshot (PR queue) → context-pack (load relevant context if work-intent). Replaces "what was I doing", "what\'s next", "load context" with one invocation. Auto-fires on the first non-trivial prompt of a fresh session.' },
+  { name: 'setup-pre-commit', cat: 'quality', composite: false, desc: 'Set up Husky pre-commit hooks with lint-staged (Prettier), type checking, and tests in the current repo. Use when user wants to add pre-commit hooks, set up Husky, configure lint-staged, or add commit-time formatting/typechecking/testing.' },
+  { name: 'ship', cat: 'release', composite: false, desc: 'End-to-end shipping: version bump, changelog update, tag, GitHub release, deploy, and post-deploy verification. Take a branch from feature done to actually merged or release cut without skipping CI or review gates. Validates PR goal, required checks, review state, and risk. Handles versi on bump, changelog, tag, and post-merge verification when releasing. Refuses to use admi n bypasses or force options against main. Skip for WIP work or when CI is yellow with un known signal and fix blockers first via ci-watch or next-priority.' },
+  { name: 'skill-creator-plugin', cat: 'skill-mgmt', composite: false, desc: 'Create, update, evaluate, and improve skills using the official Skill Creator plugin workflow.' },
+  { name: 'tdd', cat: 'testing', composite: false, desc: 'Short alias for test-driven development. Use for red-green-refactor, tracer bullets, behavior-driven testing, or TDD workflows.' },
+  { name: 'test-driven-development', cat: 'testing', composite: false, desc: 'Use when implementing any feature or bugfix, before writing implementation code. Also invoked via /tdd (alias archived — this is the canonical skill).' },
+  { name: 'three-man-team', cat: 'planning', composite: true, desc: 'Coordinates three roles (driver, navigator, reviewer) within a single session to simulate a small team workflow. Parallel Architect→Builder→Reviewer pattern for complex multi-phase tasks. Dispatches 3 agents in parallel: Architect (Opus) reads codebase and writes a detailed plan with phases and acceptance criteria; Builder (Sonnet) implements from the plan and stages changes; Reviewer (Sonnet) validates diff against plan and runs tests. Reduces turnaround on 3+ phase features, big PRs, and CRITICAL complexity-flagged work from sequential 6+ turns to parallel 1-turn dispatch. Use when a feature has architecture, implementation, and validation phases that justify the overhead; when tasks are CRITICAL-flagged by complexity classifier; when estimated >2 hours of work across 3+ distinct phases; or for large PRs touching >5 files with cross-module changes requiring architectural review before implementation.' },
+  { name: 'verify', cat: 'quality', composite: false, desc: 'Run the narrowest meaningful validation sequence before merge, release, or handoff.' },
+  { name: 'version-bump', cat: 'release', composite: false, desc: 'Automate version bumping in npm monorepos with CHANGELOG promotion and PR automation' },
+  { name: 'xp', cat: 'planning', composite: false, desc: 'Extreme Programming for AI-human pair development. Use when: pair programming with your AI, building incrementally with tests, working with clear role division, or the user mentions XP/YAGNI/simple design/continuous refactoring.' },
 ];
 
 const AGENTS = [
@@ -2383,17 +1873,17 @@ const GUIDE_PT = {
     <div class="g-hero-badge"><span class="dot"></span> Harness operador · referência viva</div>
     <h1>Seu operador autônomo de engenharia.</h1>
     <p class="g-hero-sub">
-      Um ambiente Claude Code totalmente conectado: <strong>skills</strong> reutilizáveis que você invoca,
+      Um ambiente OpenCode / Claude Code totalmente conectado: 50 <strong>skills</strong> ativas repo-tracked que você invoca,
       <strong>composites</strong> que as encadeiam com gates, <strong>sub-agentes</strong> que fazem trabalho
       isolado em paralelo e <strong>hooks</strong> que disparam automaticamente a cada prompt.
       Esta página é o mapa — comece aqui e depois mergulhe no catálogo.
     </p>
     <div class="g-stats">
-      <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">240+</div><div class="g-stat-label">Skills</div></div>
-      <div class="g-stat"><div class="g-stat-num" style="color:var(--violet)" id="st-composites">55+</div><div class="g-stat-label">Composites</div></div>
+      <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">50</div><div class="g-stat-label">Skills ativas</div></div>
+      <div class="g-stat"><div class="g-stat-num" style="color:var(--violet)" id="st-composites">6</div><div class="g-stat-label">Composites</div></div>
       <div class="g-stat"><div class="g-stat-num" style="color:var(--blue)" id="st-agents">39</div><div class="g-stat-label">Agentes</div></div>
       <div class="g-stat"><div class="g-stat-num" style="color:var(--amber)">9</div><div class="g-stat-label">Eventos de hook</div></div>
-      <div class="g-stat"><div class="g-stat-num" style="color:var(--green)" id="st-mcp">12</div><div class="g-stat-label">MCP + nuvem</div></div>
+      <div class="g-stat"><div class="g-stat-num" style="color:var(--green)" id="st-mcp">18</div><div class="g-stat-label">MCP + nuvem</div></div>
       <div class="g-stat"><div class="g-stat-num" style="color:var(--pink)">58</div><div class="g-stat-label">Standards</div></div>
     </div>
     <div class="g-cta-row">
@@ -2412,7 +1902,7 @@ const GUIDE_PT = {
         <div class="g-nodes">
           <div class="g-node">
             <div class="g-node-title"><span class="pip" style="background:var(--cyan)"></span>Skills</div>
-            <div class="g-node-desc">Uma tarefa bem delimitada — <code>/ship</code>, <code>/code-review</code>, <code>/debug</code>. Rodam no seu contexto, somente-leitura por padrão. Invoque com <code>/nome</code> ou deixe o router detectar.</div>
+            <div class="g-node-desc">Uma tarefa bem delimitada — <code>/ship</code>, <code>/review</code>, <code>/debug</code>. Rodam no seu contexto, somente-leitura por padrão. Invoque com <code>/nome</code> ou deixe o router detectar.</div>
           </div>
           <div class="g-node">
             <div class="g-node-title"><span class="pip" style="background:var(--violet)"></span>Composites</div>
@@ -2460,13 +1950,13 @@ const GUIDE_PT = {
   'g-quickstart': `
     <div class="g-eyebrow">Início rápido · ~5 min</div>
     <h2 class="g-h2">Sua primeira tarefa autônoma</h2>
-    <p class="g-lead">Pré-requisitos: Claude Code CLI instalado, este profile em <code>~/.claude/</code> e um repo git para trabalhar.</p>
+    <p class="g-lead">Pré-requisitos: OpenCode ou Claude Code instalado, este profile em <code>~/.claude/</code> e um repo git para trabalhar.</p>
     <div class="g-steps">
       <div class="g-step">
         <div class="g-step-num">1</div>
         <div class="g-step-body">
-          <div class="g-step-title">Abra o CLI — o hook SessionStart prepara tudo</div>
-          <div class="g-code"><span class="c-cmd">$ claude</span>
+          <div class="g-step-title">Abra o harness — o hook SessionStart prepara tudo</div>
+          <div class="g-code"><span class="c-cmd">$ opencode</span>
 <span class="c-out">⟳ puxa memórias + ADRs · reindexa RAG defasado · checa branch/drift</span>
 <span class="c-ok">✓ sessão pronta</span></div>
         </div>
@@ -2492,9 +1982,9 @@ const GUIDE_PT = {
       <div class="g-step">
         <div class="g-step-num">4</div>
         <div class="g-step-body">
-          <div class="g-step-title">Travou ou na dúvida de qual skill? Deixe ele te rotear</div>
-          <div class="g-code"><span class="c-cmd">&gt; /route "preciso refatorar o módulo de auth com segurança"</span>
-<span class="c-out">→ escolhe /refactor-pipeline e explica por quê</span></div>
+          <div class="g-step-title">Precisa refatorar um módulo com segurança? Invoque a skill direto</div>
+          <div class="g-code"><span class="c-cmd">&gt; /refactor "o módulo de auth"</span>
+<span class="c-out">→ limpeza cirúrgica, preserva comportamento, com validação</span></div>
         </div>
       </div>
     </div>`,
@@ -2506,12 +1996,12 @@ const GUIDE_PT = {
       <div class="g-card">
         <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h8l-1 8 10-12h-8l1-8Z"/></svg></span>Skill</div>
         <div class="g-card-body">Um fluxo reutilizável e bem delimitado, invocado com <code>/nome</code>. Roda no seu contexto atual; a maioria é somente-leitura e te entrega achados para aplicar.</div>
-        <div class="g-card-eg"><b>ex.</b> <code>/code-review</code> lê seu diff → retorna achados classificados por severidade.</div>
+        <div class="g-card-eg"><b>ex.</b> <code>/review</code> lê seu diff → retorna achados de padrões + spec.</div>
       </div>
       <div class="g-card">
         <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>Composite</div>
         <div class="g-card-body">Uma skill que encadeia várias sub-skills com um gate entre fases. O router emite <code>🎯 Composite match</code> quando sua intenção bate. Sempre prefira — rodar sub-skills na mão pula fases críticas.</div>
-        <div class="g-card-eg"><b>ex.</b> <code>/refactor-pipeline</code> → planejar → time de 3 agentes → test-cleanup → ADR → docs-sync.</div>
+        <div class="g-card-eg"><b>ex.</b> <code>/three-man-team</code> → planejar → construir → revisar.</div>
       </div>
       <div class="g-card">
         <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="8" width="6" height="6" rx="1"/><circle cx="6" cy="5" r="1"/><circle cx="18" cy="5" r="1"/><circle cx="6" cy="19" r="1"/><circle cx="18" cy="19" r="1"/></svg></span>Sub-agente</div>
@@ -2531,7 +2021,7 @@ const GUIDE_PT = {
       <div class="g-card">
         <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><circle cx="8" cy="6" r="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="12" cy="12" r="2"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="16" cy="18" r="2"/></svg></span>Tier de modelo</div>
         <div class="g-card-body">Case a força do modelo com a tarefa. <b>Haiku</b> para trabalho mecânico, <b>Sonnet</b> para implementação, <b>Opus</b> para orquestração e arquitetura. Um hook sugere o tier a cada turno.</div>
-        <div class="g-card-eg"><b>ex.</b> <code>/smart-model-select</code> antes de qualquer job multi-agente.</div>
+        <div class="g-card-eg"><b>ex.</b> um hook de UserPromptSubmit sugere Haiku → Sonnet → Opus a cada turno.</div>
       </div>
       <div class="g-card">
         <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v10l6 6"/></svg></span>Autonomia</div>
@@ -2553,15 +2043,15 @@ const GUIDE_PT = {
       <button class="g-task" data-search="next-priority"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v10l6 6"/></svg></span><span class="g-task-main"><span class="g-task-want">Saber no que trabalhar</span><span class="g-task-skill">/next-priority</span></span></button>
       <button class="g-task" data-search="plan"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18v16H3V4z"/><path d="M3 10h18M7 4v6M12 4v6M17 4v6"/></svg></span><span class="g-task-main"><span class="g-task-want">Planejar trabalho multi-etapa</span><span class="g-task-skill">/plan</span></span></button>
       <button class="g-task" data-search="dispatch"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8M4 10l6-6m4 6l6 6"/></svg></span><span class="g-task-main"><span class="g-task-want">Rodar tarefas independentes em paralelo</span><span class="g-task-skill">/dispatch · /orchestrate</span></span></button>
-      <button class="g-task" data-search="review"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span><span class="g-task-main"><span class="g-task-want">Revisar código antes do merge</span><span class="g-task-skill">/code-review</span></span></button>
-      <button class="g-task" data-search="debug"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10h10M8 14h2M14 14h2M7 10a4 4 0 0 0-2.83 7M17 10a4 4 0 0 1 2.83 7"/></svg></span><span class="g-task-main"><span class="g-task-want">Depurar um teste ou problema em prod</span><span class="g-task-skill">/debug · /debug-deep</span></span></button>
+      <button class="g-task" data-search="review"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span><span class="g-task-main"><span class="g-task-want">Revisar código antes do merge</span><span class="g-task-skill">/review</span></span></button>
+      <button class="g-task" data-search="debug"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10h10M8 14h2M14 14h2M7 10a4 4 0 0 0-2.83 7M17 10a4 4 0 0 1 2.83 7"/></svg></span><span class="g-task-main"><span class="g-task-want">Depurar um teste ou problema em prod</span><span class="g-task-skill">/debug</span></span></button>
       <button class="g-task" data-search="ship"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v14m0 0L7 11m5 5l5-5"/></svg></span><span class="g-task-main"><span class="g-task-want">Subir trabalho para produção</span><span class="g-task-skill">/ship</span></span></button>
-      <button class="g-task" data-search="refactor"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20m-2 8v4m-16-4v4m4-12v16m8-16v16"/></svg></span><span class="g-task-main"><span class="g-task-want">Refatorar um módulo com segurança</span><span class="g-task-skill">/refactor-pipeline</span></span></button>
-      <button class="g-task" data-search="audit"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span><span class="g-task-main"><span class="g-task-want">Auditar o projeto inteiro</span><span class="g-task-skill">/audit-deep</span></span></button>
-      <button class="g-task" data-search="secure"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1L2 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-10-4z"/></svg></span><span class="g-task-main"><span class="g-task-want">Passada de segurança antes do deploy</span><span class="g-task-skill">/secure · /security-sweep</span></span></button>
-      <button class="g-task" data-search="decide"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></svg></span><span class="g-task-main"><span class="g-task-want">Tomar e registrar uma decisão</span><span class="g-task-skill">/research-and-decide · /decide</span></span></button>
+      <button class="g-task" data-search="refactor"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20m-2 8v4m-16-4v4m4-12v16m8-16v16"/></svg></span><span class="g-task-main"><span class="g-task-want">Refatorar um módulo com segurança</span><span class="g-task-skill">/refactor</span></span></button>
+      <button class="g-task" data-search="audit"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span><span class="g-task-main"><span class="g-task-want">Auditar o projeto inteiro</span><span class="g-task-skill">/quality-gates</span></span></button>
+      <button class="g-task" data-search="secure"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1L2 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-10-4z"/></svg></span><span class="g-task-main"><span class="g-task-want">Passada de segurança antes do deploy</span><span class="g-task-skill">/secure</span></span></button>
+      <button class="g-task" data-search="decide"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></svg></span><span class="g-task-main"><span class="g-task-want">Tomar e registrar uma decisão</span><span class="g-task-skill">/decide · /decide-now</span></span></button>
       <button class="g-task" data-search="handoff"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2z"/><path d="M9 8V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span><span class="g-task-main"><span class="g-task-want">Salvar estado antes de parar</span><span class="g-task-skill">/handoff</span></span></button>
-      <button class="g-task" data-search="memory"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v12H8z"/><path d="M5 16h14a2 2 0 0 1 2 2v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a2 2 0 0 1 2-2z"/></svg></span><span class="g-task-main"><span class="g-task-want">Lembrar ou persistir conhecimento</span><span class="g-task-skill">/recall · /adt-memory</span></span></button>
+      <button class="g-task" data-search="memory"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v12H8z"/><path d="M5 16h14a2 2 0 0 1 2 2v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a2 2 0 0 1 2-2z"/></svg></span><span class="g-task-main"><span class="g-task-want">Lembrar ou persistir conhecimento</span><span class="g-task-skill">/recall · /knowledge-loop</span></span></button>
     </div>`,
 
   'g-flow': `
@@ -2587,7 +2077,7 @@ const GUIDE_PT = {
       <div class="g-rule"><span class="g-rule-n">04</span><span><b>State-check antes de mutação</b> — consulte o estado atual primeiro; pule se já satisfeito. Idempotente por padrão.</span></div>
       <div class="g-rule"><span class="g-rule-n">05</span><span><b>Sem rewrites big-bang sem gate de demanda</b> — meça o uso primeiro, prototipe uma unidade, depois comprometa.</span></div>
       <div class="g-rule"><span class="g-rule-n">06</span><span><b>Protocolo de travamento</b> — mais de 2 tentativas sem progresso → exponha, troque de abordagem, depois escale. Nunca repita em silêncio.</span></div>
-      <div class="g-rule"><span class="g-rule-n">07</span><span><b>Protocolo de Descoberta de Padrões (obrigatório antes de implementar)</b> — "Search First, Reuse Always, Create Only When Necessary." Antes de qualquer trabalho não-trivial: busque specs (<code>recall</code>/grep <code>docs/specs/</code>) → busque na codebase (grep/glob) → busque no histórico da sessão (<code>recall</code>) → consulte docs → validação arquitetural (roteie para <code>@oracle</code> em casos não-óbvios). Encadeie <code>context-pack</code> antes de <code>plan</code>/<code>scope-and-execute</code>/<code>refactor</code>. Edits triviais de arquivo único (&lt;20 linhas, caminho conhecido) são isentos.</span></div>
+      <div class="g-rule"><span class="g-rule-n">07</span><span><b>Protocolo de Descoberta de Padrões (obrigatório antes de implementar)</b> — "Search First, Reuse Always, Create Only When Necessary." Antes de qualquer trabalho não-trivial: busque specs (<code>recall</code>/grep <code>docs/specs/</code>) → busque na codebase (grep/glob) → busque no histórico da sessão (<code>recall</code>) → consulte docs → validação arquitetural (roteie para <code>@oracle</code> em casos não-óbvios). Encadeie <code>context-pack</code> antes de <code>plan</code>/<code>scope-it</code>/<code>refactor</code>. Edits triviais de arquivo único (&lt;20 linhas, caminho conhecido) são isentos.</span></div>
       <div class="g-rule"><span class="g-rule-n">08</span><span><b>Gate de Independência (agentes review/security/critic)</b> — Agentes de review, segurança e critic DEVEM ser subagentes independentes — nunca colapsados na lane do implementador. Roles que DEVEM ser independentes: <code>code-reviewer</code>, <code>security-reviewer</code>, <code>critic</code>. Read-only-by-construction é sobre permissões de ferramenta (sem write/edit). Independência é sobre separação de lane — mesmo sem ferramentas de escrita, um reviewer rodando no mesmo contexto que o implementador tem objetividade comprometida. Spawne um subagente de review independente: após <code>@fixer</code> concluir → <code>@code-reviewer</code> ou <code>@oracle</code>; antes do merge → <code>@code-reviewer</code>; sensível a segurança → <code>@security-reviewer</code>; alto risco → <code>critic</code>.</span></div>
     </div>`,
 
