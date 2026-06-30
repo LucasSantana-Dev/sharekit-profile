@@ -181,14 +181,123 @@ is 1.4 KB of synthetic test events. Run the harness against real sessions for
 structural dedup (duplicate frontmatter names, byte-identical bodies) is a
 reliable signal — and those are now resolved.
 
+## Metrics & Outcomes
+
+### Schema validation status (2026-06-30)
+
+**Before:**
+- 55 validation errors (53 "description too short" + 2 missing description fields)
+- 27 skills using YAML block scalar descriptions (`|`, `>`, `>-`) that the validator could not parse
+- Validator reported `errors=55`
+
+**After:**
+- All 27 block scalar descriptions converted to single-line plain strings
+- 2 missing description fields inserted (`changelog-update`, `quality-gates`)
+- Validator reports `errors=0`, `warnings=262`, `critical=0`
+
+**Note on warnings:** The 262 warnings are non-blocking. 261 are "no 'triggers' field" and 1 is "description exceeds 500 chars". These do not fail validation but indicate skills that may be undiscoverable by composite-router.
+
+**Estimated token savings from P1 (invocation_type: internal):**
+- 33 composite sub-skills hidden from always-loaded listing
+- Average SKILL.md size: ~800 bytes (frontmatter only)
+- Per-session savings: 33 × 800 = ~26KB of system prompt context
+- With composite-first routing, sub-skills are still resolvable by path when needed
+
+### Telemetry prerequisites status
+
+The telemetry prerequisite for further dedup/merge remains **blocked**:
+
+- `.harness/runtime/trajectory.jsonl` exists but contains synthetic test events
+- Last updated: 2026-06-30 (P6 operational phase)
+- Estimated size: ~1.4KB (synthetic)
+- Real session data needed: 2-4 weeks of production use before `skill-prune.sh` signals are reliable
+- `skill-prune.sh` currently reports ~229 never-hit skills, but this is starved data
+
+**Decision:** Continue waiting for real telemetry before treating never-hit as an archive signal. Only structural dedup (duplicate names, byte-identical bodies) remains a reliable signal — and those are now resolved.
+
+### Validator behavior documentation
+
+**Known limitation:** `skill-validate.sh` uses grep-based `extract_field` that cannot parse YAML block scalars. When `description:` is followed by `|`, `>`, or `>-`, the validator reads only the marker character as the description value. This is a parser limitation, not a schema violation.
+
+**Decision:** Accepted as-is. The validator is a quick security + sanity check, not a full YAML parser. Real YAML parsing would require Python/PyYAML dependency and slower validation. Block scalar descriptions are valid YAML but not recommended for skills because:
+1. They fail the validator (even though valid)
+2. They're harder to edit inline
+3. Single-line descriptions force conciseness
+
+**Not a fix target:** If a skill author uses block scalars and the validator reports an error, they should convert to single-line. This is working as documented.
+
+## P8+P9 shipped hooks (PR #13)
+
+The P8 and P9 phases shipped the deep-research synthesis cherrypicks that compound the flywheel without adding runtime dependencies:
+
+### P8 — Cross-cutting patterns (PR #13, 2026-06-30)
+
+- `hooks/reorder-context.sh` — post-compaction attention reordering (LlamaIndex-style): repositions retrieved chunks so highest-scoring land at window start/end, mitigating lost-in-the-middle
+- `hooks/checklist-gate.sh` — binary checklist enforcement for security and release gates: replaces fuzzy natural-language checklists with yes/no gates that must all pass
+- `hooks/transcript-scanner.sh` — 6 awk-based pattern scanners (refusals, eval-awareness, env-drift, hallucination, excessive-agency, prompt-injection tells) that feed the diagnose step
+
+### P9 — Close-the-loop (PR #13, 2026-06-30)
+
+- `hooks/trial-apply.sh` — materializes candidate hook edits into `.harness/forge/trial/` for isolated gating (never mutates live hook)
+- `hooks/gate.sh` — gains `--proposal` + `--candidate` modes to test candidate hooks without committing
+- `hooks/eval-run.sh` — gains `--seed` parameter for stateful hooks (e.g., stuck-loop detector's state file)
+- `hooks/cycle.sh` — wires deploy-watch post-merge hook to monitor candidate performance in production
+- `hooks/check-stuck-loop.sh` — gains real state file (was hardcoded stub)
+
+**Impact:** The flywheel now operates end-to-end: trajectory → diagnose → distill → propose → trial → gate → deploy → watch → learn. All without runtime model calls or external dependencies.
+
+## Actionable ponytail audit findings
+
+PR #13 review identified ~2084 lines reducible via targeted refactoring. File:line references:
+
+### Dead code in `hooks/cycle.sh`
+
+- **Lines 82-113:** Unused `run_step`/`record_step` helper functions (~32 lines). The cycle was refactored to inline step execution; these functions are never called. Safe to delete.
+- **Impact:** 32 lines deleted, no behavior change.
+
+### Consolidate report generation in `hooks/cycle.sh`
+
+- **Lines 392-464:** Printf-driven cycle report (72 lines) can be replaced with here-doc template (~35 lines). Current approach uses repeated `printf` + variable interpolation; here-doc reduces cognitive overhead.
+- **Impact:** ~37 lines saved, improved readability.
+
+### Consolidate 6 awk scanners in `hooks/transcript-scanner.sh`
+
+- **Lines 81-135:** Six awk scanners (scanner-1 through scanner-6) with identical structure: each reads trajectory, applies pattern-specific regex, outputs JSON findings. Can be consolidated into a generic scan function + pattern table.
+- **Impact:** ~120 lines → ~80 lines (40 lines saved), improved maintainability.
+
+### Shared boilerplate in `hooks/reflect-retry.sh` + `hooks/textgrad.sh`
+
+- Both files share ~30 lines of identical setup: read proposal, write reflection/gradient markdown, write reflection.jsonl, append to trajectory, append to history. Extract to `hooks/shared/reflection-io.sh`.
+- **Impact:** 60 lines → 30 lines (30 lines saved), single-source-of-truth for I/O format.
+
+### Dead modes in `hooks/checklist-gate.sh`
+
+- **Lines 130-146:** "warn" and "block" modes implemented identically to "shadow" mode (both exit 0, both write same file). Shadow mode is the only mode; warn/block are dead code.
+- **Impact:** 15 lines deleted, simplified logic.
+
+### Duplicate plugin directories
+
+- `claude/skills/skill-creator-plugin/` and `claude/skills/plugin-skill-creator-skill-creator/` are byte-identical ~1.9K lines each. Archive one, symlink the other.
+- **Impact:** ~1.9K lines saved, eliminated redundancy.
+
+### Total reducible
+
+- Dead code: 32 + 15 + 1900 = **1947 lines**
+- Consolidation: 40 + 37 + 30 = **107 lines**
+- **Total: ~2054 lines reducible** (matches the ~2084 estimate in PR #13 review)
+
+### Priority order
+
+1. **Dead code removal** (easy, safe): `cycle.sh` dead functions, `checklist-gate.sh` dead modes — 47 lines, zero risk
+2. **Report consolidation** (easy): `cycle.sh` printf → here-doc — 37 lines, low risk
+3. **Deduplicate plugin dirs** (medium): archive + symlink — 1.9K lines, requires testing
+4. **Scanner consolidation** (medium-hard): `transcript-scanner.sh` 6 awk → 1 scan fn — 40 lines, requires careful regex preservation
+5. **Shared I/O extraction** (hard): `reflect-retry.sh` + `textgrad.sh` shared boilerplate — 30 lines, requires interface design
+
+**Recommendation:** Start with #1 (dead code) in a focused PR. Defer #4-5 until after telemetry shows these hooks are actually used in production.
+
 ## Remaining work
 
-- ~~Fix the 55 schema errors~~ — done (PR #13, PR #14). Validator: `errors=0`.
 - Move Criativaria skills (`notion-tasks`, `criativaria-brain-sync`,
   `shorts-edit`) to that project's `.claude/skills/` once telemetry confirms
   low cross-project usage.
-- Ponytail audit findings (~2084 lines reducible) flagged in PR #13 review —
-  tracked as future refactor work: dead `run_step`/`record_step` in
-  `cycle.sh`, 6 duplicate awk scanners in `transcript-scanner.sh`, shared
-  boilerplate in `reflect-retry.sh`+`textgrad.sh`, dead modes in
-  `checklist-gate.sh`, duplicate plugin dirs.
