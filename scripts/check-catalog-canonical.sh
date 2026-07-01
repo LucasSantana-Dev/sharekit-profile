@@ -21,7 +21,7 @@ fi
 
 page=$(awk '/const SKILLS = \[/{f=1} f{print} /^];/{if(f) exit}' "$HTML" \
   | rg -o "name: '[a-z0-9-]+'" | sed "s/name: '//;s/'$//" | sort -u)
-canon=$(fd -t d -d 1 . "$CANON" -x basename {} | sort -u)
+canon=$(fd -L -t d -d 1 . "$CANON" -x basename {} | sort -u)
 
 stale=$(comm -23 <(printf '%s\n' "$page") <(printf '%s\n' "$canon"))
 
