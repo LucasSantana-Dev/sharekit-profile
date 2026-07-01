@@ -9,11 +9,15 @@
 
 ## Execution status (2026-07-01)
 
-- **Catalog**: 50 active skill folders in `claude/skills/`; 53 archived in `claude/skills/.archive/` for recoverability. `curated-skills.txt` now mirrors the active repo catalog exactly.
+- **Catalog**: 51 active skill folders in `claude/skills/`; 52 archived in `claude/skills/.archive/` for recoverability. `curated-skills.txt` now mirrors the active repo catalog exactly. **Update (2026-07-01 post-fix):** `sync-memories` restored from archive and marked `invocation_type: internal` (was misapplied archival; see note below).
 - **Capability preservation (executed)**: archived over-engineering audit behavior folded into `ponytail`; systematic debugging discipline folded into `debug`; RAG quality/curation/drift details folded into `rag-maintenance` and `knowledge-loop`; scanner/security wrappers represented as evidence sources inside `secure`, `quality-assurance`, and `quality-gates`.
 - **Docs alignment (executed)**: `README.md`, `AGENTS.md`, `docs/composites.md`, `docs/overview.md`, `docs/troubleshooting.md`, `docs/hooks.md`, and relevant `docs/skills/*` guides now describe active equivalents instead of archived command names.
 - **Runtime topology documented**: runtime skills reconcile through canonical `~/.agents/skills`; `~/.claude/skills` is the symlinked runtime view and `~/.claude-env/skills` is a downstream mirror.
 - **Knowledge-brain caution**: stale memories may still mention archived commands. Preserve historical notes and add superseding memories for current state; do not rewrite history as if old topology never existed.
+
+### Misapplied archival correction (2026-07-01)
+
+`sync-memories` was archived in the consolidation pass but should have been marked `invocation_type: internal` instead. It is a required sub-skill of the `knowledge-loop` composite (invoked in Phase 2 — Capture) and was disabled by archival. **Restored to `claude/skills/sync-memories/` with `invocation_type: internal` frontmatter.** Now hidden from the always-loaded listing (per progressive-disclosure P1) but resolvable by `knowledge-loop` by path.
 
 ## Historical execution status (2026-06-30)
 
@@ -87,21 +91,18 @@ here to avoid unilateral capability removal):
 
 ### P1 -- Hide sub-skills from the listing (~35 listed, on-disk unchanged)
 
-Add a `hidden: true` frontmatter field consumed by `skill-index.sh`. Hidden
+Add an `invocation_type: internal` frontmatter field consumed by `skill-index.sh`. Hidden
 skills are NOT in the always-loaded `<available_skills>` listing, but composites
 can still resolve and invoke them by path. Hide the ~35 sub-skills with no
 standalone trigger (e.g. `pr-flow`, `pr-merge-readiness`, `version-bump`,
 `test-health`, `mutation-test`, `config-drift-detect`, `security-audit`,
 `socket-audit`, `rag-quality`, `rag-curate`, `wake-up`, `pr-snapshot`,
-`sync-memories`, `gh-fix-ci`, `gh-address-comments`, `ci-watch`,
+`sync-memories` ✓, `gh-fix-ci`, `gh-address-comments`, `ci-watch`,
 `refactor-plan`, `three-man-team`). Keep listed any sub-skill with a strong
 standalone trigger (`adr-write`, `docs-sync`, `plan`, `brainstorming`,
 `deployment-automation`).
 
-**Prerequisite**: extend `skill-index.sh` to skip `hidden: true` entries
-(currently it lists every SKILL.md it finds; the `hidden` field is not yet
-read). This is the structural lever — it must land before the hide list is
-applied, otherwise hidden skills still appear.
+**Status**: `skill-index.sh` now processes `invocation_type: internal` (extends previous `hidden: true` plan). `sync-memories` has been marked and restored as the first correctly-hidden sub-skill under this mechanism.
 
 **Combined P0+P1 (revised): listed catalog 233 -> ~195 after the safe
 archivals already done plus hiding.**

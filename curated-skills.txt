@@ -44,6 +44,7 @@ session-bootstrap
 setup-pre-commit
 ship
 skill-creator-plugin
+sync-memories
 tdd
 test-driven-development
 three-man-team
