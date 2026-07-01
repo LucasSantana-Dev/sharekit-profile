@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # cycle.sh -- end-to-end flywheel cycle runner (P5: integrated with the P4 substrate).
 #
+# NOTE: This script is NOT registered as a Claude Code lifecycle hook — it runs
+# ONLY via direct CLI invocation (hooks/cycle.sh) or the opt-in nightly scheduler
+# (scripts/install-scheduler.sh). It does not auto-trigger on session start or any
+# other event. See claude/settings.json for what actually auto-fires per session.
+#
 # The loop contract exists (P0/P1/P2 scripts); P4 added the convergent
 # cross-cutting patterns (memory consolidation, progressive-disclosure skills,
 # deterministic dispatch, governance gate); P5 wires them into the cycle so the
