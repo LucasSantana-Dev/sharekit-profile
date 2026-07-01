@@ -414,7 +414,7 @@ If context bloat builds: `/compact` (saves ~30-40% tokens)
 ### Token Optimization
 | Goal | Skill | What it does |
 |------|-------|--------------|
-| ~75% token compression | `/caveman` | Drops filler/articles/pleasantries while keeping full technical accuracy. Persists until toggled off. |
+| ~75% token compression | Caveman mode (default, hook-enforced) | Default behavior that drops filler/articles/pleasantries while keeping full technical accuracy. Toggle off with "stop caveman" or "normal mode". |
 | Minimal solutions | `/ponytail` | Forces simplest, shortest, most minimal solution (YAGNI, stdlib before deps, one line before fifty). |
 | Audit repo or diff for bloat | `/ponytail` | Built-in audit/review mode for over-engineering, ranked by evidence and size of cut. |
 | Track deferred shortcuts | `ponytail:` comments | Mark deliberate shortcuts with ceiling and upgrade path in code. |
@@ -443,10 +443,10 @@ The profile ships a **Megabrain** system: one vault for all projects (memory + g
 | Composite not invoked | Check session.log for `Composite match`; verify intent matches skill | Invoke directly: `/composite-name` |
 | RAG retrieval stale | `/rag-maintenance` scans quality, coverage, drift, and gaps | Reindex through the maintenance workflow |
 | Agent spawn failed | Verify agent exists: `fd -t f name ~/.claude/agents/` | Use default agent or check agent file syntax |
-| Memory not persisting | Check sync: `bat -p ~/.claude/.sync.log` | `/sync-memories` explicitly; verify frontmatter |
+| Memory not persisting | Check sync: `bat -p ~/.claude/.sync.log` | Use `/knowledge-loop` to capture memory; verify frontmatter |
 | Slow hooks / timeouts | `time bash ~/.claude/hooks/name.sh` | Increase timeout in settings.json or optimize hook |
 | Parallel agents conflicting | Verify worktrees: `ls /Volumes/External\ HD/Desenvolvimento/.worktrees/` | Ensure `isolation: "worktree"` on agents |
-| Token budget hit | `/token-audit` for analysis | `/compact` for relief; `/update-config` to raise limit |
+| Token budget hit | Check `.harness/runtime/` trajectory logs or hook reports | `/compact` for relief; `/update-config` to raise limit |
 
 ---
 
