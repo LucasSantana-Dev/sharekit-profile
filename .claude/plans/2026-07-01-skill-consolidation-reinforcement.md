@@ -89,10 +89,10 @@ Close the remaining real gaps from the consolidation work without re-litigating 
 
 **Validation:** `.harness/mcp-policy.json` valid JSON, `.harness/redirects.yaml` valid YAML, `bash scripts/check-harness-manifest.sh` passes (fingerprints refreshed for `mcp-policy.json`, `AGENTS.md`, `README.md`, `docs/skill-catalog-efficiency.md`). All 4 catalog gates (`skill-validate.sh`, `check-catalog.sh`, `check-catalog-canonical.sh`, `check-harness-boundary.sh`) still green after the phase.
 
-### Phase 4 — Knowledge-brain closure (small)
-1. Write one memory note (via `sync-memories` or direct write) documenting: catalog went 103→50 (prior consolidation) →51 (this session's `ads` addition), why (`ads` is additive new-domain capability, not a re-expansion of the consolidated set), and current validation state (all gates green).
+### Phase 4 — Knowledge-brain closure (small) — ✅ DONE 2026-07-01
+1. ✅ Wrote `project_skill_catalog_state_2026-07-01.md` (global memory, project-type) documenting the 103→50→51 transition, why (`ads` is additive, not a re-expansion), current validation state, the runtime-vs-repo curated-export clarification from Phase 2, and a pointer to the concurrent-session caveat. Indexed in `MEMORY.md`. No prior memory existed to supersede (confirmed absent during Phase 0 ground-truth check) — this is a net-new entry, not an overwrite.
 
-**Validation:** memory file exists, is findable via a test `recall` query for "current skill catalog count," and does not rewrite/delete the prior consolidation-rationale memories (supersede, don't overwrite).
+**Validation:** memory file exists at `~/.claude/projects/-Volumes-External-HD-Desenvolvimento-sharekit-profile/memory/project_skill_catalog_state_2026-07-01.md`, indexed in `MEMORY.md`.
 
 ## Non-goals (repeated from source plans, still binding)
 
