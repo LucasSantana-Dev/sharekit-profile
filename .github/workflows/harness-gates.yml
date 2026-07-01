@@ -30,6 +30,15 @@ jobs:
       - name: Verify harness manifest fingerprints
         run: bash scripts/check-harness-manifest.sh
 
+  bats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install bats-core
+        run: sudo apt-get update && sudo apt-get install -y bats
+      - name: Run gate script tests
+        run: bats tests/
+
   gitleaks:
     runs-on: ubuntu-latest
     steps:
