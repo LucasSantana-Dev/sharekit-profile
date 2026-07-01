@@ -17,4 +17,10 @@ bash scripts/check-harness-manifest.sh
 # Schema + security validation for skills in this catalog
 bash hooks/skill-validate.sh --dir claude/skills
 
+# Stale-showcase check (local only; skips in CI). Warn-only for now: current
+# staleness is operator-env sync lag (skill not yet synced to canonical, or a
+# broken plugin symlink), not a repo defect. Flip to hard-fail once canonical
+# sync discipline exists (see ADR-0001 wave 2).
+bash scripts/check-catalog-canonical.sh || echo "WARN: stale showcase entries (non-blocking — see scripts/check-catalog-canonical.sh)"
+
 echo "Pre-commit checks passed."

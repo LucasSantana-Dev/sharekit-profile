@@ -13,18 +13,13 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Directories to scan (relative to repo root)
 SCAN_DIRS=(
-  ".claude/skills"
-  ".claude/agents"
-  ".claude/standards"
+  "claude/skills"
   "hooks"
   "scripts"
-  "skills"
-  "standards"
 )
 
-# Patterns that indicate project-specific app code imports
-# These are forbidden in harness files — harness must be portable
-FORBIDDEN_PATTERNS=(
+# Patterns for CODE files (sh/py/js/ts/json/yaml) — full strictness
+CODE_PATTERNS=(
   'from src[./]'
   'from app[./]'
   'from lib[./]'
@@ -42,6 +37,17 @@ FORBIDDEN_PATTERNS=(
   '\.\./lib/'
 )
 
+# Patterns for MARKDOWN files — only actual dependency statements
+# (import/require/source/from statements, absolute paths like /Volumes/..., $ROOT references)
+MD_PATTERNS=(
+  '^[^`]*\bimport\s+.*\b(src|app|lib)/'
+  '^[^`]*\brequire\s*\([^)]*\b(src|app|lib)/'
+  '^[^`]*\bsource\s+.*\b(src|app|lib)/'
+  '^[^`]*\bfrom\s+['\''\"](src|app|lib)/'
+  '/Volumes/.*/(src|app|lib)/'
+  '\$ROOT/(src|app|lib)/'
+)
+
 violations=0
 violation_list=""
 
@@ -49,8 +55,9 @@ for dir in "${SCAN_DIRS[@]}"; do
   target="$ROOT/$dir"
   [[ -d "$target" ]] || continue
 
+  # Process non-markdown files with full pattern list
   while IFS= read -r -d '' file; do
-    for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
+    for pattern in "${CODE_PATTERNS[@]}"; do
       if rg -q "$pattern" "$file" 2>/dev/null; then
         relpath="${file#$ROOT/}"
         matches=$(rg -n "$pattern" "$file" 2>/dev/null | head -3)
@@ -62,7 +69,24 @@ for dir in "${SCAN_DIRS[@]}"; do
         violations=$((violations + 1))
       fi
     done
-  done < <(fd -t f -0 -e sh -e py -e js -e ts -e md -e json -e yaml -e yml . "$target" 2>/dev/null)
+  done < <(fd -t f -0 -e sh -e py -e js -e ts -e json -e yaml -e yml . "$target" 2>/dev/null)
+
+  # Process markdown files with restricted pattern list (actual dependencies only)
+  while IFS= read -r -d '' file; do
+    # For .md files, check for actual code dependencies, not generic prose
+    for pattern in "${MD_PATTERNS[@]}"; do
+      if rg -q "$pattern" "$file" 2>/dev/null; then
+        relpath="${file#$ROOT/}"
+        matches=$(rg -n "$pattern" "$file" 2>/dev/null | head -3)
+        violation_list+="  $relpath\n    pattern: $pattern\n    matches:\n"
+        while IFS= read -r line; do
+          violation_list+="      $line\n"
+        done <<< "$matches"
+        violation_list+="\n"
+        violations=$((violations + 1))
+      fi
+    done
+  done < <(fd -t f -0 -e md . "$target" 2>/dev/null)
 done
 
 if [[ $violations -eq 0 ]]; then

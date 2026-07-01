@@ -1,0 +1,33 @@
+# Gitleaks configuration for sharekit-profile
+# This is a PUBLIC repository. Secret scanning includes:
+# - Default entropy + pattern matching rules
+# - Custom rules for Google Ads IDs
+# - Allowlists for legitimate security scanner documentation
+
+[extend]
+useDefault = true
+
+# Custom rule: Google Ads campaign and customer IDs
+# Detects patterns like: campaign_id = "1234567890" or CUSTOMER_ID: 0987654321
+# Google Ads IDs are typically 9-11 digit numbers and are business-sensitive
+[[rules]]
+id = "google-ads-ids"
+description = "Google Ads campaign_id and customer_id values"
+regex = "(?i)(campaign_id|customer_id|CAMPAIGN_ID|CUSTOMER_ID)\\s*[=:]\\s*['\"]?\\d{9,11}['\"]?"
+tags = ["gads", "business-sensitive"]
+entropy = 0
+
+# Note on client-name leakage:
+# Generic regex patterns cannot reliably detect client/business names without false positives.
+# Client-name leakage (e.g., "Acme Corp" referenced in Google Ads scripts) requires human review.
+# This is caught in manual audits; gitleaks focuses on credential-shaped patterns.
+
+# Allowlist: These paths legitimately document security concepts, removed scripts,
+# or contain pattern examples that look like secrets but are not
+[allowlist]
+paths = [
+  "hooks/skill-validate.sh",           # Security gate documentation
+  "claude/skills/secure/",              # Secure coding references
+  "scripts/google-ads-criativaria.js",  # Removed Google Ads script (history purged from main, still in abandoned branches)
+  ".gitleaks.toml"                      # This config file
+]

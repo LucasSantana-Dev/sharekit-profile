@@ -30,6 +30,7 @@ ALLOWED_COAUTHORS = [
     r"\boz\b.*@warp\.dev",   # Warp Oz — @warp.dev address
     r"\boz\b.*@ai\.dev",     # Warp Oz — legacy @ai.dev address
     r"\boz\b.*\.ai\b",       # Warp Oz — any email ending with .ai domain
+    r"oz.*@anthropic\.com",  # Oz — Anthropic email
 ]
 ALLOWED_COMPILED = [re.compile(p, re.IGNORECASE) for p in ALLOWED_COAUTHORS]
 
@@ -41,7 +42,7 @@ TRAILER_RE = re.compile(
 def get_log() -> str:
     """Return full git log with commit hashes and bodies."""
     result = subprocess.run(
-        ["git", "log", "--all", "--format=%H%n%B%n---END---"],
+        ["git", "log", "HEAD", "--format=%H%n%B%n---END---"],
         capture_output=True,
         text=True,
         check=True,

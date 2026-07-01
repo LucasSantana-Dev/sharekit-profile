@@ -48,7 +48,7 @@ if [[ -f "$SENSITIVE_PATHS" ]]; then
   while IFS= read -r pattern; do
     [[ -z "$pattern" ]] && continue
     # Convert glob pattern to regex: * → [^/]*, ** → .*, ? → [^/]
-    regex="$(printf '%s' "$pattern" | sed 's/\*\*/.*/g; s/\*/[^/]*/g; s/?/[^/]/g')"
+    regex="$(printf '%s' "$pattern" | sed 's|\*\*|__DS__|g; s|\*|[^/]*|g; s|?|[^/]|g; s|__DS__|.*|g')"
     if printf '%s' "$command" | rg -q "$regex"; then
       echo "BLOCKED by .harness/sensitive-paths.json (non-overridable):" >&2
       echo "  pattern:  $pattern" >&2
