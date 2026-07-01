@@ -99,7 +99,7 @@ die() { echo "dispatch: $*" >&2; exit 2; }
 current_state=""
 summary=""
 if [[ -s "$LEDGER" ]]; then
-  rec="$(grep "\"task_id\":\"$task_id\"" "$LEDGER" 2>/dev/null | tail -1)"
+  rec="$(rg "\"task_id\":\"$task_id\"" "$LEDGER" 2>/dev/null | tail -1)"
   if [[ -n "$rec" ]]; then
     current_state="$(printf '%s' "$rec" | jq -r '.state // empty' 2>/dev/null)"
     summary="$(printf '%s' "$rec" | jq -r '.summary // empty' 2>/dev/null)"

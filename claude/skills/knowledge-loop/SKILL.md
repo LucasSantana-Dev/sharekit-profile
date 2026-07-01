@@ -47,10 +47,16 @@ write (memory vs committed doc) and which tags apply, follow the decision tree i
 
 ### Phase 3 — Improve (conditional)
 If recall returned weak hits (cosine <0.40) for a query that should have hit something,
-invoke `/rag-curate` to add the missing doc or rewrite the weak chunk. Skip if recall
-was strong.
+invoke `/rag-maintenance` in curation mode to add the missing doc, rewrite the weak chunk,
+or reindex stale content. Skip if recall was strong.
 
-**Done when:** skill/rag-curate confirms N chunks rewritten or N docs added — verify via incremental reindex completion and cosine score ≥0.40 for the weak query in top 3 results.
+Improvement discipline:
+- Create a superseding memory for changed current state; do not rewrite historical memories as if old decisions never happened.
+- If a recalled memory contradicts repo truth, mark the new capture as `supersedes` and reference the old note.
+- Treat weak recall as a retrieval bug until proven otherwise: inspect source, chunk, index freshness, and query wording.
+- If the filesystem has more memory files than the index, record coverage drift and schedule reindex before relying on recall.
+
+**Done when:** `rag-maintenance` confirms N chunks rewritten or N docs added — verify via incremental reindex completion and cosine score ≥0.40 for the weak query in top 3 results.
 
 ### Phase 4 — Snapshot (if session-ending or context-pressured)
 Invoke `handoff` to write a durable resume packet. Skip if work continues immediately.

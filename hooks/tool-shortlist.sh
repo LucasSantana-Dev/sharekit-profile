@@ -45,8 +45,8 @@ declare -A TOOL_KEYWORDS
 TOOL_KEYWORDS[Read]="read file contents view source"
 TOOL_KEYWORDS[Write]="write create file contents new"
 TOOL_KEYWORDS[Bash]="bash shell command run execute terminal"
-TOOL_KEYWORDS[Grep]="search find grep regex symbol"
-TOOL_KEYWORDS[Glob]="glob find files pattern match"
+TOOL_KEYWORDS[Grep]="search locate rg regex symbol"
+TOOL_KEYWORDS[Glob]="glob locate files pattern match"
 TOOL_KEYWORDS[Edit]="edit modify replace patch diff"
 TOOL_KEYWORDS[WebSearch]="search web internet query"
 TOOL_KEYWORDS[WebFetch]="fetch url web page http"
@@ -65,7 +65,7 @@ if [[ "${1:-}" == "suggest" ]]; then
   for tool in "${!TOOL_KEYWORDS[@]}"; do
     kws="${TOOL_KEYWORDS[$tool]}"
     # Lowercase match on any keyword.
-    if printf '%s' "$prompt" | grep -Eqi "$(printf '%s' "$kws" | tr ' ' '|')"; then
+    if printf '%s' "$prompt" | rg -qi "$(printf '%s' "$kws" | tr ' ' '|')"; then
       printf -- "- %s (keywords: %s)\n" "$tool" "$kws"
       matched=$((matched + 1))
     fi
@@ -85,7 +85,7 @@ if [[ "${1:-}" == "--status" ]]; then
 fi
 
 # --- Hook mode: read stdin JSON ----------------------------------------------
-input="$(cat)"
+input="$(sed -n '1,$p')"
 prompt_text="$(printf '%s' "$input" | jq -r '.prompt // .user_prompt // .tool_input.prompt // empty' 2>/dev/null || true)"
 tool_name="$(printf '%s' "$input" | jq -r '.tool_name // .tool // empty' 2>/dev/null || true)"
 
@@ -101,7 +101,7 @@ if [[ -n "$prompt_text" ]]; then
     matched=0
     for tool in "${!TOOL_KEYWORDS[@]}"; do
       kws="${TOOL_KEYWORDS[$tool]}"
-      if printf '%s' "$prompt_text" | grep -Eqi "$(printf '%s' "$kws" | tr ' ' '|')"; then
+      if printf '%s' "$prompt_text" | rg -qi "$(printf '%s' "$kws" | tr ' ' '|')"; then
         printf -- '- %s\n' "$tool"
         matched=$((matched + 1))
       fi

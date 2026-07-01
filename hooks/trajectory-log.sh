@@ -16,7 +16,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG="$ROOT/.harness/runtime/trajectory.jsonl"
 mkdir -p "$(dirname "$LOG")"
 
-input="$(cat)"
+input="$(sed -n '1,$p')"
 ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 tool_name="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2>/dev/null || true)"
@@ -28,10 +28,10 @@ tool_response_trim="$(printf '%s' "$tool_response" | head -c 2048)"
 
 # Heuristic outcome tag: success / error / blocked.
 outcome="success"
-if printf '%s' "$tool_response" | grep -Eqi '"is_error":true|"error":|"stderr":"[^"]*error'; then
+if printf '%s' "$tool_response" | rg -qi '"is_error":true|"error":|"stderr":"[^"]*error'; then
   outcome="error"
 fi
-if printf '%s' "$tool_response" | grep -Eqi 'BLOCKED|exit code 2'; then
+if printf '%s' "$tool_response" | rg -qi 'BLOCKED|exit code 2'; then
   outcome="blocked"
 fi
 

@@ -43,7 +43,7 @@ ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 if [[ "${1:-}" == "--status" ]]; then
   last="$(ls -t "$REFLECTIONS"/*.md 2>/dev/null | head -1)"
   [[ -n "$last" ]] || { echo "no reflections yet"; exit 0; }
-  bat -p "$last" 2>/dev/null || cat "$last"
+  bat -p --paging=never "$last" 2>/dev/null || sed -n '1,$p' "$last"
   exit 0
 fi
 
@@ -98,7 +98,7 @@ why_digest=""
 last_scan="$(ls -t "$FORGE"/*transcript-scan*.md 2>/dev/null | head -1)"
 scan_summary=""
 if [[ -n "$last_scan" && -f "$last_scan" ]]; then
-  scan_summary="$(grep -E '^- (refusals|evaluation-awareness|environment-drift|hallucination|excessive-agency|prompt-injection)' "$last_scan" 2>/dev/null | head -6)"
+  scan_summary="$(rg '^- (refusals|evaluation-awareness|environment-drift|hallucination|excessive-agency|prompt-injection)' "$last_scan" 2>/dev/null | head -6)"
 fi
 
 digest="$REFLECTIONS/${ts//[:]/-}-reflection.md"

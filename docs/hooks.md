@@ -23,7 +23,7 @@ Ensure the operator starts with fresh context — no stale RAG chunks, up-to-dat
 
 ### When It Fails
 - **Slow pull (>3s)** — network or large memory sync; increase timeout in `settings.json`
-- **RAG reindex fails** — corrupted chunks or missing files; run `/adt-rag-index-rebuild`
+- **RAG reindex fails** — corrupted chunks or missing files; run `/rag-maintenance` and rebuild only when thresholds require it
 - **Memory pull fails** — check `~/.claude/.sync.log`; verify frontmatter
 
 ---
@@ -60,9 +60,9 @@ Use this as a starting point; the assistant may still need to Read files for ful
 - Warn about context/branch state before commits
 
 ### When It Fails
-- **RAG recall slow** — too many chunks or poor embedding; run `/adt-rag-drift` to clean stale
-- **Composite not detected** — check if intent keywords are registered; update `composite-router.sh`
-- **Model tier hint wrong** — classifier may need tuning; check last `adt-smart-model-route` run
+- **RAG recall slow** — too many chunks or poor embedding; run `/rag-maintenance` to measure coverage and drift
+- **Composite not detected** — check if intent maps to an active workflow in `docs/composites.md`
+- **Model tier hint wrong** — follow `AGENTS.md` model-tier policy and tune the classifier if the mismatch repeats
 
 ---
 
@@ -101,7 +101,7 @@ Runs after each tool completes. Logs usage, detects patterns, reindexes changes.
 ### By Tool Type
 
 **[Bash]**
-- Detect bash that could use Read tool (e.g., `cat file.ts | grep pattern`)
+- Detect bash that could use Read/Search tools (e.g., `bat -p file.ts | rg pattern`, or direct Read/rg when available)
 - Flag missed optimization opportunities
 
 **[Read]**
@@ -203,7 +203,7 @@ Hooks timeout at 2-10s per the `timeout` field in `settings.json`. To increase:
 
 View hook output:
 ```bash
-cat ~/.claude/tool-failures.log | jq '.hooks | last'
+bat ~/.claude/tool-failures.log | jq '.hooks | last'
 ```
 
 Run a hook manually:
@@ -228,13 +228,13 @@ To disable a hook temporarily:
 
 | Problem | Symptom | Fix |
 |---------|---------|-----|
-| RAG not recalling | No `# Knowledge graph context` block | `/adt-rag-drift` to clean stale chunks |
-| Composite not detected | Intent matches but no `🎯` emitted | Check `~/.claude/hooks/composite-router.sh` |
-| Slow UserPromptSubmit | Hangs after prompt submit | Reduce RAG corpus size; run `/adt-rag-coverage` |
+| RAG not recalling | No `# Knowledge graph context` block | Run `/rag-maintenance` |
+| Composite not detected | Intent matches but no `🎯` emitted | Use active workflow table in `docs/composites.md` |
+| Slow UserPromptSubmit | Hangs after prompt submit | Reduce RAG corpus size through `/rag-maintenance` |
 | Model tier wrong | Haiku suggested for complex task | Check `adt-smart-model-route` keyword tuning |
 | Context bloat warning spam | Too many warnings per turn | Compact earlier; run `/compact` |
 | Memory pull fails | SessionStart hangs on memory sync | Verify network; check `~/.claude/.sync.log` |
 
 ---
 
-**Last updated:** 2026-06-25
+**Last updated:** 2026-07-01

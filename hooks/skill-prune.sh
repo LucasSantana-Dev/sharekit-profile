@@ -42,7 +42,7 @@ while [[ $# -gt 0 ]]; do
     --status)
       last="$(ls -t "$FORGE"/*-skill-prune.md 2>/dev/null | head -1)"
       [[ -n "$last" ]] || { echo "no prune reports yet"; exit 0; }
-      bat -p "$last" 2>/dev/null || cat "$last"
+      bat -p --paging=never "$last" 2>/dev/null || sed -n '1,$p' "$last"
       exit 0 ;;
     *) echo "skill-prune: unknown arg: $1" >&2; exit 2 ;;
   esac
@@ -64,12 +64,11 @@ fi
 report="$FORGE/${datestamp}-skill-prune.md"
 
 # --- Catalog skill names (the universe of candidates) -------------------------
-mapfile -t skill_files < <(fd -t f -e md '^SKILL\.md$' "$CATALOG" 2>/dev/null \
-  || find "$CATALOG" -type f -name 'SKILL.md' 2>/dev/null)
+mapfile -t skill_files < <(fd -t f -e md '^SKILL\.md$' "$CATALOG" 2>/dev/null | sort)
 declare -A skill_present
 for f in "${skill_files[@]}"; do
   [[ -f "$f" ]] || continue
-  name="$(grep -iE '^name:' "$f" 2>/dev/null | head -1 | sed -E 's/^name:[[:space:]]*//I' | tr -d '"' | tr -d "'")"
+  name="$(rg -i '^name:' "$f" 2>/dev/null | head -1 | sed -E 's/^name:[[:space:]]*//I' | tr -d '"' | tr -d "'")"
   [[ -z "$name" ]] && name="$(basename "$(dirname "$f")")"
   skill_present["$name"]=0
 done
@@ -83,7 +82,7 @@ total=${#skill_present[@]}
 while IFS= read -r line; do
   [[ -z "$line" ]] && continue
   for name in "${!skill_present[@]}"; do
-    if printf '%s' "$line" | grep -qF "/$name"; then
+    if printf '%s' "$line" | rg -q -F "/$name"; then
       skill_present["$name"]=$(( ${skill_present["$name"]} + 1 ))
     fi
   done

@@ -8,14 +8,14 @@
     "codex"
   ],
   "files": {
-    ".harness/mcp-policy.json": "3b2c773c766ec6ed53b58a471e5d635f9885f964deb0c4885bae5dfb19ab5ef4",
-    "AGENTS.md": "13a3171e125ae2dc36adeff0481dd509fbe7a6e0b5e1262f77111ce46309d072",
+    ".harness/mcp-policy.json": "c15280f8ebb00eec26ab1a928db0de9b63060a7242ad8efed3dce9cc2383e2ab",
+    "AGENTS.md": "cf9ebe994682f91b692e3a7abaffeefe1f3e0f2498a4315e0852ff46ddd09c65",
     "claude/settings.json": "f7280e5ba5b453e0091ccfd72b621cbfe9f45a3ed9b258c5cce690d3b4cbfebb",
-    "hooks/skill-index.sh": "a218a7274d7412439a2cd3367b52ca8d999d4ceb26bca570523b9b0a161880da",
-    "hooks/skill-validate.sh": "47b263e785f83459bbe6a5009c068b576055c4c46641472c17f6c3daf4acb672",
-    "hooks/skill-prune.sh": "a8f2e3d3799f9d14325d1a80a7f10bd7fd11b3e2ba16024f1d0db8ad0ce664d4",
-    "README.md": "58de193f047573b8e2cb8f5a9659d6c534383d796f0548b09df45a094defb90c",
-    "docs/skill-catalog-efficiency.md": "de7d3fa3b6cc8b7d281744575e437b1b48c774e1694f07fa33f35dd7fc5016f7"
+    "hooks/skill-index.sh": "d36dc8470076ce5f27947e0abcda44388619fb83bf499202dbd3f8ffcf42c031",
+    "hooks/skill-validate.sh": "4505079326f30690d19bd80270ab7e10292c6cc2b41d6e597b58f49198a1d921",
+    "hooks/skill-prune.sh": "be8840b44674a473ae36eced0fbe6cc886d154f227a8a2dda02e529211645cf6",
+    "README.md": "90bfdc34b046ba8bb2ba4f574c78d6e07abd055631f18914fba79020cb93d8b1",
+    "docs/skill-catalog-efficiency.md": "268e3d816fa2716d2771c66a33446115b30c1ae471730bf3f9986e3e2feaddf7"
   },
   "meta": {
     "adr_anchor": "Adopted from ruflo meta-harness pattern: declarative governance directory converts prose security rules into diffable, CI-enforceable code. + Wave-4 self-improvement flywheel: settings.json un-orphaning the hooks and enabling the observe\u2192evaluate\u2192optimize loop.",

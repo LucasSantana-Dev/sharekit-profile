@@ -46,7 +46,7 @@ ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 if [[ "${1:-}" == "--status" ]]; then
   last="$(ls -t "$GRADIENTS"/*.md 2>/dev/null | head -1)"
   [[ -n "$last" ]] || { echo "no gradients yet"; exit 0; }
-  bat -p "$last" 2>/dev/null || cat "$last"
+  bat -p --paging=never "$last" 2>/dev/null || sed -n '1,$p' "$last"
   exit 0
 fi
 
@@ -112,7 +112,7 @@ machine="$GRADIENTS/${ts//[:]/-}-gradient.jsonl"
 
   printf '## Anchor reflection (the narrative diagnosis)\n\n'
   printf '```\n'
-  bat -p "$last_reflection" 2>/dev/null || cat "$last_reflection"
+  bat -p --paging=never "$last_reflection" 2>/dev/null || sed -n '1,$p' "$last_reflection"
   printf '\n```\n\n'
 
   printf '## Forward pass — current target text (the object of criticism)\n\n'

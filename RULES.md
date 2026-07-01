@@ -28,6 +28,12 @@ Never automate any action on a PR with comments from another person, or any open
 ### Repository is the single source of truth
 ADRs, conventions, decisions — all committed to the repo. Not in someone's head, not in a Slack thread. If it is not committed, it does not exist.
 
+### Lean catalog preservation
+Keep the active sharekit skill catalog lean. Do not restore archived wrapper skills just to recover wording; fold durable capability into active skills, standards, or docs first. Archived skills remain recoverable evidence, not active commands.
+
+### Knowledge supersession
+Historical memories may be stale. Preserve them as history and add superseding notes for current state instead of rewriting old decisions as if they never happened.
+
 ### Stuck protocol
 If the same task is attempted more than 2 times without measurable progress, surface "Stuck: [task], [attempt N], [last blocker]" and switch approach. After 2 approach switches fail, escalate. Never silently loop on a failing strategy.
 

@@ -29,7 +29,7 @@ mkdir -p "$REORDER_DIR"
 
 ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-input="$(cat)"
+input="$(sed -n '1,$p')"
 
 tool_name="$(printf '%s' "$input" | jq -r '.tool_name // .tool // empty' 2>/dev/null || true)"
 

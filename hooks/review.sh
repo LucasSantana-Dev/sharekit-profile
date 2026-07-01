@@ -46,12 +46,12 @@ done
 case "$cmd" in
   list)
     [[ -d "$FORGE" ]] || { echo "no staged candidates yet."; exit 0; }
-    files="$(find "$FORGE" -name '*-forge.md' -type f 2>/dev/null | sort)"
+    files="$(fd -t f '.*-forge\.md$' "$FORGE" 2>/dev/null | sort)"
     [[ -n "$files" ]] || { echo "no staged candidates yet."; exit 0; }
     echo "staged distill candidates:"
     for f in $files; do
       d="$(basename "$f" | sed 's/-forge.md//')"
-      n="$(grep -c '^- \[' "$f" 2>/dev/null || echo 0)"
+      n="$(rg -c '^- \[' "$f" 2>/dev/null || echo 0)"
       echo "  $d  ($n candidate(s))  $f"
     done
     ;;
@@ -60,7 +60,7 @@ case "$cmd" in
     [[ -n "${1:-}" ]] || die "show requires a <date>"
     f="$FORGE/${1}-forge.md"
     [[ -f "$f" ]] || die "no forge file for $1"
-    cat "$f"
+    bat -p --paging=never "$f" 2>/dev/null || sed -n '1,$p' "$f"
     ;;
 
   graduate)
@@ -84,7 +84,7 @@ case "$cmd" in
       printf '  change_frequency: medium\n'
       printf '  confidence: %s\n' "$conf"
       printf -- '---\n\n'
-      cat "$src"
+      bat -p --paging=never "$src" 2>/dev/null || sed -n '1,$p' "$src"
       printf '\n\n## Graduation\n\n'
       printf -- '- **reviewer_rationale:** %s\n' "$rationale"
       printf -- '- **graduated_at:** %s\n' "$ts"
@@ -114,7 +114,7 @@ case "$cmd" in
 
   decisions)
     [[ -f "$DECISIONS" ]] || { echo "no review decisions yet."; exit 0; }
-    cat "$DECISIONS"
+    bat -p --paging=never "$DECISIONS" 2>/dev/null || sed -n '1,$p' "$DECISIONS"
     ;;
 
   *)

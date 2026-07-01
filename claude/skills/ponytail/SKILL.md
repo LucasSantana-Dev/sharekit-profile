@@ -1,15 +1,6 @@
 ---
 name: ponytail
-description: Forces the laziest working solution: stdlib and native first, one-liners preferred, deletion over addition.
-  Forces the laziest solution that actually works, simplest, shortest, most
-  minimal. Channels a senior dev who has seen everything: question whether the
-  task needs to exist at all (YAGNI), reach for the standard library before
-  custom code, native platform features before dependencies, one line before
-  fifty. Supports intensity levels: lite, full (default), ultra. Use whenever
-  the user says "ponytail", "be lazy", "lazy mode", "simplest solution",
-  "minimal solution", "yagni", "do less", or "shortest path", and whenever
-  they complain about over-engineering, bloat, boilerplate, or unnecessary
-  dependencies.
+description: "Forces the laziest working solution: stdlib and native first, one-liners preferred, deletion over addition. Forces the laziest solution that actually works, simplest, shortest, most minimal. Channels a senior dev who has seen everything: question whether the task needs to exist at all (YAGNI), reach for the standard library before custom code, native platform features before dependencies, one line before fifty. Supports intensity levels: lite, full (default), ultra. Use whenever the user says \"ponytail\", \"be lazy\", \"lazy mode\", \"simplest solution\", \"minimal solution\", \"yagni\", \"do less\", or \"shortest path\", and whenever they complain about over-engineering, bloat, boilerplate, or unnecessary dependencies."
 argument-hint: "[lite|full|ultra]"
 license: MIT
 ---
@@ -49,6 +40,26 @@ higher one and move on. The first lazy solution that works is the right one.
 - Complex request? Ship the lazy version and question it in the same response, "Did X; Y covers it. Need full X? Say so." Never stall on an answer you can default.
 - Two stdlib options, same size? Take the one that's correct on edge cases. Lazy means writing less code, not picking the flimsier algorithm.
 - Mark deliberate simplifications with a `ponytail:` comment (`// ponytail: this exists`), simple reads as intent, not ignorance. Shortcut with a known ceiling (global lock, O(n²) scan, naive heuristic)? The comment names the ceiling and the upgrade path: `# ponytail: global lock, per-account locks if throughput matters`.
+
+## Audit / review mode
+
+When the user asks to audit, review, find bloat, or check whether something is over-engineered, stay inside `/ponytail` instead of restoring archived narrow skills. Pick the narrowest scope that answers the question: current diff first, then a named file/dir, whole repo only when explicitly requested. Report; do not rewrite unless the user asked for fixes.
+
+Tags:
+
+- `delete:` dead code, unused flexibility, speculative feature. Replacement: nothing.
+- `stdlib:` hand-rolled thing the standard library ships. Name the function.
+- `native:` dependency or code doing what the platform already does. Name the feature.
+- `yagni:` abstraction with one implementation, config nobody sets, layer with one caller.
+- `shrink:` same logic, fewer lines. Show the shorter form.
+
+Smells to hunt: single-implementation interfaces, factories with one product, pass-through wrappers, managers/services that only add hops, configurable values that never vary, caches/pools/batches with no measured hotspot, type gymnastics for impossible states, lifecycle hooks kept "in case."
+
+Evidence rule: verify each claim before reporting. Name caller/implementor counts, paths, line ranges, deleted dependency, or measured cost. "Feels complex" is not evidence. Cluster repeated smells; one finding per underlying cause.
+
+Do not flag: seams with a named near-term second caller, real security/module/API ownership boundaries, framework-mandated structure, defensive code at trust boundaries, or tests where duplication improves clarity.
+
+Audit output: severity-ranked, biggest cut first. Pattern: `[HIGH|MED|LOW] <tag> <what to cut>. Simpler: <replacement>. Evidence: <path/count/cost>.` End whole-repo audits with `net: -<N> lines, -<M> deps possible.` Nothing to cut: `Lean already. Ship.`
 
 ## Output
 

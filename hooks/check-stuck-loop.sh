@@ -16,7 +16,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STATE="${STUCK_STATE_FILE:-$ROOT/.harness/runtime/stuck-state.jsonl}"
 mkdir -p "$(dirname "$STATE")"
 
-input="$(cat)"
+input="$(sed -n '1,$p')"
 tool_name="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2>/dev/null || true)"
 [[ "$tool_name" == "Bash" || "$tool_name" == "bash" ]] || exit 0
 
@@ -29,7 +29,7 @@ key="$(printf '%s' "$command" | tr -s '[:space:]' ' ' | sed 's/^ //;s/ $//')"
 case "$key" in
   ls|pwd|clear|"") exit 0 ;;
 esac
-if printf '%s' "$key" | grep -Eq '^(git\s+(status|log|diff|branch|show)|rg\s|fd\s|cat\s|bat\s|head\s|tail\s|wc\s)\b'; then
+if printf '%s' "$key" | rg -q '^(git\s+(status|log|diff|branch|show)|rg\s|fd\s|bat\s|head\s|tail\s|wc\s)\b'; then
   exit 0
 fi
 

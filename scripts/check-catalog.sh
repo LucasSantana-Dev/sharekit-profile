@@ -9,16 +9,16 @@
 set -euo pipefail
 HTML="${1:-index.html}"
 
-arr_len() { awk "/const $1 = \[/{f=1} f{print} /^];/{if(f) exit}" "$HTML" | grep -cE "^[[:space:]]*\{[[:space:]]*name:"; }
+arr_len() { awk "/const $1 = \[/{f=1} f{print} /^];/{if(f) exit}" "$HTML" | rg -c "^[[:space:]]*\{[[:space:]]*name:"; }
 SKILLS=$(arr_len SKILLS)
 AGENTS=$(arr_len AGENTS)
-CATS=$(awk '/const SKILLS = \[/{f=1} f{print} /^];/{if(f) exit}' "$HTML" | grep -oE "cat: '[a-z-]+" | sort -u | wc -l | tr -d ' ')
+CATS=$(awk '/const SKILLS = \[/{f=1} f{print} /^];/{if(f) exit}' "$HTML" | rg -o "cat: '[a-z-]+" | sort -u | wc -l | tr -d ' ')
 
-TC_SKILLS=$(grep -oE 'tc-skills">[0-9]+' "$HTML" | grep -oE '[0-9]+' | head -1)
-TC_AGENTS=$(grep -oE 'tc-agents">[0-9]+' "$HTML" | grep -oE '[0-9]+' | head -1)
-GRID=$(grep -oE '[0-9]+ skills across [0-9]+ categories' "$HTML" | head -1)
-GRID_SKILLS=$(printf '%s' "$GRID" | grep -oE '^[0-9]+')
-GRID_CATS=$(printf '%s' "$GRID" | grep -oE 'across [0-9]+' | grep -oE '[0-9]+')
+TC_SKILLS=$(rg -o 'tc-skills">[0-9]+' "$HTML" | rg -o '[0-9]+' | head -1)
+TC_AGENTS=$(rg -o 'tc-agents">[0-9]+' "$HTML" | rg -o '[0-9]+' | head -1)
+GRID=$(rg -o '[0-9]+ skills across [0-9]+ categories' "$HTML" | head -1)
+GRID_SKILLS=$(printf '%s' "$GRID" | rg -o '^[0-9]+')
+GRID_CATS=$(printf '%s' "$GRID" | rg -o 'across [0-9]+' | rg -o '[0-9]+')
 
 fail=0
 chk() { # label displayed actual
@@ -42,7 +42,7 @@ check_skill_count() {
   for d in "${dirs[@]}"; do
     if [ -d "$d" ]; then
       local n
-      n=$(find -L "$d" -name SKILL.md -type f 2>/dev/null | wc -l | tr -d ' ')
+      n=$(fd -L -t f '^SKILL\.md$' "$d" 2>/dev/null | wc -l | tr -d ' ')
       if [ "$n" -gt "$count" ]; then count=$n; fi
       break
     fi

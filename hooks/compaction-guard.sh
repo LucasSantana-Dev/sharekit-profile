@@ -41,11 +41,11 @@ stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 if [[ "${1:-}" == "--status" ]]; then
   last="$(ls -t "$SNAP_DIR"/directive-*.md 2>/dev/null | head -1)"
   [[ -n "$last" ]] || { echo "no compaction directives yet"; exit 0; }
-  bat -p "$last" 2>/dev/null || cat "$last"
+  bat -p --paging=never "$last" 2>/dev/null || sed -n '1,$p' "$last"
   exit 0
 fi
 
-input="$(cat 2>/dev/null || true)"
+input="$(sed -n '1,$p' 2>/dev/null || true)"
 directive="$SNAP_DIR/directive-${stamp}.md"
 
 # --- 1. Tool-call / result adjacency audit ----------------------------------

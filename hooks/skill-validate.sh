@@ -56,7 +56,7 @@ while [[ $# -gt 0 ]]; do
     --status)
       last="$(ls -t "$FORGE"/*-skill-validate.md 2>/dev/null | head -1)"
       [[ -n "$last" ]] || { echo "no validation reports yet"; exit 0; }
-      bat -p "$last" 2>/dev/null || cat "$last"
+      bat -p --paging=never "$last" 2>/dev/null || sed -n '1,$p' "$last"
       exit 0 ;;
     *) echo "skill-validate: unknown arg: $1" >&2; exit 2 ;;
   esac
@@ -71,16 +71,24 @@ if [[ ! -d "$CATALOG" ]]; then
   exit 0
 fi
 
+if ! command -v fd >/dev/null 2>&1; then
+  echo "skill-validate: fd is required for catalog traversal" >&2
+  exit 2
+fi
+if ! command -v rg >/dev/null 2>&1; then
+  echo "skill-validate: rg is required for schema/security scanning" >&2
+  exit 2
+fi
+
 report="$FORGE/${datestamp}-skill-validate.md"
 
 # Resolve tool to extract YAML frontmatter fields.
 extract_field() {
   # extract_field <file> <field>  (reads simple "field: value" frontmatter)
-  grep -iE "^${2}:" "$1" 2>/dev/null | head -1 | sed -E "s/^${2}:[[:space:]]*//I" | tr -d '"' | tr -d "'"
+  rg -i "^${2}:" "$1" 2>/dev/null | head -1 | sed -E "s/^${2}:[[:space:]]*//I" | tr -d '"' | tr -d "'"
 }
 
-mapfile -t skill_files < <(fd -t f -e md '^SKILL\.md$' "$CATALOG" 2>/dev/null \
-  || find "$CATALOG" -type f -name 'SKILL.md' 2>/dev/null)
+mapfile -t skill_files < <(fd -t f -e md '^SKILL\.md$' "$CATALOG" 2>/dev/null | sort)
 
 total=${#skill_files[@]}
 schema_errors=0
@@ -122,7 +130,7 @@ for f in "${skill_files[@]}"; do
 
   # 3. description should not contain body content (markdown headers, code blocks)
   if [[ -n "$desc" ]]; then
-    if printf '%s' "$desc" | grep -qE '^#|```|^\s*\|'; then
+    if printf '%s' "$desc" | rg -q '^#|```|^\s*\|'; then
       findings="${findings}WARN   | ${rel} | description contains markdown body content (headers/code/tables)\n"
       schema_warnings=$((schema_warnings+1))
     fi
@@ -155,34 +163,34 @@ for f in "${skill_files[@]}"; do
     findings="${findings}INFO   | ${rel} | security_exempt=true — security pass skipped (schema still validated)\n"
     continue
   fi
-  body="$(cat "$f" 2>/dev/null)"
+  body="$(bat -p --paging=never "$f" 2>/dev/null || sed -n '1,$p' "$f" 2>/dev/null)"
 
   # 7. Pipe-to-shell installers
-  if printf '%s' "$body" | grep -qiE 'curl\s+[^\|]*\|\s*(sh|bash|zsh)|wget\s+[^\|]*\|\s*(sh|bash|zsh)|curl.*\|\s*sh|wget.*\|\s*bash'; then
+  if printf '%s' "$body" | rg -qi 'curl\s+[^\|]*\|\s*(sh|bash|zsh)|wget\s+[^\|]*\|\s*(sh|bash|zsh)|curl.*\|\s*sh|wget.*\|\s*bash'; then
     findings="${findings}CRIT   | ${rel} | pipe-to-shell installer detected (curl|sh or wget|bash)\n"
     security_critical=$((security_critical+1))
   fi
 
   # 8. Secret exfiltration — sending sensitive files off-host
-  if printf '%s' "$body" | grep -qiE '\.ssh/id_rsa|\.aws/credentials|\.env\b.*curl|\.env\b.*wget|cat\s+~/.ssh|cat\s+~/\.aws'; then
+  if printf '%s' "$body" | rg -qi '\.ssh/id_rsa|\.aws/credentials|\.env\b.*curl|\.env\b.*wget|bat\s+-p\s+~/.ssh|bat\s+-p\s+~/\.aws|sed\s+-n.*~/.ssh|sed\s+-n.*~/\.aws'; then
     findings="${findings}CRIT   | ${rel} | secret exfiltration pattern detected (reading ssh/aws/env + network)\n"
     security_critical=$((security_critical+1))
   fi
 
   # 9. Reverse shell patterns
-  if printf '%s' "$body" | grep -qiE 'bash\s+-i\s+>&\s*/dev/tcp|nc\s+-e|/dev/tcp/|mkfifo.*\|.*nc'; then
+  if printf '%s' "$body" | rg -qi 'bash\s+-i\s+>&\s*/dev/tcp|nc\s+-e|/dev/tcp/|mkfifo.*\|.*nc'; then
     findings="${findings}CRIT   | ${rel} | reverse shell pattern detected\n"
     security_critical=$((security_critical+1))
   fi
 
   # 10. Prompt-injection lures
-  if printf '%s' "$body" | grep -qiE 'ignore previous instructions|ignore all instructions|disregard.*instructions.*and'; then
+  if printf '%s' "$body" | rg -qi 'ignore previous instructions|ignore all instructions|disregard.*instructions.*and'; then
     findings="${findings}WARN   | ${rel} | prompt-injection lure detected in skill text\n"
     security_warnings=$((security_warnings+1))
   fi
 
   # 11. Obfuscated execution (base64 decode + exec)
-  if printf '%s' "$body" | grep -qiE 'base64\s+-d.*\|\s*(sh|bash|eval)|eval.*base64|echo.*\|\s*base64.*\|\s*sh'; then
+  if printf '%s' "$body" | rg -qi 'base64\s+-d.*\|\s*(sh|bash|eval)|eval.*base64|echo.*\|\s*base64.*\|\s*sh'; then
     findings="${findings}CRIT   | ${rel} | obfuscated execution detected (base64 decode + exec)\n"
     security_critical=$((security_critical+1))
   fi
