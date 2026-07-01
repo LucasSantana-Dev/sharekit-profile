@@ -29,3 +29,18 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify harness manifest fingerprints
         run: bash scripts/check-harness-manifest.sh
+
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Secret scanning with gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        # Note: GITLEAKS_LICENSE is only required for some org accounts.
+        # Individual and most org repos can omit this. If the action fails on a
+        # license check, add the GITLEAKS_LICENSE secret to enable scanning on
+        # org plans. For community use, this action requires no license.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
