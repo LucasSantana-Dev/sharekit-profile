@@ -23,6 +23,12 @@
         "hooks": [
           {
             "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/check-session-lock.sh\" --claim",
+            "timeout": 5000,
+            "comment": "Session-lock sentinel: warns if another live session owns this checkout"
+          },
+          {
+            "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/session-start-load.sh\"",
             "timeout": 10000
           },
@@ -61,8 +67,14 @@
         ]
       },
       {
-        "matcher": "Write|Edit|MultiEdit",
+        "matcher": "Write|Edit|NotebookEdit",
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/check-session-lock.sh\"",
+            "timeout": 5000,
+            "comment": "Session-lock sentinel: warns once per session if another live session owns this checkout"
+          },
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/check-idempotency.sh\"",
