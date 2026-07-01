@@ -12,6 +12,10 @@
 #      proposer never sees the held-out labels; the gate checks the eval baseline
 #      didn't regress).
 #   5. PARETO — the variant is better on >=1 axis without regressing others.
+#   6. SELF-MODIFICATION SAFETY (C1 contract) — for proposals targeting self-mutation:
+#      6a. ROLLBACK CONTRACT — proposal carries explicit revert action + baseline metric.
+#      6b. INVARIANTS TOUCHED — proposal declares which protected invariants it touches.
+#      6c. PROTECTED SURFACES — rejects proposals touching constitution, gate, policy hooks.
 #
 # Held-out split: the proposer never sees per-task labels of the held-out set.
 # The gate reads the eval-baseline results (which the proposer did NOT author)
@@ -196,9 +200,92 @@ else
   echo "  pareto: FAIL (regressions on: ${fail_reasons})"
 fi
 
+# --- 6. Self-modification safety gates (C1 contract) -------------------------
+echo "gate: [6/8] checking self-modification safety contract (C1)..."
+
+if [[ -n "$proposal_file" && -f "$proposal_file" ]]; then
+  # 6a. Rollback contract presence + non-empty check
+  echo "  [6a/3] rollback contract..."
+  if python3 - "$proposal_file" <<'PY6A'
+import sys, re
+text = open(sys.argv[1]).read()
+# Extract section 7 (Rollback contract): between "## 7." and "## 8."
+m = re.search(r'^## 7\..*?(?=^## 8\.)', text, re.S | re.M)
+if not m:
+    sys.exit(1)  # section 7 missing
+sec = m.group(0)
+# Reject if FILL IN placeholder remains (proposer hasn't filled it)
+if 'FILL IN' in sec:
+    sys.exit(1)
+# Require at least one field filled (file:, baseline:, or deploy_watch_metric:)
+if not any(x in sec for x in ['file:', 'baseline:', 'deploy_watch_metric:']):
+    sys.exit(1)
+sys.exit(0)
+PY6A
+  then
+    echo "    PASS (rollback contract non-empty)"
+  else
+    echo "    FAIL (rollback contract missing, empty, or has FILL IN placeholder)"
+    fail_reasons="${fail_reasons}rollback-contract-empty; "
+    pass=1
+  fi
+
+  # 6b. Invariants touched declaration + non-empty check
+  echo "  [6b/3] invariants touched..."
+  if python3 - "$proposal_file" <<'PY6B'
+import sys, re
+text = open(sys.argv[1]).read()
+# Extract section 8 (Invariants touched): between "## 8." and "## 9."
+m = re.search(r'^## 8\..*?(?=^## 9\.)', text, re.S | re.M)
+if not m:
+    sys.exit(1)  # section 8 missing
+sec = m.group(0)
+# Reject if FILL IN placeholder remains
+if 'FILL IN' in sec:
+    sys.exit(1)
+# Require either "none" or at least one invariant listed
+if 'none' not in sec.lower() and '-' not in sec:
+    sys.exit(1)
+sys.exit(0)
+PY6B
+  then
+    echo "    PASS (invariants touched declared)"
+  else
+    echo "    FAIL (invariants touched missing, empty, or has FILL IN placeholder)"
+    fail_reasons="${fail_reasons}invariants-touched-empty; "
+    pass=1
+  fi
+
+  # 6c. Protected surface check (constitution.md/json, gate.sh, policy hooks)
+  echo "  [6c/3] protected surfaces..."
+  protected_surfaces=(
+    ".harness/constitution.md"
+    ".harness/constitution.json"
+    "hooks/gate.sh"
+    "hooks/policy-gate.sh"
+    "hooks/check-dangerous-patterns.sh"
+  )
+  target_basename="$(basename "$target")"
+  protected=0
+  for surface in "${protected_surfaces[@]}"; do
+    if [[ "$target" == "$surface" || "$target_basename" == "$(basename "$surface")" ]]; then
+      protected=1
+      echo "    FAIL (target $target is protected — human-authored PR required)"
+      fail_reasons="${fail_reasons}protected-surface-$target_basename; "
+      pass=1
+      break
+    fi
+  done
+  if [[ $protected -eq 0 ]]; then
+    echo "    PASS (target does not touch protected surfaces)"
+  fi
+else
+  echo "  [6a-6c] skipped (not a --proposal; self-mod gates apply to proposals only)"
+fi
+
 # --- Record + exit -----------------------------------------------------------
 if [[ "$pass" -eq 0 ]]; then
-  record "gated" "" "" "all constraint gates passed"
+  record "gated" "" "" "all constraint gates passed (1-6)"
   echo "gate: PASS — proposal $pid is ready for human review"
   [[ -n "$candidate_path" ]] && echo "  candidate to promote: $candidate_path"
   exit 0

@@ -15,7 +15,10 @@
     "read-only-by-construction",
     "idempotency-check",
     "storage-policy",
-    "lean-catalog-preservation"
+    "lean-catalog-preservation",
+    "self-mod-human-review",
+    "self-mod-rollback-contract",
+    "self-mod-invariant-preservation"
   ],
   "branch_policy": {
     "main": "protected",
