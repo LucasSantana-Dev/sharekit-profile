@@ -35,7 +35,7 @@
 #   hooks/policy-gate.sh --rules      # list learned prefix rules (P9.1)
 #   hooks/policy-gate.sh --learn <ALLOW|DENY> <prefix> --rationale "..."   # P9.1
 set -uo pipefail
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/shared/common.sh"
 
 POLICY="$ROOT/.harness/mcp-policy.json"
 RULES_FILE="$ROOT/.harness/approval-rules.json"

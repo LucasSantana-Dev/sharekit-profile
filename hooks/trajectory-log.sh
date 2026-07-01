@@ -11,7 +11,7 @@
 # result is that non-Markovian full-history search (reading WHY things failed)
 # beats best-of-N — but it requires the trace to exist. This hook creates it.
 set -uo pipefail
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/shared/common.sh"
 
 LOG="$RUNTIME/trajectory.jsonl"
 mkdir -p "$(dirname "$LOG")"

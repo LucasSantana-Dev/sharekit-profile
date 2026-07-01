@@ -28,7 +28,7 @@
 #
 # Wire in claude/settings.json PostToolUse alongside trajectory-log.sh.
 set -uo pipefail
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/shared/common.sh"
 
 DIGESTS="$RUNTIME/tool-digests"
 CONSTRAINTS="$RUNTIME/constraints-recap.md"

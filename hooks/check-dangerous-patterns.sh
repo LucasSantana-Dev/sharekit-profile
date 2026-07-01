@@ -4,7 +4,7 @@
 # against each dangerousPattern, and exits 2 (block) on any match.
 # Non-Bash tools and missing policy files are allowed (exit 0).
 set -euo pipefail
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/shared/common.sh"
 
 POLICY="$ROOT/.harness/mcp-policy.json"
 SENSITIVE_PATHS="$ROOT/.harness/sensitive-paths.json"

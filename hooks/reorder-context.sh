@@ -21,7 +21,7 @@
 #
 # Wire in claude/settings.json PostToolUse with matcher for retrieval tools.
 set -uo pipefail
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/shared/common.sh"
 
 REORDER_DIR="$RUNTIME/reordered-chunks"
 mkdir -p "$REORDER_DIR"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# hooks/lib/common.sh — shared utilities for hook scripts.
+# hooks/shared/common.sh — shared utilities for hook scripts.
 # Source this file near the top of a hook script (after `set -uo pipefail`) to get:
 #   - ROOT, RUNTIME, FORGE path variables
 #   - read_hook_stdin() to read stdin once into HOOK_INPUT
@@ -7,7 +7,7 @@
 #
 # Usage:
 #   set -uo pipefail
-#   source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
+#   source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/shared/common.sh"
 #   read_hook_stdin
 #   tool_name="$(hook_field "$HOOK_INPUT" ".tool_name")"
 

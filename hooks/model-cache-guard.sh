@@ -36,7 +36,7 @@
 #   hooks/model-cache-guard.sh --status     # print switch stats
 #   hooks/model-cache-guard.sh --reset      # reset session tracker (new session)
 set -uo pipefail
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/shared/common.sh"
 
 SESSIONS="$RUNTIME/model-session.jsonl"
 SWITCHES="$RUNTIME/model-switches.jsonl"
