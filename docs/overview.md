@@ -1,6 +1,6 @@
 # Operator Harness: Overview
 
-**Quick reference guide for the complete OpenCode / Claude Code operator environment with 162+ skills, ~40 agents, automated hooks, RAG retrieval, and persistent memory.**
+**Quick reference guide for the complete OpenCode / Claude Code operator environment with 50 repo-tracked skills, ~40 agents, automated hooks, RAG retrieval, and persistent memory.**
 
 > **Primary harness:** OpenCode (`opencode.json`). Claude Code remains supported. OpenRouter is the fallback provider when the primary is rate-limited.
 
@@ -9,7 +9,7 @@
 ## What This Is
 
 A fully-configured Claude Code harness profile named **sharekit-profile** (v0.7.0) that provides:
-- **162+ skills** across 18 categories — autonomous entry points for common tasks
+- **50 repo-tracked skills** across focused categories — autonomous entry points for common tasks
 - **~40 specialized agents** for analysis, execution, and multi-agent orchestration
 - **30+ automated hooks** wired to development events (session start, prompt submission, tool use)
 - **Persistent memory system** (file-based, queryable across sessions)
@@ -50,11 +50,11 @@ When you submit a prompt, UserPromptSubmit hooks fire in sequence:
 | Understand blocking work | `/session-bootstrap` | Chains wake-up → next-priority → pr-snapshot → context-pack |
 | Plan multi-step work | `/plan` | Validation-gated planning with rollback identification |
 | Execute parallel tasks | `/dispatch` or `/orchestrate` | Fans out independent work, reconciles results |
-| Review before merge | `/code-review` | Severity-rated findings (bugs > security > style) |
-| Debug production issue | `/debug` or `/debug-deep` | Systematic root-cause analysis with Sentry/CI triage |
-| Full health check | `/audit-deep` | 7-dimensional project audit (tests, config, hooks, security, MCP, plugins) |
-| Refactor a module | `/refactor-pipeline` | Full chain: plan → 3-agent team → test cleanup → ADR → docs-sync |
-| Ship work | `/session-wrap-up` | Full chain: verify → ship → memory-sync → handoff |
+| Review before merge | `/review` | Severity-rated findings (bugs > security > style) |
+| Debug production issue | `/debug` | Systematic root-cause analysis with CI/production evidence when available |
+| Full health check | `/quality-assurance` | Composes tests, config, hooks, security, MCP, and plugin evidence |
+| Refactor a module | `/request-refactor-plan` → `/orchestrate` | Plan → bounded team execution → validation → decision capture |
+| Ship work | `/ship` + `/knowledge-loop` | Release, memory sync, and handoff when needed |
 
 ---
 
@@ -63,7 +63,7 @@ When you submit a prompt, UserPromptSubmit hooks fire in sequence:
 ### Local (`~/.claude/`)
 ```
 CLAUDE.md              # Global operator configuration
-SKILLS.md              # Skill index + descriptions (162 skills)
+SKILLS.md              # Generated skill index + descriptions
 settings.json          # Hook definitions + env config
 settings.local.json    # Local overrides + project hooks
 agents/                # ~40 specialized agent definitions
@@ -82,7 +82,7 @@ skills/                # Skill catalog (symlink)
 
 ### Canonical (`~/.agents/`)
 ```
-skills/                # 162 skill folders (canonical)
+skills/                # Canonical runtime skill folders
 standards/             # Policy and discipline docs (~20 files)
 agents/                # Agent definition mirrors
 memory/                # Memory archive
@@ -112,13 +112,13 @@ hooks/                 # Env-level hooks
 
 Skills marked with `*` are **composites** — they auto-chain multiple sub-skills with gates and validation between phases. Always prefer a composite when available; running sub-skills manually bypasses critical phases.
 
-Example: `/refactor-pipeline` chains:
-- **discovery** → `/refactor-plan` 
-- **execution** → 3-agent team (architect, builder, reviewer)
-- **testing** → `/test-cleanup` → `/mutation-test`
-- **capture** → `/adr-write` → `/docs-sync`
+Example: broad refactor requests should route through active skills:
+- **discovery/scope** → `/request-refactor-plan`
+- **execution** → `/orchestrate` or `/three-man-team`
+- **testing** → `/quality-gates` and targeted test skills
+- **capture** → `/knowledge-loop`
 
-If you run `/refactor` directly, you skip the planning and ADR phases — wrong.
+If you run `/refactor` directly for a broad rewrite, you skip planning and capture — wrong.
 
 ### Model Tiering
 
@@ -126,7 +126,7 @@ If you run `/refactor` directly, you skip the planning and ADR phases — wrong.
 - **Sonnet** (default) — Implementation, feature work, code review, test generation
 - **Opus** — Orchestration, critic role, architectural decisions, ADR writing
 
-Use `/smart-model-select` before multi-agent or long-running work. Never override for speculative speed.
+Use the model-tier policy before multi-agent or long-running work. Never override for speculative speed.
 
 ### Parallel Execution
 
@@ -219,14 +219,14 @@ Vercel, GitHub, Firecrawl, Supabase, CodeRabbit, Skill Creator, Claude Code Setu
 
 ## Getting Help
 
-- **Skill reference** — `/find-skills <keyword>` or browse `docs/skills/`
+- **Skill reference** — browse `docs/skills/` and generated `~/.claude/SKILLS.md`
 - **Policy questions** — Read `docs/configuration.md` and `docs/troubleshooting.md`
 - **Hook debugging** — Check `~/.claude/tool-failures.log`
 - **Token analysis** — `/token-audit` for weekly spend review
-- **System health** — `/audit-deep` for full project + harness check
-- **Stuck** — `/route` to disambiguate intent or `/fallback` to recover
+- **System health** — `/quality-assurance` + `/quality-gates` for full project checks
+- **Stuck** — `/fallback` to recover or `/scope-it` to reframe unclear work
 
 ---
 
 **Last updated:** 2026-06-25  
-**Harness version:** Agent-OS v6+, 162 skills, ~40 agents, 30+ hooks
+**Harness version:** Agent-OS v8+, 50 repo-tracked skills, ~40 agents, 42 hooks

@@ -1,14 +1,6 @@
 ---
 name: loop-engineer
-description: Redesigns agent loops to reduce turns, token waste, and blind retries while preserving output quality.
-  Designs AND implements autonomous agent loops for any task. Trigger this skill
-  whenever the user wants to stop manually prompting agents and instead build a
-  self-running feedback cycle — coding automation, research pipelines, content
-  workflows, outreach systems, CI loops, or any repeating AI-driven process.
-  Also trigger when the user says "design a loop", "build an agent loop", "I
-  want this to run automatically", "loop engineering", or describes a workflow
-  they currently drive manually step-by-step. Output: complete loop spec +
-  working implementation (SKILL.md or Workflow script) ready to run.
+description: "Redesigns agent loops to reduce turns, token waste, and blind retries while preserving output quality. Designs AND implements autonomous agent loops for any task. Trigger this skill whenever the user wants to stop manually prompting agents and instead build a self-running feedback cycle — coding automation, research pipelines, content workflows, outreach systems, CI loops, or any repeating AI-driven process. Also trigger when the user says \"design a loop\", \"build an agent loop\", \"I want this to run automatically\", \"loop engineering\", or describes a workflow they currently drive manually step-by-step. Output: complete loop spec + working implementation (SKILL.md or Workflow script) ready to run."
 ---
 
 # Loop Engineer

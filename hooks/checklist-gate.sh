@@ -36,7 +36,7 @@ MODE="${CHECKLIST_GATE_MODE:-shadow}"
 
 ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-input="$(cat)"
+input="$(sed -n '1,$p')"
 
 tool_name="$(printf '%s' "$input" | jq -r '.tool_name // .tool // empty' 2>/dev/null || true)"
 
@@ -95,10 +95,10 @@ prompt_parts=()
 for dim in "${checklists[@]}"; do
   checklist_file="$CHECKLISTS_DIR/$dim.md"
   # Count checklist items (lines starting with "- [ ]").
-  item_count="$(grep -c '^- \[ \]' "$checklist_file" 2>/dev/null || echo 0)"
+  item_count="$(rg -c '^- \[ \]' "$checklist_file" 2>/dev/null || echo 0)"
   total_items=$((total_items + item_count))
   # Read items for the prompt.
-  items="$(grep '^- \[ \]' "$checklist_file" 2>/dev/null | sed 's/^- \[ \] //')"
+  items="$(rg '^- \[ \]' "$checklist_file" 2>/dev/null | sed 's/^- \[ \] //')"
   prompt_parts+=("## $dim"$'\n'"$items")
 done
 

@@ -4,45 +4,23 @@
 > the concrete reduction plan, and a record of what was actually executed.
 >
 > **Update (2026-06-30):** Consolidation execution complete. 103 repo-tracked skills reduced to 50 via skill-family merges, stack-specific removal, and meta-skill pruning. 53 archived in `claude/skills/.archive/` (recoverable).
+>
+> **Update (2026-07-01):** Capability-preservation pass folded high-value archived details into active skills and updated reference docs so archived wrappers are no longer presented as active commands.
 
-## Execution status (2026-06-30)
+## Execution status (2026-07-01)
 
-- **Archived (executed)**: `skill-creator-local` (explicitly superseded by the
-  official plugin), `tdd` (explicit alias of `test-driven-development`), and
-  `plugin-claude-mem-mem-search` (byte-identical duplicate of `mem-search`).
-- **Fixed (executed)**: all 10 `adt-*` frontmatter `name:` fields now carry the
-  `adt-` prefix, matching their folder names. `adt-auto-invoke` was already
-  correct. Verified: no duplicate frontmatter names remain across the catalog.
-- **Catalog**: 235 → 233 active on disk; **228 indexed → 195 listed, 33 hidden**
-  via `invocation_type: internal` (P1 applied).
-- **P1 applied (executed)**: 33 composite sub-skills marked
-  `invocation_type: internal` so they drop out of the always-loaded listing.
-  Composites still resolve them by path. The hide is enforced by
-  `skill-index.sh` (internal skills are counted but NOT emitted).
-- **Fixed (executed)**: `three-man-team/skill.md` renamed to `SKILL.md` — it
-  was invisible to the indexer (matches `^SKILL.md$`).
-- **Security validate gate**: `skill-validate.sh` gained a `security_exempt:`
-  allowlist. 3 skills that document dangerous patterns by design
-  (`skill-security-scan`, `harness-audit`, `nano-banana`) are exempted;
-  security criticals dropped 6 → 0.
-- **Schema errors resolved (PR #14)**: all 55 schema validation errors cleared.
-  27 repo-tracked skills converted from YAML block scalar descriptions (`|`,
-  `>`, `>-`) to single-line plain strings; 2 missing `description:` fields
-  inserted (`changelog-update`, `quality-gates`). Validator now reports
-  `errors=0`. The grep-based `extract_field` in `skill-validate.sh` cannot
-  parse block scalars — this is a known limitation, not a fix target.
-- **NOT executed**: the broader P0 "fold/delete" list. Two independent audits
-  proposed merging `add`+`fallback`+`request-refactor-plan`+
-  `ponytail-*` into broader skills, but direct inspection showed these are
-  distinct skills with concrete workflows — they were mislabeled by
-  description-only judgments. Destroying them would be a capability loss. The
-  deeper reduction requires (a) real session telemetry (the trajectory is
-  synthetic only — `skill-prune.sh` reports 229 never-hit, but that is
-  starved data) and (b) a per-skill relationship audit against the
-  composite-first routing map.
-- **Plugin-namespace collisions** (4 plugin symlinks whose frontmatter `name:`
-  drops the `plugin-*` prefix) are by design of the plugin system and are
-  gitignored here; they are a plugin-system concern, not a sharekit bug.
+- **Catalog**: 50 active skill folders in `claude/skills/`; 53 archived in `claude/skills/.archive/` for recoverability. `curated-skills.txt` now mirrors the active repo catalog exactly.
+- **Capability preservation (executed)**: archived over-engineering audit behavior folded into `ponytail`; systematic debugging discipline folded into `debug`; RAG quality/curation/drift details folded into `rag-maintenance` and `knowledge-loop`; scanner/security wrappers represented as evidence sources inside `secure`, `quality-assurance`, and `quality-gates`.
+- **Docs alignment (executed)**: `README.md`, `AGENTS.md`, `docs/composites.md`, `docs/overview.md`, `docs/troubleshooting.md`, `docs/hooks.md`, and relevant `docs/skills/*` guides now describe active equivalents instead of archived command names.
+- **Runtime topology documented**: runtime skills reconcile through canonical `~/.agents/skills`; `~/.claude/skills` is the symlinked runtime view and `~/.claude-env/skills` is a downstream mirror.
+- **Knowledge-brain caution**: stale memories may still mention archived commands. Preserve historical notes and add superseding memories for current state; do not rewrite history as if old topology never existed.
+
+## Historical execution status (2026-06-30)
+
+- **Archived (executed)**: `skill-creator-local` (explicitly superseded by the official plugin), stack-specific skills, plugin-injected meta-skills, project-specific skills, and narrow wrappers whose durable capability was merged into broader active skills.
+- **Fixed (executed)**: all repo-tracked active skill frontmatter validates with `errors=0`; duplicate and malformed entries from the 103-skill catalog were resolved during the consolidation campaign.
+- **Known validator limitation**: `skill-validate.sh` uses grep-based extraction and cannot parse YAML block scalar descriptions. Skill authors should keep descriptions single-line.
+- **Guardrail**: do not delete further skills based only on description similarity or starved telemetry. Further reductions require real usage data plus a relationship audit against composite routing and memory references.
 
 ## The problem
 

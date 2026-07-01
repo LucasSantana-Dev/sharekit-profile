@@ -25,6 +25,7 @@ These are non-negotiable. No task, no matter how urgent, may violate them.
 | `read-only-by-construction` | Analysis agents (review, explore, plan, audit) must deny write/edit tools in their permission block — not just a prompt instruction. |
 | `idempotency-check` | Before any write (file edit, API call, git push, DB upsert), query current state; if already satisfied, skip and log "already done." |
 | `storage-policy` | New repos, clones, worktrees, datasets, model weights, and large caches go on `/Volumes/External HD/Desenvolvimento/`. Never clone or download large data under `~/` outside tool-config dirs. |
+| `lean-catalog-preservation` | Do not restore archived wrapper skills just to recover wording; fold durable capability into active skills, standards, docs, or superseding memory first. |
 
 ## Branch Policy
 

@@ -49,7 +49,7 @@ while [[ $# -gt 0 ]]; do
     --status)
       last="$(ls -t "$FORGE"/*-consolidation.md 2>/dev/null | head -1)"
       [[ -n "$last" ]] || { echo "no consolidation reports yet"; exit 0; }
-      bat -p "$last" 2>/dev/null || cat "$last"
+      bat -p --paging=never "$last" 2>/dev/null || sed -n '1,$p' "$last"
       exit 0 ;;
     *) echo "memory-consolidate: unknown arg: $1" >&2; exit 2 ;;
   esac
@@ -67,7 +67,7 @@ now_epoch="$(date -u +%s)"
 # --- Scan memory facts -------------------------------------------------------
 # Each fact file may carry YAML frontmatter: last_verified, confidence,
 # change_frequency, tags, status. We parse leniently (missing fields default).
-mapfile -t fact_files < <(fd -e md . "$MEM_DIR" 2>/dev/null || find "$MEM_DIR" -name '*.md' 2>/dev/null)
+mapfile -t fact_files < <(fd -t f -e md . "$MEM_DIR" 2>/dev/null | sort)
 
 decay_candidates=""
 supersede_candidates=""
@@ -76,7 +76,7 @@ scanned=0
 
 extract_field() {
   # extract_field <file> <field>  (reads simple "field: value" frontmatter)
-  grep -iE "^${2}:" "$1" 2>/dev/null | head -1 | sed -E "s/^${2}:[[:space:]]*//I" | tr -d '"'
+  rg -i "^${2}:" "$1" 2>/dev/null | head -1 | sed -E "s/^${2}:[[:space:]]*//I" | tr -d '"'
 }
 
 for f in "${fact_files[@]}"; do

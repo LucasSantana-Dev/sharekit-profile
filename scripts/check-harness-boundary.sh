@@ -51,9 +51,9 @@ for dir in "${SCAN_DIRS[@]}"; do
 
   while IFS= read -r -d '' file; do
     for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
-      if grep -qE "$pattern" "$file" 2>/dev/null; then
+      if rg -q "$pattern" "$file" 2>/dev/null; then
         relpath="${file#$ROOT/}"
-        matches=$(grep -nE "$pattern" "$file" 2>/dev/null | head -3)
+        matches=$(rg -n "$pattern" "$file" 2>/dev/null | head -3)
         violation_list+="  $relpath\n    pattern: $pattern\n    matches:\n"
         while IFS= read -r line; do
           violation_list+="      $line\n"
@@ -62,7 +62,7 @@ for dir in "${SCAN_DIRS[@]}"; do
         violations=$((violations + 1))
       fi
     done
-  done < <(find "$target" -type f \( -name '*.sh' -o -name '*.py' -o -name '*.js' -o -name '*.ts' -o -name '*.md' -o -name '*.json' -o -name '*.yaml' -o -name '*.yml' \) -print0 2>/dev/null)
+  done < <(fd -t f -0 -e sh -e py -e js -e ts -e md -e json -e yaml -e yml . "$target" 2>/dev/null)
 done
 
 if [[ $violations -eq 0 ]]; then

@@ -47,7 +47,7 @@ done
 if [[ $status_only -eq 1 ]]; then
   last="$(ls -t "$RUNTIME"/diagnosis-*.md 2>/dev/null | head -1)"
   [[ -n "$last" ]] || { echo "no diagnosis yet"; exit 0; }
-  bat -p "$last" 2>/dev/null || cat "$last"
+  bat -p --paging=never "$last" 2>/dev/null || sed -n '1,$p' "$last"
   exit 0
 fi
 

@@ -47,12 +47,14 @@ See [references/forge-space-gates.md](references/forge-space-gates.md) for repo-
 
 See [references/generic-gates.md](references/generic-gates.md) for scripts and detailed completion criteria:
 
-1. **Code quality** — eslint (0 warnings), tsc (0 errors), prettier (clean)
-2. **Tests** — npm test or pytest (all pass, no skipped)
-3. **CI Contract Snapshot** — merge state, required status checks (CLEAN or UNSTABLE with required green)
-4. **Security** — secrets scan, npm audit (no high-severity)
-5. **Documentation** — CHANGELOG.md and README.md updated
-6. **Build** — npm run build (exit code 0)
+1. **Code quality** — formatter, lint, type-check/static analysis with zero blocking findings
+2. **Tests** — repository-native unit/integration/e2e command; all required tests pass, skips explained
+3. **Build** — repository-native build/package command exits 0
+4. **Security** — secrets scan, dependency audit, and scanner/tool evidence when configured (Semgrep, Sonar/SonarCloud, Snyk/Socket, GitHub code scanning)
+5. **Docs** — README/CHANGELOG/API docs updated when behavior or user workflow changed
+6. **CI Contract Snapshot** — merge state, required status checks, branch protection/ruleset evidence
+
+Gate principle: repository-native commands first; external scanners enrich evidence but do not replace required local/CI gates.
 
 ## Report Format
 

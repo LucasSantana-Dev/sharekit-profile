@@ -10,7 +10,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SNAP_DIR="$ROOT/.harness/runtime/compact"
 mkdir -p "$SNAP_DIR"
 
-input="$(cat)"
+input="$(sed -n '1,$p')"
 ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 file="$SNAP_DIR/pre-${stamp}.json"

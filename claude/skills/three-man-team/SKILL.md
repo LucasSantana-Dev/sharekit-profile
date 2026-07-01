@@ -1,17 +1,7 @@
 ---
 name: three-man-team
-description: Coordinates three roles (driver, navigator, reviewer) within a single session to simulate a small team workflow.
-  Parallel Architect→Builder→Reviewer pattern for complex multi-phase tasks.
-  Dispatches 3 agents in parallel: Architect (Opus) reads codebase and writes a
-  detailed plan with phases and acceptance criteria; Builder (Sonnet) implements
-  from the plan and stages changes; Reviewer (Sonnet) validates diff against plan
-  and runs tests. Reduces turnaround on 3+ phase features, big PRs, and CRITICAL
-  complexity-flagged work from sequential 6+ turns to parallel 1-turn dispatch.
-  Use when a feature has architecture, implementation, and validation phases that
-  justify the overhead; when tasks are CRITICAL-flagged by complexity classifier;
-  when estimated >2 hours of work across 3+ distinct phases; or for large PRs
-  touching >5 files with cross-module changes requiring architectural review before
-  implementation.
+description: Coordinates three roles (driver, navigator, reviewer) for complex multi-phase work requiring architecture, implementation, and validation.
+triggers: [complex multi-phase task, large PR review, architecture implementation validation]
 tags:
 - parallel-dispatch
 - architecture

@@ -14,7 +14,8 @@
     "independence-gate",
     "read-only-by-construction",
     "idempotency-check",
-    "storage-policy"
+    "storage-policy",
+    "lean-catalog-preservation"
   ],
   "branch_policy": {
     "main": "protected",

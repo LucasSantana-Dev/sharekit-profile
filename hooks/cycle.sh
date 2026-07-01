@@ -74,7 +74,7 @@ done
 if [[ $status_only -eq 1 ]]; then
   last="$(ls -t "$CYCLE_REPORTS"/cycle-*.md 2>/dev/null | head -1)"
   [[ -n "$last" ]] || { echo "no cycle reports yet"; exit 0; }
-  bat -p "$last" 2>/dev/null || cat "$last"
+  bat -p --paging=never "$last" 2>/dev/null || sed -n '1,$p' "$last"
   exit 0
 fi
 
@@ -138,7 +138,7 @@ if [[ $maintain -eq 1 ]]; then
   else
     out_file="$RUNTIME/cycle-${ts//[:]/-}-memory-consolidate.log"
     if bash "$ROOT/hooks/memory-consolidate.sh" >"$out_file" 2>&1; then
-      scanned="$(grep -oE 'scanned [0-9]+ facts' "$out_file" | grep -oE '[0-9]+' || echo 0)"
+      scanned="$(rg -o 'scanned [0-9]+ facts' "$out_file" | rg -o '[0-9]+' || echo 0)"
       echo "  ✓ memory-consolidate scanned $scanned fact(s) (log: $out_file)"
       record_step "memory-consolidate" "pass" "scanned $scanned facts"
     else
@@ -155,7 +155,7 @@ if [[ $maintain -eq 1 ]]; then
   else
     out_file="$RUNTIME/cycle-${ts//[:]/-}-skill-index.log"
     if bash "$ROOT/hooks/skill-index.sh" >"$out_file" 2>&1; then
-      total_skills="$(grep -oE 'indexed [0-9]+ skills' "$out_file" | grep -oE '[0-9]+' || echo 0)"
+      total_skills="$(rg -o 'indexed [0-9]+ skills' "$out_file" | rg -o '[0-9]+' || echo 0)"
       echo "  ✓ skill-index indexed $total_skills skill(s) (log: $out_file)"
       record_step "skill-index" "pass" "indexed $total_skills skills"
     else
@@ -176,7 +176,7 @@ if [[ $maintain -eq 1 ]]; then
   else
     out_file="$RUNTIME/cycle-${ts//[:]/-}-skill-prune.log"
     if bash "$ROOT/hooks/skill-prune.sh" >"$out_file" 2>&1; then
-      never="$(grep -oE 'never=[0-9]+' "$out_file" | grep -oE '[0-9]+' || echo 0)"
+      never="$(rg -o 'never=[0-9]+' "$out_file" | rg -o '[0-9]+' || echo 0)"
       echo "  ✓ skill-prune: $never never-hit candidate(s) (log: $out_file)"
       record_step "skill-prune" "pass" "never=$never"
     else
@@ -199,7 +199,7 @@ if [[ $maintain -eq 1 ]]; then
   else
     out_file="$RUNTIME/cycle-${ts//[:]/-}-transcript-scan.log"
     if bash "$ROOT/hooks/transcript-scanner.sh" >"$out_file" 2>&1; then
-      signals="$(grep -oE 'refusals=[0-9]+' "$out_file" | grep -oE '[0-9]+' || echo 0)"
+      signals="$(rg -o 'refusals=[0-9]+' "$out_file" | rg -o '[0-9]+' || echo 0)"
       echo "  ✓ transcript-scan: $signals refusal(s) flagged (log: $out_file)"
       record_step "transcript-scan" "pass" "refusals=$signals"
     else
@@ -268,8 +268,8 @@ elif [[ -n "$propose_target" && -f "$propose_target" ]]; then
     echo "  ✓ proposal assembled (log: $out_file)"
     record_step "propose" "pass" "target=$propose_target"
     # Extract the proposal_id + output file from the log.
-    proposal_id="$(grep -oE 'prop-[0-9T-]+' "$out_file" | head -1)"
-    proposal_file="$(grep -oE '\.harness/forge/proposals/[^ ]+' "$out_file" | head -1)"
+    proposal_id="$(rg -o 'prop-[0-9T-]+' "$out_file" | head -1)"
+    proposal_file="$(rg -o '\.harness/forge/proposals/[^ ]+' "$out_file" | head -1)"
   else
     echo "  ✗ propose failed (log: $out_file)"
     record_step "propose" "fail" "rc=$?"
@@ -279,7 +279,7 @@ elif [[ -z "$propose_target" ]]; then
   # No explicit target -- try --auto (scans forge candidates + regressions).
   out_file="$RUNTIME/cycle-${ts//[:]/-}-propose.log"
   if bash "$ROOT/hooks/propose.sh" --auto >"$out_file" 2>&1; then
-    count="$(grep -oE 'assembled [0-9]+ proposals' "$out_file" | grep -oE '[0-9]+' || echo 0)"
+    count="$(rg -o 'assembled [0-9]+ proposals' "$out_file" | rg -o '[0-9]+' || echo 0)"
     echo "  ✓ propose --auto assembled $count proposal(s) (log: $out_file)"
     record_step "propose" "pass" "auto: $count proposals"
     proposal_id=""
@@ -319,7 +319,7 @@ elif [[ -n "$proposal_id" ]]; then
     echo "  ✓ gate PASSED (log: $out_file)"
     record_step "gate" "pass" "proposal $proposal_id ready for merge_gate"
     # Capture the pre-deploy lift so deploy-watch can detect a post-merge regression.
-    pre_deploy_lift="$(grep -oE 'lift=[0-9.-]+' "$out_file" | head -1 | sed 's/lift=//')"
+    pre_deploy_lift="$(rg -o 'lift=[0-9.-]+' "$out_file" | head -1 | sed 's/lift=//')"
     # P7: start a deploy-watch so a post-merge regression is detectable. The
     # watch records the pre-deploy baseline (the held-out lift); after the PR
     # merges, the host runs deploy-watch.sh check to compare.
@@ -339,15 +339,15 @@ elif [[ -n "$proposal_id" ]]; then
     # so the next proposal for this target retries WITH the reflection + gradient
     # as context (propose.sh sections 3.5 + 3.6). Distinct from the batch flywheel.
     if [[ -n "$target" ]]; then
-      gate_fail_reasons="$(grep -oE 'gate failed: [^ ]+' "$out_file" | head -1)"
+      gate_fail_reasons="$(rg -o 'gate failed: [^ ]+' "$out_file" | head -1)"
       echo "  ↳ reflect-retry (Reflexion, P9.2)..."
       reflect_log="$RUNTIME/cycle-${ts//[:]/-}-reflect-retry.log"
       if bash "$ROOT/hooks/reflect-retry.sh" "$target" "$proposal_id" "$gate_fail_reasons" >"$reflect_log" 2>&1; then
-        retry_n="$(grep -oE 'retry [0-9]+/[0-9]+' "$reflect_log" | head -1)"
+        retry_n="$(rg -o 'retry [0-9]+/[0-9]+' "$reflect_log" | head -1)"
         echo "    ✓ reflection staged ($retry_n)"
         # P9.2 max-retry cap: if reflect-retry hit the cap, park BLOCKED for human
         # intervention (the loop does not spin forever — the Reflexion bound).
-        if grep -q 'MAX RETRY CAP' "$reflect_log" 2>/dev/null; then
+        if rg -q 'MAX RETRY CAP' "$reflect_log" 2>/dev/null; then
           echo "    ⊘ max-retry cap hit — parking BLOCKED for human intervention"
           [[ -x "$ROOT/hooks/dispatch.sh" ]] && bash "$ROOT/hooks/dispatch.sh" "$dispatch_task" --block "max-retry cap on $target" >/dev/null 2>&1 || true
         else
@@ -475,7 +475,7 @@ echo "╚═══════════════════════�
 # Print the report for immediate review (unless dry-run).
 if [[ $dry_run -eq 0 ]]; then
   echo ""
-  bat -p "$report" 2>/dev/null || cat "$report"
+  bat -p --paging=never "$report" 2>/dev/null || sed -n '1,$p' "$report"
 fi
 
 exit 0
