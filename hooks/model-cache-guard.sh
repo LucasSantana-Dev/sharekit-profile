@@ -36,9 +36,8 @@
 #   hooks/model-cache-guard.sh --status     # print switch stats
 #   hooks/model-cache-guard.sh --reset      # reset session tracker (new session)
 set -uo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/shared/common.sh"
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-RUNTIME="$ROOT/.harness/runtime"
 SESSIONS="$RUNTIME/model-session.jsonl"
 SWITCHES="$RUNTIME/model-switches.jsonl"
 mkdir -p "$RUNTIME"
@@ -69,11 +68,11 @@ if [[ "${1:-}" == "--reset" ]]; then
 fi
 
 # --- Hook mode ---------------------------------------------------------------
-input="$(sed -n '1,$p')"
+read_hook_stdin
 
 # Extract any model identifier we can see. Different harnesses expose it under
 # different keys; try the common ones.
-model_sig="$(printf '%s' "$input" | jq -r '
+model_sig="$(printf '%s' "$HOOK_INPUT" | jq -r '
   .model
   // .model_id
   // .session.model

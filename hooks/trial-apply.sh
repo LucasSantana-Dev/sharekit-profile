@@ -47,6 +47,8 @@ target="$(rg -m 1 '^# Proposal: ' "$proposal" | sed -E 's/^# Proposal:[[:space:]
 # --- Guard: refuse a leftover FILL IN in section 6 ---------------------------
 # Section 7 (predicted impact) legitimately keeps its own FILL IN; only section
 # 6's diff must be filled. Scope the check to section 6 only (python, quote-safe).
+command -v python3 >/dev/null 2>&1 || { echo "trial-apply: python3 not found — skipping" >&2; exit 2; }
+
 if python3 - "$proposal" <<'PY'
 import sys, re
 text = open(sys.argv[1]).read()

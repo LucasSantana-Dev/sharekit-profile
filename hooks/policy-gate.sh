@@ -35,11 +35,10 @@
 #   hooks/policy-gate.sh --rules      # list learned prefix rules (P9.1)
 #   hooks/policy-gate.sh --learn <ALLOW|DENY> <prefix> --rationale "..."   # P9.1
 set -uo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/shared/common.sh"
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 POLICY="$ROOT/.harness/mcp-policy.json"
 RULES_FILE="$ROOT/.harness/approval-rules.json"
-RUNTIME="$ROOT/.harness/runtime"
 LEDGER="$RUNTIME/policy-ledger.jsonl"
 mkdir -p "$RUNTIME"
 
@@ -137,12 +136,12 @@ if [[ ! -f "$POLICY" ]]; then
   exit 0
 fi
 
-input="$(sed -n '1,$p')"
-tool_name="$(printf '%s' "$input" | jq -r '.tool_name // .tool // empty' 2>/dev/null || true)"
+read_hook_stdin
+tool_name="$(hook_field "$HOOK_INPUT" ".tool_name // .tool")"
 [[ -n "$tool_name" ]] || exit 0
 
 # Compute a context hash binding the decision to exactly this request.
-input_digest="$(printf '%s' "$input" | jq -rc '.tool_input // .input // {}' 2>/dev/null | sha)"
+input_digest="$(hook_field_json "$HOOK_INPUT" ".tool_input // .input // {}" | sha)"
 context_hash="$(printf '%s%s%s' "$tool_name" "$input_digest" "$ts" | sha)"
 
 verdict="ALLOW"
@@ -189,7 +188,7 @@ rule_hit=""
 if [[ -f "$RULES_FILE" ]]; then
   # Build the match key: tool_name + the input string (the prefix rules match
   # against the start of this key, e.g. "mcp__github__create_issue title=chore:").
-  input_str="$(printf '%s' "$input" | jq -rc '.tool_input // .input // {}' 2>/dev/null | tr -d '\n')"
+  input_str="$(hook_field_json "$HOOK_INPUT" ".tool_input // .input // {}" | tr -d '\n')"
   match_key="$tool_name $input_str"
   # First-match-wins: rules are ordered; the host controls order in the file.
   while IFS= read -r r; do

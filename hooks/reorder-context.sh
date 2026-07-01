@@ -21,17 +21,16 @@
 #
 # Wire in claude/settings.json PostToolUse with matcher for retrieval tools.
 set -uo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/shared/common.sh"
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-RUNTIME="$ROOT/.harness/runtime"
 REORDER_DIR="$RUNTIME/reordered-chunks"
 mkdir -p "$REORDER_DIR"
 
 ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-input="$(sed -n '1,$p')"
+read_hook_stdin
 
-tool_name="$(printf '%s' "$input" | jq -r '.tool_name // .tool // empty' 2>/dev/null || true)"
+tool_name="$(hook_field "$HOOK_INPUT" ".tool_name // .tool")"
 
 # Only fire on retrieval-augmented tool calls.
 case "$tool_name" in
@@ -43,7 +42,7 @@ esac
 #   {"chunks": [{"score": 0.9, "id": "...", "content": "..."}, ...]}
 #   {"results": [{"score": 0.9, "id": "...", "content": "..."}, ...]}
 #   {"documents": [...]}
-tool_response="$(printf '%s' "$input" | jq -c '.tool_response // .tool_result // .result // empty' 2>/dev/null || echo 'null')"
+tool_response="$(hook_field_json "$HOOK_INPUT" ".tool_response // .tool_result // .result // empty" || echo 'null')"
 
 # Try to find the chunks array in common locations.
 chunks_json="$(printf '%s' "$tool_response" | jq -c '

@@ -11,17 +11,17 @@
 # result is that non-Markovian full-history search (reading WHY things failed)
 # beats best-of-N — but it requires the trace to exist. This hook creates it.
 set -uo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/shared/common.sh"
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-LOG="$ROOT/.harness/runtime/trajectory.jsonl"
+LOG="$RUNTIME/trajectory.jsonl"
 mkdir -p "$(dirname "$LOG")"
 
-input="$(sed -n '1,$p')"
+read_hook_stdin
 ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-tool_name="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2>/dev/null || true)"
-tool_input="$(printf '%s' "$input" | jq -c '.tool_input // empty' 2>/dev/null || echo 'null')"
-tool_response="$(printf '%s' "$input" | jq -c '.tool_response // .tool_result // empty' 2>/dev/null || echo 'null')"
+tool_name="$(hook_field "$HOOK_INPUT" ".tool_name")"
+tool_input="$(hook_field_json "$HOOK_INPUT" ".tool_input // empty" || echo 'null')"
+tool_response="$(printf '%s' "$HOOK_INPUT" | jq -c '.tool_response // .tool_result // empty' 2>/dev/null || echo 'null')"
 # Truncate large payloads so the log stays cheap.
 tool_input_trim="$(printf '%s' "$tool_input" | head -c 2048)"
 tool_response_trim="$(printf '%s' "$tool_response" | head -c 2048)"
