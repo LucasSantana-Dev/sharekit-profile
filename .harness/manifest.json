@@ -11,9 +11,9 @@
     ".harness/mcp-policy.json": "c15280f8ebb00eec26ab1a928db0de9b63060a7242ad8efed3dce9cc2383e2ab",
     "AGENTS.md": "cf9ebe994682f91b692e3a7abaffeefe1f3e0f2498a4315e0852ff46ddd09c65",
     "claude/settings.json": "f7280e5ba5b453e0091ccfd72b621cbfe9f45a3ed9b258c5cce690d3b4cbfebb",
-    "hooks/skill-index.sh": "d36dc8470076ce5f27947e0abcda44388619fb83bf499202dbd3f8ffcf42c031",
-    "hooks/skill-validate.sh": "4505079326f30690d19bd80270ab7e10292c6cc2b41d6e597b58f49198a1d921",
-    "hooks/skill-prune.sh": "be8840b44674a473ae36eced0fbe6cc886d154f227a8a2dda02e529211645cf6",
+    "hooks/skill-index.sh": "932f9b15fe7c04f344e5570b52ff65bf082e818995c68991f67df3e5449d51ac",
+    "hooks/skill-validate.sh": "0bf992a4689749695b0b0ea55fb7b064356af94f235af5e269b71b167e6c9be5",
+    "hooks/skill-prune.sh": "5fff4e1c779225d9e129d5aa8051ef5f90a5925a8e550158d3f7ac7ebf3f5929",
     "README.md": "90bfdc34b046ba8bb2ba4f574c78d6e07abd055631f18914fba79020cb93d8b1",
     "docs/skill-catalog-efficiency.md": "268e3d816fa2716d2771c66a33446115b30c1ae471730bf3f9986e3e2feaddf7"
   },
