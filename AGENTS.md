@@ -29,7 +29,7 @@ Match model strength to task — high result per token:
 - **Sonnet** — implementation, feature work, code review, single-phase dispatch.
 - **Opus** — only deep reasoning: critic role, architecture review, cross-session synthesis, ADRs, >=5-step reasoning.
 
-Do not override tier for speculative speed. Use `/smart-model-select` when ambiguous.
+Do not override tier for speculative speed. When ambiguous, choose the lightest tier that can satisfy the task and document the reason.
 
 ## Agent routing
 
@@ -78,7 +78,7 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
 
 **Hook count:** 42 hook scripts in `hooks/` (up from 30+ at session start).
 
-**Skill count:** 50 repo-tracked in `claude/skills/` (down from 103; 53 archived in `claude/skills/.archive/` for recoverability — 102 repo-tracked → 50 after consolidation). `~/.claude/skills/` holds 151 user-level skills independently of this repo.
+**Skill count:** 50 active skill folders in `claude/skills/` (down from 103; 53 archived in `claude/skills/.archive/` for recoverability). Runtime skills are reconciled through canonical `~/.agents/skills`; `~/.claude/skills` is the symlinked runtime view and `~/.claude-env/skills` is a downstream mirror.
 
 **P8+P9 hooks shipped:**
 - `hooks/reorder-context.sh` — post-compaction attention reordering (LlamaIndex-style)

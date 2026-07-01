@@ -36,11 +36,11 @@ proposal="${1:-}"
 [[ -f "$proposal" ]] || die "proposal file not found: $proposal"
 
 # --- Extract proposal_id + target from the proposal frontmatter ----------------
-pid="$(grep -m1 -E '^proposal_id:' "$proposal" | sed -E 's/^proposal_id:[[:space:]]*//')"
+pid="$(rg -m 1 '^proposal_id:' "$proposal" | sed -E 's/^proposal_id:[[:space:]]*//')"
 [[ -n "$pid" ]] || die "proposal_id field missing in $proposal"
 
 # The target is encoded in the "# Proposal: <target>" heading.
-target="$(grep -m1 -E '^# Proposal: ' "$proposal" | sed -E 's/^# Proposal:[[:space:]]*//')"
+target="$(rg -m 1 '^# Proposal: ' "$proposal" | sed -E 's/^# Proposal:[[:space:]]*//')"
 [[ -n "$target" ]] || die "Proposal heading (target) missing in $proposal"
 [[ -f "$target" ]] || die "target file not found: $target (run from repo root)"
 

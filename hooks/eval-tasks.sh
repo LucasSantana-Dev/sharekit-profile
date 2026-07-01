@@ -102,7 +102,7 @@ emit_tasks() {
 filter_split() {
   local split="$1"
   if [[ "$split" == "all" ]]; then
-    cat
+    sed -n '1,$p'
   else
     jq -c --arg s "$split" 'select(.split==$s)'
   fi

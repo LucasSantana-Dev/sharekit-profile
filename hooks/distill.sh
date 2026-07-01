@@ -33,7 +33,7 @@ datestamp="$(date -u +%Y-%m-%d)"
 if [[ "${1:-}" == "--status" ]]; then
   pending=0; staged=0; traj_lines=0
   [[ -f "$PENDING" ]] && pending="$(wc -l < "$PENDING" | tr -d ' ')"
-  staged="$(find "$FORGE" -name '*.md' -newer "$FORGE" 2>/dev/null | wc -l | tr -d ' ')"
+  staged="$(fd -e md -t f . "$FORGE" 2>/dev/null | wc -l | tr -d ' ')"
   [[ -f "$TRAJ" ]] && traj_lines="$(wc -l < "$TRAJ" | tr -d ' ')"
   echo "distill status:"
   echo "  trajectory events: $traj_lines"
@@ -99,7 +99,7 @@ if [[ "$lines" -lt 8 ]]; then
 fi
 
 # --- record distill run ---
-candidate_count="$(grep -c '^- \[' "$out" 2>/dev/null || echo 0)"
+candidate_count="$(rg -c '^- \[' "$out" 2>/dev/null || echo 0)"
 printf '{"ts":"%s","event":"distill-run","date":"%s","candidates":%s,"file":"%s"}\n' \
   "$ts" "$datestamp" "$candidate_count" "$out" >> "$STATE"
 

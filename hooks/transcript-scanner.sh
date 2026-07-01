@@ -48,7 +48,7 @@ while [[ $# -gt 0 ]]; do
     --status)
       last="$(ls -t "$FORGE"/*transcript-scan*.md 2>/dev/null | head -1)"
       [[ -n "$last" ]] || { echo "no transcript scan yet"; exit 0; }
-      bat -p "$last" 2>/dev/null || cat "$last"
+      bat -p --paging=never "$last" 2>/dev/null || sed -n '1,$p' "$last"
       exit 0 ;;
     *) echo "transcript-scanner: unknown arg: $1" >&2; exit 2 ;;
   esac
@@ -101,12 +101,12 @@ env_drift="$(printf '%s' "$texts" \
 
 # --- Scanner 4: HALLUCINATION SIGNALS --------------------------------------
 # The agent wrote/cited a path that then failed to read, or referenced a symbol
-# that grep/rg returned no match for. (Heuristic: Read failure immediately
+# that rg returned no match for. (Heuristic: Read failure immediately
 # following a Write/Edit naming the same path, or rg "no matches" after a claim.)
 halluc="$(printf '%s' "$events" \
   | jq -r 'select(.tool=="Read" and .outcome=="error") | .input' 2>/dev/null \
   | jq -r '.file_path // empty' 2>/dev/null \
-  | grep -viE '\.harness/|/tmp/eval|trajectory|RUNTIME|FORGE' \
+  | rg -vi '\.harness/|/tmp/eval|trajectory|RUNTIME|FORGE' \
   | head -10)"
 
 # --- Scanner 5: EXCESSIVE AGENCY -------------------------------------------
@@ -125,12 +125,12 @@ inject_tells="$(printf '%s' "$texts" \
   | head -20)"
 
 # Tally counts (for the summary + machine output).
-n_refusals=$(printf '%s' "$refusals"     | grep -c . 2>/dev/null); n_refusals=${n_refusals:-0}
-n_eval=$(printf '%s' "$eval_aware"        | grep -c . 2>/dev/null); n_eval=${n_eval:-0}
-n_env=$(printf '%s' "$env_drift"         | grep -c . 2>/dev/null); n_env=${n_env:-0}
-n_halluc=$(printf '%s' "$halluc"         | grep -c . 2>/dev/null); n_halluc=${n_halluc:-0}
-n_agency=$(printf '%s' "$excess_agency" | grep -c . 2>/dev/null); n_agency=${n_agency:-0}
-n_inject=$(printf '%s' "$inject_tells"  | grep -c . 2>/dev/null); n_inject=${n_inject:-0}
+n_refusals=$(printf '%s' "$refusals"     | rg -c '.' 2>/dev/null); n_refusals=${n_refusals:-0}
+n_eval=$(printf '%s' "$eval_aware"        | rg -c '.' 2>/dev/null); n_eval=${n_eval:-0}
+n_env=$(printf '%s' "$env_drift"         | rg -c '.' 2>/dev/null); n_env=${n_env:-0}
+n_halluc=$(printf '%s' "$halluc"         | rg -c '.' 2>/dev/null); n_halluc=${n_halluc:-0}
+n_agency=$(printf '%s' "$excess_agency" | rg -c '.' 2>/dev/null); n_agency=${n_agency:-0}
+n_inject=$(printf '%s' "$inject_tells"  | rg -c '.' 2>/dev/null); n_inject=${n_inject:-0}
 
 # --- Write machine-readable findings ----------------------------------------
 {

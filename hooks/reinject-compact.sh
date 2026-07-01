@@ -23,7 +23,7 @@ done
 # context via stdout; we wrap the CORE contents in a fenced block.
 if [[ -n "$core_file" ]]; then
   printf '# Re-injected CORE memory (PostCompact)\n\n'
-  cat "$core_file"
+  bat -p --paging=never "$core_file" 2>/dev/null || sed -n '1,$p' "$core_file"
   printf '\n\n---\n^ Re-injected by hooks/reinject-compact.sh. Verify against the source file before acting on any named path/flag.\n'
 else
   # No core file found - record the gap so the distill can flag it.

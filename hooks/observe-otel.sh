@@ -71,7 +71,7 @@ fi
 [[ "$level" == "off" ]] && exit 0
 
 # --- Hook mode: read stdin JSON ---------------------------------------------
-input="$(cat)"
+input="$(sed -n '1,$p')"
 tool_name="$(printf '%s' "$input" | jq -r '.tool_name // .tool // empty' 2>/dev/null || true)"
 session_id="$(printf '%s' "$input" | jq -r '.session_id // empty' 2>/dev/null || true)"
 hook_event="${OBSERVE_HOOK_EVENT:-PostToolUse}"

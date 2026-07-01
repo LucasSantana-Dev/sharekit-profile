@@ -82,10 +82,10 @@ if [[ "${1:-}" == "--status" ]]; then
   total="$(wc -l < "$LEDGER" | tr -d ' ')"
   echo "policy decisions: $total"
   for v in ALLOW DENY REQUIRE_APPROVAL; do
-    c="$(jq -c --arg v "$v" 'select(.verdict==$v)' "$LEDGER" 2>/dev/null | grep -c . )"
+    c="$(jq -c --arg v "$v" 'select(.verdict==$v)' "$LEDGER" 2>/dev/null | rg -c '.')"
     echo "  $v: ${c:-0}"
   done
-  echo "  auto-approved/denied via learned prefix rules: $(jq -r 'select(.reason|startswith("auto:"))' "$LEDGER" 2>/dev/null | grep -c . || echo 0)"
+  echo "  auto-approved/denied via learned prefix rules: $(jq -r 'select(.reason|startswith("auto:"))' "$LEDGER" 2>/dev/null | rg -c '.' || echo 0)"
   exit 0
 fi
 
@@ -137,7 +137,7 @@ if [[ ! -f "$POLICY" ]]; then
   exit 0
 fi
 
-input="$(cat)"
+input="$(sed -n '1,$p')"
 tool_name="$(printf '%s' "$input" | jq -r '.tool_name // .tool // empty' 2>/dev/null || true)"
 [[ -n "$tool_name" ]] || exit 0
 

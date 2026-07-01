@@ -54,7 +54,7 @@ symbols="$(
   rg -n --no-heading \
     '^\s*(function |def |class |export (async )?function |export const |export class )' \
     "$ROOT" 2>/dev/null \
-    | grep -vE 'node_modules|\.git/|/dist/|/build/' \
+    | rg -v 'node_modules|\.git/|/dist/|/build/' \
     | sed "s|$ROOT/||" \
     | head -c "$BUDGET"
 )"
@@ -63,7 +63,7 @@ symbols="$(
 {
   printf '{"ts":"%s","file_count":%s,"symbols":"%s"}\n' \
     "$ts" \
-    "$(printf '%s\n' "$tree_out" | grep -c .)" \
+    "$(printf '%s\n' "$tree_out" | rg -c '.')" \
     "$(printf '%s' "$symbols" | jq -Rs . 2>/dev/null || echo '""')"
 } > "$MAP_JSON"
 
@@ -85,11 +85,11 @@ symbols="$(
 
   printf '## Usage for the proposer\n\n'
   printf 'Read this map to find WHERE a symbol lives before proposing an edit.\n'
-  printf 'Do not grep blind — use this index to target. The map is bounded so it\n'
+  printf 'Do not search blind — use this index to target. The map is bounded so it\n'
   printf 'does not flood context (lost-in-the-middle defense).\n'
 } > "$MAP_MD"
 
 echo "repo-map written: $MAP_MD"
-echo "  files indexed: $(printf '%s\n' "$tree_out" | grep -c .)"
+echo "  files indexed: $(printf '%s\n' "$tree_out" | rg -c '.')"
 echo "  symbol budget: $BUDGET bytes"
 exit 0

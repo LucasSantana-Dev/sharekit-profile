@@ -36,7 +36,7 @@ CONSTRAINTS="$RUNTIME/constraints-recap.md"
 BOUNDARY="$RUNTIME/cache-boundary.jsonl"
 mkdir -p "$RUNTIME" "$DIGESTS"
 
-input="$(cat)"
+input="$(sed -n '1,$p')"
 ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 tool_name="$(printf '%s' "$input" | jq -r '.tool_name // .tool // empty' 2>/dev/null || true)"
@@ -67,9 +67,9 @@ fi
 # Detect constraint-shaped strings ("MUST", "NEVER", "ALWAYS", "DO NOT") in the
 # tool response and append them to a recap file that the reinject-on-compact
 # path surfaces at the START of the next window (where attention is strongest).
-if printf '%s' "$tool_response" | grep -Eqi 'MUST|NEVER|ALWAYS|DO NOT|REQUIRED|FORBIDDEN'; then
+if printf '%s' "$tool_response" | rg -qi 'MUST|NEVER|ALWAYS|DO NOT|REQUIRED|FORBIDDEN'; then
   printf '## %s — %s\n' "$tool_name" "$ts" >> "$CONSTRAINTS"
-  printf '%s\n' "$tool_response" | grep -Ei 'MUST|NEVER|ALWAYS|DO NOT|REQUIRED|FORBIDDEN' \
+  printf '%s\n' "$tool_response" | rg -i 'MUST|NEVER|ALWAYS|DO NOT|REQUIRED|FORBIDDEN' \
     | head -5 >> "$CONSTRAINTS"
   printf '\n' >> "$CONSTRAINTS"
 fi
@@ -78,7 +78,7 @@ fi
 # Record a boundary event so the cache boundary is auditable. "static" = prompt
 # prefix that should be cache-stable; "dynamic" = per-call volatile suffix.
 boundary="dynamic"
-if printf '%s' "$tool_name" | grep -Eqi 'Read|read_files|Glob|Grep|grep'; then
+if printf '%s' "$tool_name" | rg -qi 'Read|read_files|Glob|Grep|rg'; then
   boundary="static"   # read-only lookups are cache-stable input
 fi
 printf '{"ts":"%s","event":"cache-boundary","tool":"%s","boundary":"%s","resp_len":%s}\n' \

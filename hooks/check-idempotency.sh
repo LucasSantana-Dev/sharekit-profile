@@ -16,7 +16,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG="$ROOT/.harness/runtime/idempotency.jsonl"
 mkdir -p "$(dirname "$LOG")"
 
-input="$(cat)"
+input="$(sed -n '1,$p')"
 
 tool_name="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2>/dev/null || true)"
 
@@ -30,7 +30,7 @@ esac
 command="$(printf '%s' "$input" | jq -r '.tool_input.command // empty' 2>/dev/null || true)"
 if [[ "$tool_name" == "Bash" ]]; then
   # Mutating command signatures we care about.
-  if ! printf '%s' "$command" | grep -Eq '\b(git\s+push|git\s+commit|npm\s+publish|kubectl\s+apply|terraform\s+apply|curl\s+.*(POST|PUT|DELETE)|DELETE\s+FROM|UPDATE\s+.*SET)\b'; then
+  if ! printf '%s' "$command" | rg -q '\b(git\s+push|git\s+commit|npm\s+publish|kubectl\s+apply|terraform\s+apply|curl\s+.*(POST|PUT|DELETE)|DELETE\s+FROM|UPDATE\s+.*SET)\b'; then
     exit 0
   fi
 fi

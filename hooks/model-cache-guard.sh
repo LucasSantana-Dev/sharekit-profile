@@ -49,8 +49,8 @@ ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 if [[ "${1:-}" == "--status" ]]; then
   [[ -f "$SWITCHES" ]] || { echo "no model-switch events recorded"; exit 0; }
   total="$(wc -l < "$SWITCHES" | tr -d ' ')"
-  unsafe="$(jq -c 'select(.safe==false)' "$SWITCHES" 2>/dev/null | grep -c . || echo 0)"
-  safe="$(jq -c 'select(.safe==true)' "$SWITCHES" 2>/dev/null | grep -c . || echo 0)"
+  unsafe="$(jq -c 'select(.safe==false)' "$SWITCHES" 2>/dev/null | rg -c '.' || echo 0)"
+  safe="$(jq -c 'select(.safe==true)' "$SWITCHES" 2>/dev/null | rg -c '.' || echo 0)"
   echo "model-switch events: $total"
   echo "  cache-safe (first-turn/post-compact): $safe"
   echo "  cache-unsafe (mid-conversation): $unsafe"
@@ -69,7 +69,7 @@ if [[ "${1:-}" == "--reset" ]]; then
 fi
 
 # --- Hook mode ---------------------------------------------------------------
-input="$(cat)"
+input="$(sed -n '1,$p')"
 
 # Extract any model identifier we can see. Different harnesses expose it under
 # different keys; try the common ones.

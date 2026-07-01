@@ -28,7 +28,9 @@ Trivial single-file edits (<20 lines, known path) are exempt.
 
 ## What We Value
 
-**Lean over bloat.** Every file, every skill, every agent must earn its place. If it does not reduce friction or prevent errors, it is noise. Complexity accretes invisibly — prune before it prunes you.
+**Lean over bloat.** Every file, every skill, every agent must earn its place. If it does not reduce friction or prevent errors, it is noise. Complexity accretes invisibly — prune before it prunes you. Fewer skills are acceptable only when standards, evidence, docs, and memory preserve the capability.
+
+**Capability over count.** The catalog target is not minimalism for its own sake. Archived skills are a recovery library: mine them for durable methods, fold those methods into active entries, and keep the active surface small.
 
 **Verifiable over speculative.** Claims must be checkable. "Tests pass" means run them and show output. "Coverage is good" means show the number. Speculative features and premature abstractions are deferred until a concrete need proves them necessary.
 

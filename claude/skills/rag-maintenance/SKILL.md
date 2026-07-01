@@ -41,11 +41,17 @@ mount | grep -q "/Volumes/External HD" || { \
 ```
 
 ### Phase 1 — Measure retrieval quality
-**Invoke:** `rag-quality` (weekly report: zero-hit queries, low-confidence hits, quality regression)
+**Integrated former `rag-quality` behavior:** start with `~/.claude/rag-index/weekly.md`; refresh it if older than 7 days. Record zero-hit queries, low-confidence hits, stale chunks, chunk distribution, and quality summary. Run scoped test queries when the report does not answer the current concern.
+
+Score interpretation:
+- cosine `<0.25` = zero/near-zero hit; treat as corpus gap or broken scope
+- cosine `0.25–0.40` = weak hit; inspect and likely curate
+- cosine `0.40–0.55` = usable but should be improved for recurring queries
+- cosine `≥0.55` = healthy unless the snippet is semantically wrong
 
 **Feeds into:** Phase 2 (identifies which queries are failing)
 
-**Done when:** Report shows query-score distribution, zero-hit count, stale-chunk count, quality summary table. Baseline exists at `~/.claude/rag-index/weekly.md`.
+**Done when:** Report shows query-score distribution, zero-hit count, stale-chunk count, quality summary table, and any task-specific test query has top-5 results with a judgment (good, weak, wrong, or missing). Baseline exists at `~/.claude/rag-index/weekly.md`.
 
 **Parallelism signal:** Phases 2–3 are independent of each other. After Phase 1 completes, dispatch `adt-rag-coverage` + `adt-rag-drift` in a single message for concurrent execution.
 
@@ -74,7 +80,15 @@ mount | grep -q "/Volumes/External HD" || { \
 **Critical guard:** Do NOT delete chunks on an unmounted drive — an absent file during unmount means *unknown* state, not *deleted*. Mount guard in preflight prevents this, but Phase 3 surfaces any unmount-time drift risks explicitly.
 
 ### Phase 4 — Curate corpus
-**Invoke:** `rag-curate` (write missing docs, rewrite weak chunks, incremental reindex)
+**Integrated former `rag-curate` behavior:** choose the smallest repair pattern that addresses the diagnosed gap.
+
+Curation patterns:
+- Missing doc: write a short standards/skill/handoff/memory note in the right corpus, then incremental reindex that file.
+- Weak retrieval: inspect the returned path/chunk, clarify the source text with the terms users actually query, then reindex and retest.
+- Undercovered source: widen index globs only when the files exist and are intentionally part of the corpus.
+- Stale/orphaned chunks: reindex modified files; remove deleted-file chunks only after mount guard confirms the filesystem is real, not absent.
+
+Rebuild instead of curate when drift is broad: >100 missing chunks, >20 stale chunks, many tiny chunks under 100 chars, or chunk count drops >5% without a known corpus deletion.
 
 **Feeds from:** Phase 3 (drift report) + Phase 1 (quality gaps) + Phase 2 (coverage targets)
 

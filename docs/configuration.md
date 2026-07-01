@@ -160,9 +160,9 @@ opencode auth login openrouter   # set OPENROUTER_API_KEY
 
 OpenRouter exposes the same tier-appropriate models (`anthropic/claude-sonnet-4.5`, `anthropic/claude-haiku-4.5`, `google/gemini-2.5-flash`, `deepseek/deepseek-chat`). The efficiency tier policy above applies identically on the fallback provider.
 
-### Smart Model Select
+### Model choice discipline
 
-Use `/smart-model-select` when task category is ambiguous. **Do not override tier for speculative speed gains.**
+When task category is ambiguous, choose the lightest tier that can satisfy the task and document the reason. **Do not override tier for speculative speed gains.**
 
 ---
 
@@ -223,7 +223,7 @@ Use `/smart-model-select` when task category is ambiguous. **Do not override tie
 
 ### Post-Tool-Use Validation
 
-**[Bash]:** Detect missed read-tool opportunities (e.g., `cat file | grep` → should use Read)
+**[Bash]:** Detect missed read/search-tool opportunities (e.g., `bat -p file | rg pattern`, or direct Read/rg when available)
 
 **[Read]:** Log which files read, warn if >25KB
 

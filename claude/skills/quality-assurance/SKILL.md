@@ -47,7 +47,16 @@ Use this skill as the high-level QA router and composer.
 2. Choose the smallest set of narrower QA skills that can prove the required confidence.
 3. Order them so cheap high-signal checks run before expensive or deep verification.
 4. Route execution to the selected skills and consolidate the evidence they should return.
-5. Report residual risk and what still blocks completion.
+5. Include optional external evidence only when relevant: Semgrep/Sonar/Sentry/security scanners for security-sensitive work, CI checks for PR readiness, and mutation/coverage checks for test-quality work.
+6. Report residual risk and what still blocks completion.
+
+## Canonical routing
+
+- Use `quality-gates` for repository-native lint/type/test/build/docs/security verification.
+- Use `secure` for auth, secrets, dependency risk, infra, user input, and scanner-backed security passes.
+- Use `verify` for a lightweight final confidence pass before handoff.
+- Use `test-driven-development` for test-first implementation discipline; keep `tdd` as shorthand only when the runtime provides it.
+- Do not restore archived narrow wrappers just to name one tool. Represent them as evidence sources under the broader skill.
 
 ## Outputs / Evidence
 

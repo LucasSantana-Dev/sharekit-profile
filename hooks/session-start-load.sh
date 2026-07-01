@@ -28,7 +28,7 @@ for cand in "$mem_root/CORE.md" "$ROOT/claude/memory-structure/examples/CORE.md"
 done
 if [[ -n "$core_file" ]]; then
   printf '# CORE memory (SessionStart load)\n\n'
-  cat "$core_file"
+  bat -p --paging=never "$core_file" 2>/dev/null || sed -n '1,$p' "$core_file"
   printf '\n\n---\n^ Loaded by hooks/session-start-load.sh.\n'
 fi
 

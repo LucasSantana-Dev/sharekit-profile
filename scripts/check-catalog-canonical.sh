@@ -20,8 +20,8 @@ if [ ! -d "$CANON" ]; then
 fi
 
 page=$(awk '/const SKILLS = \[/{f=1} f{print} /^];/{if(f) exit}' "$HTML" \
-  | grep -oE "name: '[a-z0-9-]+'" | sed "s/name: '//;s/'$//" | sort -u)
-canon=$(ls "$CANON" | sort -u)
+  | rg -o "name: '[a-z0-9-]+'" | sed "s/name: '//;s/'$//" | sort -u)
+canon=$(fd -t d -d 1 . "$CANON" -x basename {} | sort -u)
 
 stale=$(comm -23 <(printf '%s\n' "$page") <(printf '%s\n' "$canon"))
 
@@ -33,4 +33,4 @@ if [ -n "$stale" ]; then
   echo "to refresh counts), or restore the skill if the deletion was unintended."
   exit 1
 fi
-echo "no stale showcase entries — all $(printf '%s\n' "$page" | grep -c .) page skills exist in canonical"
+echo "no stale showcase entries — all $(printf '%s\n' "$page" | rg -c '.') page skills exist in canonical"

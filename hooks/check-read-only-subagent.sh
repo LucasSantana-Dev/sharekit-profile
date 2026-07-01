@@ -13,7 +13,7 @@
 # independence.
 set -uo pipefail
 
-input="$(cat)"
+input="$(sed -n '1,$p')"
 
 # SubagentStart payload varies by host; try common shapes.
 name="$(printf '%s' "$input" | jq -r '.subagent_name // .name // .agent // .subagent.type // empty' 2>/dev/null || true)"
@@ -32,7 +32,7 @@ esac
 # Detect write-capable tools in the permission block. Hosts express this
 # differently; match common forms.
 write_tools_pattern='(Write|Edit|MultiEdit|Bash|Shell|Execute|NotebookEdit|create_file|edit_file|write_file)'
-if printf '%s' "$perms" | grep -Eq "$write_tools_pattern"; then
+if printf '%s' "$perms" | rg -q "$write_tools_pattern"; then
   echo "BLOCKED — read-only-by-construction violation (RULES.md):" >&2
   echo "  subagent: $name" >&2
   echo "  role:     analysis (review/explore/plan/audit/critic/security)" >&2

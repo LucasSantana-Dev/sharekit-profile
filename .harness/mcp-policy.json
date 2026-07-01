@@ -6,6 +6,7 @@
   "allowNetwork": false,
   "allowFileWrite": false,
   "comment_on_allowFlags": "Native tools (Bash, Read, Write, Edit) govern these at the tool layer; MCP servers are denied by default and must be explicitly approved",
+  "fallbackPolicy": "Prefer approved MCP servers for personalized/current context. If unavailable, fall back to repository-native CLI or local files and report the fallback in evidence.",
   "dangerousPatterns": [
     "rm\\s+-rf\\s+/\\b",
     "git\\s+reset\\s+--hard\\b",

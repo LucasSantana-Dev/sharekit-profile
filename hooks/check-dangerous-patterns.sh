@@ -15,7 +15,7 @@ if [[ ! -f "$POLICY" ]]; then
 fi
 
 # Read the tool invocation JSON from stdin.
-input="$(cat)"
+input="$(sed -n '1,$p')"
 
 # Only govern Bash. Allow everything else.
 tool_name="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2>/dev/null || true)"
@@ -34,7 +34,7 @@ fi
 # Walk the dangerousPatterns array and regex-match.
 while IFS= read -r pattern; do
   [[ -z "$pattern" ]] && continue
-  if printf '%s' "$command" | grep -Eq "$pattern"; then
+  if printf '%s' "$command" | rg -q "$pattern"; then
     echo "BLOCKED by .harness/mcp-policy.json dangerousPattern:" >&2
     echo "  pattern:  $pattern" >&2
     echo "  command:  $command" >&2
@@ -49,7 +49,7 @@ if [[ -f "$SENSITIVE_PATHS" ]]; then
     [[ -z "$pattern" ]] && continue
     # Convert glob pattern to regex: * → [^/]*, ** → .*, ? → [^/]
     regex="$(printf '%s' "$pattern" | sed 's/\*\*/.*/g; s/\*/[^/]*/g; s/?/[^/]/g')"
-    if printf '%s' "$command" | grep -Eq "$regex"; then
+    if printf '%s' "$command" | rg -q "$regex"; then
       echo "BLOCKED by .harness/sensitive-paths.json (non-overridable):" >&2
       echo "  pattern:  $pattern" >&2
       echo "  command:  $command" >&2

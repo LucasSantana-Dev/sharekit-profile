@@ -125,7 +125,7 @@ out="$PROPOSALS/${ts//[:]/-}-$(basename "$target").md"
   last_reflection="$(ls -t "$FORGE"/reflections/*-reflection.md 2>/dev/null | head -1)"
   if [[ -n "$last_reflection" && -f "$last_reflection" ]]; then
     printf '```\n'
-    bat -p "$last_reflection" 2>/dev/null || cat "$last_reflection"
+    bat -p --paging=never "$last_reflection" 2>/dev/null || sed -n '1,$p' "$last_reflection"
     printf '\n```\n\n'
   else
     printf 'No prior reflection for this target. This is the first proposal (or the last\n'
@@ -142,7 +142,7 @@ out="$PROPOSALS/${ts//[:]/-}-$(basename "$target").md"
   last_gradient="$(ls -t "$FORGE"/gradients/*-gradient.md 2>/dev/null | head -1)"
   if [[ -n "$last_gradient" && -f "$last_gradient" ]]; then
     printf '```\n'
-    bat -p "$last_gradient" 2>/dev/null || cat "$last_gradient"
+    bat -p --paging=never "$last_gradient" 2>/dev/null || sed -n '1,$p' "$last_gradient"
     printf '\n```\n\n'
   else
     printf 'No gradient for this target (textgrad.sh runs only when a reflection exists).\n\n'

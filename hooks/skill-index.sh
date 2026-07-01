@@ -54,7 +54,7 @@ while [[ $# -gt 0 ]]; do
     --status)
       last="$(ls -t "$FORGE"/*-skill-index.md 2>/dev/null | head -1)"
       [[ -n "$last" ]] || { echo "no skill index yet"; exit 0; }
-      bat -p "$last" 2>/dev/null || cat "$last"
+      bat -p --paging=never "$last" 2>/dev/null || sed -n '1,$p' "$last"
       exit 0 ;;
     *) echo "skill-index: unknown arg: $1" >&2; exit 2 ;;
   esac
@@ -70,15 +70,17 @@ if [[ ! -d "$CATALOG" ]]; then
 fi
 
 report="$FORGE/${datestamp}-skill-index.md"
-# Resolve tool to extract YAML frontmatter fields. jq is already a hard dep of
-# the harness (trajectory-log.sh); fall back to grep if absent.
+# Resolve tool to extract YAML frontmatter fields.
 extract_field() {
   # extract_field <file> <field>  (reads simple "field: value" frontmatter)
-  grep -iE "^${2}:" "$1" 2>/dev/null | head -1 | sed -E "s/^${2}:[[:space:]]*//I" | tr -d '"' | tr -d "'"
+  rg -i "^${2}:" "$1" 2>/dev/null | head -1 | sed -E "s/^${2}:[[:space:]]*//I" | tr -d '"' | tr -d "'"
 }
 
-mapfile -t skill_files < <(fd -t f -e md '^SKILL\.md$' "$CATALOG" 2>/dev/null \
-  || find "$CATALOG" -type f -name 'SKILL.md' 2>/dev/null)
+if command -v fd >/dev/null 2>&1; then
+  mapfile -t skill_files < <(fd -t f -e md '^SKILL\.md$' "$CATALOG" 2>/dev/null | sort)
+else
+  mapfile -t skill_files < <(find "$CATALOG" -type f -name 'SKILL.md' 2>/dev/null | sort)
+fi
 
 total=${#skill_files[@]}
 tiny=0; small=0; medium=0; large=0

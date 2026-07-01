@@ -43,11 +43,11 @@ Every user prompt triggers `UserPromptSubmit` hooks (0-overhead):
 | Start day, understand blocking work | `/session-bootstrap` | Chains wake-up → next-priority → pr-snapshot → context-pack |
 | Plan before coding | `/plan` | Validation-gated plan for multi-step work |
 | Implement independently-parallelizable tasks | `/dispatch` or `/orchestrate` | Fans out parallel agents, reconciles results |
-| Review code before merge | `/code-review` | Severity-rated findings (bugs, regressions, security > style) |
+| Review code before merge | `/review` | Severity-rated findings (bugs, regressions, security > style) |
 | Debug a failing test or prod error | `/debug` | Systematic root-cause analysis |
-| Full project health check | `/audit-deep` | Composites test, config, hooks, security, MCP, plugins |
-| Refactor a module end-to-end | `/refactor-pipeline` | Chains plan → 3-agent team → test cleanup → ADR → docs-sync |
-| Ship work + capture memory | `/session-wrap-up` | Chains ship → memory-sync → handoff |
+| Full project health check | `/quality-assurance` | Composes tests, config, hooks, security, MCP, and release evidence |
+| Refactor a module end-to-end | `/request-refactor-plan` → `/orchestrate` | Plans, fans out bounded work, validates, and captures decisions |
+| Ship work + capture memory | `/ship` + `/knowledge-loop` | Releases work, syncs memory, and writes handoff when needed |
 
 ### When to use composites vs. individual skills
 
@@ -56,8 +56,8 @@ Every user prompt triggers `UserPromptSubmit` hooks (0-overhead):
 Marked with `*` in skill lists below.
 
 Example: User says "refactor this module."
-- Correct: Composite-router fires `🎯 Composite match: /refactor-pipeline` → invoke `/refactor-pipeline`
-- Wrong: Invoke `/refactor` directly, skipping discovery and plan phases
+- Correct: use `/request-refactor-plan` for scope/rollback, then `/orchestrate` or `/three-man-team` when parallel implementation is justified.
+- Wrong: invoke `/refactor` directly for a broad module rewrite, skipping discovery and validation.
 
 ---
 
@@ -281,7 +281,7 @@ Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete r
 
 **Consolidated catalog**: the skill catalog was reduced from 103 repo-tracked skills to 50 by merging skill families (ponytail×5→1, RAG×6→1, debug×2→1, test×6→1, session×2→1, refactor×2→1), removing stack-specific skills (shadcn, tailwind-design-system, webapp-testing), plugin-injected meta-skills, and project-specific skills. 53 skills archived in `claude/skills/.archive/` (recoverable).
 
-**Core Development** (14): add, debug, fallback, impeccale, loop, plan, ponytail, refactor, review, scope-it, ship, tdd, test-driven-development, verify
+**Core Development** (14): add, debug, fallback, impeccable, loop, plan, ponytail, refactor, review, scope-it, ship, tdd, test-driven-development, verify
 
 **Architecture & Design** (7): architecture-patterns, codebase-design, decide, decide-now, domain-modeling, frontend-design, prototype
 
@@ -371,11 +371,11 @@ Key policy documents in `~/.agents/skills/standards/`:
 
 ### Daily Workflow
 ```
-1. /session-bootstrap (chains: wake-up → next-priority → pr-snapshot → context-pack)
-2. /plan (for complex work) or /route (if unsure)
+1. /session-bootstrap (chains resume/priority/context-pack)
+2. /plan or /scope-it for complex work
 3. /dispatch or /orchestrate (≥2 independent tasks) or /loop (single task)
-4. /code-review + /verify-before-done* (before merge)
-5. /session-wrap-up (ship → memory-sync → handoff)
+4. /review + /quality-gates or /verify (before merge)
+5. /ship + /knowledge-loop (release, memory, handoff)
 ```
 
 ### Using Composites
@@ -383,18 +383,18 @@ When composite-router emits `🎯 Composite match: /<name>`: invoke that composi
 
 | Task | Use Composite | Why |
 |------|---------------|-----|
-| Refactor a module | `/refactor-pipeline*` | Enforces plan → team → test-cleanup → ADR phases |
-| Onboard repo | `/onboard-new-repo*` | Chains intake → audit → config-drift → CLAUDE.md |
-| Build feature from scratch | `/feature-from-zero*` | Full greenfield: research → scope → design → test → merge → ship |
-| Health check | `/audit-deep*` | Parallel sub-agents across 7 dimensions |
-| End session | `/session-wrap-up` | Chains ship → memory → handoff |
+| Refactor a module | `/request-refactor-plan` + `/orchestrate` | Preserves plan → team → validation → decision capture without restoring archived wrapper names |
+| Onboard repo | `/session-bootstrap` + `/quality-assurance` | Intake, context, gates, and first safe action |
+| Build feature from scratch | `/scope-it` + `/frontend-design`/`tdd`/`ship` | Research, scope, design, test, and release through active skills |
+| Health check | `/quality-assurance` | Composes tests, config, security, MCP, and release evidence |
+| End session | `/knowledge-loop` | Captures memory, curates weak recall, and writes handoff |
 
 ### Model Selection
 - **Haiku:** Mechanical tasks (formatting, symbol lookup, grep, simple renames), subagent batch work
 - **Sonnet (default):** Implementation, feature work, code review, test generation
 - **Opus:** Orchestration, critic role, architectural decisions, ADR writing
 
-Use `smart-model-select` before multi-agent work. Never override for speculative speed.
+Use the model-tier policy in `AGENTS.md` before multi-agent work. Never override for speculative speed.
 
 ### Parallel Execution
 For ≥2 independent units (parallel investigations, multi-repo sweeps, batch fixes):
@@ -416,11 +416,10 @@ If context bloat builds: `/compact` (saves ~30-40% tokens)
 |------|-------|--------------|
 | ~75% token compression | `/caveman` | Drops filler/articles/pleasantries while keeping full technical accuracy. Persists until toggled off. |
 | Minimal solutions | `/ponytail` | Forces simplest, shortest, most minimal solution (YAGNI, stdlib before deps, one line before fifty). |
-| Audit repo for bloat | `/ponytail-audit` | Whole-repo audit for over-engineering — ranked list of what to delete/simplify. |
-| Lint a diff for complexity | `/ponytail-review` | Review focused exclusively on over-engineering in a diff. |
-| Track deferred shortcuts | `/ponytail-debt` | Harvest `ponytail:` comments into a tracked debt ledger. |
-| Historical token spend | `/token-audit` | Analyze Claude Code session JSONLs — spend, cache hit rates, weekly trends. |
-| Context bloat | `/optimize-context` | Reduce token consumption when context is bloated or responses are slow. |
+| Audit repo or diff for bloat | `/ponytail` | Built-in audit/review mode for over-engineering, ranked by evidence and size of cut. |
+| Track deferred shortcuts | `ponytail:` comments | Mark deliberate shortcuts with ceiling and upgrade path in code. |
+| Historical token spend | hook reports | Analyze session JSONLs, cache hit rates, and weekly trends through diagnostics. |
+| Context bloat | `/context-pack` | Build focused context before large changes; compact when needed. |
 | Load only relevant context | `/context-pack` | Build a task-aware context bundle before large changes or unfamiliar work. |
 
 ### Knowledge-Brain & RAG
@@ -428,16 +427,11 @@ The profile ships a **Megabrain** system: one vault for all projects (memory + g
 
 | Goal | Skill | What it does |
 |------|-------|--------------|
-| Semantic lookup | `/recall` | One-shot lookup against the local RAG index (~21k chunks across memory, plans, handoffs, skills, code). |
+| Semantic lookup | `/recall` | One-shot lookup against the local RAG index across memory, plans, handoffs, skills, and code. |
 | Code → knowledge graph | `/graphify` | Turn code/docs/papers/images into a knowledge graph for structural queries. |
 | Structural code queries | `/codebase-memory` | Knowledge graph for call chains, dead code, fan-out, impact analysis. |
-| New project brain | `/bootstrap-project` | Stand up a new project's memory + central graph in one ritual. |
-| RAG index audit | `/rag-maintenance` | Full pipeline: quality → coverage → drift → curate. |
-| Retrieval quality | `/rag-quality` | Evaluate retrieval quality from the local RAG index. |
-| Corpus coverage gaps | `/adt-rag-coverage` | Audit corpus distribution by source type; find under-indexed topics. |
-| Stale chunks | `/adt-rag-drift` | Detect and fix stale chunks (files changed/deleted since indexing). |
-| Improve weak chunks | `/rag-curate` | Add missing docs, rewrite weak chunks, fill retrieval gaps. |
-| Retrieval regression gate | `/rag-eval` | Hit@5/MRR regression gate against a frozen baseline. |
+| Capture and preserve knowledge | `/knowledge-loop` | Recall → capture → curate weak retrievals → handoff. |
+| RAG index audit | `/rag-maintenance` | Integrated quality, coverage, drift, curation, and rebuild guidance. |
 
 ---
 
@@ -445,11 +439,11 @@ The profile ships a **Megabrain** system: one vault for all projects (memory + g
 
 | Problem | Diagnosis | Fix |
 |---------|-----------|-----|
-| Hooks not firing | `cat ~/.claude/tool-failures.log \| jq '\[\]'`; verify settings.json | Increase timeout, debug hook directly, check dependencies |
+| Hooks not firing | `bat -p ~/.claude/tool-failures.log \| jq '\[\]'`; verify settings.json | Increase timeout, debug hook directly, check dependencies |
 | Composite not invoked | Check session.log for `Composite match`; verify intent matches skill | Invoke directly: `/composite-name` |
-| RAG retrieval stale | `/adt-rag-coverage` and `/adt-rag-drift` scan for gaps | Reindex: `/adt-rag-index-rebuild` |
-| Agent spawn failed | Verify agent exists: `ls ~/.claude/agents/ \| grep name` | Use default agent or check agent file syntax |
-| Memory not persisting | Check sync: `cat ~/.claude/.sync.log \| tail` | `/sync-memories` explicitly; verify frontmatter |
+| RAG retrieval stale | `/rag-maintenance` scans quality, coverage, drift, and gaps | Reindex through the maintenance workflow |
+| Agent spawn failed | Verify agent exists: `fd -t f name ~/.claude/agents/` | Use default agent or check agent file syntax |
+| Memory not persisting | Check sync: `bat -p ~/.claude/.sync.log` | `/sync-memories` explicitly; verify frontmatter |
 | Slow hooks / timeouts | `time bash ~/.claude/hooks/name.sh` | Increase timeout in settings.json or optimize hook |
 | Parallel agents conflicting | Verify worktrees: `ls /Volumes/External\ HD/Desenvolvimento/.worktrees/` | Ensure `isolation: "worktree"` on agents |
 | Token budget hit | `/token-audit` for analysis | `/compact` for relief; `/update-config` to raise limit |
@@ -458,14 +452,14 @@ The profile ships a **Megabrain** system: one vault for all projects (memory + g
 
 ## Getting Help
 
-- **Skill reference:** `/find-skills <keyword>` or browse `~/.agents/skills/`
-- **Policy questions:** Check `~/.agents/skills/standards/` for decision rules
-- **Hook debugging:** `cat ~/.claude/tool-failures.log \| jq`
-- **Token analysis:** `/token-audit` for weekly spend review
-- **System health:** `/audit-deep*` for full project + harness check
-- **Stuck:** `/route` to disambiguate intent or `/fallback` to recover
+- **Skill reference:** browse `claude/skills/` or generated `~/.claude/SKILLS.md`
+- **Policy questions:** check `~/.agents/skills/standards/` for decision rules
+- **Hook debugging:** inspect `~/.claude/tool-failures.log`
+- **Token analysis:** use diagnostics/flywheel reports for weekly spend review
+- **System health:** `/quality-assurance` + `/quality-gates` for project checks
+- **Stuck:** `/fallback` to recover or `/scope-it` to reframe unclear work
 
 ---
 
 **Last updated:** 2026-06-30  
-**Harness version:** Agent-OS (v8+), 195 listed skills (228 on disk), 40+ agents, 42 hooks, 6 MCP servers, skill-validate errors=0 (PRs #13-14)
+**Harness version:** Agent-OS (v8+), 50 repo-tracked skills, 40+ agents, 42 hooks, MCP policy default-deny, skill-validate errors=0
