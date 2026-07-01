@@ -269,7 +269,9 @@ if [[ $dry_run -eq 1 ]]; then
   record_step "propose" "skipped" "dry-run"
 elif [[ -n "$propose_target" && -f "$propose_target" ]]; then
   out_file="$RUNTIME/cycle-${ts//[:]/-}-propose.log"
-  if bash "$ROOT/hooks/propose.sh" "$propose_target" >"$out_file" 2>&1; then
+  bash "$ROOT/hooks/propose.sh" "$propose_target" >"$out_file" 2>&1
+  rc=$?
+  if [[ $rc -eq 0 ]]; then
     echo "  ✓ proposal assembled (log: $out_file)"
     record_step "propose" "pass" "target=$propose_target"
     # Extract the proposal_id + output file from the log.
@@ -277,7 +279,7 @@ elif [[ -n "$propose_target" && -f "$propose_target" ]]; then
     proposal_file="$(rg -o '\.harness/forge/proposals/[^ ]+' "$out_file" | head -1)"
   else
     echo "  ✗ propose failed (log: $out_file)"
-    record_step "propose" "fail" "rc=$?"
+    record_step "propose" "fail" "rc=$rc"
     proposal_id=""
   fi
 elif [[ -z "$propose_target" ]]; then

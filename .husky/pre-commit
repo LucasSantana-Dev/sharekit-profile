@@ -23,4 +23,11 @@ bash hooks/skill-validate.sh --dir claude/skills
 # sync discipline exists (see ADR-0001 wave 2).
 bash scripts/check-catalog-canonical.sh || echo "WARN: stale showcase entries (non-blocking — see scripts/check-catalog-canonical.sh)"
 
+# Shell script linting with shellcheck (graceful degrade if not installed)
+if command -v shellcheck >/dev/null 2>&1; then
+  shellcheck -S warning hooks/*.sh hooks/shared/*.sh scripts/*.sh
+else
+  echo "skip: shellcheck not installed (install via: brew install shellcheck)"
+fi
+
 echo "Pre-commit checks passed."

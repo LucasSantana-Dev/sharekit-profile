@@ -57,7 +57,8 @@ emit() {
   # emit <offset_seconds> <tool> <outcome> <input> <response>
   local off="$1"; local tool="$2"; local outcome="$3"; local input="$4"; local resp="$5"
   local epoch=$((now_epoch - off))
-  local ts="$(date -u -r "$epoch" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -d "@$epoch" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null)"
+  local ts
+  ts="$(date -u -r "$epoch" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -d "@$epoch" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null)"
   jq -nc --arg ts "$ts" --arg tool "$tool" --arg outcome "$outcome" \
        --arg input "$input" --arg resp "$resp" \
     '{ts: $ts, event: "tool-call", tool: $tool, outcome: $outcome, input: $input, response: $resp}' \

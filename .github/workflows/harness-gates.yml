@@ -30,6 +30,19 @@ jobs:
       - name: Verify harness manifest fingerprints
         run: bash scripts/check-harness-manifest.sh
 
+  bats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install bats-core + gate-script dependencies
+        # skill-validate.sh hard-requires fd + rg (exits 2 without them).
+        # Debian packages fd as fd-find with binary name fdfind — symlink it.
+        run: |
+          sudo apt-get update && sudo apt-get install -y bats ripgrep fd-find
+          sudo ln -sf "$(command -v fdfind)" /usr/local/bin/fd
+      - name: Run gate script tests
+        run: bats tests/
+
   gitleaks:
     runs-on: ubuntu-latest
     steps:
@@ -44,3 +57,12 @@ jobs:
         # org plans. For community use, this action requires no license.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check shell scripts with shellcheck
+        # Note: shellcheck is preinstalled on GitHub Actions ubuntu runners.
+        # This gate checks all hook and script shell files at warning severity.
+        run: shellcheck -S warning hooks/*.sh hooks/shared/*.sh scripts/*.sh

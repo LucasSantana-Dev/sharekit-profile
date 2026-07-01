@@ -29,9 +29,6 @@
 #    "expected":"block|allow","note":"..."}
 set -uo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-HOOKS="$ROOT/hooks"
-
 # Emit the task catalog as JSONL to stdout. One task per line.
 emit_tasks() {
   # --- dangerous-patterns (check-dangerous-patterns.sh) ----------------------

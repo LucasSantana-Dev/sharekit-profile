@@ -41,7 +41,6 @@ FORGE="$ROOT/.harness/forge"
 mkdir -p "$RUNTIME" "$FORGE"
 
 since=""
-status_only=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --since) since="$2"; shift 2 ;;

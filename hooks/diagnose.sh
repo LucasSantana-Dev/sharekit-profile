@@ -54,13 +54,10 @@ fi
 [[ -f "$LOG" ]] || { echo "diagnose: no trajectory log at $LOG (run some tool calls first)"; exit 0; }
 
 ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-date_tag="$(date -u +%Y-%m-%d)"
 digest="$RUNTIME/diagnosis-${ts//[:]/-}.md"
 machine="$RUNTIME/diagnosis-${ts//[:]/-}.jsonl"
 
 # Filter by --since if given.
-filter='.'
-[[ -n "$since" ]] && filter=".ts > \"$since\""
 events="$(jq -c --argjson s "$since" 'select(.ts > $s)' "$LOG" 2>/dev/null)"
 # The jq above with empty string passes everything; with a real iso filters.
 if [[ -n "$since" ]]; then

@@ -37,13 +37,11 @@ set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 RUNTIME="$ROOT/.harness/runtime"
-HISTORY="$RUNTIME/iteration-history.jsonl"
 EVAL="$ROOT/.harness/eval"
 FORGE="$ROOT/.harness/forge"
 SIZE_LIMIT_KB=15
 mkdir -p "$RUNTIME"
 
-ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 pid="${1:-}"; shift || true
 [[ -n "$pid" ]] || { echo "gate: requires <proposal-id>" >&2; exit 1; }
 
