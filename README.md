@@ -1,6 +1,6 @@
 # Operator Harness Documentation
 
-**Comprehensive reference guide for a fully-configured OpenCode / Claude Code operator environment with 51 skills, 40+ agents, automated hook pipeline, RAG retrieval, memory persistence, and integrated MCP servers.**
+**Comprehensive reference guide for a fully-configured OpenCode / Claude Code operator environment with 52 skills, 40+ agents, automated hook pipeline, RAG retrieval, memory persistence, and integrated MCP servers.**
 
 > **Harnesses:** OpenCode (primary, `opencode.json`) → Claude Code (supported) → OpenRouter (fallback provider). The skill/agent/hook library is harness-agnostic and works across both.
 
@@ -83,7 +83,7 @@ Example: User says "refactor this module."
 └── skills -> ~/.agents/skills/
 
 ~/.agents/                              # Canonical skill and agent definitions
-├── skills/                             # 51 skill folders
+├── skills/                             # 52 skill folders
 ├── standards/                          # Policy and discipline docs (~20 files)
 ├── agents/                             # Agent definition mirrors
 ├── bin/                                # Utilities (sync binary)
@@ -275,11 +275,11 @@ See `~/.claude/agents/` for full definitions.
 
 ---
 
-## Skills: 51 repo-tracked (consolidated from 103 → 50, +1 new domain: ads)
+## Skills: 52 repo-tracked (consolidated from 103 → 50, +1 new domain: ads, +1 restored: sync-memories)
 
 Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete reference, [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) for the competitive analysis + reduction plan (103 → 50 via skill-family merges, stack-specific removal, and project-specific removal), and [`docs/harness-research-synthesis.md`](docs/harness-research-synthesis.md) for the 52-repo deep-research survey that informs P8.
 
-**Consolidated catalog**: the skill catalog was reduced from 103 repo-tracked skills to 50 by merging skill families (ponytail×5→1, RAG×6→1, debug×2→1, test×6→1, session×2→1, refactor×2→1), removing stack-specific skills (shadcn, tailwind-design-system, webapp-testing), plugin-injected meta-skills, and project-specific skills. 53 skills archived in `claude/skills/.archive/` (recoverable). `ads` (paid-advertising audit/management) was added afterward as a genuinely new capability domain, not a consolidation.
+**Consolidated catalog**: the skill catalog was reduced from 103 repo-tracked skills to 50 by merging skill families (ponytail×5→1, RAG×6→1, debug×2→1, test×6→1, session×2→1, refactor×2→1), removing stack-specific skills (shadcn, tailwind-design-system, webapp-testing), plugin-injected meta-skills, and project-specific skills. 52 skills archived in `claude/skills/.archive/` (recoverable). `ads` (paid-advertising audit/management) was added afterward as a genuinely new capability domain, not a consolidation. `sync-memories` was restored from archive as `invocation_type: internal` (was misapplied archival — it's a required `knowledge-loop` sub-skill, hidden from the always-loaded listing but resolvable by path).
 
 **Core Development** (14): add, debug, fallback, impeccable, loop, plan, ponytail, refactor, review, scope-it, ship, tdd, test-driven-development, verify
 
@@ -416,7 +416,7 @@ If context bloat builds: `/compact` (saves ~30-40% tokens)
 ### Token Optimization
 | Goal | Skill | What it does |
 |------|-------|--------------|
-| ~75% token compression | `/caveman` | Drops filler/articles/pleasantries while keeping full technical accuracy. Persists until toggled off. |
+| ~75% token compression | Caveman mode (default, hook-enforced) | Default behavior that drops filler/articles/pleasantries while keeping full technical accuracy. Toggle off with "stop caveman" or "normal mode". |
 | Minimal solutions | `/ponytail` | Forces simplest, shortest, most minimal solution (YAGNI, stdlib before deps, one line before fifty). |
 | Audit repo or diff for bloat | `/ponytail` | Built-in audit/review mode for over-engineering, ranked by evidence and size of cut. |
 | Track deferred shortcuts | `ponytail:` comments | Mark deliberate shortcuts with ceiling and upgrade path in code. |
@@ -445,10 +445,10 @@ The profile ships a **Megabrain** system: one vault for all projects (memory + g
 | Composite not invoked | Check session.log for `Composite match`; verify intent matches skill | Invoke directly: `/composite-name` |
 | RAG retrieval stale | `/rag-maintenance` scans quality, coverage, drift, and gaps | Reindex through the maintenance workflow |
 | Agent spawn failed | Verify agent exists: `fd -t f name ~/.claude/agents/` | Use default agent or check agent file syntax |
-| Memory not persisting | Check sync: `bat -p ~/.claude/.sync.log` | `/sync-memories` explicitly; verify frontmatter |
+| Memory not persisting | Check sync: `bat -p ~/.claude/.sync.log` | Use `/knowledge-loop` to capture memory; verify frontmatter |
 | Slow hooks / timeouts | `time bash ~/.claude/hooks/name.sh` | Increase timeout in settings.json or optimize hook |
 | Parallel agents conflicting | Verify worktrees: `ls /Volumes/External\ HD/Desenvolvimento/.worktrees/` | Ensure `isolation: "worktree"` on agents |
-| Token budget hit | `/token-audit` for analysis | `/compact` for relief; `/update-config` to raise limit |
+| Token budget hit | Check `.harness/runtime/` trajectory logs or hook reports | `/compact` for relief; `/update-config` to raise limit |
 
 ---
 
@@ -464,4 +464,4 @@ The profile ships a **Megabrain** system: one vault for all projects (memory + g
 ---
 
 **Last updated:** 2026-06-30  
-**Harness version:** Agent-OS (v8+), 51 repo-tracked skills, 40+ agents, 42 hooks, MCP policy default-deny, skill-validate errors=0
+**Harness version:** Agent-OS (v8+), 52 repo-tracked skills, 40+ agents, 42 hooks, MCP policy default-deny, skill-validate errors=0

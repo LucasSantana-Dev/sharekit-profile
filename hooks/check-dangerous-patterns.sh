@@ -4,8 +4,8 @@
 # against each dangerousPattern, and exits 2 (block) on any match.
 # Non-Bash tools and missing policy files are allowed (exit 0).
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/shared/common.sh"
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 POLICY="$ROOT/.harness/mcp-policy.json"
 SENSITIVE_PATHS="$ROOT/.harness/sensitive-paths.json"
 
@@ -15,16 +15,16 @@ if [[ ! -f "$POLICY" ]]; then
 fi
 
 # Read the tool invocation JSON from stdin.
-input="$(sed -n '1,$p')"
+read_hook_stdin
 
 # Only govern Bash. Allow everything else.
-tool_name="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2>/dev/null || true)"
+tool_name="$(hook_field "$HOOK_INPUT" ".tool_name")"
 if [[ -n "$tool_name" && "$tool_name" != "Bash" && "$tool_name" != "bash" ]]; then
   exit 0
 fi
 
 # Extract the command field. Claude Code PreToolUse sends {tool_name, tool_input:{command}}.
-command="$(printf '%s' "$input" | jq -r '.tool_input.command // .command // empty' 2>/dev/null || true)"
+command="$(hook_field "$HOOK_INPUT" ".tool_input.command // .command")"
 
 if [[ -z "$command" ]]; then
   # Not a Bash invocation we can inspect — allow.
