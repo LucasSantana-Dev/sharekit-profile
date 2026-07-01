@@ -11,18 +11,27 @@ triggers:
 
 # Debug
 
-Systematic 7-step debugging. Don't guess — trace.
+Systematic debugging in 4 phases. Don't guess — trace. Find root cause before attempting any fix.
 
-## Steps
+## Phase 1 — Investigation
 
 1. **Reproduce** — get a minimal, reliable reproduction. If unreproducible, gather more data before changing code.
 2. **Locate** — find the exact file, line, call path, and component boundary where it breaks.
-3. **Inspect recent change** — check diffs, dependency/config/env changes, and CI/runtime differences before forming fixes.
+3. **Inspect recent change** — check diffs, dependency/config/env changes, and CI/runtime differences before forming fixes. For deep call stacks, use the backward-trace technique in [references/root-cause-tracing.md](references/root-cause-tracing.md).
+
+## Phase 2 — Pattern Analysis
+
 4. **Compare** — find similar working code and list every meaningful difference between working and broken paths.
+
+## Phase 3 — Hypothesis & Testing
+
 5. **Hypothesize** — list 2-3 competing explanations, each as "I think X because Y."
 6. **Evidence** — for each hypothesis, define the fastest observation that would confirm or rule it out.
-7. **Test** — test one variable at a time; instrument boundary inputs/outputs when evidence is thin.
-8. **Fix** — create or identify the smallest failing check, then change exactly what the evidence points to. No bundled improvements.
+7. **Test** — test one variable at a time; instrument boundary inputs/outputs when evidence is thin. For polling vs. arbitrary timeouts, see [references/condition-based-waiting.md](references/condition-based-waiting.md).
+
+## Phase 4 — Implementation
+
+8. **Fix** — create or identify the smallest failing check, then change exactly what the evidence points to. No bundled improvements. For validation at multiple layers once root cause is known, see [references/defense-in-depth.md](references/defense-in-depth.md).
 9. **Verify** — confirm the fix resolves the issue and does not break adjacent tests/gates.
 
 ## Rules
@@ -34,7 +43,7 @@ Systematic 7-step debugging. Don't guess — trace.
 - Trace data backward until you find where the bad value or state first appears.
 - In multi-layer systems, verify what enters and exits every boundary (CI → build → sign, API → DB, client → server).
 - If stuck after 3 hypotheses, add instrumentation before guessing more.
-- If ≥2 fixes already failed, return to reproduction/recent-change inspection; do not try "one more quick fix."
+- If ≥2 fixes already failed, return to Phase 1 (investigation), not Phase 4; do not try "one more quick fix."
 - If ≥3 fixes failed, question the architecture or original assumption, not just the next patch.
 
 ## Red flags — stop and go back to investigation

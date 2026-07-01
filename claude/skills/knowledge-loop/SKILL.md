@@ -1,6 +1,6 @@
 ---
 name: knowledge-loop
-description: Composite skill — query, capture, improve, and persist knowledge in one workflow. Chains recall (RAG query) → sync-memories (write durable note) → rag-curate (improve weak retrievals) → handoff (durable snapshot if session-ending). Use when the work involves "what did we decide", "remember this", "save where we are", or any closing checkpoint.
+description: Composite skill — query, capture, improve, and persist knowledge in one workflow. Chains recall (RAG query) → sync-memories (write durable note) → rag-maintenance (improve weak retrievals) → handoff (durable snapshot if session-ending). Use when the work involves "what did we decide", "remember this", "save where we are", or any closing checkpoint.
 user-invocable: true
 auto-invoke: end-of-task + recall-questions + checkpoint-requests
 metadata:
@@ -76,7 +76,7 @@ Output a single capture summary:
 KNOWLEDGE LOOP — <topic>
   Recalled:  <n> hits, top cosine <X> (skill: recall) <STATUS>
   Captured:  <memory file paths> (skill: sync-memories) <STATUS>
-  Improved:  <chunks rewritten / docs added> (skill: rag-curate) <STATUS>
+  Improved:  <chunks rewritten / docs added> (skill: rag-maintenance) <STATUS>
   Snapshot:  <handoff path> (skill: handoff) <STATUS>
   Open watch: <future obligation | (none)>
 ```
@@ -98,7 +98,7 @@ After capturing any decision, check: "Would a future agent need this committed c
 
 - If recall returns nothing AND no new knowledge was produced this session → exit clean,
   no capture needed
-- If `sync-memories` and `rag-curate` would write to the same file → consolidate writes
+- If `sync-memories` and `rag-maintenance` curation would write to the same file → consolidate writes
   to avoid double-update churn
 - Never skip Phase 4 if context is >80% — handoff is required for cross-session continuity
 

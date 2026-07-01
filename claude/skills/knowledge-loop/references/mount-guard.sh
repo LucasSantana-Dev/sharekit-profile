@@ -1,6 +1,6 @@
 #!/bin/bash
 # Mount guard — fail loud before any brain/RAG op (standards/knowledge-brain.md §1)
-# Used by: knowledge-loop Phase 5, rag-curate, sync-memories, recall when search_knowledge is invoked
+# Used by: knowledge-loop Phase 5, rag-maintenance, sync-memories, recall when search_knowledge is invoked
 
 BRAIN="${DEV_ROOT}/knowledge-brain"
 
