@@ -28,19 +28,18 @@
 #
 # Wire in claude/settings.json PostToolUse alongside trajectory-log.sh.
 set -uo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-RUNTIME="$ROOT/.harness/runtime"
 DIGESTS="$RUNTIME/tool-digests"
 CONSTRAINTS="$RUNTIME/constraints-recap.md"
 BOUNDARY="$RUNTIME/cache-boundary.jsonl"
 mkdir -p "$RUNTIME" "$DIGESTS"
 
-input="$(sed -n '1,$p')"
+read_hook_stdin
 ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-tool_name="$(printf '%s' "$input" | jq -r '.tool_name // .tool // empty' 2>/dev/null || true)"
-tool_response="$(printf '%s' "$input" | jq -c '.tool_response // .tool_result // empty' 2>/dev/null || echo 'null')"
+tool_name="$(hook_field "$HOOK_INPUT" ".tool_name // .tool")"
+tool_response="$(hook_field_json "$HOOK_INPUT" ".tool_response // .tool_result // empty" || echo 'null')"
 
 # --- 1. Tool-result firewall ------------------------------------------------
 # If the response exceeds the budget, write a compact digest sidecar and emit a
