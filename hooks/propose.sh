@@ -37,11 +37,9 @@ RUNTIME="$ROOT/.harness/runtime"
 FORGE="$ROOT/.harness/forge"
 PROPOSALS="$FORGE/proposals"
 HISTORY="$RUNTIME/iteration-history.jsonl"
-TRAJ="$RUNTIME/trajectory.jsonl"
 mkdir -p "$PROPOSALS" "$RUNTIME"
 
 ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-date_tag="$(date -u +%Y-%m-%d)"
 
 auto=0
 target=""

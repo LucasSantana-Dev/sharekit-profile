@@ -44,3 +44,12 @@ jobs:
         # org plans. For community use, this action requires no license.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check shell scripts with shellcheck
+        # Note: shellcheck is preinstalled on GitHub Actions ubuntu runners.
+        # This gate checks all hook and script shell files at warning severity.
+        run: shellcheck -S warning hooks/*.sh hooks/shared/*.sh scripts/*.sh

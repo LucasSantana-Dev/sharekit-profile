@@ -69,7 +69,7 @@ if [[ -f "$CHECKLISTS_DIR/quality.md" ]]; then
 fi
 # Testing checklist only for test files.
 case "$file_path" in
-  *test*|*spec*|*__tests__*)
+  *test*|*spec*)
     if [[ -f "$CHECKLISTS_DIR/testing.md" ]]; then
       checklists+=("testing")
     fi

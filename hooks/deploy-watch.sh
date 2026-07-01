@@ -32,7 +32,6 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 RUNTIME="$ROOT/.harness/runtime"
 WATCHES="$RUNTIME/deploy-watches.jsonl"
 BACKUPS="$RUNTIME/backups"
-HISTORY="$RUNTIME/iteration-history.jsonl"
 mkdir -p "$RUNTIME" "$BACKUPS"
 
 ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"

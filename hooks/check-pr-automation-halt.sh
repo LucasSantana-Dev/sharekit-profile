@@ -15,7 +15,6 @@
 # coderabbit, greptile, sonar) are not "another person."
 set -uo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 input="$(sed -n '1,$p')"
 tool_name="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2>/dev/null || true)"
 [[ "$tool_name" == "Bash" || "$tool_name" == "bash" ]] || exit 0

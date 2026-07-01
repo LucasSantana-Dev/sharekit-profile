@@ -52,7 +52,7 @@ declare -A NEXT=(
   [implement]=review_gate
   [review_gate]=eval
   [eval]=merge_gate
-  [merge_gate]=done
+  [merge_gate]="done"
 )
 # Gates: states that require an explicit allow before advancing.
 declare -A IS_GATE=(

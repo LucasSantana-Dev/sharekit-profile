@@ -15,14 +15,18 @@ set -uo pipefail
 
 # ---- Path derivation (sourced into caller's scope) ---
 # Each hook that sources this will get these as variables in its own scope.
+# shellcheck disable=SC2034
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# shellcheck disable=SC2034
 RUNTIME="$ROOT/.harness/runtime"
+# shellcheck disable=SC2034
 FORGE="$ROOT/.harness/forge"
 
 # ---- Read stdin once and store in HOOK_INPUT ----
 # After calling this, use $HOOK_INPUT to reference the input instead of
 # re-reading stdin (which is impossible after the first read).
 read_hook_stdin() {
+  # shellcheck disable=SC2034 # HOOK_INPUT exported to sourcing scope
   HOOK_INPUT="$(sed -n '1,$p')"
 }
 
