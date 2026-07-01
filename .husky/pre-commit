@@ -14,4 +14,7 @@ bash scripts/check-harness-boundary.sh
 # Check harness manifest fingerprints
 bash scripts/check-harness-manifest.sh
 
+# Schema + security validation for skills in this catalog
+bash hooks/skill-validate.sh --dir claude/skills
+
 echo "Pre-commit checks passed."
