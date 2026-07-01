@@ -1,0 +1,21 @@
+{
+  "schema": "harness-settings/v1",
+  "comment": "Project-level hook configuration for sharekit-profile. Wires observability and safety hooks to Claude Code lifecycle events. Loaded automatically by Claude Code when present in .claude/ directory. Unlike claude/settings.json (shipping artifact), this file is committed and applies to local development sessions.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "comment": "Trajectory telemetry: observe all tool calls for the self-improvement flywheel. Logs outcome + input/response summary to .harness/runtime/trajectory.jsonl. Non-blocking; pure observation.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/trajectory-log.sh\"",
+            "timeout": 2000
+          }
+        ]
+      }
+    ]
+  },
+  "hook_firing_order_doc": "docs/hook-firing-order.md",
+  "runtime_dir": ".harness/runtime",
+  "runtime_dir_note": "Append-only trajectory, session records, compaction snapshots, incident stubs, and the distill pending queue. Gitignored — see .gitignore."
+}

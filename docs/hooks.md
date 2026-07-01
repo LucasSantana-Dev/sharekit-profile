@@ -11,17 +11,19 @@ This document describes every hook event and what fires.
 Runs when you open Claude Code CLI. Prepares the operator environment.
 
 ### Event Order
-1. **Log session start** — timestamp + branch + context size
-2. **Merge stale RAG chunks** — integrate recent file changes into live retrieval index
-3. **Pull latest memories + ADRs** — sync from `~/.claude-env` to local working state
-4. **Detect and reindex drifted files** — if files changed outside the session, update index
-5. **Alert if main branch has drifted** — warn if upstream main has commits not in local
-6. **Alert if memory index oversized** — flag if memory database >N entries (suggest `/memory-prune`)
+1. **Check session lock** — warn if another live session owns this checkout (not in a worktree)
+2. **Log session start** — timestamp + branch + context size
+3. **Merge stale RAG chunks** — integrate recent file changes into live retrieval index
+4. **Pull latest memories + ADRs** — sync from `~/.claude-env` to local working state
+5. **Detect and reindex drifted files** — if files changed outside the session, update index
+6. **Alert if main branch has drifted** — warn if upstream main has commits not in local
+7. **Alert if memory index oversized** — flag if memory database >N entries (suggest `/memory-prune`)
 
 ### Purpose
 Ensure the operator starts with fresh context — no stale RAG chunks, up-to-date memories, and awareness of upstream changes.
 
 ### When It Fails
+- **Concurrent session warning** — another session is using this checkout; switch to a worktree or stash uncommitted work
 - **Slow pull (>3s)** — network or large memory sync; increase timeout in `settings.json`
 - **RAG reindex fails** — corrupted chunks or missing files; run `/rag-maintenance` and rebuild only when thresholds require it
 - **Memory pull fails** — check `~/.claude/.sync.log`; verify frontmatter
@@ -178,21 +180,27 @@ Persist all state so work can resume without loss.
 
 ## Hook Configuration
 
-Hooks are registered to lifecycle events in [`claude/settings.json`](../claude/settings.json) (the committed, version-controlled wiring). The scripts themselves live in [`hooks/`](../hooks/). Before `settings.json` existed, the scripts were orphan artifacts — nothing fired.
+Hooks are registered at two levels:
 
-### Registered events
+**`.claude/settings.json` (project-level, version-controlled, ACTIVE)**
+- Loaded automatically by Claude Code from the `.claude/` directory
+- **This is the file that must exist for live sessions to wire hooks and collect telemetry**
+- Currently enables the essential PostToolUse trajectory logging hook
+- See [`.claude/settings.json`](../.claude/settings.json)
+
+**`claude/settings.json` (shipping artifact, reference only)**
+- Used by harness installers to seed hooks into new deployments
+- NOT loaded by Claude Code in live sessions (only `.claude/` variants are auto-loaded)
+- Contains full reference implementations of all available hooks
+- Reference for hook definitions and configurations
+
+### Currently Active Hooks (in `.claude/settings.json`)
 
 | Event | Script(s) | Blocks? |
 |-------|-----------|---------|
-| `SessionStart` | `session-start-load.sh` (drift check + CORE load) | no |
-| `PreToolUse` (Bash) | `check-dangerous-patterns.sh`, `check-pr-automation-halt.sh`, `check-stuck-loop.sh`, `check-idempotency.sh` | yes (exit 2) |
-| `PreToolUse` (Write/Edit) | `check-idempotency.sh` | no (hint) |
-| `PostToolUse` | `trajectory-log.sh` (the observe half of the flywheel) | no |
-| `SubagentStart` | `check-read-only-subagent.sh` | yes (exit 2) |
-| `PreCompact` | `snapshot-compact.sh` | no |
-| `PostCompact` | `reinject-compact.sh` (re-inject CORE) | no |
-| `Stop` | `post-incident-adr.sh` | no |
-| `SessionEnd` | `session-end-flush.sh` (session record + distill queue) | no |
+| `PostToolUse` | `trajectory-log.sh` (observe all tool calls for the self-improvement flywheel — ADR wave 4 telemetry clock) | no |
+
+Additional hooks can be added to `.claude/settings.json` as needed for safety gates (PreToolUse), session logging (SessionStart/SessionEnd), etc. See `claude/settings.json` for reference implementations.
 
 Exit code 2 is the only blocking code; all other exits are advisory/log-only. See [`hook-firing-order.md`](hook-firing-order.md) for the positional contract and [`flywheel.md`](flywheel.md) for how the observe hooks feed the self-improvement loop.
 
@@ -228,6 +236,7 @@ To disable a hook temporarily:
 
 | Problem | Symptom | Fix |
 |---------|---------|-----|
+| Concurrent session warning | Warning at SessionStart / PreToolUse about another session | Use a separate worktree: `git worktree add '/Volumes/External HD/Desenvolvimento/.worktrees/<task>' -b <branch>` |
 | RAG not recalling | No `# Knowledge graph context` block | Run `/rag-maintenance` |
 | Composite not detected | Intent matches but no `🎯` emitted | Use active workflow table in `docs/composites.md` |
 | Slow UserPromptSubmit | Hangs after prompt submit | Reduce RAG corpus size through `/rag-maintenance` |
@@ -237,4 +246,4 @@ To disable a hook temporarily:
 
 ---
 
-**Last updated:** 2026-07-01
+**Last updated:** 2026-07-01 (added check-session-lock.sh for concurrent session detection)
