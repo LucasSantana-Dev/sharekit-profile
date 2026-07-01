@@ -78,7 +78,7 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
 
 **Hook count:** 42 hook scripts in `hooks/` (up from 30+ at session start).
 
-**Skill count:** 50 active skill folders in `claude/skills/` (down from 103; 53 archived in `claude/skills/.archive/` for recoverability). Runtime skills are reconciled through canonical `~/.agents/skills`; `~/.claude/skills` is the symlinked runtime view and `~/.claude-env/skills` is a downstream mirror.
+**Skill count:** 52 active skill folders in `claude/skills/` (down from 103 via consolidation to 50, +1 new domain skill `ads` added 2026-07-01, +1 `sync-memories` restored from archive as `invocation_type: internal` 2026-07-01 — was misapplied archival, is a required `knowledge-loop` sub-skill; 52 archived in `claude/skills/.archive/` for recoverability). Runtime skills are reconciled through canonical `~/.agents/skills`; `~/.claude/skills` is the symlinked runtime view and `~/.claude-env/skills` is a downstream mirror.
 
 **P8+P9 hooks shipped:**
 - `hooks/reorder-context.sh` — post-compaction attention reordering (LlamaIndex-style)

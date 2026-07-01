@@ -1,0 +1,104 @@
+# Archived-skill disposition ledger — structures docs/composites.md's existing
+# "Replacements for archived wrappers" table into a machine-checkable form.
+#
+# SCOPE: covers only the ~17 archived skill names already documented in that
+# table. This is NOT a full audit of all 53 archived skills in
+# claude/skills/.archive/ — that would be a separate, larger undertaking
+# (see .claude/plans/2026-07-01-skill-consolidation-reinforcement.md Phase 3).
+#
+# Disposition values: absorbed_by | replaced_by_rule | replaced_by_standard |
+# replaced_by_mcp | moved_to_project | dropped
+
+schema: harness-redirects/v1
+generated_at: "2026-07-01"
+source: docs/composites.md#replacements-for-archived-wrappers
+
+redirects:
+  - archived: session-wrap-up
+    disposition: absorbed_by
+    target: knowledge-loop
+    note: plus ship when release work happened
+
+  - archived: refactor-pipeline
+    disposition: absorbed_by
+    target: request-refactor-plan
+    note: "chain: orchestrate/three-man-team -> quality-gates -> knowledge-loop"
+
+  - archived: verify-before-done
+    disposition: absorbed_by
+    target: quality-gates
+    note: plus verify for final confidence
+
+  - archived: debug-deep
+    disposition: absorbed_by
+    target: debug
+    note: with CI/Sentry/trace evidence when relevant
+
+  - archived: systematic-debugging
+    disposition: absorbed_by
+    target: debug
+    note: >-
+      confirmed 2026-07-01 — debug now has explicit Phase 1-4 framing and
+      links the 3 reference files (root-cause-tracing, condition-based-waiting,
+      defense-in-depth) that were previously carried over but orphaned
+
+  - archived: security-sweep
+    disposition: absorbed_by
+    target: secure
+    note: scanner evidence surfaces under quality-gates
+
+  - archived: security-audit
+    disposition: absorbed_by
+    target: secure
+
+  - archived: security-scan
+    disposition: absorbed_by
+    target: secure
+
+  - archived: semgrep
+    disposition: absorbed_by
+    target: secure
+    note: represented as an evidence source, not a standalone skill
+
+  - archived: onboard-new-repo
+    disposition: absorbed_by
+    target: session-bootstrap
+    note: "chain: context-pack -> quality-assurance"
+
+  - archived: feature-from-zero
+    disposition: absorbed_by
+    target: scope-it
+    note: "chain: plan -> design/TDD skills -> quality-gates -> ship"
+
+  - archived: rag-quality
+    disposition: absorbed_by
+    target: rag-maintenance
+    note: integrated as Phase 1 (confirmed 2026-07-01)
+
+  - archived: rag-curate
+    disposition: absorbed_by
+    target: rag-maintenance
+    note: integrated as Phase 4 (confirmed 2026-07-01)
+
+  - archived: adt-rag-coverage
+    disposition: absorbed_by
+    target: rag-maintenance
+    note: >-
+      integrated as Phase 2 (confirmed + dangling **Invoke:** reference fixed
+      2026-07-01 — was still named as a live invocation target before this pass)
+
+  - archived: adt-rag-drift
+    disposition: absorbed_by
+    target: rag-maintenance
+    note: >-
+      integrated as Phase 3 (confirmed + dangling **Invoke:** reference fixed
+      2026-07-01 — was still named as a live invocation target before this pass)
+
+  - archived: route
+    disposition: replaced_by_rule
+    target: "docs/composites.md composite-first routing + AGENTS.md"
+    note: decision logic, not a workflow — documented as a routing rule, not absorbed into one skill
+
+  - archived: smart-model-select
+    disposition: replaced_by_rule
+    target: "AGENTS.md model-tier policy"

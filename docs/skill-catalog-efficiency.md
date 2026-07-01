@@ -1,15 +1,17 @@
 # Skill catalog efficiency
 
-> **50 skills listed vs a lean-harness median of ~10-43.** This is the analysis,
+> **51 skills listed vs a lean-harness median of ~10-43.** This is the analysis,
 > the concrete reduction plan, and a record of what was actually executed.
 >
 > **Update (2026-06-30):** Consolidation execution complete. 103 repo-tracked skills reduced to 50 via skill-family merges, stack-specific removal, and meta-skill pruning. 53 archived in `claude/skills/.archive/` (recoverable).
 >
 > **Update (2026-07-01):** Capability-preservation pass folded high-value archived details into active skills and updated reference docs so archived wrappers are no longer presented as active commands.
+>
+> **Update (2026-07-01, later):** `ads` (paid-advertising audit/management specialist) added — a genuinely new capability domain, not a consolidation. `sync-memories` also restored from archive as `invocation_type: internal` (was misapplied archival — see note below); it's a real folder but stays out of the listed count since it's hidden from the always-loaded listing. Active repo-tracked folders: 52 (51 listed + 1 internal); 52 remain archived.
 
 ## Execution status (2026-07-01)
 
-- **Catalog**: 51 active skill folders in `claude/skills/`; 52 archived in `claude/skills/.archive/` for recoverability. `curated-skills.txt` now mirrors the active repo catalog exactly. **Update (2026-07-01 post-fix):** `sync-memories` restored from archive and marked `invocation_type: internal` (was misapplied archival; see note below).
+- **Catalog**: 52 active skill folders in `claude/skills/` (50 consolidated + `ads` + restored `sync-memories`); 52 archived in `claude/skills/.archive/` for recoverability. `curated-skills.txt` now mirrors the active repo catalog exactly.
 - **Capability preservation (executed)**: archived over-engineering audit behavior folded into `ponytail`; systematic debugging discipline folded into `debug`; RAG quality/curation/drift details folded into `rag-maintenance` and `knowledge-loop`; scanner/security wrappers represented as evidence sources inside `secure`, `quality-assurance`, and `quality-gates`.
 - **Docs alignment (executed)**: `README.md`, `AGENTS.md`, `docs/composites.md`, `docs/overview.md`, `docs/troubleshooting.md`, `docs/hooks.md`, and relevant `docs/skills/*` guides now describe active equivalents instead of archived command names.
 - **Runtime topology documented**: runtime skills reconcile through canonical `~/.agents/skills`; `~/.claude/skills` is the symlinked runtime view and `~/.claude-env/skills` is a downstream mirror.
@@ -28,7 +30,7 @@
 
 ## The problem
 
-The sharekit catalog lists **50 skills** to the agent at startup (down from 103 repo-tracked). Competitive
+The sharekit catalog lists **51 skills** to the agent at startup (52 active repo-tracked folders, down from 103; 50 after consolidation +1 `ads`; `sync-memories` is a 52nd folder but stays out of this listed count since it's `invocation_type: internal` — a knowledge-loop sub-skill, not standalone-invocable). Competitive
 analysis of lean harnesses shows the always-listed catalog median is **~10-43
 items**:
 

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agent OS — Claude Code Operator Harness Guide</title>
-  <meta name="description" content="A clear guide to the OpenCode / Claude Code operator harness — 50 active skills, composites, sub-agents, lifecycle hooks, MCP servers, and plugin integrations.">
+  <meta name="description" content="A clear guide to the OpenCode / Claude Code operator harness — 51 active skills, composites, sub-agents, lifecycle hooks, MCP servers, and plugin integrations.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -774,7 +774,7 @@
       Guide
     </button>
     <button class="nav-tab" data-panel="skills">
-      Skills <span class="tab-count" id="tc-skills">50</span>
+      Skills <span class="tab-count" id="tc-skills">51</span>
     </button>
     <button class="nav-tab" data-panel="agents">
       Agents <span class="tab-count" id="tc-agents">39</span>
@@ -832,7 +832,7 @@
           <div class="g-hero-badge"><span class="dot"></span> Operator harness · live reference</div>
           <h1>Your autonomous engineering operator.</h1>
           <p class="g-hero-sub">
-            A fully-wired OpenCode / Claude Code environment: 50 active repo-tracked <strong>skills</strong> you invoke,
+            A fully-wired OpenCode / Claude Code environment: 51 active repo-tracked <strong>skills</strong> you invoke,
             <strong>composites</strong> that chain them with gates, <strong>sub-agents</strong> that do
             isolated work in parallel, and <strong>hooks</strong> that fire automatically on every prompt.
             This page is the map — start here, then dive into the catalog.
@@ -1090,7 +1090,7 @@
       <div class="grid-header">
         <div>
           <div class="grid-header-title" id="grid-title">All Skills</div>
-          <div class="grid-header-sub" id="grid-sub">50 skills across 15 categories — invoke autonomously or with /<i>name</i></div>
+          <div class="grid-header-sub" id="grid-sub">51 skills across 16 categories — invoke autonomously or with /<i>name</i></div>
         </div>
         <div class="result-count" id="result-count"></div>
       </div>
@@ -1201,6 +1201,7 @@ const CATEGORIES = [
   { id: 'sync-docs',    label: 'Sync & Documentation',        color: '#e879f9', guide: 'Use graphify to turn docs or code folders into navigable knowledge graphs.' },
   { id: 'cicd',         label: 'CI/CD',                       color: '#f59e0b', guide: 'Use ci-watch to diagnose red checks and dep-sweep to process dependency-update PRs safely.' },
   { id: 'ponytail',     label: 'Ponytail',                    color: '#84cc16', guide: 'Use ponytail to bias toward deleting, simplifying, and shortening before adding abstractions.' },
+  { id: 'marketing',    label: 'Paid Ads & Marketing',        color: '#eab308', guide: 'Use ads for a multi-platform paid-advertising audit, creative-fatigue check, bid/budget review, competitor scan, or paid-media plan (Google, Meta, LinkedIn, TikTok).' },
 ];
 
 const TRANSLATIONS = {
@@ -1258,6 +1259,7 @@ const TRANSLATIONS = {
 
 const SKILLS = [
   { name: 'add', cat: 'planning', composite: false, desc: 'Add a feature, test, config, doc, or automation safely with clear scope and validation.' },
+  { name: 'ads', cat: 'marketing', composite: true, desc: 'Turns the harness into a paid-advertising audit/management specialist across Google, Meta, LinkedIn, and TikTok. Use when the user wants an ad account audit, a campaign health score, creative-fatigue detection, a bid/budget review, PPC math (CPA/ROAS/MER/LTV:CAC), competitor ad research, a paid-media plan, or a stakeholder-ready ad performance report. Read/analyze/report only — no live-account mutation tooling.' },
   { name: 'architecture-patterns', cat: 'architecture', composite: false, desc: 'Choose and apply backend architecture patterns such as Clean Architecture, Hexagonal Architecture, and Domain-Driven Design. Use when designing system boundaries, refactoring toward better separation, or evaluating architectural tradeoffs.' },
   { name: 'brainstorming', cat: 'architecture', composite: false, desc: 'Facilitate collaborative idea exploration and turn rough concepts into a validated design direction before implementation starts. Use when the user is still shaping the solution and should not be pushed into code yet.' },
   { name: 'changelog-update', cat: 'release', composite: false, desc: 'Updates CHANGELOG.md from recent commits, grouping entries by type (feat/fix/docs/breaking) with semantic version headings. Update CHANGELOG.md by promoting [Unreleased] content to a versioned section and bumping the package version. Follows Keep a Changelog format. Use when preparing a release or when [Unreleased] has accumulated work that needs to be captured under a version.' },

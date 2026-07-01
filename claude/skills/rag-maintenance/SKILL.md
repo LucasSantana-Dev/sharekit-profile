@@ -1,7 +1,6 @@
 ---
 name: rag-maintenance
-description: Keeps the RAG index current by rechunking changed files, retiring dead entries, and re-embedding drifted content.
-  Composite RAG maintenance skill — runs a full retrieval index audit end-to-end: measure quality, find corpus gaps, detect stale chunks, and curate (add missing docs, rewrite weak chunks). Chains: rag-quality → adt-rag-coverage → adt-rag-drift → rag-curate. Use when: retrieval is stale/weak, recall scores drop, users report missing docs, or weekly maintenance cycle. Replaces "run four separate RAG skills and hope they talk to each other."
+description: 'Keeps the RAG index current by rechunking changed files, retiring dead entries, and re-embedding drifted content. Composite RAG maintenance skill — runs a full retrieval index audit end-to-end (quality, coverage, drift, curation), all integrated in this one skill (no separate rag-quality/adt-rag-coverage/adt-rag-drift/rag-curate sub-skills to invoke). Use when retrieval is stale/weak, recall scores drop, users report missing docs, or on the weekly maintenance cycle. Replaces "run four separate RAG skills and hope they talk to each other."'
 user-invocable: true
 auto-invoke: weekly-maintenance + low-relevance-recall-hits + corpus-drift-detected
 metadata:
@@ -53,12 +52,12 @@ Score interpretation:
 
 **Done when:** Report shows query-score distribution, zero-hit count, stale-chunk count, quality summary table, and any task-specific test query has top-5 results with a judgment (good, weak, wrong, or missing). Baseline exists at `~/.claude/rag-index/weekly.md`.
 
-**Parallelism signal:** Phases 2–3 are independent of each other. After Phase 1 completes, dispatch `adt-rag-coverage` + `adt-rag-drift` in a single message for concurrent execution.
+**Parallelism signal:** Phase 2 and Phase 3 both read from the same `weekly.md` report generated in Phase 1 — no separate dispatch needed; gather both diagnostics from one report read.
 
 **Skip if:** Report is <24h old and verdict is GOOD (>95% queries ≥0.55 cosine). Proceed to Phase 2 for coverage audit (decoupled from quality).
 
 ### Phase 2 — Audit corpus coverage
-**Invoke:** `adt-rag-coverage` (distribution by source type: skills, standards, code, handoffs, memory vault, etc.)
+**Integrated former `adt-rag-coverage` behavior:** read the weekly report's coverage-by-source-type table; compare against targets (skills ≥500, standards ≥50, handoffs ≥200, code/plans/commits scale with repo). Cross-reference Phase 1's zero-hit queries against undercovered source types/repos to prioritize. Exact sqlite drill-down queries: [references/coverage-drift-queries.md](references/coverage-drift-queries.md).
 
 **Feeds from:** Phase 1 (context: which retrieval failures to prioritize)
 
@@ -69,7 +68,7 @@ Score interpretation:
 **Stop if:** Total chunks <5k or any critical source type (skills, standards) below 50% of target → escalate to user: "Corpus is severely depleted; recommend full rebuild before curation pass."
 
 ### Phase 3 — Detect stale/orphaned chunks
-**Invoke:** `adt-rag-drift` (missing files: deleted since index, modified files: sha mismatch vs current)
+**Integrated former `adt-rag-drift` behavior:** read the weekly report's stale-chunk count. Thresholds: <5 = normal churn (wait for next full rebuild), 5–20 = fix incrementally today, >20 = full rebuild is faster than 20+ incremental ops. The `sessionstart-drift-reindex.sh` hook already runs an automatic pass every session start — this phase is for manual/deeper intervention (auto-detector missed something, or granular delete-vs-reindex-vs-rebuild control is needed). Exact delete/reindex commands + the `.last-drift-reindex` marker: [references/coverage-drift-queries.md](references/coverage-drift-queries.md).
 
 **Feeds from:** Phase 2 (coverage map scope)
 
@@ -122,7 +121,7 @@ Open watch:              Weekly: refresh report every 7 days; if zero-hits persi
 
 **Phase 1 quality regressed:** Quality <80% (e.g., >20% queries <0.40 cosine) → surface regression in reconciliation, continue to Phase 2 for root cause (may be drift, may be coverage gap).
 
-**Phase 2 corpus depleted:** Total chunks <5k or critical source (skills/standards) <50% of target → `adt-rag-coverage` flags for escalation; Phase 4 may switch to full rebuild instead of curate.
+**Phase 2 corpus depleted:** Total chunks <5k or critical source (skills/standards) <50% of target → escalate for full rebuild; Phase 4 may switch to full rebuild instead of curate.
 
 **Phase 3 drift explosion:** >100 stale chunks or >10% of corpus orphaned → escalate to user: "Drift is severe; recommend full rebuild. Curation (Phase 4) will proceed incrementally but may be inefficient."
 
@@ -143,7 +142,7 @@ See `references/output-patterns.md` for templates (HEALTHY, NEEDS_MAINTENANCE, D
 
 ## Configuration
 
-This composite reads no configuration file; it chains the four sub-skills in order. Each sub-skill (rag-quality, adt-rag-coverage, adt-rag-drift, rag-curate) may read its own config if present.
+This composite reads no configuration file; all four phases (quality, coverage, drift, curation) are integrated directly in this skill's workflow — there are no separate sub-skills to configure.
 
 ## Evidence & Artifacts
 

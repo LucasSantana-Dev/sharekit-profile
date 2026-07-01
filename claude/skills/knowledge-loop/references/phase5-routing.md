@@ -23,4 +23,4 @@ See `references/push-protocol.sh` — fail loud if mount guard blocks; never ret
 
 ## Idempotency safeguard
 
-If memory write happened in Phase 2 AND rag-curate ran in Phase 3 on the same file, use `git -C "$BRAIN" diff --cached` to check if Phase 2 and Phase 3 are touching overlapping regions. If so, reconcile — only push once with combined changeset (don't do redundant commits).
+If memory write happened in Phase 2 AND `rag-maintenance` curation ran in Phase 3 on the same file, use `git -C "$BRAIN" diff --cached` to check if Phase 2 and Phase 3 are touching overlapping regions. If so, reconcile — only push once with combined changeset (don't do redundant commits).

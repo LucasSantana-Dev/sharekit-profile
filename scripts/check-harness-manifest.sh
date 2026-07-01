@@ -55,6 +55,29 @@ if [[ "$as_count" -eq 0 ]]; then
   status=1
 fi
 
+# --- routingContract completeness ---
+# Every approved server must have a routingContract entry with all 4 fields,
+# so tool choice stays by information need rather than habit (not full JSON
+# Schema — a targeted completeness check for the fields this policy relies on).
+has_routing="$(jq -r 'has("routingContract")' "$POLICY")"
+if [[ "$has_routing" == "true" ]]; then
+  while IFS= read -r server; do
+    entry="$(jq -c --arg s "$server" '.routingContract[$s] // empty' "$POLICY")"
+    if [[ -z "$entry" ]]; then
+      echo "ERROR: routingContract missing entry for approved server '$server'" >&2
+      status=1
+      continue
+    fi
+    for field in use_when do_not_use_when fallback expected_callers; do
+      has_field="$(jq -r --arg s "$server" --arg f "$field" '(.routingContract[$s] // {}) | has($f)' "$POLICY")"
+      if [[ "$has_field" != "true" ]]; then
+        echo "ERROR: routingContract.$server missing required field '$field'" >&2
+        status=1
+      fi
+    done
+  done < <(jq -r '.approvedServers[]' "$POLICY")
+fi
+
 if [[ $status -eq 0 ]]; then
   echo "OK: harness manifest fingerprints + policy invariants verified"
   exit 0

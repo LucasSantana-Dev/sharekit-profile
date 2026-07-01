@@ -37,5 +37,58 @@
     "context7",
     "memory",
     "firecrawl"
-  ]
+  ],
+  "routingContract": {
+    "rag-index": {
+      "use_when": "repo-scoped semantic search over memory, plans, handoffs, code, and commits — 'what did we decide about X', 'where did we hit this before'",
+      "do_not_use_when": "exact symbol/definition lookup (use serena or grep instead); current library/API docs (use context7)",
+      "fallback": "rg/grep over local memory files and repo docs",
+      "expected_callers": ["recall", "knowledge-loop", "rag-maintenance", "memory-prune", "context-pack"]
+    },
+    "github": {
+      "use_when": "PR/issue/repo metadata operations against the GitHub API (create/search/review PRs and issues, check status)",
+      "do_not_use_when": "local-only git operations (branch, commit, diff, log) — use the native git CLI via Bash, no API round-trip needed",
+      "fallback": "gh CLI via Bash",
+      "expected_callers": ["ci-watch", "pr-merge-readiness", "dep-sweep"]
+    },
+    "filesystem": {
+      "use_when": "cross-directory file operations spanning multiple allowed roots in one call (Desenvolvimento, .claude, .codex)",
+      "do_not_use_when": "single-file read/write/edit in the current repo — use the native Read/Write/Edit/Glob tools, they're faster and don't need an MCP round-trip",
+      "fallback": "native Read/Write/Edit/Glob tools",
+      "expected_callers": ["docs-sync"]
+    },
+    "git": {
+      "use_when": "not currently observed in active use this session — the native git CLI via Bash covers essentially all git operations already",
+      "do_not_use_when": "prefer native git CLI via Bash for all git operations unless a specific gap is identified",
+      "fallback": "native git CLI via Bash",
+      "expected_callers": []
+    },
+    "fetch": {
+      "use_when": "fetching a single, publicly-accessible URL provided by the user or already-known to be unauthenticated",
+      "do_not_use_when": "auth-gated or JS-rendered SPA pages (confirmed to fail — returns only the app shell, not content); use browser automation (claude-in-chrome) via the user's logged-in session instead",
+      "fallback": "WebSearch for open-web info; ask the user to paste content for auth-gated pages",
+      "expected_callers": ["deep-research", "read-the-damn-docs"]
+    },
+    "context7": {
+      "use_when": "current documentation for a library, framework, SDK, API, or CLI tool — even well-known ones, since training data may be stale",
+      "do_not_use_when": "general web research/news (use WebSearch); internal repo code (use serena/grep); refactoring or business-logic debugging",
+      "fallback": "WebSearch",
+      "expected_callers": ["ai-sdk", "claude-api", "read-the-damn-docs"]
+    },
+    "memory": {
+      "use_when": "cross-project decisions/memory recall (the knowledge-brain vault) — 'what did we decide', preferred over rag-index specifically for decision history",
+      "do_not_use_when": "repo-scoped code/commit search (use rag-index instead — the vault is decisions-only, no code or commit history)",
+      "fallback": "rag-index, or grep memory files directly",
+      "expected_callers": ["recall", "knowledge-loop"]
+    },
+    "firecrawl": {
+      "use_when": "crawling or scraping an entire site or a multi-page doc set",
+      "do_not_use_when": "a single URL fetch — use fetch/WebFetch instead, firecrawl is heavier and not needed for one page",
+      "fallback": "WebFetch for single pages",
+      "expected_callers": ["deep-research"]
+    },
+    "meta": {
+      "note": "Extends the approvedServers allowlist above with a per-server intent-to-tool routing contract, per the Reinforce-Support-Layers plan's Phase 3 proposal (scoped down: no separate harness-doctor.sh or routing-eval fixtures yet — see .claude/plans/2026-07-01-skill-consolidation-reinforcement.md Phase 3 for the full classification). expected_callers lists are best-effort based on skills observed referencing each server this session, not an exhaustive audit."
+    }
+  }
 }
