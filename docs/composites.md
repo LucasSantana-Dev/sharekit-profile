@@ -66,6 +66,12 @@ Safe broad-refactor setup.
 
 **Flow:** discovery → scope/rollback → validation plan → handoff to `orchestrate` or `three-man-team`.
 
+### /ads
+
+Paid-advertising audit/management specialist (Google, Meta, LinkedIn, TikTok) — read/analyze/report only, no live-account mutation.
+
+**Flow:** business-context preflight → mode dispatch (`audit`/platform deep-dive/`creative`/`budget`/`competitor`/`plan`/`report`) → scored findings with cited evidence → optional `knowledge-loop` chain if a durable rule emerges.
+
 ---
 
 ## Replacements for archived wrappers
