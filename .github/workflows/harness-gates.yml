@@ -34,8 +34,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install bats-core
-        run: sudo apt-get update && sudo apt-get install -y bats
+      - name: Install bats-core + gate-script dependencies
+        # skill-validate.sh hard-requires fd + rg (exits 2 without them).
+        # Debian packages fd as fd-find with binary name fdfind — symlink it.
+        run: |
+          sudo apt-get update && sudo apt-get install -y bats ripgrep fd-find
+          sudo ln -sf "$(command -v fdfind)" /usr/local/bin/fd
       - name: Run gate script tests
         run: bats tests/
 
