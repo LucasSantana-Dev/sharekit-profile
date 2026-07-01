@@ -172,7 +172,7 @@ for f in "${skill_files[@]}"; do
   fi
 
   # 8. Secret exfiltration — sending sensitive files off-host
-  if printf '%s' "$body" | rg -qi '\.ssh/id_rsa|\.aws/credentials|\.env\b.*curl|\.env\b.*wget|bat\s+-p\s+~/.ssh|bat\s+-p\s+~/\.aws|sed\s+-n.*~/.ssh|sed\s+-n.*~/\.aws'; then
+  if printf '%s' "$body" | rg -qi '\.ssh/id_rsa|\.aws/credentials|\.env\b.*curl|\.env\b.*wget|cat\s+~/.ssh|cat\s+~/\.aws|bat\s+-p\s+~/.ssh|bat\s+-p\s+~/\.aws|sed\s+-n.*~/.ssh|sed\s+-n.*~/\.aws'; then
     findings="${findings}CRIT   | ${rel} | secret exfiltration pattern detected (reading ssh/aws/env + network)\n"
     security_critical=$((security_critical+1))
   fi

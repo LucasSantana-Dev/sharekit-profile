@@ -76,7 +76,11 @@ extract_field() {
   rg -i "^${2}:" "$1" 2>/dev/null | head -1 | sed -E "s/^${2}:[[:space:]]*//I" | tr -d '"' | tr -d "'"
 }
 
-mapfile -t skill_files < <(fd -t f -e md '^SKILL\.md$' "$CATALOG" 2>/dev/null | sort)
+if command -v fd >/dev/null 2>&1; then
+  mapfile -t skill_files < <(fd -t f -e md '^SKILL\.md$' "$CATALOG" 2>/dev/null | sort)
+else
+  mapfile -t skill_files < <(find "$CATALOG" -type f -name 'SKILL.md' 2>/dev/null | sort)
+fi
 
 total=${#skill_files[@]}
 tiny=0; small=0; medium=0; large=0

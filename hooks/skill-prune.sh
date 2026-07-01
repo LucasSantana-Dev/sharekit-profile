@@ -64,7 +64,11 @@ fi
 report="$FORGE/${datestamp}-skill-prune.md"
 
 # --- Catalog skill names (the universe of candidates) -------------------------
-mapfile -t skill_files < <(fd -t f -e md '^SKILL\.md$' "$CATALOG" 2>/dev/null | sort)
+if command -v fd >/dev/null 2>&1; then
+  mapfile -t skill_files < <(fd -t f -e md '^SKILL\.md$' "$CATALOG" 2>/dev/null | sort)
+else
+  mapfile -t skill_files < <(find "$CATALOG" -type f -name 'SKILL.md' 2>/dev/null | sort)
+fi
 declare -A skill_present
 for f in "${skill_files[@]}"; do
   [[ -f "$f" ]] || continue
