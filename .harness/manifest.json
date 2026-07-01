@@ -12,7 +12,7 @@
     "AGENTS.md": "d8648211c80505c3ee97ecaff1a5d5fe2e6eb9406f18fb6eeb9e925e5169e294",
     "claude/settings.json": "f7280e5ba5b453e0091ccfd72b621cbfe9f45a3ed9b258c5cce690d3b4cbfebb",
     "hooks/skill-index.sh": "932f9b15fe7c04f344e5570b52ff65bf082e818995c68991f67df3e5449d51ac",
-    "hooks/skill-validate.sh": "0bf992a4689749695b0b0ea55fb7b064356af94f235af5e269b71b167e6c9be5",
+    "hooks/skill-validate.sh": "ce5451fb1cb4465bed2a47824ec9288f765e20d3ed6882395bcfb2191b274091",
     "hooks/skill-prune.sh": "5fff4e1c779225d9e129d5aa8051ef5f90a5925a8e550158d3f7ac7ebf3f5929",
     "README.md": "26bbef0af9ae3376b65939397ab5bb32562ba3c07fb9a1e21b9e1eb6104b1e4a",
     "docs/skill-catalog-efficiency.md": "baa38eb2769c5c979a8d2760e831fe80e8ed3e6018cf52e51663fcf1bd68903e"
