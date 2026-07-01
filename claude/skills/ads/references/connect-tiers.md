@@ -18,7 +18,7 @@ Do not suggest installing a new Tier 2 server mid-audit — flag it as a follow-
 
 | Platform | Option | Scope | Auth | License | Last push | Confidence |
 |---|---|---|---|---|---|---|
-| Google Ads | **This ecosystem's own `google-ads-mcp`** (`/Volumes/External HD/Desenvolvimento/google-ads-mcp`) | 31 tools, read+write, ±20-25% change caps, allowlist/preview/audit-log gates | OAuth2 desktop app + developer token | — (local) | 2026-06-26 | **High — prefer this over any external option** |
+| Google Ads | **This ecosystem's own `google-ads-mcp`** (local checkout, path is operator-specific) | 31 tools, read+write, ±20-25% change caps, allowlist/preview/audit-log gates | OAuth2 desktop app + developer token | — (local) | 2026-06-26 | **High — prefer this over any external option** |
 | Google Ads | [googleads/google-ads-mcp](https://github.com/googleads/google-ads-mcp) — Google's own official server | 3 tools, **read-only** (`list_accessible_customers`, `search`/GAQL, `get_resource_metadata`) | OAuth2 or service account | Apache-2.0 | 2026-06-30 | High (official, confirmed via developers.google.com) |
 | Google Ads | [cohnen/mcp-google-ads](https://github.com/cohnen/mcp-google-ads) | ~5 GAQL tools, read-only | OAuth2 + service account | MIT | **2025-10-16 — stale, ~8.5mo old** | Medium — verify it still works before recommending |
 | Meta Ads | [mikusnuz/meta-ads-mcp](https://github.com/mikusnuz/meta-ads-mcp) | Full read/write, Marketing API v25.0 | System user / OAuth token | MIT | 2026-04-12 | High |

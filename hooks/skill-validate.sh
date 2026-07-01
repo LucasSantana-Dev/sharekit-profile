@@ -14,6 +14,8 @@
 #   SCHEMA PASS:
 #     1. name field present and ≤100 chars
 #     2. description field present, >20 chars, ≤500 chars
+#     2b. description is valid YAML — an unquoted plain scalar containing ": "
+#         fails real parsing even though checks 1-2 pass (grep only reads line 1)
 #     3. description does not contain body content (no markdown headers/code)
 #     4. triggers field present with at least 1 entry (warning only)
 #     5. invocation_type (if present) is auto|slash|internal
@@ -126,6 +128,30 @@ for f in "${skill_files[@]}"; do
   elif [[ ${#desc} -gt 500 ]]; then
     findings="${findings}WARN   | ${rel} | description exceeds 500 chars (${#desc}) — body may be leaking into description\n"
     schema_warnings=$((schema_warnings+1))
+  fi
+
+  # 2b. Frontmatter description must be valid YAML — an unquoted plain-scalar
+  # description containing ": " (single- or multi-line) fails real YAML parsing
+  # ("mapping values are not allowed here") even though the checks above pass,
+  # since extract_field only reads line 1 via grep. No python/yaml dependency:
+  # this is a mechanical rule (verified against yaml.safe_load) checkable in
+  # bash/awk/rg alone.
+  raw_desc_block="$(awk '
+    /^description:/ { capture=1; print; next }
+    capture && /^[A-Za-z_][A-Za-z0-9_-]*:/ { exit }
+    capture && /^---/ { exit }
+    capture { print }
+  ' "$f")"
+  if [[ -n "$raw_desc_block" ]]; then
+    first_value="$(printf '%s\n' "$raw_desc_block" | head -1 | sed -E 's/^description:[[:space:]]*//')"
+    first_char="${first_value:0:1}"
+    if [[ "$first_char" != "'" && "$first_char" != '"' ]]; then
+      rest="$(printf '%s\n' "$raw_desc_block" | sed '1s/^description:[[:space:]]*//')"
+      if printf '%s' "$rest" | rg -q ': '; then
+        findings="${findings}ERROR  | ${rel} | frontmatter description is an unquoted plain scalar containing ': ' — fails real YAML parsing (mapping values are not allowed here); wrap the description in single quotes\n"
+        schema_errors=$((schema_errors+1))
+      fi
+    fi
   fi
 
   # 3. description should not contain body content (markdown headers, code blocks)
