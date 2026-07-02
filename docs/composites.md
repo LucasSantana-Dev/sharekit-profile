@@ -66,14 +66,6 @@ Safe broad-refactor setup.
 
 **Flow:** discovery → scope/rollback → validation plan → handoff to `orchestrate` or `three-man-team`.
 
-### /ads
-
-Paid-advertising audit/management specialist (Google, Meta, LinkedIn, TikTok) — read/analyze/report only, no live-account mutation.
-
-**Flow:** business-context preflight → mode dispatch (`audit`/platform deep-dive/`creative`/`budget`/`competitor`/`plan`/`report`) → scored findings with cited evidence → optional `knowledge-loop` chain if a durable rule emerges.
-
----
-
 ## Replacements for archived wrappers
 
 | Archived wrapper | Active equivalent |
@@ -88,6 +80,7 @@ Paid-advertising audit/management specialist (Google, Meta, LinkedIn, TikTok) �
 | `rag-quality`, `rag-curate`, `adt-rag-coverage`, `adt-rag-drift` | `rag-maintenance` |
 | `route` | `scope-it` or `fallback`, depending on whether the problem is ambiguous or blocked |
 | `smart-model-select` | model-tier policy in `AGENTS.md` |
+| `ads` | moved to its client project (`Criativaria-Projects/google-ads`, private) — client-scoped skills don't ship in the public catalog |
 
 ---
 

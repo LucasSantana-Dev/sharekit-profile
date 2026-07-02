@@ -275,11 +275,11 @@ See `~/.claude/agents/` for full definitions.
 
 ---
 
-## Skills: 52 repo-tracked (consolidated from 103 → 50, +1 new domain: ads, +1 restored: sync-memories)
+## Skills: 51 repo-tracked (consolidated from 103 → 50, +1 restored: sync-memories)
 
 Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete reference, [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) for the competitive analysis + reduction plan (103 → 50 via skill-family merges, stack-specific removal, and project-specific removal), and [`docs/harness-research-synthesis.md`](docs/harness-research-synthesis.md) for the 52-repo deep-research survey that informs P8.
 
-**Consolidated catalog**: the skill catalog was reduced from 103 repo-tracked skills to 50 by merging skill families (ponytail×5→1, RAG×6→1, debug×2→1, test×6→1, session×2→1, refactor×2→1), removing stack-specific skills (shadcn, tailwind-design-system, webapp-testing), plugin-injected meta-skills, and project-specific skills. 52 skills archived in `claude/skills/.archive/` (recoverable). `ads` (paid-advertising audit/management) was added afterward as a genuinely new capability domain, not a consolidation. `sync-memories` was restored from archive as `invocation_type: internal` (was misapplied archival — it's a required `knowledge-loop` sub-skill, hidden from the always-loaded listing but resolvable by path).
+**Consolidated catalog**: the skill catalog was reduced from 103 repo-tracked skills to 50 by merging skill families (ponytail×5→1, RAG×6→1, debug×2→1, test×6→1, session×2→1, refactor×2→1), removing stack-specific skills (shadcn, tailwind-design-system, webapp-testing), plugin-injected meta-skills, and project-specific skills. 52 skills archived in `claude/skills/.archive/` (recoverable). `sync-memories` was restored from archive as `invocation_type: internal` (was misapplied archival — it's a required `knowledge-loop` sub-skill, hidden from the always-loaded listing but resolvable by path).
 
 **Core Development** (14): add, debug, fallback, impeccable, loop, plan, ponytail, refactor, review, scope-it, ship, tdd, test-driven-development, verify
 
@@ -297,7 +297,6 @@ Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete r
 
 **Planning & Meta** (5): brainstorming, request-refactor-plan, secure, skill-creator-plugin, xp
 
-**Marketing** (1): ads
 
 The full catalog with triggers and frontmatter details is indexed by `hooks/skill-index.sh` and listed in `~/.claude/SKILLS.md`. Archived skills can be restored from `claude/skills/.archive/`.
 

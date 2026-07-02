@@ -1,7 +1,6 @@
 # Curated portable skills for the sharekit public profile (ADR-0039).
 # sync-sharekit-profile syncs ONLY these. Add a line to publish a skill; remove to unpublish.
 add
-ads
 architecture-patterns
 brainstorming
 changelog-update
