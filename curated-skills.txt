@@ -1,20 +1,17 @@
 # Curated portable skills for the sharekit public profile (ADR-0039).
 # sync-sharekit-profile syncs ONLY these. Add a line to publish a skill; remove to unpublish.
 add
-architecture-patterns
+adt-rag-drift
 brainstorming
 changelog-update
 ci-watch
-codebase-design
 codebase-memory
 context-pack
-context-save
 debug
 decide
 decide-now
 dep-sweep
 dispatch
-domain-modeling
 fallback
 frontend-design
 graphify
@@ -27,23 +24,16 @@ memory-prune
 next-priority
 orchestrate
 plan
-ponytail
 pr-merge-readiness
 prototype
-quality-assurance
-quality-gates
-rag-maintenance
+rag-curate
 recall
 refactor
-request-refactor-plan
 resume
 review
-scope-it
 secure
 session-bootstrap
-setup-pre-commit
 ship
-skill-creator-plugin
 sync-memories
 tdd
 test-driven-development

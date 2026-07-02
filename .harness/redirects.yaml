@@ -107,3 +107,56 @@ redirects:
     disposition: moved_to_project
     target: "Criativaria-Projects/google-ads .claude/skills/ads (private)"
     note: client-scoped ads specialist — moved 2026-07-01 per operator decision; public catalog keeps no client-facing skills
+
+  # Wave 3 prune entries (2026-07-01) — evidence-based zero-use archival
+  # per canonical commits 5cfe4da/87b220f (30d usage audit + fixpoint reference elimination)
+
+  - archived: ponytail
+    disposition: dropped
+    note: zero-use per canonical 30d audit (2026-07-01)
+
+  - archived: quality-gates
+    disposition: dropped
+    note: zero-use per canonical 30d audit; replacements via composites.md (2026-07-01)
+
+  - archived: quality-assurance
+    disposition: dropped
+    note: zero-use per canonical 30d audit; replace with test-health + security-audit (2026-07-01)
+
+  - archived: rag-maintenance
+    disposition: absorbed_by
+    target: "rag-curate + adt-rag-drift"
+    note: consolidated into dedicated curation and drift-detection skills (2026-07-01)
+
+  - archived: scope-it
+    disposition: replaced_by_rule
+    target: plan
+    note: superseded by scope-and-execute (canonical); repo equivalent is `/plan` (2026-07-01)
+
+  - archived: architecture-patterns
+    disposition: dropped
+    note: zero-use per canonical 30d audit (2026-07-01)
+
+  - archived: codebase-design
+    disposition: dropped
+    note: zero-use per canonical 30d audit; use impeccable for design review (2026-07-01)
+
+  - archived: context-save
+    disposition: dropped
+    note: zero-use per canonical 30d audit; replace with sync-memories or handoff (2026-07-01)
+
+  - archived: domain-modeling
+    disposition: dropped
+    note: zero-use per canonical 30d audit; canonical-only (2026-07-01)
+
+  - archived: request-refactor-plan
+    disposition: dropped
+    note: zero-use per canonical 30d audit; use refactor-pipeline directly (2026-07-01)
+
+  - archived: setup-pre-commit
+    disposition: dropped
+    note: zero-use per canonical 30d audit; setup via session-bootstrap or onboard-new-repo (2026-07-01)
+
+  - archived: skill-creator-plugin
+    disposition: dropped
+    note: plugin-injected at runtime, never a repo skill; removed from showcase page (2026-07-01)
