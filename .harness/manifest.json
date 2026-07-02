@@ -9,16 +9,16 @@
   ],
   "files": {
     ".harness/mcp-policy.json": "b4e64fb3cece6c04691a039edbd599d79bc0afddaff6a6b000d693d91d1e19b3",
-    "AGENTS.md": "48bc7eea361481ec36801861e8f5a81b5cd84e69e7a348c50f6b8403ddaa43b5",
+    "AGENTS.md": "fc8887a11521c76297e700b2db0c26844283a644f2051fc512929c348a950a13",
     "claude/settings.json": "b4b53012322e39f2a0b2cd9cca9653149bb7c4fa30b323cfb700cce8ab6975a9",
     "hooks/skill-index.sh": "932f9b15fe7c04f344e5570b52ff65bf082e818995c68991f67df3e5449d51ac",
     "hooks/skill-validate.sh": "ce5451fb1cb4465bed2a47824ec9288f765e20d3ed6882395bcfb2191b274091",
     "hooks/skill-prune.sh": "5fff4e1c779225d9e129d5aa8051ef5f90a5925a8e550158d3f7ac7ebf3f5929",
-    "README.md": "70d53e32d8a0b8ce845df6823bf3a427f68c67a4689f9bc28d440069359ccb66",
-    "docs/skill-catalog-efficiency.md": "74172aa6870d4cf76a763d1a93a30311c2d7d53f6de4e86f9b64c82de99970c4"
+    "README.md": "8040d4bb3b196ebade9b2989e74b358abb0fbc12d01a82ebfdf8547893fb0632",
+    "docs/skill-catalog-efficiency.md": "9274d0736e60c123d54bc5851fe5ef31b860287ed28b596421f5e599d5c35e8f"
   },
   "meta": {
-    "adr_anchor": "Adopted from ruflo meta-harness pattern: declarative governance directory converts prose security rules into diffable, CI-enforceable code. + Wave-4 self-improvement flywheel: settings.json un-orphaning the hooks and enabling the observe\u2192evaluate\u2192optimize loop.",
+    "adr_anchor": "Adopted from ruflo meta-harness pattern: declarative governance directory converts prose security rules into diffable, CI-enforceable code. + Wave-4 self-improvement flywheel: settings.json un-orphaning the hooks and enabling the observe→evaluate→optimize loop.",
     "source": "https://github.com/ruvnet/ruflo"
   }
 }

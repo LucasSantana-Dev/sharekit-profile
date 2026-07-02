@@ -102,3 +102,8 @@ redirects:
   - archived: smart-model-select
     disposition: replaced_by_rule
     target: "AGENTS.md model-tier policy"
+
+  - archived: ads
+    disposition: moved_to_project
+    target: "Criativaria-Projects/google-ads .claude/skills/ads (private)"
+    note: client-scoped ads specialist — moved 2026-07-01 per operator decision; public catalog keeps no client-facing skills
