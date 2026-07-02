@@ -52,8 +52,8 @@ When you submit a prompt, UserPromptSubmit hooks fire in sequence:
 | Execute parallel tasks | `/dispatch` or `/orchestrate` | Fans out independent work, reconciles results |
 | Review before merge | `/review` | Severity-rated findings (bugs > security > style) |
 | Debug production issue | `/debug` | Systematic root-cause analysis with CI/production evidence when available |
-| Full health check | `/quality-assurance` | Composes tests, config, hooks, security, MCP, and plugin evidence |
-| Refactor a module | `/request-refactor-plan` → `/orchestrate` | Plan → bounded team execution → validation → decision capture |
+| Full health check | `/verify` + `/secure` for validation gates + security-first assessment |
+| Refactor a module | `/refactor` for surgical edits or `/plan` + `/orchestrate` for scoped team work |
 | Ship work | `/ship` + `/knowledge-loop` | Release, memory sync, and handoff when needed |
 
 ---
@@ -113,9 +113,9 @@ hooks/                 # Env-level hooks
 Skills marked with `*` are **composites** — they auto-chain multiple sub-skills with gates and validation between phases. Always prefer a composite when available; running sub-skills manually bypasses critical phases.
 
 Example: broad refactor requests should route through active skills:
-- **discovery/scope** → `/request-refactor-plan`
+- **discovery/scope** → `/refactor` + `/plan`
 - **execution** → `/orchestrate` or `/three-man-team`
-- **testing** → `/quality-gates` and targeted test skills
+- **testing** → `/verify` and targeted test skills
 - **capture** → `/knowledge-loop`
 
 If you run `/refactor` directly for a broad rewrite, you skip planning and capture — wrong.
@@ -223,8 +223,8 @@ Vercel, GitHub, Firecrawl, Supabase, CodeRabbit, Skill Creator, Claude Code Setu
 - **Policy questions** — Read `docs/configuration.md` and `docs/troubleshooting.md`
 - **Hook debugging** — Check `~/.claude/tool-failures.log`
 - **Token analysis** — `/token-audit` for weekly spend review
-- **System health** — `/quality-assurance` + `/quality-gates` for full project checks
-- **Stuck** — `/fallback` to recover or `/scope-it` to reframe unclear work
+- **System health** — `/verify` + `/secure` for full project checks
+- **Stuck** — `/fallback` to recover or `/plan` to reframe unclear work
 
 ---
 

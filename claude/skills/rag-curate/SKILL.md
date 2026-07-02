@@ -1,6 +1,7 @@
 ---
 name: rag-curate
 description: "Improve RAG corpus quality by adding missing docs, rewriting weak chunks, and filling retrieval gaps. Use after a diagnostic skill (rag-quality, adt-rag-coverage, adt-rag-drift) flags a coverage gap or when the index returns poor/irrelevant results for a known query."
+invocation_type: internal
 triggers:
   - rag curate
   - curate corpus

@@ -25,7 +25,7 @@ Ensure the operator starts with fresh context — no stale RAG chunks, up-to-dat
 ### When It Fails
 - **Concurrent session warning** — another session is using this checkout; switch to a worktree or stash uncommitted work
 - **Slow pull (>3s)** — network or large memory sync; increase timeout in `settings.json`
-- **RAG reindex fails** — corrupted chunks or missing files; run `/rag-maintenance` and rebuild only when thresholds require it
+- **RAG reindex fails** — corrupted chunks or missing files; run `/rag-curate` and rebuild only when thresholds require it
 - **Memory pull fails** — check `~/.claude/.sync.log`; verify frontmatter
 
 ---
@@ -62,7 +62,7 @@ Use this as a starting point; the assistant may still need to Read files for ful
 - Warn about context/branch state before commits
 
 ### When It Fails
-- **RAG recall slow** — too many chunks or poor embedding; run `/rag-maintenance` to measure coverage and drift
+- **RAG recall slow** — too many chunks or poor embedding; run `/rag-curate` to measure coverage and drift
 - **Composite not detected** — check if intent maps to an active workflow in `docs/composites.md`
 - **Model tier hint wrong** — follow `AGENTS.md` model-tier policy and tune the classifier if the mismatch repeats
 
@@ -237,9 +237,9 @@ To disable a hook temporarily:
 | Problem | Symptom | Fix |
 |---------|---------|-----|
 | Concurrent session warning | Warning at SessionStart / PreToolUse about another session | Use a separate worktree: `git worktree add '/Volumes/External HD/Desenvolvimento/.worktrees/<task>' -b <branch>` |
-| RAG not recalling | No `# Knowledge graph context` block | Run `/rag-maintenance` |
+| RAG not recalling | No `# Knowledge graph context` block | Run `/rag-curate` |
 | Composite not detected | Intent matches but no `🎯` emitted | Use active workflow table in `docs/composites.md` |
-| Slow UserPromptSubmit | Hangs after prompt submit | Reduce RAG corpus size through `/rag-maintenance` |
+| Slow UserPromptSubmit | Hangs after prompt submit | Reduce RAG corpus size through `/rag-curate` |
 | Model tier wrong | Haiku suggested for complex task | Check `adt-smart-model-route` keyword tuning |
 | Context bloat warning spam | Too many warnings per turn | Compact earlier; run `/compact` |
 | Memory pull fails | SessionStart hangs on memory sync | Verify network; check `~/.claude/.sync.log` |

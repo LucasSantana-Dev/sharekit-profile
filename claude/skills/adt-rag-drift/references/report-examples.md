@@ -5,5 +5,5 @@ Stale chunks by type:
   
 - Modified (sha mismatch): 12 chunks
   ~/.claude/standards/old-auth.md (last indexed 2024-12-10, modified 2024-12-18)
-  /Volumes/External\ HD/Desenvolvimento/forgekit/src/utils.ts (last indexed 2024-12-15, modified 2024-12-16)
+  <PROJECT>/src/utils.ts (last indexed 2024-12-15, modified 2024-12-16)
 ```

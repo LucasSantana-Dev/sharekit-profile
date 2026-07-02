@@ -1,6 +1,6 @@
 ---
 name: knowledge-loop
-description: Composite skill — query, capture, improve, and persist knowledge in one workflow. Chains recall (RAG query) → sync-memories (write durable note) → rag-maintenance (improve weak retrievals) → handoff (durable snapshot if session-ending). Use when the work involves "what did we decide", "remember this", "save where we are", or any closing checkpoint.
+description: Composite skill — query, capture, improve, and persist knowledge in one workflow. Chains recall (RAG query) → sync-memories (write durable note) → rag-curate (improve weak retrievals) → handoff (durable snapshot if session-ending). Use when the work involves "what did we decide", "remember this", "save where we are", or any closing checkpoint.
 user-invocable: true
 auto-invoke: end-of-task + recall-questions + checkpoint-requests
 metadata:
@@ -47,7 +47,7 @@ write (memory vs committed doc) and which tags apply, follow the decision tree i
 
 ### Phase 3 — Improve (conditional)
 If recall returned weak hits (cosine <0.40) for a query that should have hit something,
-invoke `/rag-maintenance` in curation mode to add the missing doc, rewrite the weak chunk,
+invoke `/rag-curate` in curation mode to add the missing doc, rewrite the weak chunk,
 or reindex stale content. Skip if recall was strong.
 
 Improvement discipline:
@@ -56,7 +56,7 @@ Improvement discipline:
 - Treat weak recall as a retrieval bug until proven otherwise: inspect source, chunk, index freshness, and query wording.
 - If the filesystem has more memory files than the index, record coverage drift and schedule reindex before relying on recall.
 
-**Done when:** `rag-maintenance` confirms N chunks rewritten or N docs added — verify via incremental reindex completion and cosine score ≥0.40 for the weak query in top 3 results.
+**Done when:** `rag-curate` confirms N chunks rewritten or N docs added — verify via incremental reindex completion and cosine score ≥0.40 for the weak query in top 3 results.
 
 ### Phase 4 — Snapshot (if session-ending or context-pressured)
 Invoke `handoff` to write a durable resume packet. Skip if work continues immediately.
@@ -76,7 +76,7 @@ Output a single capture summary:
 KNOWLEDGE LOOP — <topic>
   Recalled:  <n> hits, top cosine <X> (skill: recall) <STATUS>
   Captured:  <memory file paths> (skill: sync-memories) <STATUS>
-  Improved:  <chunks rewritten / docs added> (skill: rag-maintenance) <STATUS>
+  Improved:  <chunks rewritten / docs added> (skill: rag-curate) <STATUS>
   Snapshot:  <handoff path> (skill: handoff) <STATUS>
   Open watch: <future obligation | (none)>
 ```
@@ -98,7 +98,7 @@ After capturing any decision, check: "Would a future agent need this committed c
 
 - If recall returns nothing AND no new knowledge was produced this session → exit clean,
   no capture needed
-- If `sync-memories` and `rag-maintenance` curation would write to the same file → consolidate writes
+- If `sync-memories` and `rag-curate` curation would write to the same file → consolidate writes
   to avoid double-update churn
 - Never skip Phase 4 if context is >80% — handoff is required for cross-session continuity
 

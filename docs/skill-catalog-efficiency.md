@@ -12,7 +12,7 @@
 ## Execution status (2026-07-01)
 
 - **Catalog**: 51 active skill folders in `claude/skills/` (50 consolidated + restored `sync-memories`); 52 archived in `claude/skills/.archive/` for recoverability. `curated-skills.txt` now mirrors the active repo catalog exactly.
-- **Capability preservation (executed)**: archived over-engineering audit behavior folded into `ponytail`; systematic debugging discipline folded into `debug`; RAG quality/curation/drift details folded into `rag-maintenance` and `knowledge-loop`; scanner/security wrappers represented as evidence sources inside `secure`, `quality-assurance`, and `quality-gates`.
+- **Capability preservation (executed)**: archived over-engineering audit behavior consolidated; systematic debugging discipline folded into `debug`; RAG quality/curation/drift details represented in `rag-curate`, `adt-rag-drift`, and `knowledge-loop`; scanner/security wrappers represented as evidence sources inside `secure` and `verify`.
 - **Docs alignment (executed)**: `README.md`, `AGENTS.md`, `docs/composites.md`, `docs/overview.md`, `docs/troubleshooting.md`, `docs/hooks.md`, and relevant `docs/skills/*` guides now describe active equivalents instead of archived command names.
 - **Runtime topology documented**: runtime skills reconcile through canonical `~/.agents/skills`; `~/.claude/skills` is the symlinked runtime view and `~/.claude-env/skills` is a downstream mirror.
 - **Knowledge-brain caution**: stale memories may still mention archived commands. Preserve historical notes and add superseding memories for current state; do not rewrite history as if old topology never existed.
@@ -97,7 +97,7 @@ Add an `invocation_type: internal` frontmatter field consumed by `skill-index.sh
 skills are NOT in the always-loaded `<available_skills>` listing, but composites
 can still resolve and invoke them by path. Hide the ~35 sub-skills with no
 standalone trigger (e.g. `pr-flow`, `pr-merge-readiness`, `version-bump`,
-`test-health`, `mutation-test`, `config-drift-detect`, `security-audit`,
+`verify`, `mutation-test`, `config-drift-detect`, `secure`,
 `socket-audit`, `rag-quality`, `rag-curate`, `wake-up`, `pr-snapshot`,
 `sync-memories` ✓, `gh-fix-ci`, `gh-address-comments`, `ci-watch`,
 `refactor-plan`, `three-man-team`). Keep listed any sub-skill with a strong
@@ -228,6 +228,14 @@ The P8 and P9 phases shipped the deep-research synthesis cherrypicks that compou
 - `hooks/check-stuck-loop.sh` — gains real state file (was hardcoded stub)
 
 **Impact:** The flywheel now operates end-to-end: trajectory → diagnose → distill → propose → trial → gate → deploy → watch → learn. All without runtime model calls or external dependencies.
+
+## 2026-07-01 catalog update (later)
+
+**Wave 3 prune — evidence-based zero-use archival**: Mirrored the canonical skill catalog prune (11 more skills archived).
+
+- **Archived (zero-use per 30d audit)**: ponytail, quality-gates, quality-assurance, rag-maintenance, scope-it, architecture-patterns, codebase-design, context-save, domain-modeling, request-refactor-plan, setup-pre-commit.
+- **Updated replacements table** (`docs/composites.md`): all 11 skills redirected to active equivalents or "archived" notation.
+- **Final active count**: 39 repo skills + 1 plugin-injected.
 
 ## Actionable ponytail audit findings
 

@@ -1,6 +1,7 @@
 ---
-name: rag-drift
+name: adt-rag-drift
 description: Detect and fix stale chunks (files that changed or were deleted since last indexing)
+invocation_type: internal
 triggers:
   - rag drift
   - stale chunks
