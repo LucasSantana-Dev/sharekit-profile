@@ -27,6 +27,14 @@ jobs:
       # counts disagree with the actual SKILLS/AGENTS arrays. Canonical-existence
       # of skills is checked locally (scripts/check-catalog-canonical.sh) — the
       # runner has no access to ~/.claude/skills.
+      - name: Install check-script dependencies
+        # check-catalog.sh uses rg (and fd for the skill-count guardrail when a
+        # catalog dir exists) — neither ships on ubuntu runners. Same fix as the
+        # bats job in harness-gates.yml. fd is packaged as fd-find (binary fdfind).
+        run: |
+          sudo apt-get update && sudo apt-get install -y ripgrep fd-find
+          sudo ln -sf "$(command -v fdfind)" /usr/local/bin/fd
+
       - name: Catalog drift-guard (counts)
         run: bash scripts/check-catalog.sh index.html
 
