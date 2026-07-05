@@ -7,6 +7,7 @@ metadata:
   owner: global-agents
   tier: contextual
   canonical_source: ~/.claude/skills/pr-merge-readiness
+invocation_type: internal
 ---
 
 # PR Merge Readiness

@@ -1,6 +1,6 @@
 ---
 name: recall
-description: One-shot semantic lookup against the local RAG index — answers "what did we decide about X", "where did we hit this bug before", "is there a memory note for Y" in a single MCP call. Backed by the `rag_query` MCP tool over ~21k chunks (memory, plans, handoffs, skills, standards, repo docs/readmes, changelogs, specs, roadmaps, code, git commits, prior session transcripts) across the curated repos (Lucky, homelab, Craftvaria, ai-dev-toolkit, ai-dev-toolkit-setup). Auto-scopes to current repo. Use instead of grep when the question is fuzzy, cross-file, or about prior reasoning rather than current code shape. Skip for pure navigation (where is X defined → grep / serena) or single-file edits.
+description: One-shot semantic lookup against the local RAG index — answers "what did we decide about X", "where did we hit this bug before", "is there a memory note for Y" in a single MCP call. Backed by the rag_query MCP tool over ~21k chunks (memory, plans, handoffs, skills, standards, repo docs, changelogs, specs, code, commits, transcripts) across curated repos. Auto-scopes to current repo. Use instead of grep when the question is fuzzy, cross-file, or about prior reasoning. Skip for pure navigation.
 triggers:
   - recall
   - have we seen this before

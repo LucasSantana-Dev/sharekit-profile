@@ -27,7 +27,7 @@ Use when introducing new behavior.
 
 ## Rewrite gate
 
-If implementing the addition would require touching >5 files or >150 LOC or removing existing behavior, stop. Treat it as a rewrite, not an addition. Apply the no-big-bang gate: complete a prototype of the smallest incremental unit first. If the prototype exposes >3 friction points or requires >2 temporary shims, escalate to `/research-and-decide` before continuing.
+If implementing the addition would require touching >5 files or >150 LOC or removing existing behavior, stop. Treat it as a rewrite, not an addition. Apply the no-big-bang gate: complete a prototype of the smallest incremental unit first. If the prototype exposes >3 friction points or requires >2 temporary shims, escalate to `/decide` before continuing.
 
 ## Failure / Stop Conditions
 

@@ -75,9 +75,9 @@ The graph is the map. Your job after the pipeline is to be the guide.
 After a full build or an `--update` that **changed graph structure** (node count differs from the prior snapshot), copy `graph.json` into the centralized `knowledge-brain` vault so Obsidian + future RAGLight see the current graph. Skip for `--update` runs with no structural change (same node count), and skip for `query`/`path`/`explain` (read-only).
 
 ```bash
-BRAIN="/Volumes/External HD/Desenvolvimento/knowledge-brain"
+BRAIN="${DEV_ROOT}/knowledge-brain"
 # Mount guard (standards/knowledge-brain.md §1): vault is on the External HD.
-if ! mount | grep -q "/Volumes/External HD" || [ ! -d "$BRAIN/.git" ]; then
+if ! mount | grep -q "${DEV_ROOT}" || [ ! -d "$BRAIN/.git" ]; then
   echo "Graph snapshot: skipped — External HD not mounted (knowledge-brain unreachable)"
 elif [ -f graphify-out/graph.json ]; then
   PROJECT=$(basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)")

@@ -47,16 +47,10 @@ write (memory vs committed doc) and which tags apply, follow the decision tree i
 
 ### Phase 3 — Improve (conditional)
 If recall returned weak hits (cosine <0.40) for a query that should have hit something,
-invoke `/rag-curate` in curation mode to add the missing doc, rewrite the weak chunk,
-or reindex stale content. Skip if recall was strong.
+invoke `/rag-curate` to add the missing doc or rewrite the weak chunk. Skip if recall
+was strong.
 
-Improvement discipline:
-- Create a superseding memory for changed current state; do not rewrite historical memories as if old decisions never happened.
-- If a recalled memory contradicts repo truth, mark the new capture as `supersedes` and reference the old note.
-- Treat weak recall as a retrieval bug until proven otherwise: inspect source, chunk, index freshness, and query wording.
-- If the filesystem has more memory files than the index, record coverage drift and schedule reindex before relying on recall.
-
-**Done when:** `rag-curate` confirms N chunks rewritten or N docs added — verify via incremental reindex completion and cosine score ≥0.40 for the weak query in top 3 results.
+**Done when:** skill/rag-curate confirms N chunks rewritten or N docs added — verify via incremental reindex completion and cosine score ≥0.40 for the weak query in top 3 results.
 
 ### Phase 4 — Snapshot (if session-ending or context-pressured)
 Invoke `handoff` to write a durable resume packet. Skip if work continues immediately.
@@ -98,7 +92,7 @@ After capturing any decision, check: "Would a future agent need this committed c
 
 - If recall returns nothing AND no new knowledge was produced this session → exit clean,
   no capture needed
-- If `sync-memories` and `rag-curate` curation would write to the same file → consolidate writes
+- If `sync-memories` and `rag-curate` would write to the same file → consolidate writes
   to avoid double-update churn
 - Never skip Phase 4 if context is >80% — handoff is required for cross-session continuity
 

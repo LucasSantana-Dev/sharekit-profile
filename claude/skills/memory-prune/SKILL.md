@@ -166,7 +166,8 @@ Next:
 
 - `sync-memories` — after pruning, capture any new lessons from the audit itself.
 - `knowledge-loop` — composite that runs recall → capture → curate → handoff; pairs with prune at session boundaries.
-- `adt-rag-drift` — handles the RAG index (drift + curation); this skill handles the memory **files**. Fixes weak retrievals exposed when stale entries are pruned and the new query surface widens.
+- `adt-rag-drift` — handles the RAG index drift; this skill handles the memory **files**.
+- `rag-curate` — fix weak retrievals exposed when stale entries are pruned and the new query surface widens.
 
 ## Examples of stale entries (Lucky project)
 

@@ -30,10 +30,10 @@ Orchestrated end-to-end maintenance for the RAG index. Runs diagnostics → find
 ## Workflow
 
 **Preflight — Mount guard:**
-Mount `/Volumes/External HD` is required for all phases (embedder cache, memory vault, canonical chunks). If unmounted: surface blocker loudly; do not attempt RAG operations.
+Mount `${DEV_ROOT}` is required for all phases (embedder cache, memory vault, canonical chunks). If unmounted: surface blocker loudly; do not attempt RAG operations.
 
 ```bash
-mount | grep -q "/Volumes/External HD" || { \
+mount | grep -q "${DEV_ROOT}" || { \
   echo "BLOCKED: External HD unmounted — RAG embedder cache + memory vault unreachable"; \
   exit 1; \
 }
@@ -117,7 +117,7 @@ Open watch:              Weekly: refresh report every 7 days; if zero-hits persi
 
 ## Stop / Failure Conditions
 
-**Mount guard failure (Preflight):** `/Volumes/External HD` unmounted → halt all phases, surface blocker, exit with error. Do not attempt RAG operations without the drive mounted.
+**Mount guard failure (Preflight):** `${DEV_ROOT}` unmounted → halt all phases, surface blocker, exit with error. Do not attempt RAG operations without the drive mounted.
 
 **Phase 1 quality regressed:** Quality <80% (e.g., >20% queries <0.40 cosine) → surface regression in reconciliation, continue to Phase 2 for root cause (may be drift, may be coverage gap).
 

@@ -1,6 +1,6 @@
 ---
 name: decide-now
-description: Make fast, context-aware decisions using project memory, current git state, open PRs, plans, and docs — NOT for architectural choices requiring formal research (use /decide for those). Trigger when the user asks "should I X or Y?", "which approach fits best?", "is this worth doing?", "merge now or wait?", "fix this or defer?", "approach A or B?", or any choice where the right answer depends on understanding what's currently in flight. Reads available context before recommending. Outputs a clear verdict with evidence — no ADR, no research phase.
+description: Force a decision when the agent is stuck in analysis paralysis, going in circles, or repeatedly weighing options without committing. Picks the best available option, states the rationale, and moves forward immediately. Use when the agent has been deliberating for 3+ turns, when options are deadlocked, or when the user says "just decide", "pick one", "move on", or "stop deliberating". Also use when the user asks for a decision and the agent keeps hedging.
 ---
 
 # decide-now

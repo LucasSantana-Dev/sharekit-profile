@@ -56,12 +56,7 @@ Use for any work touching secrets, auth, config, deployment, MCP definitions, me
 
 - dependency vulnerabilities introduced or left unresolved
 - outdated library versions with known CVEs
-- supply chain risks (typosquatting, unmaintained packages, install scripts, unexpected network/file access)
-- lockfile drift or unpinned critical runtime dependencies
-
-### Static analysis and external signals
-
-Use available scanners as evidence sources, not separate catalog entry points: Semgrep for pattern-based static analysis, Snyk/Socket/npm audit for dependency and supply-chain risk, Sonar/SonarCloud for quality-security hotspots, Sentry for production error signals, and GitHub/code scanning for CI-enforced findings. If a tool is unavailable, state the fallback and do not mark the surface clear.
+- supply chain risks (typosquatting, unmaintained packages)
 
 ### Release/deployment
 

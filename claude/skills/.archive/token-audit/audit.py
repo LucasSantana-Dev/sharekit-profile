@@ -136,7 +136,7 @@ def parse_session(path: Path) -> dict | None:
 
 
 PROJECT_DIR_LABELS = {
-    "-Users-lucassantana": "home",
+    "-Users-<github-user>": "home",
     "-Volumes-External-HD-Desenvolvimento-Lucky": "Lucky",
     "-Volumes-External-HD-Desenvolvimento-ai-dev-toolkit": "ai-dev-toolkit",
     "-Volumes-External-HD-Desenvolvimento-networking-linkedin-engage": "linkedin-engage",
@@ -151,7 +151,7 @@ def project_label(jsonl_path: Path) -> str:
         if proj.startswith(key):
             return label
     # Generic: strip common prefix and truncate
-    return proj.replace("-Volumes-External-HD-Desenvolvimento-", "").replace("-Users-lucassantana-Desenvolvimento-", "")[:30]
+    return proj.replace("-Volumes-External-HD-Desenvolvimento-", "").replace("-Users-<github-user>-Desenvolvimento-", "")[:30]
 
 
 def load_sessions(

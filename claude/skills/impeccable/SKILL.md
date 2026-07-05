@@ -13,119 +13,27 @@ Designs and iterates production-grade frontend interfaces. Real working code, co
 
 ## Setup (non-optional)
 
-Before any design work or file edits, pass these gates. Skipping them produces generic output that ignores the project.
+Before any design work, pass these gates:
 
 | Gate | Required check | If fail |
 |---|---|---|
-| Context | The PRODUCT.md / DESIGN.md loader result is known from `node .claude/skills/impeccable/scripts/load-context.mjs`. | Run the loader before continuing. |
-| Product | PRODUCT.md exists and is not empty or placeholder (`[TODO]` markers, <200 chars). | Run `/impeccable teach`, refresh context, then resume. Never synthesize PRODUCT.md from the user's original prompt alone. |
-| Command | The matching command reference is loaded when a sub-command is used. | Load the reference before continuing. |
-| Craft | `/impeccable craft` has a user-confirmed shape brief for this task. `teach` / PRODUCT.md never counts as shape. | Run `/impeccable shape` and wait for explicit brief confirmation. |
-| Image | Required visual probes / mocks are generated or skipped with a reason. | Resolve the image-generation gate in `shape.md` or `craft.md` before code. |
-| Mutation | All active gates above pass. | Do not edit project files yet. |
+| Context | PRODUCT.md / DESIGN.md loaded via `node .claude/skills/impeccable/scripts/load-context.mjs` | Run the loader |
+| Product | PRODUCT.md exists and is not placeholder | Run `/impeccable teach` |
+| Command | Matching command reference loaded | Load the reference |
+| Craft | User-confirmed shape brief for this task | Run `/impeccable shape` |
+| Image | Visual probes generated or skipped with reason | Resolve before code |
 
-Agents using this skill should follow the gate checklist below. Gates are internal decision trees; they are never output to the user as status declarations.
+Gates are internal decision trees; never output to the user as status declarations.
 
-For `/impeccable craft`, `shape=pass` is only valid after a separate user response approving the shape design brief, or when the user provided an already-confirmed brief in the request. Do not mark `shape=pass` after writing PRODUCT.md, summarizing assumptions, or drafting an unconfirmed brief yourself.
+**Context gathering**: Load PRODUCT.md (required) and DESIGN.md (optional) via `node .claude/skills/impeccable/scripts/load-context.mjs`. Consume full JSON output. If PRODUCT.md is missing/placeholder: run `/impeccable teach` first.
 
-Other harnesses should follow the same checklist when they can expose this state.
-
-### 1. Context gathering
-
-Two files, case-insensitive. The loader looks at the project root by default and falls back to `.agents/context/` and `docs/` if the root is clean. Override with `IMPECCABLE_CONTEXT_DIR=path/to/dir` (absolute or relative to cwd).
-
-- **PRODUCT.md**: required. Users, brand, tone, anti-references, strategic principles.
-- **DESIGN.md**: optional, strongly recommended. Colors, typography, elevation, components.
-
-Load both in one call:
-
-```bash
-node .claude/skills/impeccable/scripts/load-context.mjs
-```
-
-Consume the full JSON output. Never pipe through `head`, `tail`, `grep`, or `jq`. The output's `contextDir` field tells you where the files were resolved from.
-
-If the output is already in this session's conversation history, don't re-run. Exceptions requiring a fresh load: you just ran `/impeccable teach` or `/impeccable document` (they rewrite the files), or the user manually edited one.
-
-`/impeccable live` already warms context via `live.mjs`. If you've run `live.mjs`, don't also run `load-context.mjs` this session.
-
-If PRODUCT.md is missing, empty, or placeholder (`[TODO]` markers, <200 chars): run `/impeccable teach`, then resume the user's original task with the fresh context. If the original task was `/impeccable craft`, resume into `/impeccable shape` before any implementation work.
-
-If DESIGN.md is missing: nudge once per session (*"Run `/impeccable document` for more on-brand output"*), then proceed.
-
-### 2. Register
-
-Every design task is **brand** (marketing, landing, campaign, long-form content, portfolio: design IS the product) or **product** (app UI, admin, dashboard, tool: design SERVES the product).
-
-Identify before designing. Priority: (1) cue in the task itself ("landing page" vs "dashboard"); (2) the surface in focus (the page, file, or route being worked on); (3) `register` field in PRODUCT.md. First match wins.
-
-If PRODUCT.md lacks the `register` field (legacy), infer it once from its "Users" and "Product Purpose" sections, then cache the inferred value for the session. Suggest the user run `/impeccable teach` to add the field explicitly.
-
-Load the matching reference: [reference/brand.md](reference/brand.md) or [reference/product.md](reference/product.md). The shared design laws below apply to both.
+**Register**: Every task is **brand** (marketing, landing, portfolio: design IS the product) or **product** (app UI, admin, dashboard: design SERVES the product). Load [reference/brand.md](reference/brand.md) or [reference/product.md](reference/product.md).
 
 ## Shared design laws
 
-Apply to every design, both registers. Match implementation complexity to the aesthetic vision: maximalism needs elaborate code, minimalism needs precision. Interpret creatively. Vary across projects; never converge on the same choices. Claude is capable of extraordinary work. Don't hold back.
+See [reference/design-laws.md](reference/design-laws.md) for the full design laws: color (OKLCH, color strategy axis), theme, typography, layout, motion, absolute bans (side-stripe borders, gradient text, glassmorphism, hero-metric template, identical card grids, modal as first thought), copy rules, and the AI slop test.
 
-### Color
-
-- Use OKLCH. Reduce chroma as lightness approaches 0 or 100; high chroma at extremes looks garish.
-- Never use `#000` or `#fff`. Tint every neutral toward the brand hue (chroma 0.005–0.01 is enough).
-- Pick a **color strategy** before picking colors. Four steps on the commitment axis:
-  - **Restrained**: tinted neutrals + one accent ≤10%. Product default; brand minimalism.
-  - **Committed**: one saturated color carries 30–60% of the surface. Brand default for identity-driven pages.
-  - **Full palette**: 3–4 named roles, each used deliberately. Brand campaigns; product data viz.
-  - **Drenched**: the surface IS the color. Brand heroes, campaign pages.
-- The "one accent ≤10%" rule is Restrained only. Committed / Full palette / Drenched exceed it on purpose. Don't collapse every design to Restrained by reflex.
-
-### Theme
-
-Dark vs. light is never a default. Not dark "because tools look cool dark." Not light "to be safe."
-
-Before choosing, write one sentence of physical scene: who uses this, where, under what ambient light, in what mood. If the sentence doesn't force the answer, it's not concrete enough. Add detail until it does.
-
-"Observability dashboard" does not force an answer. "SRE glancing at incident severity on a 27-inch monitor at 2am in a dim room" does. Run the sentence, not the category.
-
-### Typography
-
-- Cap body line length at 65–75ch.
-- Hierarchy through scale + weight contrast (≥1.25 ratio between steps). Avoid flat scales.
-
-### Layout
-
-- Vary spacing for rhythm. Same padding everywhere is monotony.
-- Cards are the lazy answer. Use them only when they're truly the best affordance. Nested cards are always wrong.
-- Don't wrap everything in a container. Most things don't need one.
-
-### Motion
-
-- Don't animate CSS layout properties.
-- Ease out with exponential curves (ease-out-quart / quint / expo). No bounce, no elastic.
-
-### Absolute bans
-
-Match-and-refuse. If you're about to write any of these, rewrite the element with different structure.
-
-- **Side-stripe borders.** `border-left` or `border-right` greater than 1px as a colored accent on cards, list items, callouts, or alerts. Never intentional. Rewrite with full borders, background tints, leading numbers/icons, or nothing.
-- **Gradient text.** `background-clip: text` combined with a gradient background. Decorative, never meaningful. Use a single solid color. Emphasis via weight or size.
-- **Glassmorphism as default.** Blurs and glass cards used decoratively. Rare and purposeful, or nothing.
-- **The hero-metric template.** Big number, small label, supporting stats, gradient accent. SaaS cliché.
-- **Identical card grids.** Same-sized cards with icon + heading + text, repeated endlessly.
-- **Modal as first thought.** Modals are usually laziness. Exhaust inline / progressive alternatives first.
-
-### Copy
-
-- Every word earns its place. No restated headings, no intros that repeat the title.
-- **No em dashes.** Use commas, colons, semicolons, periods, or parentheses. Also not `--`.
-
-### The AI slop test
-
-If someone could look at this interface and say "AI made that" without doubt, it's failed. Cross-register failures are the absolute bans above. Register-specific failures live in each reference.
-
-**Category-reflex check.** Run at two altitudes; the second one catches what the first one misses.
-
-- **First-order:** if someone could guess the theme + palette from the category alone ("observability → dark blue", "healthcare → white + teal", "finance → navy + gold", "crypto → neon on black"), it's the first training-data reflex. Rework the scene sentence and color strategy until the answer isn't obvious from the domain.
-- **Second-order:** if someone could guess the aesthetic family from category-plus-anti-references ("AI workflow tool that's not SaaS-cream → editorial-typographic", "fintech that's not navy-and-gold → terminal-native dark mode"), it's the trap one tier deeper. The first reflex was avoided; the second wasn't. Rework until both answers are not obvious. The brand register's [reflex-reject aesthetic lanes](reference/brand.md) list catches the currently-saturated families.
+Apply to every design, both registers. Match implementation complexity to the aesthetic vision. Interpret creatively. Vary across projects; never converge on the same choices.
 
 ## Commands
 
@@ -160,41 +68,21 @@ Plus two management commands: `pin <command>` and `unpin <command>`, detailed be
 
 ### Routing rules
 
-0. **Vague or multi-part request**: enter auto mode. Scan PRODUCT.md, DESIGN.md, and codebase; sequence commands automatically; ask clarifying questions only when needed. Details in "Auto Mode" section below.
-1. **No argument**: render the table above as the user-facing command menu, grouped by category. Ask what they'd like to do.
-2. **First word matches a command**: load its reference file and follow its instructions. Everything after the command name is the target.
-3. **First word doesn't match**: general design invocation. Apply the setup steps, shared design laws, and the loaded register reference, using the full argument as context.
+0. **Vague or multi-part request**: enter auto mode — scan project, sequence commands automatically.
+1. **No argument**: render the command table, ask what they'd like to do.
+2. **First word matches a command**: load its reference file and follow its instructions.
+3. **First word doesn't match**: general design invocation — apply setup + design laws + register reference.
 
-Setup (context gathering, register) is already loaded by then; sub-commands don't re-invoke `/impeccable`.
-
-If the first word is `craft`, setup still runs first, but [reference/craft.md](reference/craft.md) owns the rest of the flow. If setup invokes `teach` as a blocker, finish teach, refresh context, then resume the original command and target.
+If the first word is `craft`, setup runs first, then [reference/craft.md](reference/craft.md) owns the rest.
 
 ## Auto Mode
 
-Triggered when a request is vague, multi-part, or doesn't match a single command. Instead of asking "which command do you want?", auto mode scans the project and suggests a sequenced action plan.
-
-### Five steps
-
-1. **Context Scan**: Load PRODUCT.md, DESIGN.md, and scan the codebase for existing UI patterns, components, and design inconsistencies. Use bootstrap-context.mjs if PRODUCT.md is missing.
-
-2. **Question Round**: Ask 2-3 focused clarifying questions based on what the scan revealed. If the request was already specific, skip to step 3.
-
-3. **Diagnose**: From the answers, identify which impeccable commands would unlock the most value (e.g., if the UI is bland, suggest `bolder`; if copy is unclear, suggest `clarify`; if there's no design system, suggest `extract`).
-
-4. **Propose**: Present a sequenced action plan (e.g., "Run `shape` to plan the new flow, then `craft` to implement, then `polish` before shipping"). Ask for approval.
-
-5. **Approval & Execution**: Once approved, execute the sequence. Hand off context between commands automatically; don't re-run `load-context.mjs` unless a file was edited that changed the brief.
-
-### Auto mode is not guesswork
-
-Auto mode trades vague requests for specific discoveries. If the scan reveals nothing (no PRODUCT.md, no components, no design direction), it fails safely: ask for one required input (usually `/impeccable teach` to create PRODUCT.md) and let the user pick a command from the menu.
+Triggered when a request is vague or multi-part. Instead of asking "which command?", scan the project and suggest a sequenced action plan: context scan → question round → diagnose → propose sequence → execute. If scan reveals nothing, fail safely: ask for `/impeccable teach` and let user pick a command.
 
 ## Pin / Unpin
 
-**Pin** creates a standalone shortcut so `/<command>` invokes `/impeccable <command>` directly. **Unpin** removes it. The script writes to every harness directory present in the project.
+**Pin** creates a standalone shortcut so `/<command>` invokes `/impeccable <command>` directly. **Unpin** removes it.
 
 ```bash
 node .claude/skills/impeccable/scripts/pin.mjs <pin|unpin> <command>
 ```
-
-Valid `<command>` is any command from the table above. Report the script's result concisely. Confirm the new shortcut on success, relay stderr verbatim on error.

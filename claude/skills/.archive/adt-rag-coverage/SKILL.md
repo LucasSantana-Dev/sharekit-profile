@@ -20,7 +20,7 @@ Audit what's indexed and what's missing. Use coverage reports to plan curation a
 **Stop if:** External HD unmounted → RAG/vault queries return stale/empty results.
 
 ```bash
-mount | grep -q "/Volumes/External HD" || { echo "BLOCKED: External HD unmounted — RAG/vault unreachable"; exit 1; }
+mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: External HD unmounted — RAG/vault unreachable"; exit 1; }
 ```
 
 **Stop if:** Index missing → no coverage data available.

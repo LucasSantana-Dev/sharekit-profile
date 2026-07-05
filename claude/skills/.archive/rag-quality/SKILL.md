@@ -17,7 +17,7 @@ Measure how well the RAG system retrieves relevant documents. Identify zero-hit 
 **Stop if:** External HD is unmounted → RAG index is unreachable and results will be empty/stale.
 
 ```bash
-mount | grep -q "/Volumes/External HD" || { echo "BLOCKED: External HD unmounted — RAG index unreachable"; exit 1; }
+mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: External HD unmounted — RAG index unreachable"; exit 1; }
 ```
 
 Without the mount, do not proceed. Fall back to grep-based search instead.

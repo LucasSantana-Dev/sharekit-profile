@@ -5,7 +5,7 @@ Lead with: **verdict** (index health: HEALTHY | NEEDS_MAINTENANCE | DEGRADED) + 
 ## Example 1: Healthy Index
 
 ```
-RAG-MAINTENANCE — lucassantana.tech
+RAG-MAINTENANCE — <github-user>.tech
 
 VERDICT: HEALTHY — 95% of queries score ≥0.55 cosine; no drift detected; corpus complete.
 
@@ -18,7 +18,7 @@ Snapshot: ~/.claude/rag-index/weekly.md
 ## Example 2: Index Needs Maintenance
 
 ```
-RAG-MAINTENANCE — lucassantana.tech
+RAG-MAINTENANCE — <github-user>.tech
 
 VERDICT: NEEDS_MAINTENANCE — 18% of queries score <0.40; 8 stale chunks detected; memory vault has 3 new files not yet indexed.
 
