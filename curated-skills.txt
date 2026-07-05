@@ -2,6 +2,8 @@
 # sync-sharekit-profile syncs ONLY these. Add a line to publish a skill; remove to unpublish.
 add
 adt-rag-drift
+audit-deep
+backlog
 brainstorming
 changelog-update
 ci-watch
@@ -23,12 +25,14 @@ loop-engineer
 memory-prune
 next-priority
 orchestrate
+parallel-work-coordinator
 plan
 pr-merge-readiness
 prototype
 rag-curate
 recall
 refactor
+research-and-decide
 resume
 review
 secure
