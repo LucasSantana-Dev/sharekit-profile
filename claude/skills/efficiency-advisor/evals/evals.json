@@ -1,0 +1,85 @@
+{
+  "skill_name": "efficiency-advisor",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm about to run a workflow that dispatches 8 agents sequentially: each one reads the same SKILL.md file (about 400 lines), analyzes one section, and writes findings to a file. Is this a good approach?",
+      "expected_output": "Identifies re-read waste (8 agents reading same file = 8x tokens), recommends parallel dispatch with pre-read in orchestrator, states token savings estimate, provides concrete 'change X to Y' instruction",
+      "files": [],
+      "assertions": [
+        {
+          "name": "identifies-re-read-waste",
+          "description": "Response identifies that 8 agents each reading the same file multiplies token cost (re-read waste pattern)"
+        },
+        {
+          "name": "recommends-parallel-not-sequential",
+          "description": "Response recommends parallel dispatch instead of sequential agents"
+        },
+        {
+          "name": "consolidate-read-in-orchestrator",
+          "description": "Response suggests reading the file once in the orchestrator and passing content to agents (not just 'make it parallel')"
+        },
+        {
+          "name": "provides-token-estimate",
+          "description": "Response provides a concrete token savings estimate or relative comparison (e.g., 8x vs 1x, or approximate numbers)"
+        },
+        {
+          "name": "uses-structured-output-format",
+          "description": "Response uses the ## Efficiency [verdict] header format from the skill's Output_Format section"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Quick question: should I use Opus or Sonnet to triage 20 GitHub issues — reading each issue body and labeling them as bug/enhancement/wontfix?",
+      "expected_output": "Quick decision mode: recommends Sonnet (not Haiku because labeling needs judgment; not Opus because no ≥5-step reasoning chain), states cost tradeoff vs Opus, under 50 words",
+      "files": [],
+      "assertions": [
+        {
+          "name": "recommends-sonnet",
+          "description": "Response recommends Sonnet (not Opus, not Haiku) for issue triage"
+        },
+        {
+          "name": "uses-quick-decision-mode",
+          "description": "Response is concise (no full analysis headers like ## Efficiency, no Step 1/2/3 structure) — uses quick mode"
+        },
+        {
+          "name": "states-tradeoff",
+          "description": "Response states what you give up (e.g., why not Haiku: quality risk; why not Opus: cost)"
+        },
+        {
+          "name": "under-100-words",
+          "description": "Response is brief — under 100 words (skill says under 50, allowing some tolerance for quality)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Here's my plan for a codebase audit: Step 1 - run security audit (Opus agent). Step 2 - wait for it to finish, then run test health audit (Opus agent). Step 3 - wait, then run config drift check (Opus agent). Step 4 - synthesize all three findings and write an ADR (Opus agent). Is this efficient?",
+      "expected_output": "Flags two issues: (1) Steps 1-3 are independent and should be parallel. (2) Steps 1-3 should use Explore/Sonnet not Opus. Step 4 Opus is correctly endorsed. Provides concrete rewrite.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "flags-sequential-steps-1-3",
+          "description": "Response identifies that Steps 1, 2, 3 are independent and should run in parallel, not sequentially"
+        },
+        {
+          "name": "flags-opus-misuse-steps-1-3",
+          "description": "Response flags Opus as wrong tier for Steps 1-3 (analysis/audit tasks — should be Explore or Sonnet)"
+        },
+        {
+          "name": "endorses-opus-step-4",
+          "description": "Response correctly endorses Opus for Step 4 (synthesis + ADR writing IS an Opus-appropriate task)"
+        },
+        {
+          "name": "provides-concrete-rewrite",
+          "description": "Response provides actionable 'change X to Y' instructions, not just 'this is bad'"
+        },
+        {
+          "name": "uses-structured-output-format",
+          "description": "Response uses the ## Efficiency [verdict] header format"
+        }
+      ]
+    }
+  ]
+}

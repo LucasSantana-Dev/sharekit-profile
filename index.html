@@ -774,7 +774,7 @@
       Guide
     </button>
     <button class="nav-tab" data-panel="skills">
-      Skills <span class="tab-count" id="tc-skills">45</span>
+      Skills <span class="tab-count" id="tc-skills">46</span>
     </button>
     <button class="nav-tab" data-panel="agents">
       Agents <span class="tab-count" id="tc-agents">39</span>
@@ -1090,7 +1090,7 @@
       <div class="grid-header">
         <div>
           <div class="grid-header-title" id="grid-title">All Skills</div>
-          <div class="grid-header-sub" id="grid-sub">45 skills across 13 categories — invoke autonomously or with /<i>name</i></div>
+          <div class="grid-header-sub" id="grid-sub">46 skills across 13 categories — invoke autonomously or with /<i>name</i></div>
         </div>
         <div class="result-count" id="result-count"></div>
       </div>
@@ -1271,6 +1271,7 @@ const SKILLS = [
   { name: 'decide-now', cat: 'architecture', composite: false, desc: 'Make fast, context-aware decisions using project memory, current git state, open PRs, plans, and docs — NOT for architectural choices requiring formal research (use /decide for those). Trigger when the user asks "should I X or Y?", "which approach fits best?", "is this worth doing?", "merge now or wait?", "fix this or defer?", "approach A or B?", or any choice where the right answer depends on understanding what\'s currently in flight. Reads available context before recommending. Outputs a clear verdict with evidence — no ADR, no research phase.' },
   { name: 'dep-sweep', cat: 'cicd', composite: true, desc: 'Audits dependencies for known vulnerabilities, stale versions, and license compliance, then proposes a remediation plan. Composite skill — batch-process the queue of open Dependabot / Renovate / npm-bot PRs by grouping them by risk, auto-merging the safe ones into `release`, and surfacing only the risky ones for human review. Chains gh PR enumeration → risk classification (devDeps / patch / minor / major / lockfile-only) → pr-merge-readiness per group → auto-merge safe group → flag risky group → optional /pr-to-release for batch entry on release. Use when bot-PR noise has piled up; reduces a 20-PR queue to "merged 14, 6 need eyes".' },
   { name: 'dispatch', cat: 'planning', composite: false, desc: 'Routes the current task to the right composite or sub-skill based on intent, scope, and active state. Parallelize independent evidence-gathering or audit work by splitting into ≥2 concurrent agent tracks; reconcile results into single verdict + action. Also dispatches named agent-box task scripts or ad-hoc prompts to remote homelab infrastructure over SSH. Use when (1) sub-tasks are cleanly separable with no output deps, (2) each would block progress if sequential, (3) running serially wastes turns, or (4) invoking a remote agent-box task/prompt. Examples: multi-repo scans, concurrent CI/lint/test audits, N-package dependency sweeps, parallel PR review passes, remote health/ci-watch scripts. Skip when tasks depend on prior output — use loop or plan instead.' },
+  { name: 'efficiency-advisor', cat: 'planning', composite: false, desc: 'Analyze a proposed multi-agent workflow, Workflow() script, or active session for token waste and time bottlenecks. Catches model-tier mismatches, sequential work that should be parallel, re-read waste, and context bloat — scores each fix by impact with estimated savings. Use before spawning large agent fleets or when a session is burning budget faster than expected.' },
   { name: 'fallback', cat: 'planning', composite: false, desc: 'Recover cleanly when the preferred tool, skill, or path fails.' },
   { name: 'frontend-design', cat: 'frontend', composite: false, desc: 'Create bold, art-directed frontend interfaces when the work is explicitly aesthetic-first, editorial, experimental, or brand-expression-heavy. Use for standout visual direction and non-routine art direction, not as the default skill for standard product UI or routine frontend implementation.' },
   { name: 'graphify', cat: 'sync-docs', composite: false, desc: 'any input (code, docs, papers, images, videos) to knowledge graph. Use when user asks any question about a codebase, documents, or project content - especially if graphify-out/ exists, treat the question as a /graphify query.' },
