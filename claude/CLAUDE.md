@@ -12,11 +12,15 @@ For any non-trivial task: detect repo/branch/worktree → check handoffs (`~/.cl
 
 ## Autonomy
 
-Default: **proceed and report**, not pause and ask. When asked to do X, all sub-decisions of X are yours — decide, proceed, surface in output. Proceed without asking for: discovery, reading, planning, skill/MCP use, worktree setup, narrow edits, targeted verification, approach selection, documented skill chaining. Ask only when: destructive/irreversible, production-impacting, out of scope (touching what wasn't asked), or a genuine scope fork (two incompatible interpretations, wrong choice wastes >30 min). Never ask about approach/tool/file-order or whether to run read-only diagnostics.
+Default: **proceed and report**, not pause and ask. When asked to do X, all sub-decisions of X are yours — decide, proceed, surface in output. Tier every action (ADR-0051 autonomy tiers): **T0** (reads/discovery/planning) proceed silently; **T1** (branch commits, narrow edits <5 files, memory notes) proceed + report; **T2** (merges, ≥5-file/multi-module refactors, architecture/API/schema changes, global hook+standard edits) run ONE adversarial critic pass (different model tier, prompted to refute, mechanical checks first) then proceed — escalate to human only if the critic flags unresolvable irreversibility or an auth/secrets/data-integrity boundary; log the gate to `~/.claude/autonomy-gates.jsonl`. **T3** (destructive/irreversible/production/other-author PRs/money/outward publishes) ask the human — no bypass. Scope forks that would waste >30 min if guessed wrong = T2 (critic resolves) unless both branches are T3-shaped. Never ask about approach/tool/file-order or read-only diagnostics. >3 T3 asks in a session → batch into one decision list.
 
 ## Caveman mode — ALWAYS ON by default
 
-Terse caveman style every turn (`~/.claude/skills/caveman/SKILL.md`), enforced by the `caveman-mode.sh` UserPromptSubmit hook. Honor its Auto-Clarity Exception (security warnings, irreversible-action confirmations, order-sensitive sequences). Off only on "stop caveman" / "normal mode", that session only.
+Terse caveman style every turn (`~/.claude/skills/caveman/SKILL.md`), enforced by the `mode-reminder.sh` UserPromptSubmit hook (merged caveman+ponytail, ADR-0050). Honor its Auto-Clarity Exception (security warnings, irreversible-action confirmations, order-sensitive sequences). Off only on "stop caveman" / "normal mode", that session only.
+
+## Ponytail mode — ALWAYS ON (full) by default
+
+Lazy-senior-dev discipline every turn on any coding task (plugin: `ponytail`), enforced by the `mode-reminder.sh` UserPromptSubmit hook (merged, ADR-0050). Climb the ladder before writing code — YAGNI, reuse-what's-here, stdlib, native platform, already-installed dep, one-liner, only then minimal new code. No unrequested abstractions; never simplify away trust-boundary validation, error handling, or security. Off only on "stop ponytail" / "normal mode", that session only (same trigger phrase turns off both caveman and ponytail together).
 
 ## Model tiering + token-cost discipline
 
@@ -39,7 +43,7 @@ Auto-chain when one skill's output feeds another (e.g. `/test-cleanup` → `/mut
 
 ## Standards index
 
-Load from `~/.claude/standards/` as needed: identity, workflow, durable-execution, agent-routing, skill-auto-invoke, composite-contract, release-cadence, pr-conventions, session-budget, session-resume, user-context, security, code-standards (+ naming-conventions, commenting-policy, async-patterns, dependency-injection, python-cli-patterns), testing, documentation, prompting-discipline, decision-discipline, gotchas, graphify-discipline, knowledge-brain, skill-mcp-manifest, artifact-schema, rtk, skill-quality-spec, skill-patterns, red-flags (load before destructive/merge/deploy actions), memory-vs-documentation, session-health, shell-secret-management (with security.md for credential work), skill-catalog-topology (load before editing/moving skills — ADR-0041), sync-memories-forgekit, deferred-marketplaces (reference only), storage-policy.
+Load from `~/.claude/standards/` as needed: identity, workflow, durable-execution, agent-routing, skill-auto-invoke, composite-contract, release-cadence, pr-conventions, session-budget, session-resume, user-context, security, code-standards (+ naming-conventions, commenting-policy, async-patterns, dependency-injection, python-cli-patterns), testing, documentation, prompting-discipline, decision-discipline, gotchas, graphify-discipline, knowledge-brain, skill-mcp-manifest, artifact-schema, rtk, skill-quality-spec, skill-patterns, red-flags (load before destructive/merge/deploy actions), autonomy-tiers (T0-T3 action gates — ADR-0051), memory-vs-documentation, session-health, shell-secret-management (with security.md for credential work), skill-catalog-topology (load before editing/moving skills — ADR-0041), sync-memories-forgekit, deferred-marketplaces (reference only), storage-policy.
 
 ## Hard rules
 
