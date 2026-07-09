@@ -153,7 +153,7 @@ Render as themed sections (see Theme Grouping above). Within each theme, one row
 
  3 |  4.0 |  3  | Cache /api/users list endpoint              | perf     | high     | m   | src/api/users.ts:14
      Value: Reduces p95 latency on most-used endpoint; directly improves UX for all users
- 4 |  2.0 |  2  | Remove unused lodash import from bundle     | perf     | medium   | xs  | src/utils/format.ts:1
+ 4 |  2.0 |  2  | Remove unused lodash dep from bundle        | perf     | medium   | xs  | src/utils/format.ts:1
      Value: Shrinks bundle by ~25kB; marginal improvement, mainly internal quality
 
 ━━━ ⚠️  Docs [deprioritized — 100% rejection rate, 3 runs] ━━━

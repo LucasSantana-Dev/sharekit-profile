@@ -86,8 +86,18 @@ report="$FORGE/${datestamp}-skill-validate.md"
 
 # Resolve tool to extract YAML frontmatter fields.
 extract_field() {
-  # extract_field <file> <field>  (reads simple "field: value" frontmatter)
-  rg -i "^${2}:" "$1" 2>/dev/null | head -1 | sed -E "s/^${2}:[[:space:]]*//I" | tr -d '"' | tr -d "'"
+  # extract_field <file> <field>  (reads "field: value" frontmatter; folds >-/| block scalars)
+  local val
+  val="$(rg -i "^${2}:" "$1" 2>/dev/null | head -1 | sed -E "s/^${2}:[[:space:]]*//I")"
+  if [[ "$val" =~ ^[\>\|][+-]?$ ]]; then
+    val="$(awk -v field="${2}" '
+      tolower($0) ~ "^"field":" { capture=1; next }
+      capture && /^[A-Za-z_][A-Za-z0-9_-]*:/ { exit }
+      capture && /^---/ { exit }
+      capture { sub(/^[[:space:]]+/, ""); printf "%s ", $0 }
+    ' "$1")"
+  fi
+  printf '%s' "$val" | tr -d '"' | tr -d "'"
 }
 
 mapfile -t skill_files < <(fd -t f -e md '^SKILL\.md$' "$CATALOG" 2>/dev/null | sort)
@@ -145,7 +155,7 @@ for f in "${skill_files[@]}"; do
   if [[ -n "$raw_desc_block" ]]; then
     first_value="$(printf '%s\n' "$raw_desc_block" | head -1 | sed -E 's/^description:[[:space:]]*//')"
     first_char="${first_value:0:1}"
-    if [[ "$first_char" != "'" && "$first_char" != '"' ]]; then
+    if [[ "$first_char" != "'" && "$first_char" != '"' && ! "$first_value" =~ ^[\>\|] ]]; then
       rest="$(printf '%s\n' "$raw_desc_block" | sed '1s/^description:[[:space:]]*//')"
       if printf '%s' "$rest" | rg -q ': '; then
         findings="${findings}ERROR  | ${rel} | frontmatter description is an unquoted plain scalar containing ': ' — fails real YAML parsing (mapping values are not allowed here); wrap the description in single quotes\n"
