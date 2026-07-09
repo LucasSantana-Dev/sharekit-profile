@@ -8,6 +8,10 @@ metadata:
   tier: contextual
   canonical_source: ~/.agents/skills/test-driven-development
   progressive_disclosure: split
+triggers:
+  - test driven development
+  - tdd
+  - behavior driven testing
 ---
 
 

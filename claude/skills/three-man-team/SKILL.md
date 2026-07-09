@@ -13,6 +13,11 @@ metadata:
   owner: global-agents
   tier: orchestration
   canonical_source: ~/.agents/skills/three-man-team
+triggers:
+  - parallel team
+  - three person team
+  - big pr
+  - multi phase
 ---
 
 ## When to Use

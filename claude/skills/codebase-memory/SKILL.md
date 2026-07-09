@@ -2,6 +2,11 @@
 name: codebase-memory
 description: >-
   Use the codebase knowledge graph for structural code queries. Triggers on: explore the codebase, understand the architecture, what functions exist, show me the structure, who calls this function, what does X call, trace the call chain, find callers of, show dependencies, impact analysis, dead code, unused functions, high fan-out, refactor candidates, code quality audit, graph query syntax, Cypher query examples, edge types, how to use search_graph.
+triggers:
+  - codebase memory
+  - explore codebase
+  - code structure
+  - graph query
 ---
 
 # Codebase Memory — Knowledge Graph Tools

@@ -96,6 +96,13 @@ extract_field() {
       capture && /^---/ { exit }
       capture { sub(/^[[:space:]]+/, ""); printf "%s ", $0 }
     ' "$1")"
+  elif [[ -z "$val" ]]; then
+    # empty value on the key line = YAML list ("triggers:\n  - foo") — join items
+    val="$(awk -v field="${2}" '
+      tolower($0) ~ "^"field":" { capture=1; next }
+      capture && /^[[:space:]]+-[[:space:]]/ { sub(/^[[:space:]]+-[[:space:]]*/, ""); printf "%s, ", $0; next }
+      capture { exit }
+    ' "$1")"
   fi
   printf '%s' "$val" | tr -d '"' | tr -d "'"
 }

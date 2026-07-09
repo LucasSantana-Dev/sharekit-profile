@@ -7,6 +7,11 @@ metadata:
   owner: global-agents
   tier: contextual
   canonical_source: ~/.claude/skills/research-and-decide
+triggers:
+  - research
+  - research and decide
+  - evaluate options
+  - library choice
 ---
 
 # Research and Decide

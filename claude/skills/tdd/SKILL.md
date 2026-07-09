@@ -1,6 +1,11 @@
 ---
 name: tdd
 description: Short alias for test-driven development. Use for red-green-refactor, tracer bullets, behavior-driven testing, or TDD workflows.
+triggers:
+  - tdd
+  - red green refactor
+  - test first
+  - behavior driven
 ---
 
 # Test-Driven Development (Short)

@@ -7,6 +7,11 @@ metadata:
   owner: global-agents
   tier: contextual
   canonical_source: ~/.claude/skills/session-bootstrap
+triggers:
+  - session start
+  - what's next
+  - load context
+  - start of day
 ---
 
 # Session Bootstrap

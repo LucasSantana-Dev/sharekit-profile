@@ -8,6 +8,11 @@ metadata:
   tier: production
   canonical_source: ~/.agents/skills/version-bump
 invocation_type: internal
+triggers:
+  - version bump
+  - bump version
+  - release version
+  - semver
 ---
 
 Automate version bumping across an npm monorepo (npm workspaces), promote CHANGELOG entries, and open a PR with auto-merge enabled.

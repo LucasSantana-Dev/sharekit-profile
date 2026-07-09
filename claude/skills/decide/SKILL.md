@@ -8,6 +8,11 @@ metadata:
   owner: global-agents
   tier: contextual
   canonical_source: ~/.claude/skills/decide
+triggers:
+  - decide
+  - research and decide
+  - make a decision
+  - record decision
 ---
 
 # Decide

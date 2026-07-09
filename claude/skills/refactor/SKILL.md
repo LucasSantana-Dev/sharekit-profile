@@ -2,6 +2,11 @@
 name: refactor
 description: 'Surgical code refactoring to improve maintainability without changing behavior. Invoke when user says "refactor this", "clean up this code", "extract functions", "this is messy", "improve maintainability", "fix code smells", "simplify this", "this function is too long", or when you see god functions, nested conditionals, duplicate logic, magic numbers, unclear naming, or dead code. Always run a discovery pass first — catalog smells before touching anything. Gradual evolution, not revolution.'
 license: MIT
+triggers:
+  - refactor
+  - clean up
+  - improve maintainability
+  - code smells
 ---
 
 # Refactor

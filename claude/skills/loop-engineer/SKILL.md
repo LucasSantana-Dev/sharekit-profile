@@ -1,6 +1,11 @@
 ---
 name: loop-engineer
 description: "Designs and implements autonomous agent loops for any task. Trigger when the user wants to stop manually prompting agents and build a self-running feedback cycle — coding automation, research pipelines, content workflows, CI loops, or any repeating AI-driven process. Also trigger for \"design a loop\", \"build an agent loop\", \"I want this to run automatically\", or when describing a workflow currently driven manually. Output: complete loop spec plus working implementation."
+triggers:
+  - design loop
+  - build agent loop
+  - automation
+  - run automatically
 ---
 
 # Loop Engineer

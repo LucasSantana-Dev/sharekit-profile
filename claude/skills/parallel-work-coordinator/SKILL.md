@@ -8,6 +8,11 @@ description: >
   Also auto-trigger when you detect sequential work that could safely parallelize.
   This skill wraps multi-agent dispatch for lightweight jobs; use Workflow for heavy
   orchestration with loops, conditionals, or large fleets (>5 units).
+triggers:
+  - parallel work
+  - do all these
+  - audit in parallel
+  - independent tasks
 ---
 
 # Parallel Work Coordinator

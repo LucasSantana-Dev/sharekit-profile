@@ -9,6 +9,11 @@ metadata:
   owner: global-agents
   tier: contextual
   canonical_source: ~/.agents/skills/changelog-update
+triggers:
+  - changelog
+  - update changelog
+  - promote unreleased
+  - changelog update
 ---
 
 # Changelog Update Skill

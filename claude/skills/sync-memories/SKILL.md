@@ -8,6 +8,11 @@ metadata:
   tier: stateful
   canonical_source: ~/.agents/skills/sync-memories
 invocation_type: internal
+triggers:
+  - sync memories
+  - save knowledge
+  - remember
+  - persist knowledge
 ---
 
 # Sync Memories — Session Knowledge Capture

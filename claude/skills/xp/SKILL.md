@@ -5,6 +5,11 @@ metadata:
   tier: "methodology"
   owner: "lucas"
   canonical_source: "https://github.com/<github-user>/claude-code"
+triggers:
+  - xp
+  - pair programming
+  - extreme programming
+  - continuous refactoring
 ---
 
 # XP — Extreme Programming with AI Agents

@@ -7,6 +7,12 @@ metadata:
   owner: global-agents
   tier: contextual
   canonical_source: ~/.claude/skills/audit-deep
+triggers:
+  - audit-deep
+  - audit repo
+  - health check
+  - tech debt review
+  - before release
 ---
 
 # Audit Deep

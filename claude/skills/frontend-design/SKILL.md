@@ -9,6 +9,11 @@ metadata:
   owner: global-agents
   tier: ephemeral
   canonical_source: ~/.agents/skills/frontend-design
+triggers:
+  - frontend design
+  - art direction
+  - bold interface
+  - create interface
 ---
 
 This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic "AI slop" aesthetics. Implement real working code with exceptional attention to aesthetic details and creative choices.

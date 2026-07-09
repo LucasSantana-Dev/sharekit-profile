@@ -7,6 +7,11 @@ metadata:
   owner: global-agents
   tier: contextual
   canonical_source: ~/.claude/skills/backlog
+triggers:
+  - backlog
+  - what to work on
+  - prioritize issues
+  - plan sprint
 ---
 
 # /backlog

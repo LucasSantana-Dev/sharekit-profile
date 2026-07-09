@@ -7,6 +7,11 @@ argument-hint: "[craft|shape · audit|critique · animate|bolder|colorize|deligh
 license: Apache 2.0. Based on Anthropic's frontend-design skill. See NOTICE.md for attribution.
 allowed-tools:
   - Bash(npx impeccable *)
+triggers:
+  - design ui
+  - improve interface
+  - polish ui
+  - audit ui
 ---
 
 Designs and iterates production-grade frontend interfaces. Real working code, committed design choices, exceptional craft.

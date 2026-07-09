@@ -7,6 +7,11 @@ metadata:
   owner: global-agents
   tier: contextual
   canonical_source: ~/.claude/skills/knowledge-loop
+triggers:
+  - knowledge loop
+  - remember this
+  - save knowledge
+  - persist
 ---
 
 # Knowledge Loop

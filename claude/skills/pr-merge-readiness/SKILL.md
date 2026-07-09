@@ -8,6 +8,11 @@ metadata:
   tier: contextual
   canonical_source: ~/.claude/skills/pr-merge-readiness
 invocation_type: internal
+triggers:
+  - pr ready
+  - merge check
+  - is this pr ready
+  - merge readiness
 ---
 
 # PR Merge Readiness
