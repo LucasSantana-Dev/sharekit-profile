@@ -6,7 +6,7 @@ auto-invoke: weekly-per-repo + pre-release + tech-debt-review
 metadata:
   owner: global-agents
   tier: contextual
-  canonical_source: ~/.claude/skills/audit-deep
+  canonical_source: /Users/lucassantana/.claude/skills/audit-deep
 triggers:
   - audit-deep
   - audit repo

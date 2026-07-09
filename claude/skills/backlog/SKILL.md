@@ -1,12 +1,12 @@
 ---
 name: backlog
-description: Composite - end-to-end backlog builder for a single repo. Analyzes the repo in parallel (audit-deep + ecosystem-health + repo-state-snapshot), scores each finding with a value_score (1-5, measuring user/business impact of delivery), ROI-ranks using severity × urgency × value_score / effort, groups findings into sprint themes, proposes with a Val column and per-finding "Value:" justification, supports sprint budget mode ("I have 2 days") for greedy knapsack selection, learns from approval history to deprioritize consistently-rejected categories, generates specs for features, creates GitHub issues (deduped), and adds to the Active Backlog Project board. Use whenever the user wants to know what to work on, build a backlog, prioritize issues, or plan a sprint.
+description: Composite backlog builder for a single repo. Analyzes code, scores findings by value and ROI, groups into themes, and creates prioritized GitHub issues on a Project board. Use to discover what to work on, build a backlog, plan sprints, or prioritize work with a time budget.
 user-invocable: true
 auto-invoke: build a backlog, generate a backlog, find gaps, find opportunities, refactoring opportunities, what should i work on, what is missing in this repo, audit and plan, comprehensive backlog, project audit and plan, what can i get done this week, sprint planning, i have N days, prioritize my work, what has the most value
 metadata:
   owner: global-agents
   tier: contextual
-  canonical_source: ~/.claude/skills/backlog
+  canonical_source: /Users/lucassantana/.claude/skills/backlog
 triggers:
   - backlog
   - what to work on

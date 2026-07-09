@@ -6,7 +6,7 @@ argument-hint: <NEXT_VERSION> (e.g., 2.7.0)
 metadata:
   owner: lucas-dev
   tier: production
-  canonical_source: ~/.agents/skills/version-bump
+  canonical_source: /Users/lucassantana/.agents/skills/version-bump
 invocation_type: internal
 triggers:
   - version bump

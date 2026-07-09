@@ -2,12 +2,10 @@
 name: parallel-work-coordinator
 description: >
   Orchestrate 3–5 independent tasks in parallel with auto-dispatch and reconciliation.
-  Use when you have multiple independent work items (multi-repo audits, multi-file translations,
-  parallel investigations, fan-out sweeps). Invoke when the user says "do all of these",
-  "check all repos", "audit these in parallel", or "handle these independently".
-  Also auto-trigger when you detect sequential work that could safely parallelize.
-  This skill wraps multi-agent dispatch for lightweight jobs; use Workflow for heavy
-  orchestration with loops, conditionals, or large fleets (>5 units).
+  Use for multiple independent work items (multi-repo audits, translations, investigations,
+  sweeps). Invoke on "do all these", "check all repos", "audit in parallel", or "handle
+  independently". Wraps multi-agent dispatch for lightweight jobs; use Workflow for heavy
+  orchestration (loops, conditionals, >5 units).
 triggers:
   - parallel work
   - do all these
@@ -53,7 +51,7 @@ Done when: all N units decomposed and dependencies mapped.
 For each unit:
 1. Assign a **label** (short, descriptive: `repo-a-security`, `pt-br-files-1-50`, etc.)
 2. Assign a **worktree path** (if the unit touches a git repo):
-   - If 2+ units touch the same repo → each unit gets its own worktree: `${DEV_ROOT}/.worktrees/<label>-<n>/`
+   - If 2+ units touch the same repo → each unit gets its own worktree: `/Volumes/External HD/Desenvolvimento/.worktrees/<label>-<n>/`
    - If each unit touches a different repo → no worktree needed (work in place)
 3. Draft an **agent prompt** (what the agent should do for this unit; include the scope and success criteria)
 

@@ -1,6 +1,6 @@
 ---
 name: ship
-description: "End-to-end shipping: version bump, changelog update, tag, GitHub release, deploy, and post-deploy verification. Take a branch from feature done to actually merged or release cut without skipping CI or review gates. Validates PR goal, required checks, review state, and risk. Handles version bump, changelog, tag, and post-merge verification when releasing. Refuses to use admin bypasses or force options against main. Skip for WIP work or when CI is yellow with unknown signal and fix blockers first via ci-watch or next-priority."
+description: End-to-end shipping — version bump, changelog update, tag, GitHub release, deploy, and post-deploy verification. Validates PR goal, checks, review state, and risk. Refuses admin bypasses or force options against main.
 triggers:
   - ship
   - prepare to merge

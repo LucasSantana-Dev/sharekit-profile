@@ -6,7 +6,7 @@ description: Use when implementing any feature or bugfix, before writing impleme
 metadata:
   owner: global-agents
   tier: contextual
-  canonical_source: ~/.agents/skills/test-driven-development
+  canonical_source: /Users/lucassantana/.agents/skills/test-driven-development
   progressive_disclosure: split
 triggers:
   - test driven development
