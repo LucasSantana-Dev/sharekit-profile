@@ -22,9 +22,9 @@ Terse caveman style every turn (`~/.claude/skills/caveman/SKILL.md`), enforced b
 
 Cache reads are billed at the model's rate and dominate session cost → session/agent model choice is the #1 cost lever.
 
-- **Fable 5** (apex): hardest architecture decisions, cross-session synthesis, critic-of-critical work, ≥5-step reasoning chains where Opus verdicts have been overturned. Use deliberately — apex-priced cache reads apply to the whole session.
-- **Opus** (orchestration): composite entrypoints, critic role, ADR writing, architectural decisions.
-- **Sonnet** (execution — default): implementation, feature work, code review, test generation, single-phase sub-agent dispatch. Run routine execution SESSIONS on Sonnet, not Fable/Opus.
+- **Fable 5** (apex — FIRST CHOICE for hard reasoning): hardest architecture decisions, cross-session synthesis, critic-of-critical work, consequential ADRs, multi-layer refactor planning, ≥5-step reasoning chains. When a task clears the apex bar, reach for Fable FIRST — Opus is now the fallback, not the default. Cost guard still stands: apex-priced cache reads apply to the whole session, so gate on task DIFFICULTY (does it clear the apex bar above?), not on vibes — a Fable session should be doing apex work, not routine edits. When in genuine doubt whether a task clears the bar, `/smart-model-select`.
+- **Opus** (fallback / heavy-but-not-apex): step-down when a task is heavy but below the apex bar, or when Fable is unavailable/degraded. Composite orchestration entrypoints, standard critic role, routine ADR writing. Was apex through 2026-07; demoted to second rung 2026-07-08.
+- **Sonnet** (execution — default session): implementation, feature work, code review, test generation, single-phase sub-agent dispatch. Run routine execution SESSIONS on Sonnet, not Fable/Opus.
 - **Haiku** (mechanical): formatting, lookups, grep, renames, transcription. `CLAUDE_CODE_SUBAGENT_MODEL` already defaults subagents to Haiku; agent frontmatter overrides where needed.
 
 Invoke `/smart-model-select` when ambiguous. `/fast` = Opus with faster output (not a downgrade). Reasoning effort: `xhigh` for architecture/multi-layer refactors/ADR chains; lower for routine generation (settings default `high`).
