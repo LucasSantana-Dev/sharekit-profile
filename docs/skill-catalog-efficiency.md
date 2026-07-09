@@ -88,7 +88,7 @@ NOT duplicates; merging would be a capability loss):
 Remaining candidates that ARE likely safe but need a human decision (not done
 here to avoid unilateral capability removal):
 - Move `setup-matt-pocock-skills` to a one-time script.
-- Move Criativaria skills (`notion-tasks`, `criativaria-brain-sync`,
+- Move <client> skills (`notion-tasks`, `<client>-brain-sync`,
   `shorts-edit`) to that project's `.claude/skills/`.
 
 ### P1 -- Hide sub-skills from the listing (~35 listed, on-disk unchanged)
@@ -114,7 +114,7 @@ archivals already done plus hiding.**
 Add a `skillPermissions` map (or `opencode.json` per-agent patterns) so denied
 skills are hidden from the listing entirely per project:
 ```json
-"skillPermissions": { "*": "allow", "notion-tasks": "deny", "criativaria-*": "deny" }
+"skillPermissions": { "*": "allow", "notion-tasks": "deny", "<client>-*": "deny" }
 ```
 
 ### P3 -- Tighten the guardrail + budget
@@ -129,7 +129,7 @@ skills are hidden from the listing entirely per project:
 
 1. **Namespacing**: fix the `adt-*` folder/name mismatch (rename folders to
    match frontmatter, or add the prefix back to frontmatter). Namespace
-   Criativaria skills as `criativaria:notion-tasks`.
+   <client> skills as `<client>:notion-tasks`.
 2. **Typed registries**: split `skills/` into `composites/`, `single/`,
    `reference/` (docs like `writing-great-skills`, `api-design-principles` are
    not workflows -- they should not be in the skill listing at all).
@@ -289,6 +289,6 @@ PR #13 review identified ~2084 lines reducible via targeted refactoring. File:li
 
 ## Remaining work
 
-- Move Criativaria skills (`notion-tasks`, `criativaria-brain-sync`,
+- Move <client> skills (`notion-tasks`, `<client>-brain-sync`,
   `shorts-edit`) to that project's `.claude/skills/` once telemetry confirms
   low cross-project usage.

@@ -28,6 +28,5 @@ entropy = 0
 paths = [
   "hooks/skill-validate.sh",           # Security gate documentation
   "claude/skills/secure/",              # Secure coding references
-  "scripts/google-ads-criativaria.js",  # Removed Google Ads script (history purged from main, still in abandoned branches)
   ".gitleaks.toml"                      # This config file
 ]

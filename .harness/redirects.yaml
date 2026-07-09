@@ -105,7 +105,7 @@ redirects:
 
   - archived: ads
     disposition: moved_to_project
-    target: "Criativaria-Projects/google-ads .claude/skills/ads (private)"
+    target: "private client project .claude/skills/ads"
     note: client-scoped ads specialist — moved 2026-07-01 per operator decision; public catalog keeps no client-facing skills
 
   # Wave 3 prune entries (2026-07-01) — evidence-based zero-use archival

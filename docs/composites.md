@@ -100,7 +100,7 @@ Safe broad-refactor setup.
 | `rag-quality`, `rag-curate`, `adt-rag-coverage`, `adt-rag-drift` | Now `rag-curate` + `adt-rag-drift` (internal chain via `knowledge-loop`) |
 | `route` | `/plan` or `/fallback`, depending on whether the problem is ambiguous or blocked |
 | `smart-model-select` | model-tier policy in `AGENTS.md` |
-| `ads` | moved to its client project (`Criativaria-Projects/google-ads`, private) — client-scoped skills don't ship in the public catalog |
+| `ads` | moved to its client project (private) — client-scoped skills don't ship in the public catalog |
 | `ponytail` | archived — zero-use per canonical 30d audit (2026-07-01) |
 | `quality-gates` | archived — zero-use per canonical 30d audit; use `verify` + `test-health` + `security-audit` (2026-07-01) |
 | `quality-assurance` | archived — zero-use per canonical 30d audit; use `test-health` + `security-audit` (2026-07-01) |

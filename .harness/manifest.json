@@ -15,7 +15,7 @@
     "hooks/skill-validate.sh": "ce5451fb1cb4465bed2a47824ec9288f765e20d3ed6882395bcfb2191b274091",
     "hooks/skill-prune.sh": "5fff4e1c779225d9e129d5aa8051ef5f90a5925a8e550158d3f7ac7ebf3f5929",
     "README.md": "f9db23254f8a5d3593584b7e7bd71dfb869b79474f90dac2a3ca85eb6e358786",
-    "docs/skill-catalog-efficiency.md": "4627211d0105d0092b4b7ad5e95c48292ee47a0d298bfe51c3c8254984ac7f21"
+    "docs/skill-catalog-efficiency.md": "88f4524f57453cd1a58358ce961c295e97a9e4986eaeaddad0ea8f0202df6172"
   },
   "meta": {
     "adr_anchor": "Adopted from ruflo meta-harness pattern: declarative governance directory converts prose security rules into diffable, CI-enforceable code. + Wave-4 self-improvement flywheel: settings.json un-orphaning the hooks and enabling the observe\u2192evaluate\u2192optimize loop.",
