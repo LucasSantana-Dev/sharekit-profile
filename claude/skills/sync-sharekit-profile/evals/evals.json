@@ -1,0 +1,77 @@
+{
+  "skill_name": "sync-sharekit-profile",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "sync my sharekit profile",
+      "expected_output": "Runs mount guard, copies skills/hooks/standards, sanitizes personal paths, scans for secrets, shows a diff summary, commits and pushes to the sharekit-profile repo.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "runs-mount-guard",
+          "description": "Response mentions checking whether External HD is mounted before proceeding"
+        },
+        {
+          "id": "copies-all-four-sources",
+          "description": "Response covers all four source trees: skills, hooks, standards, AND CLAUDE.md (not just 'skills')"
+        },
+        {
+          "id": "applies-sanitization",
+          "description": "Response mentions replacing personal paths and identity references (lucassantana, LucasSantana-Dev, email, /Volumes/External HD path)"
+        },
+        {
+          "id": "emits-reconciliation-block",
+          "description": "Response includes a SYNC-SHAREKIT-PROFILE reconciliation block with Source, Scan, Status fields"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I just created a bunch of new skills this session (tdd-practitioner, mutation-tester, parallel-implementer, phase-runner). My sharekit profile is out of date — push an updated version with all my latest skills.",
+      "expected_output": "Syncs the profile including the newly created skills, applies sanitization, runs secret scan, shows what was added in the diff, and commits+pushes.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "syncs-agents-directory",
+          "description": "Response explicitly syncs or mentions ~/.claude/agents/ (not just skills/). The named skills in the prompt are actually agents — the skill must handle ~/.claude/agents/ to fulfill this request."
+        },
+        {
+          "id": "handles-agents-not-in-skills",
+          "description": "Response correctly identifies that tdd-practitioner/mutation-tester/parallel-implementer/phase-runner live in ~/.claude/agents/, not ~/.claude/skills/ — either by looking there or by noting the distinction"
+        },
+        {
+          "id": "shows-phase4-definitive-result",
+          "description": "Response shows a definitive Phase 4 result — actual grep output or 'N files found' count — not speculative 'expected to be clean'"
+        },
+        {
+          "id": "emits-reconciliation-block",
+          "description": "Response includes a SYNC-SHAREKIT-PROFILE reconciliation block with an Agents field or agents count in Source"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Before I publish a new sharekit release, I want to make sure the profile is up to date and clean. Run the sync and let me know if there are any secrets or personal references that need to be removed first.",
+      "expected_output": "Performs full sync workflow, explicitly reports Phase 4 dynamic exclusions (skills with un-sanitizable personal refs), runs scan, surfaces any findings before committing.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "explicitly-reports-scan-findings",
+          "description": "Response explicitly reports what the scan found, not just 'scan passed' — names specific files or categories of findings"
+        },
+        {
+          "id": "distinguishes-severity",
+          "description": "Response distinguishes HIGH-severity findings (real secrets = block) from MED/LOW findings (template placeholders, example env vars = warn but don't block)"
+        },
+        {
+          "id": "lists-excluded-skills",
+          "description": "Response lists specific skills removed in Phase 4 due to unresolvable personal references"
+        },
+        {
+          "id": "emits-reconciliation-block",
+          "description": "Response includes a SYNC-SHAREKIT-PROFILE reconciliation block"
+        }
+      ]
+    }
+  ]
+}
