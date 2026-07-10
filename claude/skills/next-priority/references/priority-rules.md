@@ -1,24 +1,9 @@
 # Priority Rules
 
-## Ranking order
-
-1. Merge-ready PRs (all required checks green, approvals satisfied, no unresolved review debt).
-2. Stale-base PRs — open PRs targeting a base branch that was already merged into default;
-   must be retargeted before they can ship (treat as blocking cleanup).
-3. PRs blocked by CI contract or required-check failures.
-4. Open blockers or bugs.
-5. In-progress features with strong momentum.
-6. Roadmap items that are not yet active.
-
-## Score weights
-
-| Criterion | Weight | Meaning |
-|---|---|---|
-| Blocking | 5x | Unblocks other projects, PRs, or users |
-| Momentum | 3x | Continues recent or active work |
-| Value | 3x | Delivers user-visible functionality or release progress |
-| Debt | 2x | Reduces tech debt or CI friction |
-| Quick win | 1x | Fits in one focused session |
+> Canonical decision order lives in `SKILL.md` — this file holds PR-state
+> interpretation detail only. (A divergent 6-tier ranking + 5-weight scoring
+> table lived here until 2026-07-09; removed — two ranking mechanisms was the
+> defect. SKILL.md's tier list is the single source of truth.)
 
 ## Common advisory-only checks (not required by default)
 

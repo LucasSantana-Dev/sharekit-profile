@@ -13,24 +13,41 @@ Choose the next action using evidence, not intuition.
 
 ## Decision order
 
+This list is the SINGLE canonical ranking (references/priority-rules.md holds
+PR-state interpretation detail, not a second ranking).
+
 1. Merge-ready PRs
 2. Release blockers
-3. Failing CI or flaky tests blocking merges
+3. Failing CI, flaky tests, or stale-base PRs blocking merges (stale-base = PR
+   targets a branch already merged into default; retarget before it can ship)
 4. Security issues with a known safe fix
-5. Small production-ready fixes or features
-6. Concrete tech debt slowing delivery
-7. Refactors justified by churn or repeated friction
-8. Deferred migrations or speculative work
+5. Overdue date-gated commitments — "re-check X by <date>" items from handoffs
+   and memory whose date has passed (scan command in references/scan-commands.md)
+6. Small production-ready fixes or features
+7. Concrete tech debt slowing delivery
+8. Refactors justified by churn or repeated friction
+9. Deferred migrations or speculative work
+
+If the picked action is irreversible or outward-facing (merge, deploy, publish,
+history rewrite), the pick stands but execution follows the autonomy tiers in
+`~/.claude/standards/autonomy-tiers.md` (ADR-0051) — this skill chooses, it does
+not bypass gates.
 
 ## Required evidence
 
 Check, in order:
 - active handoff
+- overdue date-gated items (handoffs + memory date scan — see scan-commands.md)
 - active plan
 - current branch and open PRs
 - CI status on the current branch / HEAD
 - open review comments or blocking issues
 - recent commits and working tree state
+
+Staleness rule: if any gathered evidence predates the repo's last commit
+(`git log -1 --format=%ct` vs when the evidence was produced), flag it in the
+output and re-gather that item before committing to a verdict. Advisory only —
+never auto-rerun expensive pipelines.
 
 ## Output
 

@@ -2,6 +2,59 @@
 
 Use these commands to gather ranking signals.
 
+## Handoff scan (evidence item #1)
+
+```bash
+PROJ=$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null)
+for f in ~/.claude/handoffs/"$PROJ"/latest.md ~/.claude/handoffs/latest.md; do
+  [ -f "$f" ] && echo "== $f ($(stat -f %Sm "$f" 2>/dev/null || stat -c %y "$f"))" && head -40 "$f"
+done
+```
+
+## Overdue date-gated commitments (tier 5)
+
+Stateless scan: handoffs + memory indexes for "re-check X by <date>" items whose
+date has passed. ISO dates always; MM-DD assumed current year when a re-check
+keyword is on the line.
+
+```bash
+python3 - <<'EOF'
+import re, glob, os, datetime
+today = datetime.date.today()
+files  = glob.glob(os.path.expanduser('~/.claude/handoffs/**/latest.md'), recursive=True)
+files += glob.glob(os.path.expanduser('~/.claude/projects/*/memory/MEMORY.md'))
+iso  = re.compile(r'\b(20\d{2})-(\d{2})-(\d{2})\b')
+mmdd = re.compile(r'\b(\d{2})-(\d{2})\b')
+# dates embedded in filenames/paths/links are NOT due dates — strip those tokens first
+fname = re.compile(r'[\w./_-]*20\d{2}-\d{2}-\d{2}[\w./_-]*\.(md|json|log|txt)|\([^)]*\)')
+KEYS = ('re-check','recheck','re-measure','revisit','watch','due','overdue','by 20','re-test','re-run')
+seen = set()
+for f in files:
+    try: lines = open(f).read().splitlines()
+    except OSError: continue
+    for i, line in enumerate(lines, 1):
+        if not any(k in line.lower() for k in KEYS): continue
+        clean = fname.sub(' ', line)
+        dates = [datetime.date(int(y),int(m),int(d)) for y,m,d in iso.findall(clean)]
+        if not dates:
+            for m,d in mmdd.findall(clean):
+                try: dates.append(datetime.date(today.year, int(m), int(d)))
+                except ValueError: pass
+        for d in dates:
+            key = (d, line.strip()[:80])
+            if d < today and key not in seen:
+                seen.add(key)
+                print(f'OVERDUE {(today-d).days}d ({d}) {f}:{i}: {line.strip()[:110]}')
+EOF
+```
+
+## Evidence staleness check (advisory)
+
+```bash
+# Evidence gathered before the last commit may be stale — flag, don't auto-rerun.
+echo "last commit: $(git log -1 --format='%ci %h' 2>/dev/null)"
+```
+
 ## Workspace detection
 
 ```bash
@@ -50,12 +103,15 @@ DEFAULT_BRANCH=$(gh repo view "$REPO_SLUG" --json defaultBranchRef --jq .default
 gh pr list --repo "$REPO_SLUG" --state open --limit 20 --json number,title,mergeStateStatus,statusCheckRollup
 ```
 
-## Quick health check (for forge-space Node.js repos)
+## Quick health check (Node.js repos ONLY — guard first)
 
-Run from the repo root to gather all quality signals in one pass:
+Stack-conditional: these fail silently or misleadingly on Python/Rust/Go repos.
+Guard every block; on non-Node repos use the ecosystem equivalent (pytest/ruff,
+cargo check/test/clippy, go build/test/vet) or skip and say so in the evidence.
 
 ```bash
-npm run build 2>&1 | tail -2            # tsc compilation
+[ -f package.json ] || { echo "skip: not a Node repo — use ecosystem equivalent"; }
+[ -f package.json ] && npm run build 2>&1 | tail -2            # tsc compilation
 npm test 2>&1 | tail -5                 # test count + pass/fail
 npm run validate 2>&1 | tail -5         # lint + format + validation
 npm audit --audit-level=moderate 2>&1 | tail -3   # security
@@ -64,9 +120,10 @@ npm run lint:check 2>&1 | grep -c "error\b"        # error count
 npm run check:cycles 2>&1 | tail -3    # circular deps
 ```
 
-## Documentation & test gap scan (forge-space/core)
+## Documentation & test gap scan (forge-space/core ONLY — requires patterns/ dir)
 
 ```bash
+[ -d patterns ] || echo "skip: no patterns/ dir (forge-space-specific scan)"
 # Pattern directories missing READMEs
 for d in patterns/*/; do
   name=$(basename "$d")
