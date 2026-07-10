@@ -6,7 +6,7 @@ auto-invoke: choice-questions + library-evaluations
 metadata:
   owner: global-agents
   tier: contextual
-  canonical_source: /Users/lucassantana/.claude/skills/research-and-decide
+  canonical_source: ~/.claude/skills/research-and-decide
 triggers:
   - research
   - research and decide

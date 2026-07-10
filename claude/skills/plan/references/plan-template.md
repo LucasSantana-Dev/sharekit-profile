@@ -27,7 +27,9 @@
 1. [Concrete step]
 2. [Concrete step]
 
-**Done When:** [Checkable condition; e.g., "file X exists with Y", "test suite passes", "config deployed"]  
+**Files Touched:** [exact paths, e.g., `src/utils/auth.ts`, `tests/auth.test.ts` — agents execute paths, not prose]
+**Verify:** [runnable command, e.g., `npm test -- auth.test.ts` — not a description of testing]
+**Done When:** [Checkable condition the Verify command proves; e.g., "test suite passes", "config deployed"]
 **Time:** [Estimate, e.g., "4h"]
 
 **Replanning triggers:**

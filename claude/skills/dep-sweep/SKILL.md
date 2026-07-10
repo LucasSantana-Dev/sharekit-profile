@@ -7,7 +7,7 @@ auto-invoke: >-
 metadata:
   owner: global-agents
   tier: contextual
-  canonical_source: /Users/lucassantana/.claude/skills/dep-sweep
+  canonical_source: ~/.claude/skills/dep-sweep
 triggers:
   - dependency sweep
   - update deps

@@ -4,7 +4,7 @@ description: "Extreme Programming for AI-human pair development. Use when: pair 
 metadata:
   tier: "methodology"
   owner: "lucas"
-  canonical_source: "https://github.com/lucassantana/claude-code"
+  canonical_source: "https://github.com/<github-user>/claude-code"
 triggers:
   - xp
   - pair programming
@@ -55,7 +55,7 @@ Extract duplication, clarify names, simplify structure. Never refactor while red
 
 ### 5. Release — Commit the Increment
 
-Small, focused commit. Then return to step 1 (pick next task) or hand off. See CLAUDE.md [pr-conventions.md](file:///Users/lucassantana/.claude/standards/pr-conventions.md) for commit style.
+Small, focused commit. Then return to step 1 (pick next task) or hand off. See CLAUDE.md [pr-conventions.md](file://~/.claude/standards/pr-conventions.md) for commit style.
 
 **Done when:** Commit is pushed or staged; human has reviewed the diff.
 
@@ -64,7 +64,7 @@ Small, focused commit. Then return to step 1 (pick next task) or hand off. See C
 Running throughout every cycle:
 
 - **Read before write.** Explore project structure, conventions, and the area you're changing before proposing changes.
-- **Run tests + lint after every change.** Discover and fix failures immediately (CI automation: see CLAUDE.md [workflow.md](file:///Users/lucassantana/.claude/standards/workflow.md#continuous-integration)).
+- **Run tests + lint after every change.** Discover and fix failures immediately (CI automation: see CLAUDE.md [workflow.md](file://~/.claude/standards/workflow.md#continuous-integration)).
 - **Communicate intent.** Explain approach and tradeoffs *before* coding, not after.
 - **Stay small.** If a cycle takes >30 min, split the task.
 
@@ -72,7 +72,7 @@ Running throughout every cycle:
 
 After one or more completed cycles:
 
-1. **Pairing outcome** (signal-first; CLAUDE.md [signal-first rule](file:///Users/lucassantana/.claude/standards/workflow.md#signal-first-output))
+1. **Pairing outcome** (signal-first; CLAUDE.md [signal-first rule](file://~/.claude/standards/workflow.md#signal-first-output))
    - Verdict: features working / tests green / ready for review
    - Top 3 blockers (if any)
 2. **Code state** — All diffs staged or on branch, tests passing

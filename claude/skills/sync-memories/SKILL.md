@@ -6,7 +6,7 @@ description: Sync durable project or session knowledge into the available memory
 metadata:
   owner: global-agents
   tier: stateful
-  canonical_source: /Users/lucassantana/.agents/skills/sync-memories
+  canonical_source: ~/.agents/skills/sync-memories
 invocation_type: internal
 triggers:
   - sync memories

@@ -10,7 +10,7 @@ triggers:
 metadata:
   owner: global-agents
   tier: contextual
-  canonical_source: /Users/lucassantana/.claude/skills/memory-prune
+  canonical_source: ~/.claude/skills/memory-prune
 ---
 
 # memory-prune

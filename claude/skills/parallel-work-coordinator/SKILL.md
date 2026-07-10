@@ -51,7 +51,7 @@ Done when: all N units decomposed and dependencies mapped.
 For each unit:
 1. Assign a **label** (short, descriptive: `repo-a-security`, `pt-br-files-1-50`, etc.)
 2. Assign a **worktree path** (if the unit touches a git repo):
-   - If 2+ units touch the same repo → each unit gets its own worktree: `/Volumes/External HD/Desenvolvimento/.worktrees/<label>-<n>/`
+   - If 2+ units touch the same repo → each unit gets its own worktree: `${DEV_ROOT}/.worktrees/<label>-<n>/`
    - If each unit touches a different repo → no worktree needed (work in place)
 3. Draft an **agent prompt** (what the agent should do for this unit; include the scope and success criteria)
 

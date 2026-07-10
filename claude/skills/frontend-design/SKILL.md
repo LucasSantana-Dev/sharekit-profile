@@ -8,7 +8,7 @@ license: Complete terms in LICENSE.txt
 metadata:
   owner: global-agents
   tier: ephemeral
-  canonical_source: /Users/lucassantana/.agents/skills/frontend-design
+  canonical_source: ~/.agents/skills/frontend-design
 triggers:
   - frontend design
   - art direction

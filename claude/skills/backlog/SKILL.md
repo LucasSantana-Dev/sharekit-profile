@@ -6,7 +6,7 @@ auto-invoke: build a backlog, generate a backlog, find gaps, find opportunities,
 metadata:
   owner: global-agents
   tier: contextual
-  canonical_source: /Users/lucassantana/.claude/skills/backlog
+  canonical_source: ~/.claude/skills/backlog
 triggers:
   - backlog
   - what to work on
