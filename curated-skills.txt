@@ -39,6 +39,7 @@ review
 secure
 session-bootstrap
 ship
+streamer-mode
 sync-memories
 sync-sharekit-profile
 tdd
