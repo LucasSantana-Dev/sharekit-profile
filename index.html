@@ -848,7 +848,8 @@
           </div>
 
           <div class="g-cta-row">
-            <button class="g-btn g-btn-primary" data-goto="g-quickstart">Start in 5 minutes →</button>
+            <button class="g-btn g-btn-primary" data-goto="g-install">Install the harness →</button>
+            <button class="g-btn g-btn-ghost" data-goto="g-quickstart">Start in 5 minutes</button>
             <button class="g-btn g-btn-ghost" data-goto="g-tasks">I want to…</button>
             <button class="g-btn g-btn-ghost" data-panel-jump="skills">Browse all skills</button>
           </div>
@@ -911,11 +912,66 @@
           <p class="g-lead">Security rules become diffable, CI-enforceable code: <code>manifest.json</code> holds sha256 fingerprints of security-critical config; <code>mcp-policy.json</code> declares MCP governance (defaultDeny, 17 dangerous-pattern regexes, call budget, timeout, approved servers). JSON is the source of truth — AGENTS.md mirrors it in prose, and <code>scripts/check-harness-manifest.sh</code> verifies fingerprints + policy invariants in CI.</p>
         </div>
 
+        <!-- INSTALL -->
+        <div class="g-section" id="g-install">
+          <div class="g-eyebrow">Install · one command</div>
+          <h2 class="g-h2">Get the harness onto your machine</h2>
+          <p class="g-lead">The harness ships as a <strong>sharekit profile</strong>. One command fetches it from <code>github.com/LucasSantana-Dev/sharekit-profile</code>, previews the changes, backs up anything it would overwrite, then copies <code>claude/ → ~/.claude/</code>. Prerequisite: Node ≥18 (for <code>npx</code>) — or install the <code>sharekit</code> CLI via Homebrew / pipx (channels below).</p>
+          <div class="g-steps">
+            <div class="g-step">
+              <div class="g-step-num">1</div>
+              <div class="g-step-body">
+                <div class="g-step-title">Preview first — see every change, apply nothing</div>
+                <div class="g-code"><span class="c-cmd">$ npx @lucassantana/sharekit preview LucasSantana-Dev</span>
+<span class="c-out">→ lists files, counts, target paths · flags conflicts · zero writes</span></div>
+              </div>
+            </div>
+            <div class="g-step">
+              <div class="g-step-num">2</div>
+              <div class="g-step-body">
+                <div class="g-step-title">Install the profile — CLAUDE.md, skills, standards, agents</div>
+                <div class="g-code"><span class="c-cmd">$ npx @lucassantana/sharekit install LucasSantana-Dev</span>
+<span class="c-out">→ backs up existing files · copies claude/ → ~/.claude/</span>
+<span class="c-ok">✓ 80 skills + standards + agents installed</span></div>
+              </div>
+            </div>
+            <div class="g-step">
+              <div class="g-step-num">3</div>
+              <div class="g-step-body">
+                <div class="g-step-title">Add the hooks — the automatic layer (gated for safety)</div>
+                <div class="g-code"><span class="c-cmd">$ npx @lucassantana/sharekit install LucasSantana-Dev --include-hooks</span>
+<span class="c-out"># hooks run shell commands under your account — review in preview first</span>
+<span class="c-ok">✓ SessionStart / prompt / tool-call hooks wired</span></div>
+                <p class="g-lead" style="margin-top:10px">Hooks are <strong>flagged but not installed by default</strong> because they execute commands on every prompt and tool call. Review them in <code>preview</code>, then opt in — you get a second confirmation before <code>settings.json</code> is written.</p>
+              </div>
+            </div>
+            <div class="g-step">
+              <div class="g-step-num">4</div>
+              <div class="g-step-body">
+                <div class="g-step-title">Undo or update anytime</div>
+                <div class="g-code"><span class="c-cmd">$ npx @lucassantana/sharekit rollback LucasSantana-Dev</span>
+<span class="c-out">→ restores the last backup</span>
+<span class="c-cmd">$ npx @lucassantana/sharekit update LucasSantana-Dev</span>
+<span class="c-ok">✓ syncs to the latest published version</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="g-substrate">
+            <span class="g-substrate-label">prefer a CLI install? pick a channel</span>
+            <span class="g-chip">brew install LucasSantana-Dev/tap/sharekit</span>
+            <span class="g-chip">pipx install sharekit</span>
+            <span class="g-chip">npm i -g @lucassantana/sharekit</span>
+          </div>
+          <div class="g-cta-row">
+            <button class="g-btn g-btn-primary" data-goto="g-quickstart">Installed? Run your first task →</button>
+          </div>
+        </div>
+
         <!-- QUICKSTART -->
         <div class="g-section" id="g-quickstart">
           <div class="g-eyebrow">Quickstart · ~5 min</div>
           <h2 class="g-h2">Your first autonomous task</h2>
-          <p class="g-lead">Prerequisites: OpenCode or Claude Code installed, this profile in <code>~/.claude/</code>, and a git repo to work in.</p>
+          <p class="g-lead">Prerequisites: OpenCode or Claude Code installed, this profile in <code>~/.claude/</code> (see <span data-goto="g-install" style="color:var(--cyan);cursor:pointer">Install</span> above), and a git repo to work in.</p>
           <div class="g-steps">
             <div class="g-step">
               <div class="g-step-num">1</div>
@@ -1883,7 +1939,8 @@ const GUIDE_PT = {
       <div class="g-stat"><div class="g-stat-num" style="color:var(--pink)">58</div><div class="g-stat-label">Standards</div></div>
     </div>
     <div class="g-cta-row">
-      <button class="g-btn g-btn-primary" data-goto="g-quickstart">Comece em 5 minutos →</button>
+      <button class="g-btn g-btn-primary" data-goto="g-install">Instale o harness →</button>
+      <button class="g-btn g-btn-ghost" data-goto="g-quickstart">Comece em 5 minutos</button>
       <button class="g-btn g-btn-ghost" data-goto="g-tasks">Eu quero…</button>
       <button class="g-btn g-btn-ghost" data-panel-jump="skills">Ver todas as skills</button>
     </div>`,
@@ -1943,10 +2000,63 @@ const GUIDE_PT = {
     </div>
     <p class="g-lead">Regras de segurança viram código diffable e exigível em CI: <code>manifest.json</code> guarda fingerprints sha256 de config crítica de segurança; <code>mcp-policy.json</code> declara governança MCP (defaultDeny, 17 regexes de padrões perigosos, call budget, timeout, approved servers). O JSON é a fonte da verdade — o AGENTS.md o espelha em prosa, e <code>scripts/check-harness-manifest.sh</code> verifica fingerprints + invariantes de policy em CI.</p>`,
 
+  'g-install': `
+    <div class="g-eyebrow">Instalação · um comando</div>
+    <h2 class="g-h2">Coloque o harness na sua máquina</h2>
+    <p class="g-lead">O harness é distribuído como um <strong>profile do sharekit</strong>. Um comando busca ele em <code>github.com/LucasSantana-Dev/sharekit-profile</code>, mostra um preview das mudanças, faz backup do que seria sobrescrito e copia <code>claude/ → ~/.claude/</code>. Pré-requisito: Node ≥18 (para o <code>npx</code>) — ou instale o CLI <code>sharekit</code> via Homebrew / pipx (canais abaixo).</p>
+    <div class="g-steps">
+      <div class="g-step">
+        <div class="g-step-num">1</div>
+        <div class="g-step-body">
+          <div class="g-step-title">Preview primeiro — veja cada mudança, sem aplicar nada</div>
+          <div class="g-code"><span class="c-cmd">$ npx @lucassantana/sharekit preview LucasSantana-Dev</span>
+<span class="c-out">→ lista arquivos, contagens, caminhos-alvo · sinaliza conflitos · zero escrita</span></div>
+        </div>
+      </div>
+      <div class="g-step">
+        <div class="g-step-num">2</div>
+        <div class="g-step-body">
+          <div class="g-step-title">Instale o profile — CLAUDE.md, skills, standards, agentes</div>
+          <div class="g-code"><span class="c-cmd">$ npx @lucassantana/sharekit install LucasSantana-Dev</span>
+<span class="c-out">→ faz backup dos arquivos existentes · copia claude/ → ~/.claude/</span>
+<span class="c-ok">✓ 80 skills + standards + agentes instalados</span></div>
+        </div>
+      </div>
+      <div class="g-step">
+        <div class="g-step-num">3</div>
+        <div class="g-step-body">
+          <div class="g-step-title">Adicione os hooks — a camada automática (gated por segurança)</div>
+          <div class="g-code"><span class="c-cmd">$ npx @lucassantana/sharekit install LucasSantana-Dev --include-hooks</span>
+<span class="c-out"># hooks rodam comandos shell na sua conta — revise no preview antes</span>
+<span class="c-ok">✓ hooks de SessionStart / prompt / tool-call conectados</span></div>
+          <p class="g-lead" style="margin-top:10px">Os hooks são <strong>sinalizados mas não instalados por padrão</strong> porque executam comandos a cada prompt e tool call. Revise no <code>preview</code> e então opte por incluí-los — você recebe uma segunda confirmação antes do <code>settings.json</code> ser escrito.</p>
+        </div>
+      </div>
+      <div class="g-step">
+        <div class="g-step-num">4</div>
+        <div class="g-step-body">
+          <div class="g-step-title">Desfaça ou atualize quando quiser</div>
+          <div class="g-code"><span class="c-cmd">$ npx @lucassantana/sharekit rollback LucasSantana-Dev</span>
+<span class="c-out">→ restaura o último backup</span>
+<span class="c-cmd">$ npx @lucassantana/sharekit update LucasSantana-Dev</span>
+<span class="c-ok">✓ sincroniza com a última versão publicada</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="g-substrate">
+      <span class="g-substrate-label">prefere instalar o CLI? escolha um canal</span>
+      <span class="g-chip">brew install LucasSantana-Dev/tap/sharekit</span>
+      <span class="g-chip">pipx install sharekit</span>
+      <span class="g-chip">npm i -g @lucassantana/sharekit</span>
+    </div>
+    <div class="g-cta-row">
+      <button class="g-btn g-btn-primary" data-goto="g-quickstart">Instalou? Rode sua primeira tarefa →</button>
+    </div>`,
+
   'g-quickstart': `
     <div class="g-eyebrow">Início rápido · ~5 min</div>
     <h2 class="g-h2">Sua primeira tarefa autônoma</h2>
-    <p class="g-lead">Pré-requisitos: OpenCode ou Claude Code instalado, este profile em <code>~/.claude/</code> e um repo git para trabalhar.</p>
+    <p class="g-lead">Pré-requisitos: OpenCode ou Claude Code instalado, este profile em <code>~/.claude/</code> (veja <span data-goto="g-install" style="color:var(--cyan);cursor:pointer">Instalação</span> acima) e um repo git para trabalhar.</p>
     <div class="g-steps">
       <div class="g-step">
         <div class="g-step-num">1</div>
