@@ -774,7 +774,7 @@
       Guide
     </button>
     <button class="nav-tab" data-panel="skills">
-      Skills <span class="tab-count" id="tc-skills">46</span>
+      Skills <span class="tab-count" id="tc-skills">47</span>
     </button>
     <button class="nav-tab" data-panel="agents">
       Agents <span class="tab-count" id="tc-agents">39</span>
@@ -839,7 +839,7 @@
           </p>
 
           <div class="g-stats">
-            <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">50</div><div class="g-stat-label">Skills ativas</div></div>
+            <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">47</div><div class="g-stat-label">Skills ativas</div></div>
             <div class="g-stat"><div class="g-stat-num" style="color:var(--violet)" id="st-composites">6</div><div class="g-stat-label">Composites</div></div>
             <div class="g-stat"><div class="g-stat-num" style="color:var(--blue)" id="st-agents">39</div><div class="g-stat-label">Agents</div></div>
             <div class="g-stat"><div class="g-stat-num" style="color:var(--amber)">9</div><div class="g-stat-label">Hook events</div></div>
@@ -1146,7 +1146,7 @@
       <div class="grid-header">
         <div>
           <div class="grid-header-title" id="grid-title">All Skills</div>
-          <div class="grid-header-sub" id="grid-sub">46 skills across 13 categories — invoke autonomously or with /<i>name</i></div>
+          <div class="grid-header-sub" id="grid-sub">47 skills across 13 categories — invoke autonomously or with /<i>name</i></div>
         </div>
         <div class="result-count" id="result-count"></div>
       </div>
@@ -1353,6 +1353,7 @@ const SKILLS = [
   { name: 'session-bootstrap', cat: 'session', composite: true, desc: 'Composite skill — start-of-day routine. Chains wake-up (compact brief) → next-priority (decide) → pr-snapshot (PR queue) → context-pack (load relevant context if work-intent). Replaces "what was I doing", "what\'s next", "load context" with one invocation. Auto-fires on the first non-trivial prompt of a fresh session.' },
   { name: 'ship', cat: 'release', composite: false, desc: 'End-to-end shipping: version bump, changelog update, tag, GitHub release, deploy, and post-deploy verification. Take a branch from feature done to actually merged or release cut without skipping CI or review gates. Validates PR goal, required checks, review state, and risk. Handles versi on bump, changelog, tag, and post-merge verification when releasing. Refuses to use admi n bypasses or force options against main. Skip for WIP work or when CI is yellow with un known signal and fix blockers first via ci-watch or next-priority.' },
   { name: 'sync-memories', cat: 'session', composite: false, desc: 'Sync durable project or session knowledge into the available memory systems so future sessions have accurate context. Use when meaningful work is complete and the user wants the result remembered.' },
+  { name: 'sync-sharekit-profile', cat: 'sync-docs', composite: false, desc: 'Sync ~/.claude/ (skills, hooks, standards, CLAUDE.md, agents) into the public sharekit profile repo: sanitize personal paths and identity, scan for secrets, show the diff, then commit and push. Use when the profile is out of date or after a session that expanded the skill or agent library.' },
   { name: 'tdd', cat: 'testing', composite: false, desc: 'Short alias for test-driven development. Use for red-green-refactor, tracer bullets, behavior-driven testing, or TDD workflows.' },
   { name: 'test-driven-development', cat: 'testing', composite: false, desc: 'Use when implementing any feature or bugfix, before writing implementation code. Also invoked via /tdd (alias archived — this is the canonical skill).' },
   { name: 'three-man-team', cat: 'planning', composite: true, desc: 'Coordinates three roles (driver, navigator, reviewer) within a single session to simulate a small team workflow. Parallel Architect→Builder→Reviewer pattern for complex multi-phase tasks. Dispatches 3 agents in parallel: Architect (Opus) reads codebase and writes a detailed plan with phases and acceptance criteria; Builder (Sonnet) implements from the plan and stages changes; Reviewer (Sonnet) validates diff against plan and runs tests. Reduces turnaround on 3+ phase features, big PRs, and CRITICAL complexity-flagged work from sequential 6+ turns to parallel 1-turn dispatch. Use when a feature has architecture, implementation, and validation phases that justify the overhead; when tasks are CRITICAL-flagged by complexity classifier; when estimated >2 hours of work across 3+ distinct phases; or for large PRs touching >5 files with cross-module changes requiring architectural review before implementation.' },
@@ -1925,13 +1926,13 @@ const GUIDE_PT = {
     <div class="g-hero-badge"><span class="dot"></span> Harness operador · referência viva</div>
     <h1>Seu operador autônomo de engenharia.</h1>
     <p class="g-hero-sub">
-      Um ambiente OpenCode / Claude Code totalmente conectado: 50 <strong>skills</strong> ativas repo-tracked que você invoca,
+      Um ambiente OpenCode / Claude Code totalmente conectado: 47 <strong>skills</strong> ativas repo-tracked que você invoca,
       <strong>composites</strong> que as encadeiam com gates, <strong>sub-agentes</strong> que fazem trabalho
       isolado em paralelo e <strong>hooks</strong> que disparam automaticamente a cada prompt.
       Esta página é o mapa — comece aqui e depois mergulhe no catálogo.
     </p>
     <div class="g-stats">
-      <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">50</div><div class="g-stat-label">Skills ativas</div></div>
+      <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">47</div><div class="g-stat-label">Skills ativas</div></div>
       <div class="g-stat"><div class="g-stat-num" style="color:var(--violet)" id="st-composites">6</div><div class="g-stat-label">Composites</div></div>
       <div class="g-stat"><div class="g-stat-num" style="color:var(--blue)" id="st-agents">39</div><div class="g-stat-label">Agentes</div></div>
       <div class="g-stat"><div class="g-stat-num" style="color:var(--amber)">9</div><div class="g-stat-label">Eventos de hook</div></div>

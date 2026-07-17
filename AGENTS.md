@@ -101,14 +101,5 @@ Live harness lives at `~/.claude/` (runtime) with tracked source at `~/.claude-e
 
 - **Pre-commit hooks**: Always run before commits — use `HUSKY=0` prefix to skip only for non-code changes
 - **Branch protection**: Cannot push directly to `main` — all changes must go through PR
-- **Test coverage**: Don't game the system with trivial tests — focus on business logic
-- **Bundle size**: Check bundle impact before adding new dependencies
-- **Error handling**: Always handle promises — unhandled rejections crash the app
 - **Context limits**: At 20+ messages, save state to handoff and start a fresh session
-- **siza commitlint**: `subject-case: sentence-case` enforced — commit subject must start uppercase
-- **Lucky commitlint**: lowercase subject + max 72 chars header — `subject-case: lower-case` enforced
-- **Lucky SonarCloud**: >=80% coverage on new code required. `resetMocks: true` wipes jest.fn() impls — re-set in `beforeEach`.
-- **Lucky branch protection**: TWO enforcement layers — legacy branch protection AND Repository Ruleset. Ruleset is authoritative. `--admin` bypass is impossible.
-- **yt-dlp stream**: `once('data')` consumes first chunk — use PassThrough to re-inject. Pass `process.execPath` as `--js-runtimes` not hardcoded path.
-- **SonarCloud CPD**: <=3% duplication on new code. Spec files excluded via `sonar.cpd.exclusions=**/*.spec.ts`.
-- **mcp-gateway CI**: Only triggers on `[main, dev, release/*, feature/*, feat/*]` — use `feat/` prefix
+- **Catalog counts**: index.html skill/agent/category counts are gated by `scripts/check-catalog.sh` against the `SKILLS`/`AGENTS` arrays; update the array entry, not just the displayed number, or the count silently drifts.

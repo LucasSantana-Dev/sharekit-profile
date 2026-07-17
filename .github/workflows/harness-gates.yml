@@ -42,6 +42,10 @@ jobs:
           sudo ln -sf "$(command -v fdfind)" /usr/local/bin/fd
       - name: Run gate script tests
         run: bats tests/
+      - name: Check redirects.yaml / composites.md sync
+        # Runs in this job because it needs rg (installed above); previously
+        # orphaned — the script existed but no CI job or hook invoked it.
+        run: bash scripts/check-redirects-sync.sh
 
   gitleaks:
     runs-on: ubuntu-latest

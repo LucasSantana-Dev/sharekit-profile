@@ -29,6 +29,15 @@ chk "grid-sub skills"       "${GRID_SKILLS:-?}" "$SKILLS"
 chk "grid-sub categories"   "${GRID_CATS:-?}"   "$CATS"
 chk "agents tab-count"      "${TC_AGENTS:-?}"   "$AGENTS"
 
+# g-stat-num "Skills ativas" tiles (id=st-skills) + hero prose count — display
+# spots the checks above didn't cover, so they drifted to a stale value (50)
+# while CI stayed green. Now gated against the SKILLS array like the rest.
+while IFS= read -r v; do
+  chk "st-skills stat tile" "$v" "$SKILLS"
+done < <(rg -o 'st-skills">[0-9]+' "$HTML" | rg -o '[0-9]+')
+PROSE_SKILLS=$(rg -o 'conectado: [0-9]+ <strong>skills' "$HTML" | rg -o '[0-9]+' | head -1)
+chk "hero prose skills"     "${PROSE_SKILLS:-?}" "$SKILLS"
+
 if [ "$fail" = 0 ]; then
   echo "catalog counts consistent: $SKILLS skills, $AGENTS agents, $CATS categories"
 fi
