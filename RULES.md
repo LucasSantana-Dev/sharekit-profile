@@ -2,6 +2,16 @@
 
 > Hard rules. Non-negotiable. Split from AGENTS.md to separate constraints from operations.
 > For identity, see `SOUL.md`. For operational instructions, see `AGENTS.md`.
+>
+> **Source of truth:** this file is the full, human-authoritative rule set.
+> `.harness/constitution.json` (`protected_invariants`) is the machine-enforced
+> *subset* — the rules currently gated by hooks/CI plus the self-modification
+> contract (`self-mod-*`, `storage-policy`) that has no prose entry here. The two
+> must never conflict: when they differ, RULES.md is authoritative for intent and
+> constitution.json for what is mechanically enforced. Rules in RULES.md absent
+> from `protected_invariants` (parallel-execution, repository-single-truth,
+> knowledge-supersession, stuck-protocol, dispatcher-not-implementer,
+> post-incident-capture) are advisory/behavioral, not yet gated.
 
 ---
 

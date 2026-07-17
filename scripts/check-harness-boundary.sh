@@ -40,10 +40,10 @@ CODE_PATTERNS=(
 # Patterns for MARKDOWN files — only actual dependency statements
 # (import/require/source/from statements, absolute paths like /Volumes/..., $ROOT references)
 MD_PATTERNS=(
-  '^[^`]*\bimport\s+.*\b(src|app|lib)/'
-  '^[^`]*\brequire\s*\([^)]*\b(src|app|lib)/'
-  '^[^`]*\bsource\s+.*\b(src|app|lib)/'
-  '^[^`]*\bfrom\s+['\''\"](src|app|lib)/'
+  '^\s*import\s+.*\b(src|app|lib)/'
+  '^\s*require\s*\([^)]*\b(src|app|lib)/'
+  '^\s*source\s+.*\b(src|app|lib)/'
+  '^\s*from\s+['\''\"](src|app|lib)/'
   '/Volumes/.*/(src|app|lib)/'
   '\$ROOT/(src|app|lib)/'
 )

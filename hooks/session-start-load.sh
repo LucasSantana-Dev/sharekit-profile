@@ -20,6 +20,16 @@ if [[ -x "$ROOT/hooks/check-harness-drift.sh" ]]; then
   rm -f /tmp/sk-drift.$$
 fi
 
+# 1.5 Flywheel freshness (non-blocking): warn if the self-improvement cycle has
+# gone silent. runtime/ is gitignored, so this only fires on a real local checkout.
+newest_cycle="$(ls -t "$ROOT"/.harness/runtime/cycle-*.log 2>/dev/null | head -1)"
+if [[ -n "$newest_cycle" ]]; then
+  age_days=$(( ( $(date +%s) - $(date -r "$newest_cycle" +%s) ) / 86400 ))
+  if (( age_days > 7 )); then
+    echo "WARN: flywheel silent ${age_days}d (newest cycle log: $(basename "$newest_cycle")). Scheduler may be uninstalled — run 'scripts/install-scheduler.sh status' or install it." >&2
+  fi
+fi
+
 # 2. Load CORE memory.
 mem_root="${BRAIN_ROOT:-$HOME/.claude/memory}"
 core_file=""
