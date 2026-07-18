@@ -33,6 +33,17 @@ history rewrite), the pick stands but execution follows the autonomy tiers in
 `~/.claude/standards/autonomy-tiers.md` (ADR-0051) — this skill chooses, it does
 not bypass gates.
 
+### Waiting for CI is never a priority
+
+"Merge-ready PRs" (rank 1) means a PR whose checks have **already passed** and is
+mergeable now. A PR whose CI is **still running** is NOT merge-ready and NOT a
+priority — never pick "wait for / poll the PR's CI" as the next action. CI
+completion re-surfaces the PR via its own notification; until then, drop to the
+next actionable item and do real work. **Sole exception:** the next task is
+blocked *on that exact code* — it needs the in-flight branch's changes to
+proceed. Only then is the in-flight PR the gating item, and even then advance any
+independent work first. Idle-polling an in-flight PR is a priority-inversion.
+
 ## Required evidence
 
 Check, in order:

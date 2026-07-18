@@ -2,11 +2,13 @@
 # sync-sharekit-profile syncs ONLY these. Add a line to publish a skill; remove to unpublish.
 add
 adt-rag-drift
+app-teardown
 audit-deep
 backlog
 brainstorming
 changelog-update
 ci-watch
+code-teardown
 codebase-memory
 context-pack
 debug
@@ -17,6 +19,7 @@ dispatch
 efficiency-advisor
 fallback
 frontend-design
+frontend-reference-hunt
 graphify
 handoff
 impeccable
