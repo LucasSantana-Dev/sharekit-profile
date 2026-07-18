@@ -199,11 +199,15 @@ Report the full exclusion list, even if empty: `Phase 4: 0 files excluded` is a 
 
 ## Phase 5 — Secret scan
 
-Run the local sharekit scanner (the published npm package doesn't include `scan` yet):
+Run the local sharekit scanner (the published npm package doesn't include `scan` yet).
+The scanner lives in the **sharekit** repo, not the profile repo (path fixed 2026-07-18:
+`$PROFILE_REPO/src/index.ts` doesn't exist → `ERR_MODULE_NOT_FOUND`); the scan target is
+the profile's `claude/` dir:
 
 ```bash
-cd "$PROFILE_REPO"
-npx tsx src/index.ts scan ./sharekit-profile 2>&1
+SHAREKIT_REPO="/Volumes/External HD/Desenvolvimento/sharekit"
+cd "$SHAREKIT_REPO"
+npx tsx src/index.ts scan "$PROFILE_DIR" 2>&1
 ```
 
 Classify findings by severity:
