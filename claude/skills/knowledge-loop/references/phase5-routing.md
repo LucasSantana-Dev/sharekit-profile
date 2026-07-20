@@ -3,7 +3,7 @@
 **When to run Phase 5:**
 - Memory or graph changed this session (not pure recall).
 - Session is NOT ending soon (SessionEnd hook handles the automatic push).
-- External HD is mounted (mount guard §1 in mount-guard.sh).
+- external drive is mounted (mount guard §1 in mount-guard.sh).
 
 **When to skip Phase 5:**
 - Recall-only session with no writes.

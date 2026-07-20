@@ -62,7 +62,7 @@ All original checks remain:
 - Halt on live credential exposure (Phase 2)
 - Containment steps (exact commands)
 - P0/P1 verdict blocking (do NOT clear without re-check)
-- External HD mount guard (blocks RAG)
+- external drive mount guard (blocks RAG)
 
 ---
 
@@ -72,7 +72,7 @@ All original checks remain:
 
 2. **Completion criteria per phase** (Criterion 5): Each phase ends with "Done when: [checkable]" — removes ambiguity; enables automation.
 
-3. **Mount guard for External HD** (Criterion 7, storage-policy rule): Explicit halt if RAG unavailable; prevents silent degradation.
+3. **Mount guard for external drive** (Criterion 7, storage-policy rule): Explicit halt if RAG unavailable; prevents silent degradation.
 
 4. **Trigger description density** (Criterion 1): Reduced from 8 wordy triggers to 4 focused triggers + inline "Trigger for: [contexts]", saves 3 lines.
 
@@ -102,4 +102,4 @@ Invoke `/secure` on a repo with:
 2. Staged code with injection pattern (phase 3 should catch, reference sec-coding.md)
 3. Config with CORS * (phase 4, references best-practices.md §3)
 
-Verify: completion criteria met (done-when conditions pass), mount guard fires if External HD absent, output matches signal-first template, P0 verdict blocks continuation.
+Verify: completion criteria met (done-when conditions pass), mount guard fires if external drive absent, output matches signal-first template, P0 verdict blocks continuation.

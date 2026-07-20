@@ -29,8 +29,8 @@ so capture and retrieval stop being separate manual acts.
 ## Workflow
 
 **Mount guard (required before any RAG/brain op — `standards/skill-patterns.md §mount-guard`):**
-run [references/mount-guard.sh](references/mount-guard.sh) — if External HD is unmounted,
-surface `BLOCKED: External HD unmounted — RAG/vault unreachable` and halt; do not return
+run [references/mount-guard.sh](references/mount-guard.sh) — if external drive is unmounted,
+surface `BLOCKED: external drive unmounted — RAG/vault unreachable` and halt; do not return
 empty recall as if the index were searched.
 
 ### Phase 1 — Query (always)

@@ -73,7 +73,7 @@ Never emit the em-dash `—` (or en-dash `–`) in any written output: chat pros
 
 ## Storage policy
 
-Internal disk near capacity — all new repos, clones, worktrees, datasets, weights, and large caches go on `${DEV_ROOT}/` (repos: `Desenvolvimento/<repo>`, worktrees: `Desenvolvimento/.worktrees/`). Never create dev artifacts under `$HOME` outside legitimate tool-config dirs. If External HD not mounted, surface before writing to internal disk. Full rules: `standards/storage-policy.md`.
+Internal disk near capacity — all new repos, clones, worktrees, datasets, weights, and large caches go on `${DEV_ROOT}/` (repos: `Desenvolvimento/<repo>`, worktrees: `Desenvolvimento/.worktrees/`). Never create dev artifacts under `$HOME` outside legitimate tool-config dirs. If external drive not mounted, surface before writing to internal disk. Full rules: `standards/storage-policy.md`.
 
 # graphify
 

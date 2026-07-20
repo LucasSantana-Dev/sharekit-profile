@@ -7,7 +7,7 @@ BRAIN="${DEV_ROOT}/knowledge-brain"
 
 # Mount guard (standards/knowledge-brain.md §1) — fail loud, never silent
 if ! mount | grep -q "${DEV_ROOT}" || [ ! -d "$BRAIN/.git" ]; then
-  echo "BLOCKED: External HD not mounted — knowledge-brain unreachable. Skip push." >&2
+  echo "BLOCKED: external drive not mounted — knowledge-brain unreachable. Skip push." >&2
   exit 1
 fi
 

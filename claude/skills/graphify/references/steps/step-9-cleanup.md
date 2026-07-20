@@ -76,9 +76,9 @@ After a full build or an `--update` that **changed graph structure** (node count
 
 ```bash
 BRAIN="${DEV_ROOT}/knowledge-brain"
-# Mount guard (standards/knowledge-brain.md §1): vault is on the External HD.
+# Mount guard (standards/knowledge-brain.md §1): vault is on the external drive.
 if ! mount | grep -q "${DEV_ROOT}" || [ ! -d "$BRAIN/.git" ]; then
-  echo "Graph snapshot: skipped — External HD not mounted (knowledge-brain unreachable)"
+  echo "Graph snapshot: skipped — external drive not mounted (knowledge-brain unreachable)"
 elif [ -f graphify-out/graph.json ]; then
   PROJECT=$(basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)")
   mkdir -p "$BRAIN/graphs/$PROJECT"

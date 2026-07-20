@@ -11,13 +11,13 @@
 
 | Condition | Phase | Reconcile | Behavior |
 |---|---|---|---|
-| External HD unmounted | 0 | `Pre-flight: (skipped: External HD unmounted; RAG unavailable — continuing with local discovery only)` | Set `RAG_AVAILABLE=false`, skip skip-if-fresh gate, continue to Phase 1. |
+| external drive unmounted | 0 | `Pre-flight: (skipped: external drive unmounted; RAG unavailable — continuing with local discovery only)` | Set `RAG_AVAILABLE=false`, skip skip-if-fresh gate, continue to Phase 1. |
 | Prior audit exists, < freshness_days, no new commits | 0 | `Pre-flight: (skipped: prior audit from <date> within freshness threshold; user chose re-run)` | Present cached summary; on user "use cached", jump to Phase 3. On "re-run", continue to Phase 1. |
 | No prior audit, or audit ≥ freshness_days | 0 | `Pre-flight: (skipped: no prior audit or stale — running discovery)` | Continue to Phase 1. |
 | Some (≥1 but not all) audit skills error | 1 | `Discover: <N completed skills>✓, <M errored skills>✗` | Mark errored audits PARTIAL, continue with completed findings. |
 | All audits return CLEAN (no findings) | 1 | `Discover: (skipped: all audits returned CLEAN)` | Write "no findings" memory baseline, jump to Phase 5 (memory). Reconciliation shows "no remediation needed". |
 | Critic subagent unavailable | 2.5 | `Critic: (skipped: no subagent capability)` | Continue to Phase 3 with all findings assigned confidence=high (no critic notes). |
-| External HD unmounted before Phase 3 | 3 | `Recall: (blocked: External HD unmounted; downgrading all findings to NEEDS_REVIEW)` | Downgrade every HIGH/MEDIUM finding to NEEDS_REVIEW. Skip memory cross-check. Continue to Phase 4 with all AUTO_FIX tags removed. Explain to user: "Cannot verify prior decisions; all findings require manual review." |
+| external drive unmounted before Phase 3 | 3 | `Recall: (blocked: external drive unmounted; downgrading all findings to NEEDS_REVIEW)` | Downgrade every HIGH/MEDIUM finding to NEEDS_REVIEW. Skip memory cross-check. Continue to Phase 4 with all AUTO_FIX tags removed. Explain to user: "Cannot verify prior decisions; all findings require manual review." |
 | No approved items from Phase 4 planning | 4 | `Remediation: (skipped: no AUTO_FIX findings or all findings are NEEDS_REVIEW)` | Jump to Phase 5. Include NEEDS_REVIEW section in output for user to address manually. |
 
 ## Reconciliation blocks (output format per termination)
@@ -80,7 +80,7 @@ Remediation: (skipped: no findings)
 Snapshot: ~/.claude/projects/.../audit_deep_<repo>_<date>.md (baseline — zero findings)
 ```
 
-### Memory unavailable (External HD unmounted at Phase 3)
+### Memory unavailable (external drive unmounted at Phase 3)
 ```
 AUDIT DEEP — <repo> — <date>
 
@@ -90,18 +90,18 @@ TOP ISSUES (N total):
   [all top-3 findings]
 
 REMEDIATION STATUS: ⚠️ BLOCKED
-  Cannot verify prior decisions — External HD unmounted.
+  Cannot verify prior decisions — external drive unmounted.
   All findings downgraded to NEEDS_REVIEW for manual reconciliation.
 
 Pre-flight: <cache status>
 Discover: <N findings>
 Rank: <M ranked>
 Critic: <confidence scores | skipped>
-Recall: (blocked: External HD unmounted — downgrading findings to NEEDS_REVIEW)
+Recall: (blocked: external drive unmounted — downgrading findings to NEEDS_REVIEW)
 Remediation: (blocked: all findings require manual review)
 Snapshot: [memory file path — zero AUTO_FIX tags]
 
-⚠️ ACTION: Mount External HD and re-run /audit-deep to complete Phase 3.
+⚠️ ACTION: Mount external drive and re-run /audit-deep to complete Phase 3.
 ```
 
 ## Early exits (intended stops mid-run)

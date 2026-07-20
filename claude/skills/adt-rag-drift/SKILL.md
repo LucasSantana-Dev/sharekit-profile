@@ -21,7 +21,7 @@ Drift is **silent.** Retrieval still works, but returns wrong or outdated info.
 
 ## Detect drift
 
-**BLOCKED if External HD unmounted** — report.py embedder cache unreachable; query local sqlite instead.
+**BLOCKED if external drive unmounted** — report.py embedder cache unreachable; query local sqlite instead.
 
 **Check stale count:** Read the drift summary to determine action:
 - <5 stale chunks: normal churn; can wait for next full rebuild
