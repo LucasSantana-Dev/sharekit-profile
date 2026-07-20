@@ -1,0 +1,6 @@
+# Commands rtk-health found returning EC=3 (ask-rule) — bypassed from rtk
+# rewrite because ask-rules silently drop commands in bypassPermissions mode.
+# Managed by ~/.claude/skills/rtk-health/check.sh — entries auto-added.
+# Remove an entry once upstream rtk drops the ask-rule for it.
+curl
+jq
