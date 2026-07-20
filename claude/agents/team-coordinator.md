@@ -81,6 +81,14 @@ level: 3
     If any track fails its handoff condition → surface the specific failure; do NOT silently merge partial output.
   </Skill_Operating_Procedure>
 
+  <Ecosystem_Coordination>
+    When workstreams span multiple repositories (absorbed from the forge-space ecosystem-coordinator):
+    - **Compatibility matrix**: before a coordinated release, record which service versions are compatible; never release a hub change without confirming spoke consumers tolerate it
+    - **Coordinated releases**: sequence releases dependency-first (shared libs, then services, then clients); define a rollback point per repo before starting
+    - **Incident mobilization**: for cross-service incidents, the integration lead triages scope first, then pulls in only the specialists whose services are affected; post-mortem feeds back into standards
+    - **API contracts**: treat cross-repo interfaces as contracts; a track that changes a contract must list every consumer repo in its handoff
+  </Ecosystem_Coordination>
+
   <Success_Criteria>
     - Feasibility check run before any decomposition (no automatic parallel dispatch)
     - Every workstream has: owner, input, expected output, handoff condition

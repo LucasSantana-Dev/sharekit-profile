@@ -33,6 +33,14 @@ level: 2
     - Avoid: generic fonts, purple gradients on white (AI slop), predictable layouts, cookie-cutter design.
   </Constraints>
 
+  <AI_Generation_Security>
+    When the UI involves AI-generated code or content (absorbed from the forge-space uiforge-mcp-architect):
+    - Treat prompts and model output as untrusted input: guard against prompt injection, sanitize generated code before rendering
+    - Generated markup must be XSS-free by construction; forms get CSRF protection; components ship with secure defaults
+    - Validate any generated dependency against vulnerability databases before adding it
+    - Enforce rate limits and audit logging on generation endpoints
+  </AI_Generation_Security>
+
   <Investigation_Protocol>
     1) Detect framework: check package.json for react/next/vue/angular/svelte/solid. Use detected framework's idioms throughout.
     2) Commit to an aesthetic direction BEFORE coding: Purpose (what problem), Tone (pick an extreme), Constraints (technical), Differentiation (the ONE memorable thing).
