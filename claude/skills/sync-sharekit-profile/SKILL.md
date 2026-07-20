@@ -91,7 +91,7 @@ done
 cp "$SOURCE_DIR/CLAUDE.md"                                          "$PROFILE_DIR/CLAUDE.md"
 # agents/hooks/standards are in scope since 2026-07-20 (profile ships the full setup).
 # Personal-project agents (Lucky/Criativaria-specific) are excluded in Phase 4, not here.
-rsync -a --delete "${COMMON_EXCLUDES[@]}" --exclude='*.log' "$SOURCE_DIR/agents/"    "$PROFILE_DIR/agents/"
+rsync -a --delete "${COMMON_EXCLUDES[@]}" --exclude='*.log' --exclude='forge-space/' "$SOURCE_DIR/agents/"    "$PROFILE_DIR/agents/"
 rsync -a --delete "${COMMON_EXCLUDES[@]}" --exclude='*.log' "$SOURCE_DIR/hooks/"     "$PROFILE_DIR/hooks/"
 rsync -a --delete "${COMMON_EXCLUDES[@]}" --exclude='*.log' "$SOURCE_DIR/standards/" "$PROFILE_DIR/standards/"
 ```
