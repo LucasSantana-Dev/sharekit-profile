@@ -15,7 +15,7 @@ BRAIN="${DEV_ROOT}/knowledge-brain"
 # $DEV_ROOT, so grepping mount output for a nested path always false-positives
 # as "unmounted" even when the volume is present and the path is reachable.
 if [ ! -d "$BRAIN/.git" ]; then
-  echo "BLOCKED: External HD not mounted — knowledge-brain unreachable." >&2
+  echo "BLOCKED: external drive not mounted — knowledge-brain unreachable." >&2
   echo "RAG/vault queries will fail. Surface to user; skip push/curate phases." >&2
   exit 1
 fi

@@ -14,7 +14,7 @@ triggers:
 
 Single-shot RAG lookup. Don't over-fetch.
 
-**Mount guard:** `mount | grep -q /Volumes/External\ HD || echo WARNING: RAG degraded` — the index lives on the External HD; an unmounted drive silently degrades recall. See `standards/knowledge-brain.md §1`.
+**Mount guard:** `mount | grep -q ${DEV_ROOT} || echo WARNING: RAG degraded` — the index lives on the external drive; an unmounted drive silently degrades recall. See `standards/knowledge-brain.md §1`.
 
 ## How
 
@@ -33,7 +33,7 @@ Optional args:
 
 ## Failure modes
 
-- **Unmounted External HD** — if the drive drops mid-session, the RAG index becomes stale or inaccessible. Mount guard (above) catches this; surface "WARNING: RAG degraded" and skip the query or fall back to grep.
+- **Unmounted external drive** — if the drive drops mid-session, the RAG index becomes stale or inaccessible. Mount guard (above) catches this; surface "WARNING: RAG degraded" and skip the query or fall back to grep.
 - **Stale index** — if memory or code changed recently and the reindex hook hasn't run (2–5 minute lag typical), you may miss the latest decisions or commits. Fallback: ask directly ("what did we just decide") or grep recent files / `git log`.
 - **Low-quality rerank** — if you ask a vague question ("fix this") without context, the reranker may return false positives. Be specific ("why did we choose D1 for Progress Tracker storage").
 

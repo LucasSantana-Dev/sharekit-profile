@@ -1,0 +1,18 @@
+#!/bin/bash
+# SessionStart hook: remind agent to use codebase-memory-mcp tools.
+# Installed by codebase-memory-mcp. Fires on startup/resume/clear/compact.
+cat << 'REMINDER'
+Code Discovery Protocol (scoped per ADR-0036 — cmm for structure, not a blanket "first"):
+1. codebase-memory-mcp FIRST for STRUCTURAL code navigation (its verified edge over grep/graphify):
+   - trace_path(function_name, mode=calls|data_flow|cross_service) for callers/callees/impact
+   - get_code_snippet(qualified_name) for exact symbol source (precise ranges)
+   - get_architecture(aspects) for project structure / clusters / hotspots
+   - query_graph(query) for complex Cypher patterns
+2. For FUZZY "find the code that does X": cmm search_graph(query=...) OR graphify, then
+   fall back to search_code(pattern)/Grep. Neither graph is reliable for conceptual NL at
+   scale (BM25/BFS hit Route/config noise) — verify the top hits, don't trust blindly.
+3. graphify stays primary for its injected "Knowledge graph context" + multi-modal corpus
+   (docs/papers/URLs/images) — cmm is code-only.
+4. Use Grep/Glob/Read freely for text, configs, non-code files; always Read before editing.
+5. If a project is not indexed in cmm yet, run index_repository FIRST.
+REMINDER

@@ -21,7 +21,7 @@ See [standards/skill-patterns.md §rag-first](../standards/skill-patterns.md) an
 [§mount-guard](../standards/skill-patterns.md).
 
 ```bash
-mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: External HD unmounted — RAG unreachable"; exit 1; }
+mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: external drive unmounted — RAG unreachable"; exit 1; }
 python3 ~/.claude/rag-index/query.py "loop design <task-domain> precedent" --top 5
 ```
 

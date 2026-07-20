@@ -9,7 +9,7 @@ The `recall` skill documents three knowledge sources + their decision table. Rat
 - **"Did we hit this bug before" or past reasoning** → parallel: `search_knowledge` + claude-mem in one call.
 - **"Where is function X defined" or call graph** → use Serena `find_symbol` + `find_referencing_symbols`.
 
-**Before any query:** Mount guard (references/mount-guard.sh). If External HD unmounted, `rag_query` and `search_knowledge` fail; fall back to claude-mem + grep only.
+**Before any query:** Mount guard (references/mount-guard.sh). If external drive unmounted, `rag_query` and `search_knowledge` fail; fall back to claude-mem + grep only.
 
 ## See also
 

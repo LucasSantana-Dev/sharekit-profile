@@ -4,17 +4,17 @@ When to halt the skill and surface a blocker.
 
 ## Mandatory Halts
 
-### 1. External HD Unmounted (Pre-flight Mount Guard)
+### 1. external drive Unmounted (Pre-flight Mount Guard)
 
 **Condition:** `mount | grep -q "${DEV_ROOT}"` returns false.
 
 **Action:** Surface immediately:
 ```
-BLOCKED: External HD not mounted — knowledge-brain vault unreachable.
+BLOCKED: external drive not mounted — knowledge-brain vault unreachable.
 Defer full sync or fall back to local .agents/memory/ capture only.
 ```
 
-**Why:** The vault + RAG embedder cache live on External HD. Writing blind during unmount corrupts state (stale checks read present files as "absent"). Never push, delete, or reconcile on unmount.
+**Why:** The vault + RAG embedder cache live on external drive. Writing blind during unmount corrupts state (stale checks read present files as "absent"). Never push, delete, or reconcile on unmount.
 
 **Escalation:** Ask user to remount; resume sync after mount confirmed.
 
@@ -114,7 +114,7 @@ Vault push skipped (incomplete state). Recommend manual fix to .agents/memory/ p
 ```
 INFO: Memory sync complete (Serena + local). Vault push deferred (session continues).
 Memories will push automatically at session end via sync push-memories hook.
-To push now: git -C /Volumes/External\ HD/Desenvolvimento/knowledge-brain push
+To push now: git -C ${DEV_ROOT}/Desenvolvimento/knowledge-brain push
 ```
 
 ---

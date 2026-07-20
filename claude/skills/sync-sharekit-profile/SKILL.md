@@ -89,11 +89,11 @@ for d in "$PROFILE_DIR/skills"/*/; do
 done
 
 cp "$SOURCE_DIR/CLAUDE.md"                                          "$PROFILE_DIR/CLAUDE.md"
-# hooks/standards/agents are OUT of the standalone profile's current scope (it ships skills +
-# CLAUDE.md + memory-structure — ADR-0039). To publish them, first create claude/{hooks,standards,
-# agents}/ in the profile repo, then restore their rsync lines here:
-#   rsync -a --delete "${COMMON_EXCLUDES[@]}" "$SOURCE_DIR/standards/" "$PROFILE_DIR/standards/"
-#   (likewise hooks/, agents/)
+# agents/hooks/standards are in scope since 2026-07-20 (profile ships the full setup).
+# Personal-project agents (Lucky/Criativaria-specific) are excluded in Phase 4, not here.
+rsync -a --delete "${COMMON_EXCLUDES[@]}" --exclude='*.log' --exclude='forge-space/' "$SOURCE_DIR/agents/"    "$PROFILE_DIR/agents/"
+rsync -a --delete "${COMMON_EXCLUDES[@]}" --exclude='*.log' "$SOURCE_DIR/hooks/"     "$PROFILE_DIR/hooks/"
+rsync -a --delete "${COMMON_EXCLUDES[@]}" --exclude='*.log' "$SOURCE_DIR/standards/" "$PROFILE_DIR/standards/"
 ```
 
 After copying, count and surface what was synced:
@@ -199,11 +199,15 @@ Report the full exclusion list, even if empty: `Phase 4: 0 files excluded` is a 
 
 ## Phase 5 — Secret scan
 
-Run the local sharekit scanner (the published npm package doesn't include `scan` yet):
+Run the local sharekit scanner (the published npm package doesn't include `scan` yet).
+The scanner lives in the **sharekit** repo, not the profile repo (path fixed 2026-07-18:
+`$PROFILE_REPO/src/index.ts` doesn't exist → `ERR_MODULE_NOT_FOUND`); the scan target is
+the profile's `claude/` dir:
 
 ```bash
-cd "$PROFILE_REPO"
-npx tsx src/index.ts scan ./sharekit-profile 2>&1
+SHAREKIT_REPO="/Volumes/External HD/Desenvolvimento/sharekit"
+cd "$SHAREKIT_REPO"
+npx tsx src/index.ts scan "$PROFILE_DIR" 2>&1
 ```
 
 Classify findings by severity:
