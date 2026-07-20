@@ -6,6 +6,23 @@
 
 ---
 
+## Install on a fresh machine
+
+```bash
+npx @lucassantana/sharekit install LucasSantana-Dev
+```
+
+What lands where: `claude/` → `~/.claude/` (50 skills, 42 agents, 78 hooks, 42 standards, CLAUDE.md), plus `cursor/`, `opencode/` → `~/.config/opencode/`, `gjc/` → `~/.gjc/`, and `warp/` as portable defaults.
+
+Fresh-machine caveats:
+
+- **Hook wiring is opt-in.** By default `settings.json` is skipped because it registers shell hooks. Re-run with `--include-hooks` to wire the hook pipeline (you get one explicit confirmation prompt). Without it, skills and agents work but nothing fires automatically.
+- **External tool dependencies.** Some hooks assume tools that are not part of this profile: `rtk` (output compression), a RAG index + memory vault on an external drive, and `claude-mem`. On a machine without them the affected hooks degrade to no-ops or a one-line warning; nothing breaks, but auto-recall and token compression stay off until those exist.
+- **Provider keys come from env.** `OPENCODE_API_KEY` / `OPENROUTER_API_KEY` for OpenCode, plus your normal Claude Code login. No keys ship in the profile.
+- **Backups are automatic.** Every install snapshots the previous state; `sharekit rollback LucasSantana-Dev` undoes it.
+
+---
+
 ## Quick Start: Daily Operations
 
 ### Starting a session
