@@ -10,7 +10,7 @@
   "files": {
     ".harness/mcp-policy.json": "b4e64fb3cece6c04691a039edbd599d79bc0afddaff6a6b000d693d91d1e19b3",
     "AGENTS.md": "26e797d542d6197a483829f6542211096d8d1728d494ef76d4385d8f8993b01c",
-    "claude/settings.json": "b4b53012322e39f2a0b2cd9cca9653149bb7c4fa30b323cfb700cce8ab6975a9",
+    "claude/settings.json": "081f2c03b70871b608004b6fa336780e76c4498a37ea84192bcd5404ed681358",
     "hooks/skill-index.sh": "932f9b15fe7c04f344e5570b52ff65bf082e818995c68991f67df3e5449d51ac",
     "hooks/skill-validate.sh": "11abe7f7887d47cad8d58fe09d1be7c9eb4790eea6773d2049402d14a24e6db8",
     "hooks/skill-prune.sh": "5fff4e1c779225d9e129d5aa8051ef5f90a5925a8e550158d3f7ac7ebf3f5929",
@@ -18,7 +18,7 @@
     "docs/skill-catalog-efficiency.md": "88f4524f57453cd1a58358ce961c295e97a9e4986eaeaddad0ea8f0202df6172"
   },
   "meta": {
-    "adr_anchor": "Adopted from ruflo meta-harness pattern: declarative governance directory converts prose security rules into diffable, CI-enforceable code. + Wave-4 self-improvement flywheel: settings.json un-orphaning the hooks and enabling the observe→evaluate→optimize loop.",
+    "adr_anchor": "Adopted from ruflo meta-harness pattern: declarative governance directory converts prose security rules into diffable, CI-enforceable code. + Wave-4 self-improvement flywheel: settings.json un-orphaning the hooks and enabling the observe\u2192evaluate\u2192optimize loop.",
     "source": "https://github.com/ruvnet/ruflo"
   }
 }
