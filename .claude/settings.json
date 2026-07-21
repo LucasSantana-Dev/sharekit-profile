@@ -8,7 +8,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/hooks/trajectory-log.sh\"",
+            "command": "bash \"$HOME/.claude/hooks/trajectory-log.sh\"",
             "timeout": 2000
           }
         ]
