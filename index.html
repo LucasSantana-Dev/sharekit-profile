@@ -278,6 +278,16 @@
       display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
       overflow: hidden;
     }
+    .skill-desc.expanded {
+      display: block; -webkit-line-clamp: unset; overflow: visible;
+    }
+    .desc-toggle {
+      display: inline-block; margin-top: 4px; padding: 0;
+      font-size: 11px; font-weight: 600; font-family: inherit;
+      color: var(--text-dim); background: none; border: none;
+      cursor: pointer; transition: color .15s;
+    }
+    .desc-toggle:hover { color: var(--cyan); }
 
     .skill-footer {
       display: flex; align-items: center; gap: 6px; margin-top: 2px;
@@ -1706,7 +1716,28 @@ function renderSkillGrid() {
     });
   });
 
+  wireDescToggles();
+
   document.getElementById('tc-skills').textContent = filtered.length;
+}
+
+// Add a "more/less" toggle to descriptions actually clamped by line-clamp.
+// Idempotent; safe to call when the panel becomes visible after a hidden render.
+function wireDescToggles() {
+  document.getElementById('skill-grid').querySelectorAll('.skill-desc').forEach(desc => {
+    if (desc.nextElementSibling && desc.nextElementSibling.classList.contains('desc-toggle')) return;
+    if (desc.scrollHeight <= desc.clientHeight + 1) return;
+    const btn = document.createElement('button');
+    btn.className = 'desc-toggle';
+    const setLabel = expanded => {
+      btn.textContent = expanded
+        ? (lang === 'pt' ? 'Mostrar menos' : 'Show less')
+        : (lang === 'pt' ? 'Mostrar mais' : 'Show more');
+    };
+    setLabel(false);
+    btn.addEventListener('click', () => setLabel(desc.classList.toggle('expanded')));
+    desc.after(btn);
+  });
 }
 
 function renderAgents() {
@@ -1821,6 +1852,8 @@ function switchPanel(panel) {
   document.getElementById('panel-' + panel).classList.add('active');
   document.getElementById('sidebar').style.display = panel === 'skills' ? '' : 'none';
   window.scrollTo({ top: 0, behavior: 'instant' });
+  // grid may have been rendered while hidden (no layout) — wire toggles now that it's measurable
+  if (panel === 'skills') wireDescToggles();
 }
 
 document.getElementById('nav-tabs').querySelectorAll('.nav-tab').forEach(tab => {
