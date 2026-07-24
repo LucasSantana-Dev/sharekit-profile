@@ -13,6 +13,6 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
+      # Manifest mode: release-type ("simple") lives in release-please-config.json;
+      # setting it here would make the action ignore the config + manifest files.
       - uses: googleapis/release-please-action@v4
-        with:
-          release-type: simple
