@@ -10,14 +10,14 @@ jobs:
   harness-boundary:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Check harness/app boundary
         run: bash scripts/check-harness-boundary.sh
 
   coauthor-trailers:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Check for bot Co-authored-by trailers
@@ -26,14 +26,14 @@ jobs:
   harness-manifest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Verify harness manifest fingerprints
         run: bash scripts/check-harness-manifest.sh
 
   bats:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install bats-core + gate-script dependencies
         # skill-validate.sh hard-requires fd + rg (exits 2 without them).
         # Debian packages fd as fd-find with binary name fdfind — symlink it.
@@ -50,7 +50,7 @@ jobs:
   gitleaks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Secret scanning with gitleaks
@@ -65,7 +65,7 @@ jobs:
   shellcheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Check shell scripts with shellcheck
         # Note: shellcheck is preinstalled on GitHub Actions ubuntu runners.
         # This gate checks all hook and script shell files at warning severity.
