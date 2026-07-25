@@ -27,7 +27,7 @@ behavior, surface it instead of applying.
 6. **Signal-first output** — findings/reports lead with verdict + top-3 inline; bulk
    gated ("ask for full list") or in a reference file. (CLAUDE.md signal-first rule.)
 7. **Stop/failure conditions named** — ≥1 explicit "if X missing → surface blocker,
-   halt" (no silent fallback). Mount guard where external drive is touched.
+   halt" (no silent fallback). Mount guard where External HD is touched.
 8. **Cross-link, don't duplicate** — cite `standards/<file>.md §N` instead of copying
    rules inline; name auto-chain skills + their condition.
 9. **Exact RAG snippets embedded** — search/lookup steps show real command syntax (not
@@ -96,9 +96,9 @@ graphify query "<codebase question>" --budget 500
 
 **Mount guard (required before brain/RAG reliance — knowledge-brain.md §1):**
 ```bash
-mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: external drive unmounted — RAG/vault unreachable"; }
+mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: External HD unmounted — RAG/vault unreachable"; }
 ```
-If unmounted: `rag_query` (embedder cache on external drive) and `search_knowledge`
+If unmounted: `rag_query` (embedder cache on External HD) and `search_knowledge`
 degrade; say so plainly, fall back to claude-mem + grep, do not return empty/misleading.
 
 ## Anti-patterns to cut

@@ -34,6 +34,6 @@ Resolution of the "not synced" risk:
   does NOT write the advertised `.codebase-memory/graph.db.zst` portable artifact (verified in fast
   AND moderate mode). So artifact-sharing is not currently a viable bootstrap path — rely on re-index.
 - **Storage policy**: the cache lives under `$HOME` (internal disk). It's regenerable and currently
-  <100MB, so it stays put; **move `~/.cache/codebase-memory-mcp` → external drive + symlink once it
+  <100MB, so it stays put; **move `~/.cache/codebase-memory-mcp` → External HD + symlink once it
   exceeds ~100MB** (CLAUDE.md storage policy). Don't move it while the MCP server is running (open
   SQLite → corruption); do it server-stopped, and a stale/lost cache just re-indexes.

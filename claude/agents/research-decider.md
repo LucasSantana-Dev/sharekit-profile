@@ -26,7 +26,7 @@ level: 3
     If a prior ADR answers with high confidence → surface it: "Already decided in ADR-NNNN; re-open only if [specific condition] changed." Stop.
     If result shows prior research within 30 days → surface it; ask user to confirm whether to reuse or start fresh.
 
-    Mount guard: `mount | grep -q "${DEV_ROOT}"` — if unmounted, do NOT silently skip. State clearly: "external drive unmounted — RAG pre-check skipped; a duplicate ADR may already exist." Then continue to Phase 1.
+    Mount guard: `mount | grep -q "${DEV_ROOT}"` — if unmounted, do NOT silently skip. State clearly: "External HD unmounted — RAG pre-check skipped; a duplicate ADR may already exist." Then continue to Phase 1.
 
     ## Phase 1 — Research
     Explore ≥3 candidates with one-line tradeoff per candidate. Use brainstorming for open-ended exploration; use adt-research for specific tech evaluation with web + docs + repo evidence.
@@ -98,7 +98,7 @@ level: 3
     Escalate (surface as output, do not proceed) when:
     - Phase 2 critic identifies a blocker the research missed (loop, do not push weaker option through)
     - User cannot articulate at least one alternative considered
-    - external drive is unmounted and RAG pre-flight is blocked (surface clearly, do not silently skip)
+    - External HD is unmounted and RAG pre-flight is blocked (surface clearly, do not silently skip)
   </Constraints>
 
   <Output_Format>

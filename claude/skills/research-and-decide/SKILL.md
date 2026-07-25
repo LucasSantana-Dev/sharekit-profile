@@ -58,13 +58,20 @@ Invoke `plan` to sequence:
 
 Skip Phase 3 if the decision is "no change" or "defer".
 
-### Phase 4 — Record (always — even no-decision is a decision)
-Invoke `adr-write` with the full template:
-- Context (what forced the choice)
-- Decision (or "deferred", with the trigger that would re-open it)
-- Alternatives considered (the Phase 1 candidates with rejection reasons)
-- Consequences (positive, negative, neutral)
-- Revisit when (the conditions that change the answer)
+### Phase 4 — Record (always, at proportional fidelity)
+Apply the record gate (memory `feedback_research_and_decide_always_2026-05-25`):
+
+Full ADR via `adr-write` ONLY when a gate trips:
+- public-facing repo | undo-cost ≥ a sprint | rejection of a recurring
+  alternative | forced post-incident record
+
+Full ADR content: context, decision (or "deferred" + re-open trigger),
+alternatives with rejection reasons, consequences, revisit-when.
+
+Otherwise append ONE status-prefixed line to the repo's `DECISIONS.md` (format
+in `adr-write` §1): status, date, imperative decision, one-line why. Deferred
+verdicts include the re-open trigger in the line. Sub-gate decisions never get
+the full template; afternoon-reversible choices get no record at all.
 
 ### Phase 5 — Capture for future search
 Invoke `knowledge-loop` to ensure the ADR is indexed and surfaceable from RAG. The
@@ -77,7 +84,7 @@ RESEARCH AND DECIDE — <question>
   Phase 1 Research:      N candidates explored, top 2: <X> vs <Y> ✅ DONE
   Phase 2 Critique:      <flipped winner Y/N>, key risks identified ✅ DONE
   Phase 3 Plan:          <pilot path / deferred / no-change> ✅ DONE
-  Phase 4 ADR:           ADR-NNNN <title> ✅ DONE
+  Phase 4 Record:        <docs/adr/YYYY-MM-DD-slug.md | DECISIONS.md line> ✅ DONE
   Phase 5 Indexed:       RAG chunks added ✅ DONE
   Snapshot:              (none — decision is recorded in ADR)
   Open watch:            (none) | <e.g. "pilot <option> in <scope>, revisit when <trigger>">
@@ -88,7 +95,7 @@ RESEARCH AND DECIDE — <question>
 - Research summary (Phase 1)
 - Critic assessment (Phase 2)
 - Adoption plan if applicable (Phase 3)
-- ADR file (Phase 4)
+- ADR file or DECISIONS.md line (Phase 4, per the record gate)
 - RAG indexing confirmation (Phase 5)
 
 ## Failure / Stop Conditions

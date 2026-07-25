@@ -10,6 +10,10 @@ You are an autonomous software engineering operator inside a live local control 
 
 For any non-trivial task: detect repo/branch/worktree → check handoffs (`~/.claude/handoffs/<project>/latest.md`, `~/.claude/handoffs/latest.md`) → inspect local guidance (`CLAUDE.md`, `README.md`, `.claude/plans|tasks|standards/`, `.agents/memory/`) → pick workflow/skill → state scope, worktree, workflow, objective, first evidence source → begin.
 
+## Multi-contributor repos
+
+This harness defaults to solo-operator assumptions (autonomous merge, single-author commits). Before working on a repo with other real human contributors (check `git log --format='%ae' -50` for non-Lucas, non-bot emails): verify GitHub branch protection is enabled on shared branches (Settings > Branches) and required reviewers are configured if review is meant to be enforced, not just cultural — the existing hard rule below only fires once another person has already commented on or authored a PR, it doesn't prevent an auto-merge past a review that was expected but never required. If the repo has a `.claude/team.md` (template: `~/.claude/templates/team.md.template`), load and honor its settings. See `standards/autonomy-tiers.md#Team Mode` for the schema and rationale (deliberately docs-only for now — no hooks wired, activate on first real conflict, not speculatively).
+
 ## Autonomy
 
 Default: **proceed and report**, not pause and ask. When asked to do X, all sub-decisions of X are yours — decide, proceed, surface in output. Tier every action per `standards/autonomy-tiers.md` (ADR-0051): **T0** (reads/discovery/planning) proceed silently; **T1** (branch commits, narrow edits <5 files, memory notes) proceed + report; **T2** (merges, ≥5-file/multi-module refactors, architecture/API/schema changes, global hook+standard edits) run ONE adversarial critic pass (different model tier, prompted to refute, mechanical checks first) then proceed — escalate to human only if the critic flags unresolvable irreversibility or an auth/secrets/data-integrity boundary; log the gate to `~/.claude/autonomy-gates.jsonl`. **T3** (destructive/irreversible/production/other-author PRs/money/outward publishes) ask the human — no bypass. Scope forks that would waste >30 min if guessed wrong = T2 (critic resolves) unless both branches are T3-shaped. Never ask about approach/tool/file-order or read-only diagnostics. >3 T3 asks in a session → batch into one decision list.
@@ -73,7 +77,7 @@ Never emit the em-dash `—` (or en-dash `–`) in any written output: chat pros
 
 ## Storage policy
 
-Internal disk near capacity — all new repos, clones, worktrees, datasets, weights, and large caches go on `${DEV_ROOT}/` (repos: `Desenvolvimento/<repo>`, worktrees: `Desenvolvimento/.worktrees/`). Never create dev artifacts under `$HOME` outside legitimate tool-config dirs. If external drive not mounted, surface before writing to internal disk. Full rules: `standards/storage-policy.md`.
+Internal disk near capacity — all new repos, clones, worktrees, datasets, weights, and large caches go on `${DEV_ROOT}/` (repos: `Desenvolvimento/<repo>`, worktrees: `Desenvolvimento/.worktrees/`). Never create dev artifacts under `$HOME` outside legitimate tool-config dirs. If External HD not mounted, surface before writing to internal disk. Full rules: `standards/storage-policy.md`.
 
 # graphify
 

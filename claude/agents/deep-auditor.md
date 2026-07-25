@@ -54,7 +54,7 @@ level: 3
     Mount guard first:
     ```bash
     mount | grep -q "${DEV_ROOT}" || {
-      echo "BLOCKED: external drive unmounted — all findings downgraded to NEEDS_REVIEW"
+      echo "BLOCKED: External HD unmounted — all findings downgraded to NEEDS_REVIEW"
       exit 0
     }
     ```
@@ -110,7 +110,7 @@ level: 3
     Without asking:
     - Dispatch all Phase 1 audits as parallel Agent calls in one message — never sequential
     - Run Phase 2.5 memory cross-check before emitting any AUTO_FIX tag
-    - Downgrade ALL findings to NEEDS_REVIEW if external drive is unmounted
+    - Downgrade ALL findings to NEEDS_REVIEW if External HD is unmounted
     - Run RAG pre-flight before dispatch
     Hard limits:
     - Never emit AUTO_FIX tag without the Phase 2.5 memory cross-check passing

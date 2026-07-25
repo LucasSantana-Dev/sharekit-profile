@@ -13,8 +13,7 @@ creates it (`/pr-to-release`, `/hotfix`, `/dep-sweep`,
 - `chore/<slug>` — tooling, config, deps, non-user-visible
 - `docs/<slug>` — docs-only
 - `refactor/<slug>` — code reshape, no behavior change
-- `hotfix/<slug>` — emergency, branched from main not release
-- `chore/release-vX.Y.Z` — release-cut PR (machine-generated)
+- `hotfix/<slug>` — emergency, branched from main
 - `chore/repo-bootstrap` — bootstrap PR (machine-generated)
 - `deps/<batch-date>` — `/dep-sweep` batched bumps
 
@@ -42,14 +41,14 @@ Subject rules:
 - Don't repeat the type in the subject (`fix: fix the bug` is bad)
 - Mention the user-visible effect, not the file changed
 
-`BREAKING CHANGE:` footer triggers a major version bump at the next
-`/release-cut`. Use sparingly; prefer additive changes with deprecation
+`BREAKING CHANGE:` footer triggers a major version bump in the next
+release-please release. Use sparingly; prefer additive changes with deprecation
 warnings.
 
 ## PR title
 
-For release-branch repos: `<type>: <subject>` matching the squash commit.
-For direct-to-main repos: same. No `[WIP]` prefixes — use Draft state instead.
+`<type>: <subject>` matching the squash commit.
+No `[WIP]` prefixes — use Draft state instead.
 
 ## PR body (template)
 
@@ -88,8 +87,7 @@ Every PR must pass before merge:
 3. No unresolved threads from CodeRabbit / Greptile / Sonar / human reviewers
 4. No merge conflicts with base
 5. Branch is up-to-date with base (or rebase-on-merge is configured)
-6. For release-branch repos: base is `release`, not `main` (except `/hotfix`
-   and `chore/release-vX.Y.Z`)
+6. Base is `main` (trunk-based default for all repos under this account)
 7. For `/hotfix`: severity gate documented in PR body, regression test present
 
 `/pr-merge-readiness` aggregates all of these into a single MERGE / WAIT / FIX
@@ -98,9 +96,7 @@ verdict. Use it before clicking merge.
 ## Merge method
 
 - Default: squash (one PR = one commit on the integration branch)
-- Exception 1: `/release-cut`'s `chore/release-vX.Y.Z` PR — use merge commit
-  to preserve the release branch's history
-- Exception 2: PRs explicitly opened with merge-commit intent (rare; document
+- Exception: PRs explicitly opened with merge-commit intent (rare; document
   in PR body why)
 - Never rebase-merge unless the repo's `branch protection` requires it
 
@@ -114,7 +110,7 @@ When reviewing your own composite-opened PR:
 - Verify CHANGELOG line matches the actual change
 - For `/dep-sweep`: spot-check at least one auto-merged PR before approving
 - For `/hotfix`: confirm severity gate text in PR body matches reality
-- For `/release-cut`: confirm proposed version against `main..release` diff
+- For release-please PRs: confirm the proposed version against the conventional commits on `main`
 
 ## Stale PR policy
 
@@ -130,14 +126,10 @@ remediation depends on state:
 `/branch-hygiene` deletes the remote branch only after the PR is merged or
 closed, never while it's open.
 
-## Direct-to-main repos (no `release` branch)
+## Trunk-based default (no `release` branch)
 
-For repos without a `release` branch (single-developer, internal tools, or
-explicitly trunk-based):
-- `/merge-confidently` replaces `/pr-to-release`
-- `/ship-it` replaces `/release-cut`
-- Everything else in this standard still applies
-
-The router detects which model the repo uses via `git ls-remote --heads
-origin release`. Composites should not be invoked manually against the wrong
-model — the router prevents it.
+All repos under this account are trunk-based as of 2026-07-23 — the long-lived
+`release`-branch train is retired (release-cut kept for history only).
+`/merge-confidently` and `/pr-to-release` both land work on `main`;
+release-please owns versioning in release-please repos (`/ship-it` in the
+rest). Everything else in this standard still applies.

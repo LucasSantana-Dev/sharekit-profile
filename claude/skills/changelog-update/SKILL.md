@@ -21,6 +21,8 @@ triggers:
 Automates the CHANGELOG.md maintenance cycle for Forge Space repos (and any
 project following Keep a Changelog format).
 
+> **Scope note (2026-07-23):** in release-please repos (the default), release-please owns changelog promotion, version bump, and tag via its release PR — do not run the promote flow there. This skill remains for repos without release-please configured, and `/pr-to-release` still uses its append-only mode for `[Unreleased]` entries in those repos.
+
 ## When to Use
 
 - Cutting a new release (patch, minor, or major)

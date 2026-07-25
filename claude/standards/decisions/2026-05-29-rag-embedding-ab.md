@@ -6,7 +6,7 @@
 
 ## Context
 
-Tested whether a modern OSS embedding model beats the prod `all-MiniLM-L6-v2` (384-dim) on the live RAG: 8,372 chunks, 211-case eval, hybrid BM25+dense+RRF(+optional rerank). Fully isolated (prod `index.sqlite` untouched; per-model DBs on external drive). Methodology was adversarially pre-critiqued (DIM auto-detect, per-model query/doc prefixes, cache-collision avoided via per-model processes, McNemar + bootstrap CI, per-category, rerank-off/on cells, pre-registered ADOPT gate).
+Tested whether a modern OSS embedding model beats the prod `all-MiniLM-L6-v2` (384-dim) on the live RAG: 8,372 chunks, 211-case eval, hybrid BM25+dense+RRF(+optional rerank). Fully isolated (prod `index.sqlite` untouched; per-model DBs on External HD). Methodology was adversarially pre-critiqued (DIM auto-detect, per-model query/doc prefixes, cache-collision avoided via per-model processes, McNemar + bootstrap CI, per-category, rerank-off/on cells, pre-registered ADOPT gate).
 
 ## Decision
 

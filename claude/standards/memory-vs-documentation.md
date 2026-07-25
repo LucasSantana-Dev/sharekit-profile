@@ -17,7 +17,8 @@ truth for agent-actionable context."
 - **Lifecycle:** curated, prunable, can go stale → archive. The `MEMORY.md` index is the map (≤200 lines).
 
 ### 2. Project documentation — *canonical facts to act on THIS project* (repo-scoped)
-- **Is:** ADRs, specs, architecture / `CONTEXT.md`, README, standards-for-that-repo, schema,
+- **Is:** the repo decision log (`DECISIONS.md`), gated full ADRs (`docs/adr/`), specs,
+  architecture / `CONTEXT.md`, README, standards-for-that-repo, schema,
   API docs, roadmap, changelog.
 - **Test (CLAUDE.md):** *"Would a future agent need this **committed in the repo** to make a
   correct decision **about this project**?"* → Project documentation → **lives IN the project repo.**
@@ -57,5 +58,8 @@ Cleaner classes → tighter scoping → fewer, more relevant hits → cheaper se
 - A fact that's agent-actionable for a project **must be committed to that repo** before acting on it
   (don't leave it only in memory/Slack).
 - Don't duplicate a project doc into memory (one home per fact); a memory note may *point* to a repo doc.
+- Decisions default to one status-prefixed line in the repo's `DECISIONS.md`; full ADRs only
+  behind the record gate (public-facing repo, sprint-level undo cost, recurring-alternative
+  rejection, post-incident). See `adr-write` and global ADR `2026-07-23-proportional-fidelity-decision-records`.
 - Ephemeral records are card-only in the index — to add a new ephemeral type, append it to
   `RAG_CARD_ONLY` in `build.py`.

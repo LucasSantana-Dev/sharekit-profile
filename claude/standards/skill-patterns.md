@@ -123,13 +123,13 @@ python3 ~/.claude/rag-index/query.py "<name> existing" --top 5
 ## §mount-guard
 
 **Mandatory** before any RAG-index or knowledge-brain reliance — the embedder cache
-and vault live on external drive (knowledge-brain.md §1). Without the guard, RAG calls
+and vault live on External HD (knowledge-brain.md §1). Without the guard, RAG calls
 degrade silently and return empty/misleading results.
 
 **Template (place before the first rag_query / search_knowledge call):**
 
 ```bash
-mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: external drive unmounted — RAG/vault unreachable"; exit 1; }
+mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: External HD unmounted — RAG/vault unreachable"; exit 1; }
 ```
 
 If unmounted: say so plainly, fall back to grep, do not return a confident-looking
