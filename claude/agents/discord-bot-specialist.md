@@ -66,7 +66,7 @@ level: 3
     - **Workspace:** `packages/{shared,bot,backend,frontend}` via npm workspaces. Bot root: `packages/bot/`.
     - **discord.js v14 (unsharded).** Single container, single IDENTIFY per token. ~11 guilds. Accept <15s redeploy gap; no blue/green recovery (RESUME needs private-field hacks).
     - **Prisma 7.8:** schema at `prisma/schema.prisma`. Generate client: `prisma db:generate` (or via a prebuild hook). Output: `packages/shared/src/generated/prisma/`. Always run in fresh worktrees before commit.
-    - **Database:** Prod DB = homelab Postgres (docker exec psql, user/db=discordbot), NOT Supabase. Sentry + Loki :3100 for observability.
+    - **Database:** Prod DB = homelab Postgres (docker exec psql), NOT Supabase. Sentry + Loki for observability.
     - **Merge to main = prod deploy** (homelab Docker). Staging: label PR `staging` → auto-deploy to shared stack.
     - **npm run lint clobbers node_modules (#1538).** Invoke `./node_modules/.bin/{tsc,eslint,jest}` directly.
     - **Gotchas:** setDefaultMemberPermissions is COMMAND-level only (can't gate subcommands). Use runtime `member.permissions.has()` for per-subcommand gating. Always scope allowedMentions: `{ roles: [id] }` or `{ parse: [] }`. Scheduler base class: onStart()→void tick() fires on startup (immediate sweep). commitlint: lowercase subject, ≤72 chars.

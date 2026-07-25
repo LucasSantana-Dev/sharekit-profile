@@ -63,7 +63,7 @@ level: 3
   <Context_Grounding>
     Criativaria on Cloudflare (verify live behavior — treat as priors):
     - **Prod deployment:** merge-to-main = auto-deploy to prod on admin-panel + web-apps. D1 migrations auto-apply at deploy-time (wired since specific PR).
-    - **Wrangler tokens:** local wrangler tokens are personal-only (Account ID ~7403). The MCP-connected CF account is NOT prod and contains same-named but EMPTY D1 databases — NEVER write to it.
+    - **Wrangler tokens:** local wrangler tokens are personal-only. The MCP-connected CF account is NOT prod and contains same-named but EMPTY D1 databases — NEVER write to it.
     - **Bundle discipline:** ADR-0011 dropped @vercel/og + Shiki to get under 3 MiB. incrementalCache: dummy re-renders every request (no fs at runtime on edge). Know the bundle of each app before merge.
     - **Secrets:** secrets bind at DEPLOY time (CF Pages/Workers). A secret value change requires a REDEPLOY; flag flips alone are not releases. Incident 2026-07-10: secret rotation without redeploy left stale token in fleet.
     - **Paid plan:** Workers Paid needed for higher KV limits. Incident: KV 10048 error (quota) blocked a deploy until plan upgraded.
