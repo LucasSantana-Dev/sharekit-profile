@@ -2,14 +2,14 @@
 
 **Status:** Accepted
 **Created:** 2026-07-25
-**Owner:** Lucas Santana
+**Owner:** the operator
 **Tags:** sharekit-profile, autonomy-tiers, compliance, homologation, release-gating
 
 ## Context
 
 A user request ("work profile on sharekit covering compliance, homologation, teamwork,
 limited scope, card/prototype fidelity") triggered a 5-lens, 2-round debate (`/deep-research`
-+ `/debate`, 2026-07-25). One thread of that debate: Lucas already has four real,
++ `/debate`, 2026-07-25). One thread of that debate: the operator already has four real,
 already-shipped "homologation" patterns (Brazilian-PT term for a staging/UAT sign-off gate
 before prod) living as separate per-project memory notes, never abstracted:
 
@@ -28,8 +28,8 @@ scaffolded template would require a configuration abstraction (gate_type, review
 deploy_target) that adds a layer without removing any of the per-project specificity. The
 debate's Round 2 synthesis (converged across all 4 debating lenses) additionally rejected
 shipping this as a **distributed file scaffolded into target repos** — that repeats
-ADR-0039's already-rejected two-channel drift risk and doesn't survive the "Lucas is often a
-guest contributor on Thoughtworks client repos" case cleanly. The debate's overall
+ADR-0039's already-rejected two-channel drift risk and doesn't survive the "the operator is
+often a guest contributor on client repos they don't own" case cleanly. The debate's overall
 convergence: augment *existing wired mechanisms* (hooks, agents, gate logic) rather than
 create new distributed content, and treat cross-project patterns as reference documentation
 in the canonical profile, not per-repo scaffolds.
@@ -75,7 +75,7 @@ in the canonical profile, not per-repo scaffolds.
   field means nothing for calculadora's deploy-time-binding gate, which isn't about *where*
   but *when*). Would produce a form most future projects fill in wrong or ignore.
 - **Second `sharekit-profile-work` distribution channel**: rejected — this is the same
-  two-channel drift ADR-0039 already burned Lucas on (skills silently missing from the
+  two-channel drift ADR-0039 already burned the operator on (skills silently missing from the
   public profile for a stretch). Unanimous rejection across all 5 debate lenses, both
   rounds.
 - **Do nothing** (leave the four patterns as separate per-project memory notes): rejected —
@@ -103,8 +103,8 @@ in the canonical profile, not per-repo scaffolds.
 - 3+ future projects independently ask "which of these patterns should I use" and the answer
   is unclear from reading this doc alone → that's evidence a decision-tree/checklist format
   would help more than free-text exemplars; revisit format, not scope.
-- Someone other than Lucas asks to reuse this taxonomy → separate curation decision on
+- Someone other than the operator asks to reuse this taxonomy → separate curation decision on
   whether it belongs in the public `sharekit-profile` install surface.
-- Lucas gets write access on a real client engagement and a teammate needs a starter doc →
+- The operator gets write access on a real client engagement and a teammate needs a starter doc →
   revisit the `sharekit-cli init --profile work` flag (architecture lens's Round 1 proposal,
   deferred not rejected), gated behind an explicit flag, not shipped as a default.
