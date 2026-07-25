@@ -76,7 +76,7 @@
 **Mitigation:**
 - `mcp-policy.json` sets `allowFileWrite: false` by default — write access governed at tool layer
 - `filesystem` MCP server in `approvedServers` but scoped by its own configuration
-- Storage policy invariant constrains new file creation to `/Volumes/External HD/Desenvolvimento/`
+- Storage policy invariant constrains new file creation to `${DEV_ROOT}/`
 - `PreToolUse` hook blocks writes to protected paths (`~/.ssh`, `/etc`, system directories)
 
 **Severity:** High
@@ -117,7 +117,7 @@
 - Constitution invariant `no-ai-attribution` is a protected invariant (rank 1)
 - Agent instructions explicitly forbid AI attribution in all git/GitHub artifacts
 - Commit message hooks can be configured to reject commits containing known AI attribution patterns
-- Author of record is always Lucas Santana — agents are tools, not contributors
+- Author of record is always the operator — agents are tools, not contributors
 
 **Severity:** Medium (integrity/reputation risk, not data loss)
 

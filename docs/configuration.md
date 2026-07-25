@@ -22,7 +22,7 @@ These rules are enforced by the CLAUDE.md global config and cannot be overridden
 
 **Rule:** When work decomposes into 2 or more independent units (parallel investigations, multi-repo sweeps, fan-out audits, independent file edits, batch fixes), dispatch one `Agent()` per unit in a **SINGLE tool-use block** — not sequentially.
 
-**Worktrees for same repo:** When 2+ parallel agents touch the same repo, each runs in its own git worktree: `/Volumes/External HD/Desenvolvimento/.worktrees/<task>-<n>/`
+**Worktrees for same repo:** When 2+ parallel agents touch the same repo, each runs in its own git worktree: `${DEV_ROOT}/.worktrees/<task>-<n>/`
 
 **Contract violation:** Sequential inline execution of independently-parallelizable work. If you catch yourself doing this, stop and re-dispatch as parallel agents with worktrees.
 
@@ -74,11 +74,11 @@ These rules are enforced by the CLAUDE.md global config and cannot be overridden
 
 **Rule:** Never add `Co-Authored-By: Claude ...` trailers to commit messages, never add `🤖 Generated with [Claude Code]` trailers to PR bodies or release notes, never add any other AI-attribution marker.
 
-**Who authors commits:** Lucas Santana (the operator). The assistant is a tool, not a contributor of record.
+**Who authors commits:** the operator. The assistant is a tool, not a contributor of record.
 
 ### 9. Storage on External HD
 
-**Rule:** All new development, clones, worktrees, datasets, and AI artifacts live on `/Volumes/External HD/Desenvolvimento/`. Never use `~/` or `Macintosh HD` for development work.
+**Rule:** All new development, clones, worktrees, datasets, and AI artifacts live on `${DEV_ROOT}/`. Never use `~/` or `Macintosh HD` for development work.
 
 **If External HD not mounted:** Surface that to the user before creating dev artifacts on internal disk.
 
@@ -201,7 +201,7 @@ When task category is ambiguous, choose the lightest tier that can satisfy the t
 
 ### Worktree Cleanup
 - **Auto-cleanup:** If agent makes no changes, worktree auto-removed
-- **Path pattern:** `/Volumes/External HD/Desenvolvimento/.worktrees/<task>-<n>/`
+- **Path pattern:** `${DEV_ROOT}/.worktrees/<task>-<n>/`
 
 ### Sync & Memory
 

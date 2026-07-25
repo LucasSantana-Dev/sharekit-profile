@@ -132,7 +132,7 @@ Use the model-tier policy before multi-agent or long-running work. Never overrid
 
 For ≥2 independent tasks:
 1. Dispatch one **Agent** per task in a **SINGLE tool-use block**
-2. If same repo, use worktrees: `/Volumes/External HD/Desenvolvimento/.worktrees/<task>-<n>/`
+2. If same repo, use worktrees: `${DEV_ROOT}/.worktrees/<task>-<n>/`
 3. Set correct `agentType` (analysis agents: read-only; execution agents: write)
 4. In Workflow scripts: use `parallel()` for barriers, `pipeline()` for independent stages
 
@@ -186,8 +186,8 @@ Running independent work sequentially is a contract violation.
 5. **Idempotency: state-check before mutation** — skip if target state already satisfied
 6. **Dispatcher ≠ executor boundary** — no logic in orchestrators
 7. **Repository as single source of truth** — commit decisions before agents act
-8. **No Claude co-author attribution** — commits/PRs authored by Lucas Santana
-9. **Storage on External HD** — `/Volumes/External HD/Desenvolvimento/`
+8. **No Claude co-author attribution** — commits/PRs authored by the operator
+9. **Storage on external drive** — a dedicated dev-root path, kept off the internal disk
 10. **Stuck protocol** — >2 attempts without progress → surface, switch approach, escalate
 
 ### Default Behaviors

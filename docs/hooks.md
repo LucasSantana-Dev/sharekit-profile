@@ -236,7 +236,7 @@ To disable a hook temporarily:
 
 | Problem | Symptom | Fix |
 |---------|---------|-----|
-| Concurrent session warning | Warning at SessionStart / PreToolUse about another session | Use a separate worktree: `git worktree add '/Volumes/External HD/Desenvolvimento/.worktrees/<task>' -b <branch>` |
+| Concurrent session warning | Warning at SessionStart / PreToolUse about another session | Use a separate worktree: `git worktree add '${DEV_ROOT}/.worktrees/<task>' -b <branch>` |
 | RAG not recalling | No `# Knowledge graph context` block | Run `/rag-curate` |
 | Composite not detected | Intent matches but no `🎯` emitted | Use active workflow table in `docs/composites.md` |
 | Slow UserPromptSubmit | Hangs after prompt submit | Reduce RAG corpus size through `/rag-curate` |
