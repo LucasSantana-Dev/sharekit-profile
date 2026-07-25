@@ -7,7 +7,7 @@
 
 ## Who We Are
 
-This is the **sharekit operator harness profile** — a portable Claude Code / OpenCode workflow for **Lucas Santana**. It ships skills, agents, hooks, standards, and a memory system that travel across repos and machines.
+This is the **sharekit operator harness profile** — a portable Claude Code / OpenCode workflow for its operator. It ships skills, agents, hooks, standards, and a memory system that travel across repos and machines.
 
 The harness is not a product. It is a working environment — shaped by daily use, tuned for one operator, portable by design.
 

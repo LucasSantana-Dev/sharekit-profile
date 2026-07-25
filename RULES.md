@@ -30,7 +30,7 @@ Any subagent dispatched for analysis (review, explore, plan, audit) must deny wr
 Review, security, and critic agents MUST be independent subagents — never collapsed into the implementer lane. Read-only is about tool permissions; independence is about lane separation. A reviewer running in the same context as the implementer has compromised objectivity.
 
 ### No AI attribution
-Never add `Co-Authored-By:`, "Generated with...", or any AI-attribution marker to commits, PRs, issues, or release notes. Author of record is Lucas Santana. Agents are tools, not contributors of record.
+Never add `Co-Authored-By:`, "Generated with...", or any AI-attribution marker to commits, PRs, issues, or release notes. Author of record is the operator. Agents are tools, not contributors of record.
 
 ### PR automation halt
 Never automate any action on a PR with comments from another person, or any open PR authored by another person. Halt and tell the user. Bots (dependabot, renovate, coderabbit, greptile, sonar) do not count as "another person."

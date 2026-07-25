@@ -2,12 +2,12 @@
 
 **Status:** Accepted
 **Created:** 2026-07-05
-**Owner:** Lucas Santana
+**Owner:** the operator
 **Tags:** sharekit-profile, curation, policy
 
 ## Context
 
-`sharekit-profile` publishes a curated subset of Lucas's ~167 locally-authored Claude Code
+`sharekit-profile` publishes a curated subset of the operator's ~167 locally-authored Claude Code
 skills to a public npm/GitHub-Pages profile, gated by `curated-skills.txt` (an allowlist).
 This session grew the curated set from 41 → 46 (5 skills added via individual confirmation:
 `parallel-work-coordinator`, `audit-deep`, `backlog`, `research-and-decide`,

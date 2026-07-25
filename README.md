@@ -374,7 +374,7 @@ Key policy documents in `~/.agents/skills/standards/`:
 6. Dispatcher ≠ executor boundary (no logic in orchestrators)
 7. Repository as single source of truth
 8. No Claude co-author attribution on commits/PRs
-9. Storage on External HD (/Volumes/External HD/Desenvolvimento/)
+9. Storage on External HD (${DEV_ROOT}/)
 10. Stuck protocol: >2 attempts without progress → surface, switch approach, escalate
 
 ### Default Behaviors
@@ -418,7 +418,7 @@ Use the model-tier policy in `AGENTS.md` before multi-agent work. Never override
 ### Parallel Execution
 For ≥2 independent units (parallel investigations, multi-repo sweeps, batch fixes):
 1. Dispatch one Agent per unit in SINGLE tool-use block
-2. Use worktrees if same repo: `/Volumes/External HD/Desenvolvimento/.worktrees/<task>-<n>/`
+2. Use worktrees if same repo: `${DEV_ROOT}/.worktrees/<task>-<n>/`
 3. Set correct `agentType` (Explore for analysis, general-purpose for execution)
 4. Use `parallel()` or `pipeline()` in Workflow scripts
 

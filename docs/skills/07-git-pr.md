@@ -192,7 +192,7 @@ Create isolated git worktrees for feature work that should not reuse the main ch
 
 **When to use:** Parallel feature work; avoid context switching in main checkout
 
-**Creates:** New worktree at `/Volumes/External HD/Desenvolvimento/.worktrees/<task>/`
+**Creates:** New worktree at `${DEV_ROOT}/.worktrees/<task>/`
 
 **Output:** New worktree ready for work
 
