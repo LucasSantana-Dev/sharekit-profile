@@ -54,10 +54,11 @@ in the canonical profile, not per-repo scaffolds.
      gets squash-reconciled against `main`, tagged, then cherry-picked back — the gate is a
      branch hierarchy + manual reconciliation step, not a single merge event.
 2. **No new template, no `.claude/homologation.md` stub, no `sharekit-cli init --profile`
-   flag.** A future project picks the pattern (or a variant) that matches its own deploy
-   topology by reading this taxonomy, not by filling in a generic form — the debate's
+   flag for now.** A future project picks the pattern (or a variant) that matches its own
+   deploy topology by reading this taxonomy, not by filling in a generic form — the debate's
    evidence (four real projects, four incompatible mechanisms) says a generic form would
-   either be too vague to action or too narrow to fit a fifth project.
+   either be too vague to action or too narrow to fit a fifth project. The `init --profile
+   work` flag specifically is deferred, not rejected outright — see Revisit when.
 3. If a fifth genuinely-distinct gate mechanism appears in a future project, add it here as
    a fifth exemplar rather than generalizing the existing four into an abstraction — per
    the Alternatives section below, premature abstraction was explicitly rejected once
@@ -68,8 +69,9 @@ in the canonical profile, not per-repo scaffolds.
 ## Alternatives considered
 
 - **Build a configurable `.claude/homologation.md` template** (gate_type, review_signal,
-  deploy_target fields), scaffolded via `sharekit-cli init`: rejected — the four real
-  patterns don't share enough mechanism to make the fields meaningful (a `deploy_target`
+  deploy_target fields), scaffolded via `sharekit-cli init`: rejected for now, not
+  permanently (see Revisit when) — the four real patterns don't share enough mechanism to
+  make the fields meaningful today (a `deploy_target`
   field means nothing for calculadora's deploy-time-binding gate, which isn't about *where*
   but *when*). Would produce a form most future projects fill in wrong or ignore.
 - **Second `sharekit-profile-work` distribution channel**: rejected — this is the same
@@ -103,3 +105,6 @@ in the canonical profile, not per-repo scaffolds.
   would help more than free-text exemplars; revisit format, not scope.
 - Someone other than Lucas asks to reuse this taxonomy → separate curation decision on
   whether it belongs in the public `sharekit-profile` install surface.
+- Lucas gets write access on a real client engagement and a teammate needs a starter doc →
+  revisit the `sharekit-cli init --profile work` flag (architecture lens's Round 1 proposal,
+  deferred not rejected), gated behind an explicit flag, not shipped as a default.
