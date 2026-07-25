@@ -71,8 +71,8 @@ if [ -f "$CWD/graphify-out/graph.json" ] && command -v graphify &>/dev/null; the
   echo "graph-miss $TS prompt-len=${#PROMPT} graph-bytes=${#GRAPH_OUT}" >> "$LOG"
 fi
 
-PACK_TOOL="$HOME/.claude/rag-index/venv/bin/python"
-PACK_SCRIPT="$HOME/.claude/rag-index/pack.py"
+PACK_TOOL="${DEV_ROOT}/rag-index/venv/bin/python"
+PACK_SCRIPT="${DEV_ROOT}/rag-index/pack.py"
 if [ ! -x "$PACK_TOOL" ] || [ ! -f "$PACK_SCRIPT" ]; then
   echo "no-tool $TS" >> "$LOG"
   exit 0

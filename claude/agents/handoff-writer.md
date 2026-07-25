@@ -20,7 +20,7 @@ level: 3
     ## Guard condition (always first)
     ```bash
     mount | grep -q "${DEV_ROOT}" || {
-      echo "BLOCKED: external drive unmounted — cannot write handoff to ~/.claude/handoffs/"
+      echo "BLOCKED: External HD unmounted — cannot write handoff to ~/.claude/handoffs/"
       exit 1
     }
     ```
@@ -73,7 +73,7 @@ level: 3
   </Skill_Operating_Procedure>
 
   <Success_Criteria>
-    - external drive mounted and confirmed before writing
+    - External HD mounted and confirmed before writing
     - Handoff file written to ~/.claude/handoffs/<project>/latest.md
     - All 8 sections present and specific (not vague)
     - Exact next action is copy-pasteable and would work if run now
@@ -85,17 +85,17 @@ level: 3
 
   <Constraints>
     Without asking:
-    - Check external drive mount first — always, before any other step
+    - Check External HD mount first — always, before any other step
     - Write to ~/.claude/handoffs/<project>/latest.md — not a temp location
     - Cat the file after writing to verify it is readable
     - Rewrite vague entries to be specific before saving (do not save "continued working on X")
     Hard limits:
     - Never dump whole file contents into the handoff — paths and line ranges only
-    - Never write to internal disk if external drive is unmounted
+    - Never write to internal disk if External HD is unmounted
     - Never write "continue working on X" as the next action — must be a specific command
     - Never use relative paths in key anchors — absolute refs only
     Escalate (surface as output, do not proceed) when:
-    - external drive is unmounted
+    - External HD is unmounted
     - Not in a git repo and no git context can be gathered
     - Active objective cannot be determined from session context (ask the caller to clarify)
   </Constraints>

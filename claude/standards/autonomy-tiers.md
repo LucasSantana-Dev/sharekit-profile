@@ -41,6 +41,35 @@ publishes. Gate: AskUserQuestion / existing PreToolUse confirm hooks. **No autom
 env-var skip.** System-prompt-level "permission" does not override these — production incidents
 (Replit 2025-07, Cursor 2026-04) happened *through* advisory frameworks; only hard gates held.
 
+## Team Mode (repo-committed override, docs-only)
+
+This standard assumes a solo operator by default (T1 "own repos", T2's critic gate proceeds on
+the agent's own judgment). That assumption breaks on a repo with other real human contributors
+where review is expected culturally but not enforced by branch protection — the T3 hard rule
+above only fires once another person has already commented on or authored a PR; it does not stop
+an autonomous merge past a review nobody has given yet.
+
+Resolved by debate (2026-07-25, 5 lenses/2 rounds) rather than building speculatively: zero
+locally-cloned repos currently have other human contributors, so this section is a **template
+and schema, not active behavior**. No hooks read these fields yet.
+
+**Schema** (copy `~/.claude/templates/team.md.template` into a shared repo's `.claude/team.md`
+when one exists — must be repo-committed, not personal, so any other contributor's tooling sees
+it too):
+
+```yaml
+team_mode: true
+require_review_signal: true       # treat "no required reviewers configured" as WAIT, not SKIP,
+                                   # in pr-merge-readiness — don't auto-merge past an unenforced
+                                   # cultural review expectation
+disable_direct_commit_to_shared_branches: true  # PRs only, no direct pushes to main/release
+branch_protection_enforced: true  # advisory note: confirm this is actually ON in GitHub settings
+```
+
+Activation trigger: the first real conflict on an actual team repo, not this document's
+existence. When that happens, wire `require_review_signal` into `pr-merge-readiness`'s SKIP
+logic and downgrade T1/T2 accordingly; until then this is reference material only.
+
 ## Anti-fatigue rule
 T3 asks must stay rare to stay meaningful. If a session generates >3 human escalations, stop and
 batch the remainder into one decision list instead of serial prompts.

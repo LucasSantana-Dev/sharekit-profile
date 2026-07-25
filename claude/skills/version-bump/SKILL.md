@@ -17,6 +17,8 @@ triggers:
 
 Automate version bumping across an npm monorepo (npm workspaces), promote CHANGELOG entries, and open a PR with auto-merge enabled.
 
+> **Scope note (2026-07-23):** in release-please repos (the default), release-please owns version bumping and changelog promotion via its release PR — do not run this skill there. It remains for repos without release-please configured.
+
 ## Prerequisites
 
 - Active git repo with root `package.json` and npm workspaces in `packages/*/package.json`

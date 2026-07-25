@@ -19,8 +19,8 @@ level: 3
   <Skill_Operating_Procedure>
     ## Step 1 — Pre-flight (run ALL gates before anything else)
 
-    **Mount guard** — RAG access requires external drive:
-    `mount | grep -q "${DEV_ROOT}" || echo "WARN: external drive unmounted — RAG unreachable, local discovery only"`
+    **Mount guard** — RAG access requires External HD:
+    `mount | grep -q "${DEV_ROOT}" || echo "WARN: External HD unmounted — RAG unreachable, local discovery only"`
 
     **gh authentication**:
     `gh auth status`

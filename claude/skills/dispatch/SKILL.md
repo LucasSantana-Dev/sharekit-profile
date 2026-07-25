@@ -12,7 +12,7 @@ triggers:
   - agent-box script
 argument-hint: '[task] or [prompt]'
 metadata:
-  owner: Lucas Santana
+  owner: global-agents
   tier: execution
   canonical_source: null
 ---

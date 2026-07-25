@@ -13,7 +13,7 @@ An environment-organization sweep (4 parallel research agents) surfaced many can
 2. Parallel-execution-mandatory.
 3. Idempotency state-check-before-mutation.
 4. No-Co-Authored-By / no AI-attribution.
-5. Storage policy (external drive).
+5. Storage policy (External HD).
 
 Skills (250/250) and `standards/` are already in parity via symlink (`~/.codex/standards → ~/.claude/standards`). The drift is isolated to the **hand-maintained top-level rules files** — CLAUDE.md's "Hard rules" were copied into AGENTS.md once and diverged since. Codex loads AGENTS.md as its system prompt and could currently violate these rules.
 

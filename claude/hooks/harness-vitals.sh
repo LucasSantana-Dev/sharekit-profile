@@ -66,9 +66,9 @@ if [ -f "$RALOG" ]; then
   [ "$lm" -gt "$sm" ] && warns+=("UNREAD eval regression alert(s): $(tail -1 "$RALOG") — investigate, then: touch $RASEEN")
 fi
 
-# 5b. mount guard — external drive unmounted means RAG/brain/repos silently unreachable
+# 5b. mount guard — External HD unmounted means RAG/brain/repos silently unreachable
 # (knowledge-brain.md prescribes loud-fail; was only enforced per-skill until 2026-07-09)
-mount | grep -q "${DEV_ROOT}" || warns+=("external drive NOT MOUNTED — RAG index, knowledge-brain, and dev repos unreachable; mount before any memory/graph write")
+mount | grep -q "${DEV_ROOT}" || warns+=("External HD NOT MOUNTED — RAG index, knowledge-brain, and dev repos unreachable; mount before any memory/graph write")
 
 # 6. settings drift — a live settings.json value that shared+machine will overwrite on the
 # next `sync pull` (e.g. `/model opus` writes the derived file, but `model` is owned by

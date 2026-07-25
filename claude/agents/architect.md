@@ -18,7 +18,7 @@ level: 3
 
   <Skill_Operating_Procedure>
     ## Phase 0 — RAG pre-flight (always first)
-    Check external drive mounted:
+    Check External HD mounted:
     ```bash
     mount | grep -q "${DEV_ROOT}" || export RAG_AVAILABLE=false
     ```

@@ -18,7 +18,7 @@ The critic (REJECT) correctly flagged: (a) PR #2 is genuinely unmergeable as-is 
 **Make `react-native-template` private** (operator-executed — visibility change is the operator's call).
 
 - One action removes all public fork/clone access → the public-vulnerable-lockfile concern is **neutralized immediately**, without merging anything.
-- Preserves Lucas's optionality to keep using it as a **personal** RN/Expo scaffold (private templates work fine for that).
+- Preserves the operator's optionality to keep using it as a **personal** RN/Expo scaffold (private templates work fine for that).
 - **Moots** the blocked security PR #2 and the 3 mis-calibrated CI gates — no audit-fix merge, no `.npmrc`/PR-size/audit-level fixes, no rebase grind on a repo with no public future.
 - **Close PR #2** (the fix is preserved on branch `fix/npm-audit-security` if ever needed); leave PR #1 (CI-caller) to the operator.
 
@@ -34,13 +34,13 @@ The critic (REJECT) correctly flagged: (a) PR #2 is genuinely unmergeable as-is 
 ## Consequences
 
 - (+) Public RCE exposure neutralized in one operator action; no PR/CI grind on dead code.
-- (+) Lucas keeps the scaffold privately if he wants it.
-- (−) If he later wants it as a *public* template offering, he must then fix the CI gates + merge the security fix before re-publishing (tracked below).
+- (+) The operator keeps the scaffold privately if they want it.
+- (−) If the operator later wants it as a *public* template offering, they must then fix the CI gates + merge the security fix before re-publishing (tracked below).
 - (~) PR #2's validated fix is parked on a branch, not merged.
 - (lesson) A subagent hallucinated repo recency; **direct verification of the default-branch HEAD date** flipped the disposition. Vitality claims must be checked against `main`, not PR-branch churn.
 
 ## Revisit when
 
-- Lucas wants react-native-template **public again** (as a template offering) → first fix the 3 mis-calibrated CI gates (`.npmrc legacy-peer-deps=true`, exclude lockfiles from PR-size, `npm audit --audit-level=high`) + merge the parked security fix, THEN re-publish.
-- He resumes active development on it → reassess (keep public + maintain).
-- The same Expo peer-tree / lockfile-PR-size friction appears on a repo he DOES keep public → fix the gates there (the research showed they're genuinely mis-calibrated).
+- The operator wants react-native-template **public again** (as a template offering) → first fix the 3 mis-calibrated CI gates (`.npmrc legacy-peer-deps=true`, exclude lockfiles from PR-size, `npm audit --audit-level=high`) + merge the parked security fix, THEN re-publish.
+- They resume active development on it → reassess (keep public + maintain).
+- The same Expo peer-tree / lockfile-PR-size friction appears on a repo they DO keep public → fix the gates there (the research showed they're genuinely mis-calibrated).

@@ -11,7 +11,7 @@ Related: [[adr_0029_cross_project_shared_brain]], [[homelab_dashboard_audit_2026
 ## Paths (do not hardcode variants — use these)
 
 ```
-BRAIN="${DEV_ROOT}/knowledge-brain"   # vault root (on external drive)
+BRAIN="${DEV_ROOT}/knowledge-brain"   # vault root (on External HD)
 $BRAIN/memory/      # memory .md files + MEMORY.md index
 $BRAIN/graphs/<project>/graph.json   # per-project graph snapshots
 # memory is symlinked into the Claude memory dir:
@@ -22,7 +22,7 @@ GitHub remote: `<github-user>/knowledge-brain`.
 
 ## 1. Mount guard — ALWAYS run before any brain/RAG op
 
-The brain + the RAG embedder cache live on the external drive. If the drive
+The brain + the RAG embedder cache live on the External HD. If the drive
 unmounts (it has — mid-session, 2026-06-18), the symlink dangles, the embedder
 won't load, and blind operations silently corrupt state (a stale `[ -f ]` check
 read present files as "absent" and chunks were wrongly deleted). So **fail loud,
@@ -31,7 +31,7 @@ never silent**:
 ```bash
 BRAIN="${DEV_ROOT}/knowledge-brain"
 if ! mount | grep -q "${DEV_ROOT}" || [ ! -d "$BRAIN/.git" ]; then
-  echo "BLOCKED: external drive not mounted — knowledge-brain ($BRAIN) unreachable." >&2
+  echo "BLOCKED: External HD not mounted — knowledge-brain ($BRAIN) unreachable." >&2
   echo "Surface to the user and STOP; do not write, delete, or recall against the brain." >&2
   exit 0   # in a hook; in a skill, surface the blocker as output and halt the phase
 fi

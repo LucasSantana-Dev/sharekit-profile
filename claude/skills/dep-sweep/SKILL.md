@@ -1,6 +1,6 @@
 ---
 name: dep-sweep
-description: "Batch-process Dependabot/Renovate PRs by risk: auto-merge safe ones (devDeps, patches) into release, surface risky ones for human review. Chains PR enumeration, risk classification, merge-readiness checks, and changelog batching. Use when bot PRs pile up; reduces a 20-PR queue to actionable groups."
+description: "Batch-process Dependabot/Renovate PRs by risk: auto-merge safe ones (devDeps, patches) into main, surface risky ones for human review. Chains PR enumeration, risk classification, merge-readiness checks, and changelog batching. Use when bot PRs pile up; reduces a 20-PR queue to actionable groups."
 user-invocable: true
 auto-invoke: >-
   "dependabot PRs", "renovate queue", "clean up bot PRs", "update deps", weekly if ≥10 open bot PRs
@@ -18,7 +18,7 @@ triggers:
 # Dep Sweep
 
 Turn a wall of bot PRs into one decision pass. Auto-merges the safe class
-into `release` and surfaces only the genuinely risky updates for human review.
+into `main` and surfaces only the genuinely risky updates for human review.
 Reduces the daily/weekly drag of "20 dependabot PRs are open and I keep
 ignoring them".
 
@@ -35,7 +35,7 @@ For each open bot PR, classify into one of:
 
 | Bucket | Heuristic | Default action |
 |---|---|---|
-| **AUTO-MERGE (safe)** | devDependencies only, OR patch bumps to any dep with passing CI, OR lockfile-only resyncs, OR pre-commit hook bumps | Auto-merge into `release` |
+| **AUTO-MERGE (safe)** | devDependencies only, OR patch bumps to any dep with passing CI, OR lockfile-only resyncs, OR pre-commit hook bumps | Auto-merge into `main` |
 | **REVIEW (medium)** | Minor bumps of runtime deps, OR any bump that touches a known-sensitive package list (see project config) | Surface to user with diff summary |
 | **HOLD (risky)** | Major bumps, OR bumps that fail CI, OR bumps to deps tagged `requires-manual` in `.claude/dep-sweep-config.json`, OR security advisories | Comment on PR with reason; leave open |
 
@@ -50,7 +50,7 @@ Override via `.claude/dep-sweep-config.json`:
   "sensitive": ["@my-org/internal-sdk"],
   "always_hold": ["legacy-package"],
   "auto_merge_minor": false,
-  "base_branch": "release"
+  "base_branch": "main"
 }
 ```
 
@@ -86,15 +86,15 @@ HOLD (2):
 ```
 
 ### Phase 3 — Confirm
-Single user confirmation: "Auto-merge the 12 AUTO-MERGE PRs into `release`,
+Single user confirmation: "Auto-merge the 12 AUTO-MERGE PRs into `main`,
 surface the 4 REVIEW for you, leave the 2 HOLD with explanatory comments? (y/N)"
 
 On `n`: STOP and ask which buckets to act on.
 
 ### Phase 4 — Auto-merge bucket
 For each AUTO-MERGE PR, in parallel batches of 3:
-- Verify base branch is `release` (or the configured base)
-  - If base is `main`, retarget to `release` via `gh pr edit --base release`
+- Verify base branch is `main` (or the configured base)
+  - If base is a stale `release` branch, retarget to `main` via `gh pr edit --base main`
 - Invoke `pr-merge-readiness` — must return MERGE
 - On MERGE: squash-merge
 - On WAIT/FIX: demote to REVIEW bucket, comment on PR with reason
@@ -122,18 +122,14 @@ After auto-merges complete, append a single line under `[Unreleased]`:
 > `### Changed`
 > `- Bumped N dependencies (devDeps + patches). See PRs <list>.`
 
-This collapses 12 individual changelog entries into one. The next `/release-cut`
-includes that line as one bullet.
-
-### Phase 8 — Nudge
-If `release..main` count is now ≥ 5: print the `/release-cut` nudge.
+This collapses 12 individual changelog entries into one. In release-please
+repos the `chore(deps):` commits also feed the pending release PR
+automatically.
 
 ## Stop / escalation conditions
 
 - 3 consecutive AUTO-MERGE failures → halt and surface (CI may be broken)
 - A bot PR has a human review with CHANGES_REQUESTED → skip and treat as HOLD
-- Repo has no `release` branch → bail out and recommend `/merge-confidently`
-  for direct-to-main flow OR creating the release branch first
 - Dependency in any PR matches `always_hold` → force HOLD regardless of other signals
 
 ## Reconciliation
@@ -141,11 +137,10 @@ If `release..main` count is now ≥ 5: print the `/release-cut` nudge.
 ```
 DEP SWEEP — <repo>
   Enumerated:    18 bot PRs <STATUS>
-  Auto-merged:   12 into release (devDeps + patches) <STATUS>
+  Auto-merged:   12 into main (devDeps + patches) <STATUS>
   For review:    4 (next 14.2→14.3, eslint 9.0→9.1, ...) <STATUS>
   Held:          2 (react v19 major, prisma v6 major) <STATUS>
   Changelog:     1 batched line added under [Unreleased] <STATUS>
-  Nudge:         release is now 7 commits ahead of main — consider /release-cut <STATUS>
   Snapshot:      <path to state file | (none — task ongoing)>
   Open watch:    <future obligation | (none)>
 ```
@@ -162,7 +157,7 @@ DEP SWEEP — <repo>
 Repo-level overrides live in `.claude/dep-sweep-config.json`:
 ```json
 {
-  "base_branch": "release",
+  "base_branch": "main",
   "sensitive": ["@my-org/internal-sdk"],
   "always_hold": ["webpack"],
   "auto_merge_minor": false,
@@ -174,10 +169,9 @@ Repo-level overrides live in `.claude/dep-sweep-config.json`:
 
 - Not a security-vuln workflow → use `/security-sweep` for advisories
 - Not a single-PR review tool → use `/pr-to-release` for one PR at a time
-- Not a release cut → use `/release-cut` after sweep accumulates enough
+- Not a release cut → release-please (or `/ship-it`) ships the accumulated batch
 
 ## Pairs with
 
 - `/pr-to-release` — for non-bot PRs that pile up
-- `/release-cut` — fires once the sweep has bulked up `release`
 - `/security-sweep` — when bumps are security-driven
