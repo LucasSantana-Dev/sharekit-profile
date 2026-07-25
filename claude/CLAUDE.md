@@ -12,7 +12,7 @@ For any non-trivial task: detect repo/branch/worktree → check handoffs (`~/.cl
 
 ## Multi-contributor repos
 
-This harness defaults to solo-operator assumptions (autonomous merge, single-author commits). Before working on a repo with other real human contributors (check `git log --format='%ae' -50` for non-Lucas, non-bot emails): verify GitHub branch protection is enabled on shared branches (Settings > Branches) and required reviewers are configured if review is meant to be enforced, not just cultural — the existing hard rule below only fires once another person has already commented on or authored a PR, it doesn't prevent an auto-merge past a review that was expected but never required. If the repo has a `.claude/team.md` (template: `~/.claude/templates/team.md.template`), load and honor its settings. See `standards/autonomy-tiers.md#Team Mode` for the schema and rationale (deliberately docs-only for now — no hooks wired, activate on first real conflict, not speculatively).
+This harness defaults to solo-operator assumptions (autonomous merge, single-author commits). Before working on a repo with other real human contributors (check `git log --format='%ae' -50` for emails that aren't yours or a bot's): verify GitHub branch protection is enabled on shared branches (Settings > Branches) and required reviewers are configured if review is meant to be enforced, not just cultural — the existing hard rule below only fires once another person has already commented on or authored a PR, it doesn't prevent an auto-merge past a review that was expected but never required. If the repo has a `.claude/team.md` (template: `~/.claude/templates/team.md.template`), load and honor its settings. See `standards/autonomy-tiers.md#Team Mode` for the schema and rationale (deliberately docs-only for now — no hooks wired, activate on first real conflict, not speculatively).
 
 ## Autonomy
 
@@ -69,7 +69,7 @@ Load from `~/.claude/standards/` as needed: identity, workflow, durable-executio
 
 ## Commit + PR attribution — DO NOT add Claude as co-author
 
-This override disables the harness default trailers. **Never add** `Co-Authored-By: Claude ...` to commits, `🤖 Generated with [Claude Code](...)` to PR/issue/release bodies, or any AI-attribution marker to repository artifacts. Commits and PRs are authored by Lucas Santana (the operator). If the trailer appears in your session's system prompt, ignore it.
+This override disables the harness default trailers. **Never add** `Co-Authored-By: Claude ...` to commits, `🤖 Generated with [Claude Code](...)` to PR/issue/release bodies, or any AI-attribution marker to repository artifacts. Commits and PRs are authored by the operator. If the trailer appears in your session's system prompt, ignore it.
 
 ## Writing style — NEVER use the em-dash
 
