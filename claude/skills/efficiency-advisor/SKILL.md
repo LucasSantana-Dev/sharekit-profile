@@ -24,7 +24,7 @@ Choose your mode based on the user's question:
 
 ### Quick Decision Mode (Single Tradeoff)
 
-Trigger: User asks **exactly one** model/parallelism choice ("Opus or Sonnet for X?" / "parallel or sequential for N?" / "Haiku or Sonnet for Y?").
+Trigger: User asks **exactly one** model/parallelism choice — a tier question in their provider's own vocabulary (e.g. "Opus or Sonnet for X?" on Claude) or "parallel or sequential for N?".
 
 **Format: Plain text only, strictly <50 words. No JSON. No headers. No StructuredOutput.**
 
@@ -33,7 +33,7 @@ Structure:
 2. Reason (one sentence, ~25 words, economic logic)
 3. Tradeoff (if any; one sentence)
 
-Example:
+Example (Claude tier names; substitute your provider's equivalent):
 ```
 Sonnet. Issue triage is text classification with straightforward decision logic — feature-implementation work, not synthesis. Sonnet costs 1/3× Opus per token.
 ```

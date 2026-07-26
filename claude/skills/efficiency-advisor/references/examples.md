@@ -1,5 +1,8 @@
 # Output Examples
 
+Worked examples use Claude tier names (Haiku/Sonnet/Opus) for concreteness — see
+`model-tiers.md` for the generic tier mapping if you're on a different provider.
+
 ## Example 1: Quick Decision
 
 **User input:** "Should I use Opus or Sonnet to triage issues and apply labels?"
