@@ -68,7 +68,7 @@ fi
 
 # 5b. mount guard — External HD unmounted means RAG/brain/repos silently unreachable
 # (knowledge-brain.md prescribes loud-fail; was only enforced per-skill until 2026-07-09)
-[ -z "${DEV_ROOT:-}" ] || mount | grep -q "${DEV_ROOT}" || warns+=("External HD NOT MOUNTED — RAG index, knowledge-brain, and dev repos unreachable; mount before any memory/graph write")
+[ -z "${DEV_ROOT:-}" ] || mount | grep -qF " on ${DEV_ROOT} (" || warns+=("External HD NOT MOUNTED - RAG index, knowledge-brain, and dev repos unreachable; mount before any memory/graph write")
 
 # 6. settings drift — a live settings.json value that shared+machine will overwrite on the
 # next `sync pull` (e.g. `/model opus` writes the derived file, but `model` is owned by
