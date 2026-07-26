@@ -82,9 +82,9 @@ extract_field() {
 for f in "${fact_files[@]}"; do
   [[ -f "$f" ]] || continue
   base="$(basename "$f")"
-  # Skip the structural docs (README/CORE/MEGABRAIN/SELF_IMPROVEMENT/TEMPORAL_KG).
+  # Skip the structural docs (README/CORE/LEDGER/SELF_IMPROVEMENT/TEMPORAL_KG).
   case "$base" in
-    README.md|CORE.md|MEGABRAIN.md|SELF_IMPROVEMENT.md|TEMPORAL_KG.md) continue ;;
+    README.md|CORE.md|LEDGER.md|SELF_IMPROVEMENT.md|TEMPORAL_KG.md) continue ;;
   esac
   scanned=$((scanned + 1))
 

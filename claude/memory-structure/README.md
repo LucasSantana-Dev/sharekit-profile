@@ -67,7 +67,7 @@ The operational skills (`recall`, `sync-memories`, `knowledge-loop`, `memory-pru
 
 Two optional upgrades, both via env vars in `~/.claude/settings.local.json` `env`:
 
-- **`BRAIN_ROOT`** — point memory at a git repo instead of `~/.claude/memory/`, so it's versioned and syncs across machines. Everything still works; you just get history.
+- **`LEDGER_ROOT`** — point memory at a git repo instead of `~/.claude/memory/`, so it's versioned and syncs across machines. Everything still works; you just get history.
 - **`MEMORY_RETRIEVER`** — a command template for semantic recall, e.g. `MEMORY_RETRIEVER="mytool query {} --top 5"` (the `{}` is replaced with the query). `recall` uses it when set and falls back to `grep` when unset. Wire it to any embedding search you like.
 
 Start with just `CORE.md` + `MEMORY.md` + a few fact files. The git repo and the retriever are optimizations, not requirements. See `examples/` for empty skeletons; the RAG-pipeline guide in the `rag` skill covers building a retriever if you want one.
@@ -83,6 +83,6 @@ the **nightly distill** (auto_dream stages candidates → host-agent graduate/
 reject with required rationale). This is the closed loop that turns memory
 into a flywheel; without it, saved notes are unmeasured and unvalidated.
 
-## Scaling up: Megabrain
+## Scaling up: Ledger
 
-When you want *one* vault across **all** your projects — unified memory + decisions + knowledge graphs, browsable in Obsidian, versioned in git, retrievable by RAG — see **[MEGABRAIN.md](MEGABRAIN.md)**. It documents the full architecture: the 4-axis tag taxonomy (flat notes, tags-not-folders), the edit-in-place discipline for cross-machine sync, decision/ADR conventions, retention, and the optional tooling to build.
+When you want *one* vault across **all** your projects — unified memory + decisions + knowledge graphs, browsable in Obsidian, versioned in git, retrievable by RAG — see **[LEDGER.md](LEDGER.md)**. It documents the full architecture: the 4-axis tag taxonomy (flat notes, tags-not-folders), the edit-in-place discipline for cross-machine sync, decision/ADR conventions, retention, and the optional tooling to build.

@@ -17,14 +17,14 @@
 #   hooks/review.sh reopen <id>                # requeue a rejected candidate
 #   hooks/review.sh decisions                  # show the decision log
 #
-# Semantic memory target respects BRAIN_ROOT (megabrain) then ~/.claude/memory.
+# Semantic memory target respects LEDGER_ROOT (Ledger) then ~/.claude/memory.
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FORGE="$ROOT/.harness/forge"
 RUNTIME="$ROOT/.harness/runtime"
 DECISIONS="$RUNTIME/review-decisions.jsonl"
-MEMORY="${BRAIN_ROOT:-$HOME/.claude/memory}"
+MEMORY="${LEDGER_ROOT:-$HOME/.claude/memory}"
 mkdir -p "$FORGE" "$RUNTIME" "$MEMORY"
 
 ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"

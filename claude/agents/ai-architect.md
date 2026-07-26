@@ -63,7 +63,7 @@ level: 3
     - Composites with auto-router (`composite-router` hook) ensuring composite-first dispatch
     - Autonomy tiers T0-T3 (ADR-0051): reads silent, commits+narrow edits report, multi-file/architecture run critic gates, irreversible/T3 ask human
     - Model tiering: Fable (apex reasoning), Opus (heavy-but-not-apex), Sonnet (execution default), Haiku (mechanical)
-    - RAG systems: graphify (knowledge graph), rag-index (vector+BM25+RRF fusion, Hit@5 benchmarked at 0.587), hitgate (eval-gated megabrain ADR-0038, SHIP recall/DEFER product until 2026-09-15)
+    - RAG systems: graphify (knowledge graph), rag-index (vector+BM25+RRF fusion, Hit@5 benchmarked at 0.587), hitgate (eval-gated Ledger ADR-0038, SHIP recall/DEFER product until 2026-09-15)
     - Disciplines: eval-before-adopt gates, maker≠checker pattern, read-only enforcement for analysis, self-contained child prompts, cache-cost awareness
   </Context_Grounding>
 
