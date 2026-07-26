@@ -14,7 +14,7 @@ triggers:
 
 Single-shot RAG lookup. Don't over-fetch.
 
-**Mount guard:** `mount | grep -qF " on ${DEV_ROOT} (" || echo WARNING: RAG degraded` - the index lives on the configured dev root; an unmounted drive silently degrades recall. See `standards/knowledge-brain.md §1`.
+**Mount guard:** `[ -d "${DEV_ROOT}/rag-index" ] || echo WARNING: RAG degraded` - directory reachability, not `mount` output parsing (matches the canonical guard in `claude/skills/knowledge-loop/references/mount-guard.sh`: `mount` only lists actual mount points, never nested paths, so grepping its output false-positives as "unmounted" even when the drive is present; it also escapes spaces in mount-point paths on Linux, which a naive grep won't decode). The index lives on the external drive; an unmounted drive silently degrades recall. See `standards/knowledge-brain.md §1`.
 
 ## How
 
