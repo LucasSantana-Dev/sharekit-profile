@@ -8,7 +8,7 @@
 
 Evaluated the third-party plugin marketplace `alirezarezvani/claude-skills` (~150 skills across engineering / business / marketing / finance / c-level domains) for adoption into a mature, just-audited ~270-skill catalog. Inspected the dev-relevant domains (engineering, engineering-team) and deduped against the existing catalog + stack fit.
 
-Findings: literal duplicates (caveman, grill-me, grill-with-docs, handoff, write-a-skill); poor-fit (helm/k8s/terraform/snowflake/aws/data/stats — bash-IaC homelab, k3s retired); overlap (docker-development, llm-cost-optimizer, slo-architect, security-guidance). Two finalists, **both full plugins** (bundle agents/ + hooks/ + .mcp.json + skills/):
+Findings: literal duplicates (caveman, grill-me, grill-with-docs, handoff, write-a-skill); poor-fit (helm/k8s/terraform/snowflake/aws/data/stats — bash-IaC <homelab>, k3s retired); overlap (docker-development, llm-cost-optimizer, slo-architect, security-guidance). Two finalists, **both full plugins** (bundle agents/ + hooks/ + .mcp.json + skills/):
 - `self-improving-agent` — hooks `error-capture.sh` into memory; operator already has a PostToolUseFailure error-logging hook + sessionend-memory-writer + RAG + claude-mem + sync-memories.
 - `playwright-pro` — 10 skills + BrowserStack/TestRail + own MCP; more comprehensive than `playwright-best-practices` + `webapp-testing`, but operator just disabled the `playwright` plugin (0 use) and has no Playwright e2e in any repo.
 

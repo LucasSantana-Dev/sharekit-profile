@@ -135,9 +135,14 @@ Replace machine-specific and identity references with generic placeholders. Appl
 # Use /usr/bin/find explicitly — RTK's find wrapper silently drops compound -o predicates
 /usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" -o -name "*.py" -o -name "*.json" -o -name "*.toml" -o -name "*-gate" -o -name "*-reminder" \) | while read f; do
   case "$f" in */sync-sharekit-profile/*) continue ;; esac
+
   # Personal paths (specific BEFORE bare so the prefix isn't half-replaced)
   sed -i '' 's|/Volumes/External HD/Desenvolvimento|${DEV_ROOT}|g' "$f"
   sed -i '' 's|/Volumes/External HD|${DEV_ROOT}|g' "$f"   # bare external-drive mount (catches mount-guard lines)
+  sed -i '' 's|/Volumes/External\\ HD|${DEV_ROOT}|g' "$f"   # backslash-escaped-space variant (found 2026-07-26,
+                                                              # recall/SKILL.md: the literal-space sed above doesn't
+                                                              # match this form at all - a real backslash character
+                                                              # sits where the sed pattern expects a bare space)
   sed -i '' 's|/Users/lucassantana|~|g' "$f"
   
   # GitHub identity (with and without -Dev suffix) — EXCEPT the real `npx @lucassantana/sharekit
@@ -146,13 +151,42 @@ Replace machine-specific and identity references with generic placeholders. Appl
   sed -i '' '/npx @lucassantana\/sharekit install/!s|LucasSantana-Dev|<github-user>|g' "$f"
   sed -i '' '/npx @lucassantana\/sharekit install/!s|LucasSantana|<github-user>|g' "$f"
   sed -i '' '/npx @lucassantana\/sharekit install/!s|lucassantana|<github-user>|g' "$f"
-  
+
+  # Real human name (distinct from the CamelCase GitHub handle above — this is prose like
+  # "authored by Lucas Santana (the operator)", not a path or handle). Found 2026-07-25:
+  # this was never sanitized, so it leaked into the published profile on claude/CLAUDE.md,
+  # dispatch/SKILL.md's owner field, etc. for as long as the skill has existed. BSD sed's
+  # -E ignores \b entirely (verified empirically — silently matches nothing, not even the
+  # false positives it's meant to avoid); use [[:<:]]/[[:>:]] instead, BSD's own
+  # word-boundary syntax, which behaves correctly on this platform.
+  sed -i '' 's|Lucas Santana (the operator)|the operator|g' "$f"
+  sed -i '' 's|Lucas Santana|the operator|g' "$f"
+  sed -i '' 's|[[:<:]]Lucas[[:>:]]|the operator|g' "$f"   # bare first name, incl. possessive "Lucas's" -> "the operator's"
+
   # Personal email
   sed -i '' 's|your\.name@example\.com|<your-email>|g' "$f"   # placeholder — swap in YOUR real email pattern when actually running this
   
   # Homelab paths
   sed -i '' 's|/home/your-server/homelab|${HOMELAB_ROOT}|g' "$f"   # placeholder — swap in YOUR homelab path
   sed -i '' 's|your-homelab-host|<homelab-host>|g' "$f"   # bare homelab host (catches any remaining ref)
+done
+```
+
+### Phase 3b — Private project names (standards/decisions/ only)
+
+`standards/decisions/` syncs wholesale (no `curated-*.txt` allowlist like skills/), and its
+ADR-style logs cite real internal projects as case-study context (e.g. "Lucky has
+`review-tools.yml`"). Scoped to that one directory deliberately — `Lucky`/`Criativaria`/
+`homelab` are also *core documented subject matter* elsewhere (e.g. `agents/
+discord-bot-specialist.md` is explicitly the Lucky-monorepo bot agent), so a global
+find/replace across the whole profile would mangle already-published, intentionally-scoped
+content instead of just the passing case-study mentions this phase targets. Found 2026-07-26.
+
+```bash
+find "$PROFILE_DIR/standards/decisions" -type f -name "*.md" | while read f; do
+  sed -i '' 's|[[:<:]]Lucky[[:>:]]|<project-a>|g' "$f"
+  sed -i '' 's|[[:<:]]Criativaria[[:>:]]|<project-b>|g' "$f"
+  sed -i '' 's|[[:<:]]homelab[[:>:]]|<homelab>|g' "$f"
 done
 ```
 
