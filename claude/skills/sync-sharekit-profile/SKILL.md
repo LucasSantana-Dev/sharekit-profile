@@ -88,7 +88,7 @@ for d in "$PROFILE_DIR/skills"/*/; do
   n="$(basename "$d")"; grep -qxF "$n" "$ALLOWLIST" || rm -rf "$d"
 done
 
-cp "$SOURCE_DIR/CLAUDE.md" "$PROFILE_DIR/CLAUDE.md"
+cmp -s "$SOURCE_DIR/CLAUDE.md" "$PROFILE_DIR/CLAUDE.md" 2>/dev/null && echo "CLAUDE.md: already done - skipping" || cp "$SOURCE_DIR/CLAUDE.md" "$PROFILE_DIR/CLAUDE.md"
 ```
 
 > ✅ **CURATION ALLOWLIST for agents/hooks/standards (ADR-0062).** agents/hooks/standards were
@@ -108,8 +108,21 @@ for pair in "agents:curated-agents.txt" "hooks:curated-hooks.txt" "standards:cur
   # 1) sync each allowlisted file that exists in source
   while IFS= read -r n; do
     case "$n" in ''|\#*) continue ;; esac
+    # Reject path traversal / absolute paths — an allowlist entry controls what
+    # gets read from $SOURCE_DIR and written into $PROFILE_DIR; don't let it escape either.
+    case "$n" in
+      /*|.|..|./*|../*|*/./*|*/../*|*/..)
+        echo "BLOCKED: unsafe allowlist entry in $list: $n" >&2; exit 1 ;;
+    esac
     src="$SOURCE_DIR/$tree/$n"
-    [ -f "$src" ] && { mkdir -p "$(dirname "$PROFILE_DIR/$tree/$n")"; cp "$src" "$PROFILE_DIR/$tree/$n"; }
+    dest="$PROFILE_DIR/$tree/$n"
+    if [ -f "$src" ]; then
+      if cmp -s "$src" "$dest" 2>/dev/null; then
+        echo "$tree/$n: already done - skipping"
+      else
+        mkdir -p "$(dirname "$dest")"; cp "$src" "$dest"
+      fi
+    fi
   done < "$ALLOWLIST"
 
   # 2) unpublish: remove profile files NOT in the allowlist
