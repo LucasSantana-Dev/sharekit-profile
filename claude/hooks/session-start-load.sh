@@ -21,7 +21,7 @@ if [[ -x "$ROOT/hooks/check-harness-drift.sh" ]]; then
 fi
 
 # 2. Load CORE memory.
-mem_root="${BRAIN_ROOT:-$HOME/.claude/memory}"
+mem_root="${LEDGER_ROOT:-$HOME/.claude/memory}"
 core_file=""
 for cand in "$mem_root/CORE.md" "$ROOT/claude/memory-structure/examples/CORE.md"; do
   [[ -f "$cand" ]] && core_file="$cand" && break

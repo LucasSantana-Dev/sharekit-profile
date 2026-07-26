@@ -1,6 +1,6 @@
 # Memory promotion & self-improvement protocol
 
-> Extends `README.md` / `MEGABRAIN.md` with the **promotion ladder**, **staleness
+> Extends `README.md` / `LEDGER.md` with the **promotion ladder**, **staleness
 > scoring**, **PreCompact re-injection contract**, and **nightly distill**.
 > These four mechanisms turn the file-based memory from *knowledge persistence*
 > into a **closed self-improvement loop** (observe → evaluate → optimize) that
@@ -27,7 +27,7 @@ dump: one-off noise dies at the lowest tier; repeats promote.
 | **T2 working** | `memory/working-<session>.md` | A fact appears **1×** and is mined by the distill | Current session only |
 | **T3 session** | `memory/<fact>.md` (tagged `status/active`) | A fact appears **2-3×** across sessions | On-demand via `recall` |
 | **T4 cross-session / CORE** | `memory/CORE.md` | A fact is referenced across many sessions or is a hard rule | **Always loaded** (SessionStart + PostCompact re-inject) |
-| **T5 domain KB** | megabrain `graphs/<project>/` or a project KB | A fact is domain knowledge (not project-specific) | On-demand via RAG |
+| **T5 domain KB** | `$LEDGER_ROOT/graphs/<project>/` or a project KB | A fact is domain knowledge (not project-specific) | On-demand via RAG |
 
 **Promotion rule:** never write directly to T3+. Facts enter at T1/T2 from the
 distill and promote upward by repetition + host-agent review. Demotion is the

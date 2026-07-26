@@ -1,12 +1,12 @@
-# Megabrain — one vault for all your projects
+# Ledger — one vault for all your projects
 
-The `memory-structure` README covers a single project's memory. **Megabrain** scales it up to **one centralized vault that holds the memory, decisions, and knowledge graphs for *every* project you work on** — versioned in git, browsable in Obsidian, and retrievable by RAG. One brain, three consumers.
+The `memory-structure` README covers a single project's memory. **Ledger** scales it up to **one centralized vault that holds the memory, decisions, and knowledge graphs for *every* project you work on** — versioned in git, browsable in Obsidian, and retrievable by RAG. One vault, three consumers.
 
 ## The idea
 
-Instead of per-repo memory that fragments, keep **one vault** (`$BRAIN_ROOT`) that is the single source of truth for cross-project knowledge. Three tools read the same markdown:
+Instead of per-repo memory that fragments, keep **one vault** (`$LEDGER_ROOT`) that is the single source of truth for cross-project knowledge. Three tools read the same markdown:
 
-- **Obsidian** — visual graph + tag navigation (open `$BRAIN_ROOT` as a vault).
+- **Obsidian** — visual graph + tag navigation (open `$LEDGER_ROOT` as a vault).
 - **git** — versioned history, syncs across machines.
 - **RAG / recall** — semantic retrieval over the notes (`recall` / a `search_knowledge` tool).
 
@@ -15,7 +15,7 @@ Each project's per-session memory is written under this one vault, so everything
 ## Layout
 
 ```
-$BRAIN_ROOT/                 ← your megabrain
+$LEDGER_ROOT/                 ← your Ledger
 ├── memory/
 │   ├── MEMORY.md            ← curated Tier-1 index (≤ ~200 lines), auto-loaded each session
 │   ├── CORE.md              ← Tier-0, always loaded
@@ -28,7 +28,7 @@ $BRAIN_ROOT/                 ← your megabrain
 
 ## The one rule that matters most: edit in place
 
-If you sync megabrain across machines (or consolidate from a session-capture tool) with an `rsync --update`-style copy (no `--delete`), then:
+If you sync Ledger across machines (or consolidate from a session-capture tool) with an `rsync --update`-style copy (no `--delete`), then:
 
 - **In-place edits stick** (newer mtime wins).
 - **Moves / renames / deletes revert** — the source re-drops the old path, creating a duplicate.
@@ -87,7 +87,7 @@ A curated **Tier-1 index (≤ ~200 lines)** that auto-loads every session. Most 
 
 ## Optional tooling to build
 
-Megabrain works by hand, but small scripts make it durable:
+Ledger works by hand, but small scripts make it durable:
 - a **tagger** that backfills the 4-axis tags (idempotent),
 - an **archiver** that enforces retention, reconciled to be authoritative pre-commit,
 - a **committer** that syncs the vault across machines on a schedule,
@@ -95,7 +95,7 @@ Megabrain works by hand, but small scripts make it durable:
 
 ## Evaluating retrieval — catch silent rot
 
-Once megabrain has a retriever and hundreds of notes, recall degrades **silently**: a change makes the retriever surface worse notes and nothing warns you. Gate it (this is what the `memory-eval` skill does):
+Once Ledger has a retriever and hundreds of notes, recall degrades **silently**: a change makes the retriever surface worse notes and nothing warns you. Gate it (this is what the `memory-eval` skill does):
 
 1. **Golden set** — `query → expected note(s)`, either hand-labeled (~30–50) or **label-free / auto-mined** from the notes themselves (no maintenance).
 2. **Freeze a baseline** — `Hit@5 / Hit@1 / MRR` against the current retriever.
@@ -103,4 +103,4 @@ Once megabrain has a retriever and hundreds of notes, recall degrades **silently
 
 This is the one thing no major agent-memory platform ships — *measurable* memory. **Honest caveat:** a label-free gate measures *retrievability change, not relevance* — it catches regressions, it doesn't prove recall is good. It's an advanced tier; the grep default needs none of it.
 
-Start with just `memory/` + `MEMORY.md`. Add Obsidian, then graphs, then RAG, then the eval gate as megabrain grows — each is an independent upgrade.
+Start with just `memory/` + `MEMORY.md`. Add Obsidian, then graphs, then RAG, then the eval gate as Ledger grows — each is an independent upgrade.

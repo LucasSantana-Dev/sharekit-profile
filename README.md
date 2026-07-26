@@ -441,7 +441,7 @@ If context bloat builds: `/compact` (saves ~30-40% tokens)
 | Load only relevant context | `/context-pack` | Build a task-aware context bundle before large changes or unfamiliar work. |
 
 ### Knowledge-Brain & RAG
-The profile ships a **Megabrain** system: one vault for all projects (memory + graphs + RAG).
+The profile ships a **Ledger** system: one vault for all projects (memory + graphs + RAG).
 
 | Goal | Skill | What it does |
 |------|-------|--------------|

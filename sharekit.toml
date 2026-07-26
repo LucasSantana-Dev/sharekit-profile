@@ -1,4 +1,4 @@
 [profile]
 name = "lucassantana"
 version = "0.10.0"
-description = "A multi-harness operator workflow — Claude Code CLAUDE.md + 49 portable skills + zero-setup file-based memory + Megabrain; OpenCode (Go primary, OpenRouter fallback, high-efficiency model tiering) with read-only-by-construction analysis agents (architect/planner/critic); Gajae-Code (gjc) external runner config + role-agent references for the deep-interview → ralplan → ultragoal loop. Portable defaults that don't clobber personal configs."
+description = "A multi-harness operator workflow — Claude Code CLAUDE.md + 49 portable skills + zero-setup file-based memory + Ledger; OpenCode (Go primary, OpenRouter fallback, high-efficiency model tiering) with read-only-by-construction analysis agents (architect/planner/critic); Gajae-Code (gjc) external runner config + role-agent references for the deep-interview → ralplan → ultragoal loop. Portable defaults that don't clobber personal configs."

@@ -12,8 +12,8 @@ set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-# Resolve the memory root. Respect BRAIN_ROOT (megabrain) then the default.
-mem_root="${BRAIN_ROOT:-$HOME/.claude/memory}"
+# Resolve the memory root. Respect LEDGER_ROOT (Ledger) then the default.
+mem_root="${LEDGER_ROOT:-$HOME/.claude/memory}"
 core_file=""
 for cand in "$mem_root/CORE.md" "$ROOT/claude/memory-structure/examples/CORE.md"; do
   if [[ -f "$cand" ]]; then core_file="$cand"; break; fi
