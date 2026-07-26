@@ -52,7 +52,7 @@ needs a revisit" sweeps. A `blockers:` non-empty with `status != blocked` is a f
 
 ## Migration (body-style → frontmatter)
 
-Some artifacts (homelab `docs/adr/*` use `**Status:** Accepted` in the body; plans
+Some artifacts (<homelab> `docs/adr/*` use `**Status:** Accepted` in the body; plans
 use ad-hoc text headers) predate this schema. They still read fine; migrate them to
 frontmatter opportunistically when you next touch them so they become queryable.
 New artifacts use frontmatter from the start. Don't do a big-bang migration — the

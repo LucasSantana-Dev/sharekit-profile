@@ -88,12 +88,49 @@ for d in "$PROFILE_DIR/skills"/*/; do
   n="$(basename "$d")"; grep -qxF "$n" "$ALLOWLIST" || rm -rf "$d"
 done
 
-cp "$SOURCE_DIR/CLAUDE.md"                                          "$PROFILE_DIR/CLAUDE.md"
-# agents/hooks/standards are in scope since 2026-07-20 (profile ships the full setup).
-# Personal-project agents (Lucky/Criativaria-specific) are excluded in Phase 4, not here.
-rsync -a --delete "${COMMON_EXCLUDES[@]}" --exclude='*.log' --exclude='forge-space/' "$SOURCE_DIR/agents/"    "$PROFILE_DIR/agents/"
-rsync -a --delete "${COMMON_EXCLUDES[@]}" --exclude='*.log' "$SOURCE_DIR/hooks/"     "$PROFILE_DIR/hooks/"
-rsync -a --delete "${COMMON_EXCLUDES[@]}" --exclude='*.log' "$SOURCE_DIR/standards/" "$PROFILE_DIR/standards/"
+cmp -s "$SOURCE_DIR/CLAUDE.md" "$PROFILE_DIR/CLAUDE.md" 2>/dev/null && echo "CLAUDE.md: already done - skipping" || cp "$SOURCE_DIR/CLAUDE.md" "$PROFILE_DIR/CLAUDE.md"
+```
+
+> ✅ **CURATION ALLOWLIST for agents/hooks/standards (ADR-0062).** agents/hooks/standards were
+> in scope wholesale since 2026-07-20 with no gate — a real leak (`standards/decisions/`, then
+> `discord-bot-specialist.md`) proved that's a **denylist** posture (relies on remembering every
+> private-project name), not safe against an unknown future one. Now gated the same way skills/
+> already is: `curated-agents.txt`, `curated-hooks.txt`, `curated-standards.txt` (one filename
+> per line; `standards/decisions/<name>.md` entries include the subdirectory prefix). Publishing
+> something new in these trees = add a line (deliberate curation act), same as skills.
+
+```bash
+for pair in "agents:curated-agents.txt" "hooks:curated-hooks.txt" "standards:curated-standards.txt"; do
+  tree="${pair%%:*}"; list="${pair##*:}"
+  ALLOWLIST="$PROFILE_REPO/$list"
+  [ -f "$ALLOWLIST" ] || { echo "BLOCKED: no $list — refusing to full-mirror $tree/"; exit 1; }
+
+  # 1) sync each allowlisted file that exists in source
+  while IFS= read -r n; do
+    case "$n" in ''|\#*) continue ;; esac
+    # Reject path traversal / absolute paths — an allowlist entry controls what
+    # gets read from $SOURCE_DIR and written into $PROFILE_DIR; don't let it escape either.
+    case "$n" in
+      /*|.|..|./*|../*|*/./*|*/../*|*/..)
+        echo "BLOCKED: unsafe allowlist entry in $list: $n" >&2; exit 1 ;;
+    esac
+    src="$SOURCE_DIR/$tree/$n"
+    dest="$PROFILE_DIR/$tree/$n"
+    if [ -f "$src" ]; then
+      if cmp -s "$src" "$dest" 2>/dev/null; then
+        echo "$tree/$n: already done - skipping"
+      else
+        mkdir -p "$(dirname "$dest")"; cp "$src" "$dest"
+      fi
+    fi
+  done < "$ALLOWLIST"
+
+  # 2) unpublish: remove profile files NOT in the allowlist
+  /usr/bin/find "$PROFILE_DIR/$tree" -type f | while read -r f; do
+    n="${f#"$PROFILE_DIR/$tree/"}"
+    grep -qxF "$n" "$ALLOWLIST" || rm -f "$f"
+  done
+done
 ```
 
 After copying, count and surface what was synced:
@@ -172,23 +209,39 @@ Replace machine-specific and identity references with generic placeholders. Appl
 done
 ```
 
-### Phase 3b — Private project names (standards/decisions/ only)
+### Phase 3b — Private project names
 
-`standards/decisions/` syncs wholesale (no `curated-*.txt` allowlist like skills/), and its
-ADR-style logs cite real internal projects as case-study context (e.g. "Lucky has
-`review-tools.yml`"). Scoped to that one directory deliberately — `Lucky`/`Criativaria`/
-`homelab` are also *core documented subject matter* elsewhere (e.g. `agents/
-discord-bot-specialist.md` is explicitly the Lucky-monorepo bot agent), so a global
-find/replace across the whole profile would mangle already-published, intentionally-scoped
-content instead of just the passing case-study mentions this phase targets. Found 2026-07-26.
+Originally scoped to `standards/decisions/` only (found 2026-07-26: its ADR-style logs cite
+real internal projects as case-study context, e.g. "Lucky has `review-tools.yml`") because a
+global pass risked mangling files where the same names were *core documented subject matter*
+(e.g. `agents/discord-bot-specialist.md` was explicitly the Lucky-monorepo bot agent). ADR-0062
+resolved that collision at the root: `discord-bot-specialist.md` is now excluded from
+`curated-agents.txt` entirely (never copied to `$PROFILE_DIR`, so never at risk from this pass),
+and every other file that reaches `$PROFILE_DIR` is human-curated onto its allowlist — meaning a
+private-project mention that survives to this point is by definition a passing example, not a
+file's whole reason to exist. Safe to broaden to the full profile dir.
+
+The pattern is deliberately case-sensitive and word-boundary-matched (capitalized proper nouns
+only) — this is not incidental. `hooks/check-harness-drift.sh` has the lowercase compound
+`criativaria-brain-[a-z]+\.sh` as a literal regex operand in an exclusion pattern; a
+case-insensitive or substring match would silently corrupt that regex. The pattern below leaves
+lowercase compound occurrences untouched by design — audit those by hand per file (as done for
+`check-harness-drift.sh` itself, 2026-07-26: fixed with a literal-prefix-only replacement that
+left the regex metacharacters `[a-z]+\.` intact).
 
 ```bash
-find "$PROFILE_DIR/standards/decisions" -type f -name "*.md" | while read f; do
+/usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" \) | while read f; do
+  case "$f" in */sync-sharekit-profile/*) continue ;; esac
   sed -i '' 's|[[:<:]]Lucky[[:>:]]|<project-a>|g' "$f"
   sed -i '' 's|[[:<:]]Criativaria[[:>:]]|<project-b>|g' "$f"
   sed -i '' 's|[[:<:]]homelab[[:>:]]|<homelab>|g' "$f"
+  sed -i '' 's|[[:<:]]CoJam[[:>:]]|<project-c>|g' "$f"
 done
 ```
+
+After this pass, grep for lowercase compound forms (`criativaria-`, `lucky-`, etc.) across the
+profile and hand-review any hit before deciding sed vs. manual fix — the regex-operand risk
+above means these can't be safely automated.
 
 ---
 
