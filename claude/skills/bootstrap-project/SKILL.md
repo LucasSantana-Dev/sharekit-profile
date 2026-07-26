@@ -90,8 +90,12 @@ sessions query it before wide greps.
 - Script appends the project to `knowledge-brain/PROJECTS.md` (the centralized registry: name,
   path, graph, date).
 - Push the brain (memory + graph + registry): `git -C "$BRAIN" add memory graphs PROJECTS.md && commit && push` (mount-guarded).
-- **If the target repo already has code** → auto-chain `/onboard-new-repo` (understand + health
-  + config-drift) so a non-greenfield bootstrap also gets the intake pass.
+- **Branch on the script's last line, do not re-derive it.** `bootstrap.sh` ends with exactly one
+  of these, having already tested for project content (manifest files, else a file count in the
+  top two levels) rather than for the presence of git:
+  - `CHAIN: /onboard-new-repo — …` → invoke `/onboard-new-repo` (understand + health +
+    config-drift) so a non-greenfield bootstrap also gets the intake pass.
+  - `CHAIN: none — …` → greenfield, skip onboarding.
 **Done when:** registry updated; brain pushed (or push deferred with reason); onboard-new-repo
 queued iff repo has code.
 
