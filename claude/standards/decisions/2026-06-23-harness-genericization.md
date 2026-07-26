@@ -7,7 +7,7 @@
 
 ## Context
 
-The harness had machine-specific values hardcoded across **248 files** — `/Users/<user>` (127 files), the dev root (56), the operator's GitHub handle (143), homelab/Tailscale references (≈40), and a handful of real IPs. This coupling meant the harness only ran on one machine, couldn't be shared without a per-share sanitization pass that immediately drifts, and mixed personal infrastructure into otherwise-reusable skills.
+The harness had machine-specific values hardcoded across **248 files** — `/Users/<user>` (127 files), the dev root (56), the operator's GitHub handle (143), <homelab>/Tailscale references (≈40), and a handful of real IPs. This coupling meant the harness only ran on one machine, couldn't be shared without a per-share sanitization pass that immediately drifts, and mixed personal infrastructure into otherwise-reusable skills.
 
 A coupling audit (2026-06-23) found the problem is **tiered**, not uniform:
 - **Mechanical** — paths + identity, ~170 files, deterministic find-replace.

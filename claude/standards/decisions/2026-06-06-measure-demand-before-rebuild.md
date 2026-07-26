@@ -6,7 +6,7 @@
 
 ## Context
 
-The Lucky Guild Automation "Module Executor" migration (this session) revealed a failure mode the
+The <project-a> Guild Automation "Module Executor" migration (this session) revealed a failure mode the
 existing rules did not catch. A ~4,900-LOC user-facing subsystem was put through a multi-PR
 migration that: shipped the 3 easy DB-only modules first and **never built the linchpin adapter**
 the hard modules + the whole payoff depend on (stalled 3/7); left a hollow web "apply" that

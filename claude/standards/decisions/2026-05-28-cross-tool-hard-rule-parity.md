@@ -6,7 +6,7 @@
 
 ## Context
 
-An environment-organization sweep (4 parallel research agents) surfaced many candidate improvements; Phase-1 verification deflated most of them (PR-toolchain "absent" was false — Lucky has `review-tools.yml`; memory "208 snapshots / 49% orphaned" was a miscount; RAG "flat 0.55" ignored a 0.821-MRR config). One finding survived verification and matters:
+An environment-organization sweep (4 parallel research agents) surfaced many candidate improvements; Phase-1 verification deflated most of them (PR-toolchain "absent" was false — <project-a> has `review-tools.yml`; memory "208 snapshots / 49% orphaned" was a miscount; RAG "flat 0.55" ignored a 0.821-MRR config). One finding survived verification and matters:
 
 **`~/.codex/AGENTS.md` (634 lines) is missing 5 hard rules that exist in `~/.claude/CLAUDE.md`:**
 1. **PR-automation-halt** — the operator's ABSOLUTE rule (never automate on a PR with another person's comments / another's open PR). Safety-critical.
