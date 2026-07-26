@@ -54,7 +54,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Secret scanning with gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v3
         # Note: GITLEAKS_LICENSE is only required for some org accounts.
         # Individual and most org repos can omit this. If the action fails on a
         # license check, add the GITLEAKS_LICENSE secret to enable scanning on
