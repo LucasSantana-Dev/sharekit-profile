@@ -1,4 +1,9 @@
 ---
+# This skill's job is to enumerate the commands and paths that must never
+# appear on screen, so its ban lists read as dangerous to any pattern scanner
+# (one line names both `cat .env*` and `curl -v`, as things to avoid). Contents
+# are two markdown docs with no scripts and nothing executable.
+security_exempt: true
 name: streamer-mode
 description: Behavioral safety mode for when the user is live streaming or screen sharing — never print secrets, env vars, tokens, IPs, hostnames, or terminal-sensitive data on screen; substitute safe command alternatives; defer security findings to a private file instead of announcing them on stream. Use when the user says "streamer mode", "I'm streaming", "I'm live", "going live", "screen sharing", "recording my screen", "on stream", or "presenting/demo on Zoom/Meet".
 triggers:

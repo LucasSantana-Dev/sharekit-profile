@@ -214,9 +214,17 @@ for f in "${skill_files[@]}"; do
     security_critical=$((security_critical+1))
   fi
 
-  # 8. Secret exfiltration — sending sensitive files off-host
-  if printf '%s' "$body" | rg -qi '\.ssh/id_rsa|\.aws/credentials|\.env\b.*curl|\.env\b.*wget|cat\s+~/.ssh|cat\s+~/\.aws|bat\s+-p\s+~/.ssh|bat\s+-p\s+~/\.aws|sed\s+-n.*~/.ssh|sed\s+-n.*~/\.aws'; then
-    findings="${findings}CRIT   | ${rel} | secret exfiltration pattern detected (reading ssh/aws/env + network)\n"
+  # 8. Secret exfiltration — sending sensitive files off-host.
+  # Requires a sensitive path AND a transfer command on the SAME line, in
+  # either order. Matching a bare path was flagging skills that name these
+  # files in order to forbid them (streamer-mode lists `.aws/credentials` in a
+  # "never open these on screen" rule), which is the opposite of exfiltration.
+  # Exfiltration is sending, per this check's own name, so the send has to be
+  # present. `cat ~/.ssh/id_rsa | curl ...` still trips it.
+  sens_path='\.ssh/id_rsa|\.aws/credentials|~/\.ssh|~/\.aws|\.env\b'
+  xfer_cmd='curl|wget|scp|rsync|\bnc\b|ncat|socat'
+  if printf '%s' "$body" | rg -qi "(${sens_path}).*(${xfer_cmd})|(${xfer_cmd}).*(${sens_path})"; then
+    findings="${findings}CRIT   | ${rel} | secret exfiltration pattern detected (sensitive path + transfer command on one line)\n"
     security_critical=$((security_critical+1))
   fi
 
