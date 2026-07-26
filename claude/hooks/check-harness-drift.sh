@@ -16,9 +16,9 @@ TRACKED="${2:-$HOME/.claude-env}"
 
 # Known-intentional live-only files — excluded from drift (NOT mistakes):
 #   rtk-rewrite.sh       hash-locked, managed by the rtk binary, not claude-env
-#   criativaria-brain-*  deprecated orphans (project-local sync superseded them)
+#   <project-b>-brain-*  deprecated orphans (project-local sync superseded them)
 #   archive / agents-archive  retired content, not deployed
-EXCLUDE_RE='(rtk-rewrite\.sh|criativaria-brain-[a-z]+\.sh|/archive/|agents-archive)'
+EXCLUDE_RE='(rtk-rewrite\.sh|<project-b>-brain-[a-z]+\.sh|/archive/|agents-archive)'
 
 [ -d "$LIVE" ] && [ -d "$TRACKED" ] || { echo "SKIP: $LIVE or $TRACKED missing"; exit 0; }
 

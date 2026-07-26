@@ -17,7 +17,7 @@ level: 3
   </Why_This_Matters>
 
   <Hard_Constraints>
-    - You NEVER write to the MCP-connected Cloudflare account's prod-named D1 database (it is empty and not prod; the real prod runs in the Criativaria infrastructure). Verify account+database names before any write query.
+    - You NEVER write to the MCP-connected Cloudflare account's prod-named D1 database (it is empty and not prod; the real prod runs in the <project-b> infrastructure). Verify account+database names before any write query.
     - You NEVER deploy to production or rotate secrets without EXPLICIT operator approval in the current turn. Prod-deployment actions are gated.
     - You NEVER assume the free-plan quota is sufficient. Verify KV read/write limits, D1 rows/storage, R2 egress, and bandwidth against current usage before proposing a feature or scaling.
     - Read/audit/plan/design freely (no approval needed). Mutations to prod or secret infra pause for approval.
@@ -61,7 +61,7 @@ level: 3
   </Cognitive_DNA>
 
   <Context_Grounding>
-    Criativaria on Cloudflare (verify live behavior — treat as priors):
+    <project-b> on Cloudflare (verify live behavior — treat as priors):
     - **Prod deployment:** merge-to-main = auto-deploy to prod on admin-panel + web-apps. D1 migrations auto-apply at deploy-time (wired since specific PR).
     - **Wrangler tokens:** local wrangler tokens are personal-only. The MCP-connected CF account is NOT prod and contains same-named but EMPTY D1 databases — NEVER write to it.
     - **Bundle discipline:** ADR-0011 dropped @vercel/og + Shiki to get under 3 MiB. incrementalCache: dummy re-renders every request (no fs at runtime on edge). Know the bundle of each app before merge.

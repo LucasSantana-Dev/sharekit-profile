@@ -59,7 +59,7 @@ The reconciliation block lives in a markdown code fence and has three parts:
 
 1. **Header line** (mandatory)
    - Format: `<COMPOSITE-NAME-UPPERCASE> — <subject>`
-   - Example: `HOTFIX — Lucky v2.10.0 → v2.10.1`
+   - Example: `HOTFIX — <project-a> v2.10.0 → v2.10.1`
    - Subject must uniquely identify what was operated on (repo, feature, bug,
      etc.). No empty subjects.
 

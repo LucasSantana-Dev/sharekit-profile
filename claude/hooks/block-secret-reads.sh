@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PreToolUse hook: block reads of secret-bearing files (Lucky, local-only).
+# PreToolUse hook: block reads of secret-bearing files (<project-a>, local-only).
 # Rationale: 2026-05-31 a secret file was read into the transcript, leaking keys.
 # Blocks Read/Grep/Bash access to ~/.zshrc, secrets.zsh, .env*, *.pem, id_*.
 # Exit 2 = deny (message on stderr -> shown to model). Exit 0 = allow.
