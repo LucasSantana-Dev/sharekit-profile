@@ -18,11 +18,9 @@ dep-sweep
 dispatch
 efficiency-advisor
 fallback
-frontend-design
 frontend-reference-hunt
 graphify
 handoff
-impeccable
 knowledge-loop
 loop
 loop-engineer
