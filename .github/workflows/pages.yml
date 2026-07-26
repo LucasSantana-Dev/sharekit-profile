@@ -21,7 +21,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Catalog drift-guard (ADR-0042): block deploy if index.html's displayed
       # counts disagree with the actual SKILLS/AGENTS arrays. Canonical-existence
