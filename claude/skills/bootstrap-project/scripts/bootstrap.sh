@@ -48,8 +48,13 @@ GRAPHDIR="$BRAIN/graphs/$NAME"
 REG="$BRAIN/PROJECTS.md"
 DATE="$(date +%Y-%m-%d)"
 
-# act FILE_OP — run unless --dry-run
-act() { if [ "$DRY" = 1 ]; then echo "  [dry] $*"; else eval "$*"; fi; }
+# act CMD ARG... — run unless --dry-run.
+# Takes the command and its arguments as separate words and runs them directly.
+# It used to take one string and `eval` it, which re-parsed embedded command
+# substitutions: BRAIN and PROJ come from flags and NAME defaults to a basename
+# of `git remote get-url origin`, so a path or remote containing $(...) executed
+# during bootstrap. Cloning a hostile repo and bootstrapping it was enough.
+act() { if [ "$DRY" = 1 ]; then echo "  [dry] $*"; else "$@"; fi; }
 
 echo "bootstrap-project: name=$NAME  slug=$SLUG  path=$PROJ  (dry=$DRY update=$UPDATE)"
 
@@ -66,8 +71,8 @@ if [ -L "$PMEM" ]; then
 elif [ -d "$PMEM" ]; then
   echo "  P1 memory: ⚠ REAL dir at $PMEM (not a symlink) — NOT clobbering; reconcile manually"
 else
-  act "mkdir -p \"$PROJECTS_DIR/$SLUG\""
-  act "ln -s \"$BRAIN/memory\" \"$PMEM\""
+  act mkdir -p "$PROJECTS_DIR/$SLUG"
+  act ln -s "$BRAIN/memory" "$PMEM"
   echo "  P1 memory: symlink created → vault/memory"
 fi
 
@@ -98,13 +103,13 @@ EOF
 done
 
 # --- Phase 4: centralized graph dir + repo graphify-out symlink ---
-act "mkdir -p \"$GRAPHDIR\""
+act mkdir -p "$GRAPHDIR"
 if [ -L "$PROJ/graphify-out" ]; then
   echo "  P4 graph: repo graphify-out symlink exists ✓"
 elif [ -e "$PROJ/graphify-out" ]; then
   echo "  P4 graph: ⚠ repo has a REAL graphify-out — move it to $GRAPHDIR once to centralize, then symlink"
 else
-  act "ln -s \"$GRAPHDIR\" \"$PROJ/graphify-out\""
+  act ln -s "$GRAPHDIR" "$PROJ/graphify-out"
   echo "  P4 graph: graphify-out → vault graphs/$NAME (run 'graphify' to build)"
 fi
 
