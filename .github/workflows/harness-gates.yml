@@ -70,3 +70,15 @@ jobs:
         # Note: shellcheck is preinstalled on GitHub Actions ubuntu runners.
         # This gate checks all hook and script shell files at warning severity.
         run: shellcheck -S warning hooks/*.sh hooks/shared/*.sh scripts/*.sh
+      - name: Check published hooks with shellcheck (error-only)
+        # claude/hooks/*.sh added 2026-07-25: these are the hooks that actually ship to
+        # installers via `sharekit install` and had ZERO CI coverage before this. Error-only
+        # (not -S warning like the gate above) because claude/hooks/ has ~20 pre-existing
+        # warning-level findings across unrelated files - turning those into a hard block
+        # is a separate cleanup pass, not something to bundle into closing the coverage gap.
+        # Note: this wouldn't have caught the actual harness-vitals.sh mount-guard bug this
+        # session found - that was a semantic/logic issue (grep's empty-pattern-matches-all
+        # behavior), not something shellcheck detects at any severity. This closes the "zero
+        # coverage" gap for real breakage (syntax errors, etc.), not a guarantee against that
+        # specific bug class.
+        run: shellcheck -S error claude/hooks/*.sh
