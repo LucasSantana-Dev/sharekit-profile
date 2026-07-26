@@ -87,7 +87,10 @@ Every PR must pass before merge:
 3. No unresolved threads from CodeRabbit / Greptile / Sonar / human reviewers
 4. No merge conflicts with base
 5. Branch is up-to-date with base (or rebase-on-merge is configured)
-6. Base is `main` (trunk-based default for all repos under this account)
+6. Base is `main` (trunk-based default for all repos under this account) —
+   or the configured `release_branch` for a repo that's explicitly opted
+   into the release-train exception, see `standards/release-cadence.md
+   #Exception`
 7. For `/hotfix`: severity gate documented in PR body, regression test present
 
 `/pr-merge-readiness` aggregates all of these into a single MERGE / WAIT / FIX
@@ -133,3 +136,10 @@ All repos under this account are trunk-based as of 2026-07-23 — the long-lived
 `/merge-confidently` and `/pr-to-release` both land work on `main`;
 release-please owns versioning in release-please repos (`/ship-it` in the
 rest). Everything else in this standard still applies.
+
+**Opt-in exception:** a repo may explicitly opt back into the retired
+release-train per `standards/release-cadence.md#Exception`
+(`.claude/release-cadence-config.json` with `model: "release-train"`). No
+repo currently opts in. Where this standard says `main`, that repo instead
+uses its configured `release_branch` — `/dep-sweep`'s base-branch resolution
+and Required check 6 both already account for this.

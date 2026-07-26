@@ -1,6 +1,6 @@
 ---
 name: dep-sweep
-description: "Batch-process Dependabot/Renovate PRs by risk: auto-merge safe ones (devDeps, patches) into main, surface risky ones for human review. Chains PR enumeration, risk classification, merge-readiness checks, and changelog batching. Use when bot PRs pile up; reduces a 20-PR queue to actionable groups."
+description: "Batch-process Dependabot/Renovate PRs by risk: auto-merge safe ones (devDeps, patches) into the configured base branch (main by default), surface risky ones for human review. Chains PR enumeration, risk classification, merge-readiness checks, and changelog batching. Use when bot PRs pile up; reduces a 20-PR queue to actionable groups."
 user-invocable: true
 auto-invoke: >-
   "dependabot PRs", "renovate queue", "clean up bot PRs", "update deps", weekly if ≥10 open bot PRs
@@ -18,9 +18,11 @@ triggers:
 # Dep Sweep
 
 Turn a wall of bot PRs into one decision pass. Auto-merges the safe class
-into `main` and surfaces only the genuinely risky updates for human review.
-Reduces the daily/weekly drag of "20 dependabot PRs are open and I keep
-ignoring them".
+into the configured base branch (`main` by default; a repo that's explicitly
+opted into the release-train exception per `standards/release-cadence.md
+#Exception` uses its configured `release_branch` instead) and surfaces only
+the genuinely risky updates for human review. Reduces the daily/weekly drag
+of "20 dependabot PRs are open and I keep ignoring them".
 
 ## Auto-invocation triggers
 
@@ -33,11 +35,16 @@ ignoring them".
 
 For each open bot PR, classify into one of:
 
+Evaluate HOLD conditions first, then REVIEW, then AUTO-MERGE — a patch bump
+with passing CI that's *also* a security advisory is HOLD, not AUTO-MERGE.
+Security advisories never qualify for AUTO-MERGE regardless of bump size or
+CI status; the "safe" heuristics below only apply once HOLD is ruled out.
+
 | Bucket | Heuristic | Default action |
 |---|---|---|
-| **AUTO-MERGE (safe)** | devDependencies only, OR patch bumps to any dep with passing CI, OR lockfile-only resyncs, OR pre-commit hook bumps | Auto-merge into `main` |
+| **HOLD (risky)** | Security advisories, OR major bumps, OR bumps that fail CI, OR bumps to deps tagged `requires-manual` in `.claude/dep-sweep-config.json` | Comment on PR with reason; leave open |
 | **REVIEW (medium)** | Minor bumps of runtime deps, OR any bump that touches a known-sensitive package list (see project config) | Surface to user with diff summary |
-| **HOLD (risky)** | Major bumps, OR bumps that fail CI, OR bumps to deps tagged `requires-manual` in `.claude/dep-sweep-config.json`, OR security advisories | Comment on PR with reason; leave open |
+| **AUTO-MERGE (safe)** | devDependencies only, OR patch bumps to any dep with passing CI, OR lockfile-only resyncs, OR pre-commit hook bumps — none of which are also a HOLD or REVIEW match | Auto-merge into the configured base branch |
 
 Sensitive package list defaults: `react`, `next`, `vue`, `svelte`, anything
 matching `^@types/node$`, `eslint`, `typescript`, ORM packages (`prisma`,
@@ -86,15 +93,23 @@ HOLD (2):
 ```
 
 ### Phase 3 — Confirm
-Single user confirmation: "Auto-merge the 12 AUTO-MERGE PRs into `main`,
-surface the 4 REVIEW for you, leave the 2 HOLD with explanatory comments? (y/N)"
+Single user confirmation: "Auto-merge the 12 AUTO-MERGE PRs into `<base
+branch>`, surface the 4 REVIEW for you, leave the 2 HOLD with explanatory
+comments? (y/N)"
 
 On `n`: STOP and ask which buckets to act on.
 
 ### Phase 4 — Auto-merge bucket
+Resolve the target base branch once, from `.claude/dep-sweep-config.json`'s
+`base_branch` (default `main`; a repo opted into the release-train exception
+sets this to its `release_branch`, per `standards/release-cadence.md
+#Exception`).
+
 For each AUTO-MERGE PR, in parallel batches of 3:
-- Verify base branch is `main` (or the configured base)
-  - If base is a stale `release` branch, retarget to `main` via `gh pr edit --base main`
+- Verify base branch matches the resolved target
+  - If it doesn't, retarget via `gh pr edit --base <resolved target>` — never
+    hardcode `main` here; a release-train repo's stale PRs should retarget to
+    its configured `release_branch`, not away from it
 - Invoke `pr-merge-readiness` — must return MERGE
 - On MERGE: squash-merge
 - On WAIT/FIX: demote to REVIEW bucket, comment on PR with reason
@@ -118,13 +133,18 @@ For each HOLD PR, leave a comment:
 Apply label `needs-human` if it doesn't already have one.
 
 ### Phase 7 — Changelog batch entry
-After auto-merges complete, append a single line under `[Unreleased]`:
-> `### Changed`
-> `- Bumped N dependencies (devDeps + patches). See PRs <list>.`
+Check for release-please first (`.release-please-manifest.json` or a
+`release-please.yml` workflow present):
 
-This collapses 12 individual changelog entries into one. In release-please
-repos the `chore(deps):` commits also feed the pending release PR
-automatically.
+- **release-please repo:** skip this phase entirely. The `chore(deps):`
+  commits from Phase 4's squash-merges already feed the pending release PR
+  automatically — a manual append would violate `standards/release-cadence
+  .md`'s no-manual-`[Unreleased]`-bookkeeping rule and double-count the bump.
+- **No release-please:** append a single line under `[Unreleased]`:
+  > `### Changed`
+  > `- Bumped N dependencies (devDeps + patches). See PRs <list>.`
+
+  This collapses 12 individual changelog entries into one.
 
 ## Stop / escalation conditions
 
@@ -137,10 +157,10 @@ automatically.
 ```
 DEP SWEEP — <repo>
   Enumerated:    18 bot PRs <STATUS>
-  Auto-merged:   12 into main (devDeps + patches) <STATUS>
+  Auto-merged:   12 into <base branch> (devDeps + patches) <STATUS>
   For review:    4 (next 14.2→14.3, eslint 9.0→9.1, ...) <STATUS>
   Held:          2 (react v19 major, prisma v6 major) <STATUS>
-  Changelog:     1 batched line added under [Unreleased] <STATUS>
+  Changelog:     1 batched line added under [Unreleased] | skipped (release-please owns it) <STATUS>
   Snapshot:      <path to state file | (none — task ongoing)>
   Open watch:    <future obligation | (none)>
 ```
@@ -150,7 +170,7 @@ DEP SWEEP — <repo>
 - Per-bucket PR list with bump deltas
 - Auto-merge SHA list
 - Comments left on HOLD PRs
-- Single batched CHANGELOG entry
+- Single batched CHANGELOG entry (non-release-please repos only)
 
 ## Configuration
 

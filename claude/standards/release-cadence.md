@@ -87,16 +87,17 @@ hotfix — it becomes a patch release. Required:
 
 ## Bot PR handling
 
-Dependabot / Renovate / pre-commit-ci PRs go through `/dep-sweep`, targeted
-at `main`, never through `/pr-to-release` individually. The sweep buckets
-them:
-
-- AUTO-MERGE: devDeps, patch bumps, lockfile-only — squash-merged to `main`
-- REVIEW: minors, security advisories, sensitive packages — surfaced
-- HOLD: majors, framework upgrades — left for manual handling
+Dependabot / Renovate / pre-commit-ci PRs go through `/dep-sweep`, never
+through `/pr-to-release` individually, targeted at the configured base
+branch (`main` by default; a repo's opted-in `release_branch` under the
+Exception below, otherwise). Bucket definitions (AUTO-MERGE / REVIEW / HOLD,
+including the security-advisories-always-HOLD precedence rule) live in
+`/dep-sweep`'s own risk-classification table — not restated here, to avoid
+the two drifting out of sync with each other.
 
 In release-please repos, bot commits land as `chore(deps):` lines in the
-generated release PR — no manual `[Unreleased]` bookkeeping.
+generated release PR — no manual `[Unreleased]` bookkeeping. `/dep-sweep`
+detects this and skips its own changelog-append phase accordingly.
 
 ## Cleanup expectations
 
