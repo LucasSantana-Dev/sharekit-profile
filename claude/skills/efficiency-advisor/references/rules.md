@@ -25,7 +25,7 @@ Better: agent(type='Explore', task='audit_1'), agent(type='Explore', task='audit
 ## Mode Disambiguation
 
 If unclear which mode to use:
-- User asks "Opus or Sonnet?" → Quick Decision Mode (model choice = single decision)
+- User asks a single tier question (e.g. "Opus or Sonnet?" on Claude) → Quick Decision Mode (model choice = single decision)
 - User asks "Should I run these 5 steps in parallel?" → Full Analysis Mode (workflow with dependencies)
 - User asks "I have a Workflow() script" → Full Analysis Mode (structured plan)
 - User says "my session is slow" → ask: "Are you asking about one decision (e.g., model tier for a specific task)?" vs. "the overall workflow structure?"
