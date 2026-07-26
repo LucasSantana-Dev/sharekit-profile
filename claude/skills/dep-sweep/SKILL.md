@@ -18,11 +18,11 @@ triggers:
 # Dep Sweep
 
 Turn a wall of bot PRs into one decision pass. Auto-merges the safe class
-into the configured base branch (`main` by default; a repo that's explicitly
-opted into the release-train exception per `standards/release-cadence.md
-#Exception` uses its configured `release_branch` instead) and surfaces only
-the genuinely risky updates for human review. Reduces the daily/weekly drag
-of "20 dependabot PRs are open and I keep ignoring them".
+into the resolved base branch (`main` by default; a repo that's explicitly
+opted into the release-train exception uses its configured `release_branch`
+instead — see Resolve target below) and surfaces only the genuinely risky
+updates for human review. Reduces the daily/weekly drag of "20 dependabot
+PRs are open and I keep ignoring them".
 
 ## Auto-invocation triggers
 
@@ -42,9 +42,9 @@ CI status; the "safe" heuristics below only apply once HOLD is ruled out.
 
 | Bucket | Heuristic | Default action |
 |---|---|---|
-| **HOLD (risky)** | Security advisories, OR major bumps, OR bumps that fail CI, OR bumps to deps tagged `requires-manual` in `.claude/dep-sweep-config.json` | Comment on PR with reason; leave open |
+| **HOLD (risky)** | Security advisories, OR major bumps, OR bumps that fail CI, OR dependencies listed in `always_hold` in `.claude/dep-sweep-config.json` | Comment on PR with reason; leave open |
 | **REVIEW (medium)** | Minor bumps of runtime deps, OR any bump that touches a known-sensitive package list (see project config) | Surface to user with diff summary |
-| **AUTO-MERGE (safe)** | devDependencies only, OR patch bumps to any dep with passing CI, OR lockfile-only resyncs, OR pre-commit hook bumps — none of which are also a HOLD or REVIEW match | Auto-merge into the configured base branch |
+| **AUTO-MERGE (safe)** | devDependencies only, OR patch bumps to any dep with passing CI, OR lockfile-only resyncs, OR pre-commit hook bumps — none of which are also a HOLD or REVIEW match | Auto-merge into the resolved target |
 
 Sensitive package list defaults: `react`, `next`, `vue`, `svelte`, anything
 matching `^@types/node$`, `eslint`, `typescript`, ORM packages (`prisma`,
@@ -56,12 +56,19 @@ Override via `.claude/dep-sweep-config.json`:
 {
   "sensitive": ["@my-org/internal-sdk"],
   "always_hold": ["legacy-package"],
-  "auto_merge_minor": false,
-  "base_branch": "main"
+  "auto_merge_minor": false
 }
 ```
 
 ## Workflow
+
+### Resolve target (before anything else)
+Read `.claude/release-cadence-config.json` if it exists. If `model ==
+"release-train"`, target = its `release_branch`. Otherwise target = `main`.
+This is the single canonical source — don't also read a `base_branch` key
+from `dep-sweep-config.json`; duplicating the same value into two config
+files is how they drift. Every later phase (confirmation prompt,
+verify/retarget, reconciliation) uses this resolved target.
 
 ### Phase 1 — Enumerate
 ```bash
@@ -93,18 +100,13 @@ HOLD (2):
 ```
 
 ### Phase 3 — Confirm
-Single user confirmation: "Auto-merge the 12 AUTO-MERGE PRs into `<base
-branch>`, surface the 4 REVIEW for you, leave the 2 HOLD with explanatory
-comments? (y/N)"
+Single user confirmation, using the target resolved above: "Auto-merge the
+12 AUTO-MERGE PRs into `<resolved target>`, surface the 4 REVIEW for you,
+leave the 2 HOLD with explanatory comments? (y/N)"
 
 On `n`: STOP and ask which buckets to act on.
 
 ### Phase 4 — Auto-merge bucket
-Resolve the target base branch once, from `.claude/dep-sweep-config.json`'s
-`base_branch` (default `main`; a repo opted into the release-train exception
-sets this to its `release_branch`, per `standards/release-cadence.md
-#Exception`).
-
 For each AUTO-MERGE PR, in parallel batches of 3:
 - Verify base branch matches the resolved target
   - If it doesn't, retarget via `gh pr edit --base <resolved target>` — never
@@ -133,8 +135,11 @@ For each HOLD PR, leave a comment:
 Apply label `needs-human` if it doesn't already have one.
 
 ### Phase 7 — Changelog batch entry
-Check for release-please first (`.release-please-manifest.json` or a
-`release-please.yml` workflow present):
+Check for release-please first. Filename alone isn't reliable (repos name
+the workflow file freely) — check for either:
+- `release-please-config.json` present at repo root, OR
+- any `.github/workflows/*.y*ml` referencing a release-please action:
+  `grep -l "release-please-action" .github/workflows/*.y*ml`
 
 - **release-please repo:** skip this phase entirely. The `chore(deps):`
   commits from Phase 4's squash-merges already feed the pending release PR
@@ -157,7 +162,7 @@ Check for release-please first (`.release-please-manifest.json` or a
 ```
 DEP SWEEP — <repo>
   Enumerated:    18 bot PRs <STATUS>
-  Auto-merged:   12 into <base branch> (devDeps + patches) <STATUS>
+  Auto-merged:   12 into <resolved target> (devDeps + patches) <STATUS>
   For review:    4 (next 14.2→14.3, eslint 9.0→9.1, ...) <STATUS>
   Held:          2 (react v19 major, prisma v6 major) <STATUS>
   Changelog:     1 batched line added under [Unreleased] | skipped (release-please owns it) <STATUS>
@@ -174,10 +179,11 @@ DEP SWEEP — <repo>
 
 ## Configuration
 
-Repo-level overrides live in `.claude/dep-sweep-config.json`:
+Repo-level overrides live in `.claude/dep-sweep-config.json`. Base branch is
+NOT configured here — it's resolved from `.claude/release-cadence-config.json`
+(see Resolve target above), so it can't drift between the two files.
 ```json
 {
-  "base_branch": "main",
   "sensitive": ["@my-org/internal-sdk"],
   "always_hold": ["webpack"],
   "auto_merge_minor": false,
