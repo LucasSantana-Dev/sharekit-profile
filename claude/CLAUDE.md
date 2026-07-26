@@ -75,6 +75,10 @@ This override disables the harness default trailers. **Never add** `Co-Authored-
 
 Never emit the em-dash `—` (or en-dash `–`) in any written output: chat prose, PR/issue/release bodies, commit messages, docs, READMEs, code comments. It renders inconsistently on the web and reads as a tell of AI-generated text. Rewrite instead: split into two sentences with a period, introduce with a colon, pause with a comma, or set an aside in parentheses. Prefer restructuring over a mechanical swap so the line reads naturally. A plain hyphen `-` in code, flags, or identifiers is fine.
 
+## Writing style — NEVER use the em-dash
+
+Never emit the em-dash `—` (or en-dash `–`) in any written output: chat prose, PR/issue/release bodies, commit messages, docs, READMEs, code comments. It renders inconsistently on the web and reads as a tell of AI-generated text. Rewrite instead: split into two sentences with a period, introduce with a colon, pause with a comma, or set an aside in parentheses. Prefer restructuring over a mechanical swap so the line reads naturally. A plain hyphen `-` in code, flags, or identifiers is fine.
+
 ## Storage policy
 
 Internal disk near capacity — all new repos, clones, worktrees, datasets, weights, and large caches go on `${DEV_ROOT}/` (repos: `Desenvolvimento/<repo>`, worktrees: `Desenvolvimento/.worktrees/`). Never create dev artifacts under `$HOME` outside legitimate tool-config dirs. If External HD not mounted, surface before writing to internal disk. Full rules: `standards/storage-policy.md`.
