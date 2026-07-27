@@ -55,6 +55,17 @@ PROJECT_DIR=$(dirname "$JSONL")
 MEMORY_DIR="$PROJECT_DIR/memory"
 mkdir -p "$MEMORY_DIR" 2>/dev/null || exit 0
 
+# Cooperative-mode guard (standards/cooperative-mode.md): never write work-session
+# knowledge into the personal vault. The vault SYMLINK is the only bleed channel;
+# plain project dirs are already out of RAG (ADR-0039, 2026-07-23).
+CWD=$(echo "$INPUT" | jq -r '.cwd // empty' 2>/dev/null)
+if [ -n "$CWD" ] && [ "$("$HOME/.claude/scripts/repo-mode.sh" "$CWD" 2>/dev/null || echo solo)" = "cooperative" ]; then
+  RESOLVED=$(cd "$MEMORY_DIR" 2>/dev/null && pwd -P || echo "$MEMORY_DIR")
+  case "$RESOLVED" in
+    "${DEV_ROOT}/knowledge-brain"*) MEMORY_DIR="$PROJECT_DIR/memory-coop"; mkdir -p "$MEMORY_DIR" 2>/dev/null || exit 0 ;;
+  esac
+fi
+
 TS=$(date -u +%Y-%m-%dT%H-%M-%SZ)
 
 # Extract decision markers (same logic as pre-compact-memory-snapshot)

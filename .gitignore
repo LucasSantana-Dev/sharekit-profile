@@ -19,3 +19,4 @@ index.html.bak-*
 # Machine-generated test artifacts; the task catalog (eval-tasks.sh) is source
 # and stays tracked, only the run output under .harness/eval/<name>/runs.jsonl is runtime.
 .harness/eval/
+__pycache__/

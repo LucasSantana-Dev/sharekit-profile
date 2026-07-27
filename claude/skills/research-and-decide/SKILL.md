@@ -34,7 +34,7 @@ research → critique → plan → ADR pairing so the rationale survives.
 - Output: 5-10 candidates with one-line tradeoff per candidate
 
 ### Phase 2 — Challenge (always — this is what makes the decision durable)
-Invoke `critic` agent (heavy-reasoning tier — Opus on Claude — multi-perspective review) on the leading 1-2 options:
+Invoke `critic` agent (Opus, multi-perspective review) on the leading 1-2 options:
 - Cost over 12 months
 - Migration friction
 - Lock-in risk

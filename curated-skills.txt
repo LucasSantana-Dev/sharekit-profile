@@ -1,6 +1,5 @@
 # Curated portable skills for the sharekit public profile (ADR-0039).
 # sync-sharekit-profile syncs ONLY these. Add a line to publish a skill; remove to unpublish.
-add
 adt-rag-drift
 app-teardown
 audit-deep
@@ -11,13 +10,11 @@ ci-watch
 code-teardown
 codebase-memory
 context-pack
-debug
 decide
 decide-now
 dep-sweep
 dispatch
 efficiency-advisor
-fallback
 frontend-reference-hunt
 graphify
 handoff

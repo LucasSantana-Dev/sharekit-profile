@@ -149,6 +149,32 @@ gh pr view "$PR" --json createdAt,updatedAt
 ```
 Last update >7 days ago → `WARN` ("stale; rebase + re-verify before merge").
 
+#### Signal 9: Card/issue fidelity
+
+"Does this PR know which card it closes, and is that card's state still consistent with
+what's actually being merged?" — added 2026-07-25 (Phase 3, card/prototype-fidelity debate).
+Catches the same class of drift as <project-b>'s board-hygiene bug: a card claims one state,
+the repo says another.
+
+```bash
+gh pr view "$PR" --json body,closingIssuesReferences -q '{body: .body, linked: [.closingIssuesReferences[]?.number]}'
+```
+
+- No `closingIssuesReferences` AND PR body has no `Closes #`/`Fixes #`/`Resolves #` pattern
+  → `SKIP` ("no linked card — untracked PRs are a normal pattern on this developer's repos,
+  not a defect; don't WARN small/solo/dep-bump/typo PRs that never had a card to begin with")
+- Linked issue found but already `CLOSED` independent of this PR (check
+  `gh issue view <N> --json state,closedAt` — closed before this PR's `mergeStateStatus`
+  went clean) → `WARN` ("linked issue #N already closed by something else — verify this PR
+  still matches its current state before merging, board-hygiene drift risk")
+- Linked issue found and `OPEN` → `PASS`
+- Repo doesn't use issues for this workflow (no issues enabled) → `SKIP`
+
+This signal only checks PR-to-card *linkage and state consistency* — it does not check
+whether the diff matches the card's described scope (over/under-building). That's
+`overengineering-auditor`'s job (its `abstraction`/`generalization` categories cover
+over-scoped commits); route there for scope-content review, not here.
+
 ---
 
 ### 3. Compute verdict
@@ -178,6 +204,7 @@ SIGNALS
   ⚠ CodeRabbit: 2 unresolved suggestions
   ✓ PR size: 287 LOC, 8 files
   ✓ Branch age: updated 2h ago
+  ✓ Card fidelity: linked issue #42 (open)
 
 VERDICT: WAIT
 Reason: CodeRabbit has 2 unresolved suggestions. Resolve or explicitly dismiss
@@ -224,4 +251,4 @@ Suggested next action:
 - Read memory for any per-repo overrides (allow-flaky checks, third-party reviewer
   expectations) before computing the verdict
 - Optional: write a one-line memory after a MERGE verdict was acted on, so trend data
-  ("Lucky merged 12 PRs this week, 3 with WARN overridden") becomes available
+  ("<project-a> merged 12 PRs this week, 3 with WARN overridden") becomes available

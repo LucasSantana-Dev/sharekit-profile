@@ -21,7 +21,7 @@ A coupling audit (2026-06-23) found the problem is **tiered**, not uniform:
 Skills reference `${DEV_ROOT}`, `${EXTERNAL_HD}`, `${GITHUB_USER}`, `${OPERATOR_EMAIL}`. The machine-specific values live in `~/.claude/settings.local.json`'s `env` block (per-machine, not shared) — the same mechanism the secrets already use. Documented in `.env.example`. A deterministic codemod converted 165 content files; eval-artifact dirs and `.log` files are excluded (a traceback's absolute path is not configurable and is not shipped).
 
 **2. Personal-stack skills stay local (Wave-2 — DECIDED: tier, don't gate).**
-The ~50 vault/RAG/graphify/memory skills are **tiered as "personal-stack" and kept local — not generified.** Capability-gating them to "degrade gracefully without a vault" (option A) was rejected: a `rag-maintenance` or `sync-memories` skill with no RAG/vault does nothing meaningful — these skills *are* the vault, so portability for them has ~no value. They resolve `${LEDGER_ROOT}` etc. from the optional env vars and otherwise remain personal.
+The ~50 vault/RAG/graphify/memory skills are **tiered as "personal-stack" and kept local — not generified.** Capability-gating them to "degrade gracefully without a vault" (option A) was rejected: a `rag-maintenance` or `sync-memories` skill with no RAG/vault does nothing meaningful — these skills *are* the vault, so portability for them has ~no value. They resolve `${BRAIN_ROOT}` etc. from the optional env vars and otherwise remain personal.
 
 **3. Secrets — formalize, don't rebuild.** Already env-var'd; `.env.example` now documents the required keys. No inline secrets to extract.
 

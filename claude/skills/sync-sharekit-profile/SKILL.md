@@ -243,6 +243,42 @@ After this pass, grep for lowercase compound forms (`criativaria-`, `lucky-`, et
 profile and hand-review any hit before deciding sed vs. manual fix — the regex-operand risk
 above means these can't be safely automated.
 
+### Phase 3c — Executable redaction review + regression re-check (round-trip rules 1.1/1.4)
+
+Sanitization rewrites tokens inside executable code, not just prose. A placeholder
+that lands inside a regex, path, command, or comparison is a functional change
+disguised as a cosmetic one: the file still parses, the filter quietly stops
+filtering. After Phase 3/3b:
+
+1. **Placeholder-in-pattern audit.** Grep executable files for placeholder tokens
+   and hand-review every hit that sits inside a pattern, path, command, or
+   comparison (`${DEV_ROOT}` in a path is usually fine; `<project-a>` inside a
+   regex usually is not):
+
+   ```bash
+   /usr/bin/find "$PROFILE_DIR" -type f \( -name "*.sh" -o -name "*.py" -o -name "*.json" -o -name "*.toml" \) \
+     | xargs grep -ln '\${DEV_ROOT}\|<github-user>\|<project-a>\|<project-b>\|<project-c>\|<homelab>' 2>/dev/null
+   ```
+
+2. **Mechanical verification of the published result.** Any failure = release blocker:
+
+   ```bash
+   /usr/bin/find "$PROFILE_DIR" -name "*.sh" -print0 | xargs -0 -n1 bash -n
+   /usr/bin/find "$PROFILE_DIR" -name "*.py" -print0 | xargs -0 -n1 python3 -m py_compile
+   /usr/bin/find "$PROFILE_DIR" -name "*.json" -print0 | xargs -0 -I{} python3 -c "import json; json.load(open('{}'))"
+   ```
+
+3. **Regression re-check.** Sanitization regresses when a sync runs from an older
+   or differently-configured source (a scrubbed string reappears publicly). Diff
+   the last published commit against the staged result and grep ADDED lines for
+   identity strings; a reappearing personal string blocks the sync. Fix at the
+   source, never by hand-editing the profile copy:
+
+   ```bash
+   git -C "$PROFILE_REPO" diff --cached -U0 | grep -E '^\+' | \
+     grep -Ei '<your-real-identity-patterns>' && echo "BLOCKER: sanitization regressed"
+   ```
+
 ---
 
 ## Phase 4 — Dynamic exclusion (detect un-sanitizable files)
@@ -362,6 +398,36 @@ Install (once merged): npx @lucassantana/sharekit install LucasSantana-Dev
 Do not merge the PR as part of this skill — surface it and stop. Do not retry with a bypass
 flag (`--admin`) without the user explicitly asking; that reintroduces the exact bypass this
 migration closed.
+
+---
+
+## Pull-back procedure (public profile -> live setup)
+
+The round trip is NOT symmetric. Publishing sanitizes; pulling back can revert
+portability fixes, delete machine-local settings, and reintroduce placeholders
+into executable code. NEVER rsync/mirror the profile back over the live tree.
+
+1. **Backup first:** snapshot before any write (`cp -a ~/.claude ~/.claude.bak-$(date +%Y%m%d-%H%M)`
+   or a git snapshot of the trees in scope).
+2. **Three-way classification per changed file** — compare the last-applied public
+   version (A), the new public version (B), and the live version (C):
+
+   | Live (C) matches | Meaning | Action |
+   |---|---|---|
+   | B | already current | skip |
+   | A | clean fast-forward | apply B |
+   | neither | local divergence | inspect by hand, never auto-apply |
+   | (file absent locally) | new addition | apply, then placeholder-audit |
+
+   Divergent files resolve in favor of the LOCAL copy by default: portability
+   fixes flow toward the machine that needs them (rule 1.2), and a blind
+   overwrite reverts them.
+3. **Settings files are merge targets, never copy targets.** Absence of a key in
+   the incoming version is not an instruction to remove it. Merge by key; keep
+   machine-local values (model, UI prefs, locally registered hooks).
+4. **Post-apply verification:** `bash -n` every script touched, parse every
+   config file, grep the applied set for placeholder tokens (a placeholder inside
+   a pattern/path/command/comparison is a defect until reviewed).
 
 ---
 
