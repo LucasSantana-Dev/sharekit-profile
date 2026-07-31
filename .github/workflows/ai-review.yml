@@ -58,10 +58,17 @@ jobs:
           PR="${{ github.event.pull_request.number || inputs.pr_number }}"
           bash ../.harness-profile/scripts/review-state.sh "$PR" > ../review-state.json \
             || echo '{"previous_review": "", "fingerprints": []}' > ../review-state.json
+      - name: Check for API key
+        id: keycheck
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "${ANTHROPIC_API_KEY:-}" ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; fi
       - name: Run review pack
         # Fork PRs get a read-only GITHUB_TOKEN; degrade to a full review
-        # without attempting comment writes (spec D5 / AC-6).
-        if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+        # without attempting comment writes (spec D5 / AC-6). Skip with a
+        # notice when no API key is configured instead of failing red.
+        if: steps.keycheck.outputs.present == 'true' && (github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: anthropics/claude-code-action@v1
         with:
           prompt: |
@@ -81,3 +88,6 @@ jobs:
       - name: Fork PR notice
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
         run: echo "::notice::fork PR - review pack skipped comment writes (read-only token); run via workflow_dispatch for a full review"
+      - name: No API key notice
+        if: steps.keycheck.outputs.present != 'true'
+        run: echo "::notice::ANTHROPIC_API_KEY not configured; review pack skipped (tier classification still ran)"
