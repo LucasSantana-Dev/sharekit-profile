@@ -42,9 +42,8 @@ else
 fi
 
 echo "hook signals:"
-for log in "$HOME/.claude/read-dedup.log"; do
-  if [ -f "$log" ]; then
-    echo "  $(basename "$log"): $(wc -l < "$log" | tr -d ' ') entries"
-  fi
-done
+read_dedup_log="$HOME/.claude/read-dedup.log"
+if [ -f "$read_dedup_log" ]; then
+  echo "  read-dedup.log: $(wc -l < "$read_dedup_log" | tr -d ' ') entries"
+fi
 echo "(panel complete - nothing left this machine)"
