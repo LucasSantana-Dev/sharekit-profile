@@ -1,3 +1,6 @@
+# `name` is the published npm package scope (@lucassantana/sharekit). Forks
+# republish under their own scope and change it here; the value is a package
+# id, not an operator identity gate.
 [profile]
 name = "lucassantana"
 version = "0.10.0"

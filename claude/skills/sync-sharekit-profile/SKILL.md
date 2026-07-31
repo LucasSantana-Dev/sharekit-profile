@@ -30,18 +30,22 @@ The goal is to share what's genuinely useful to others — not your personal ide
 ```bash
 # Canonical public profile = the standalone sharekit-profile repo (ADR-0039: website + npm + manifest).
 # The old sharekit/sharekit-profile/.claude mirror is legacy — do NOT target it.
-PROFILE_REPO="/Volumes/External HD/Desenvolvimento/sharekit-profile"
+# Resolve from env first; fall back to the operator default. Any operator can
+# point this at their own clone — no personal path is required.
+PROFILE_REPO="${SHAREKIT_PROFILE_REPO:-/Volumes/External HD/Desenvolvimento/sharekit-profile}"
 PROFILE_DIR="$PROFILE_REPO/claude"   # standalone uses claude/ (not .claude/)
 SOURCE_DIR="$HOME/.claude"
 ```
 
 ---
 
-## Phase 0 — Mount guard
+## Phase 0 — Reachability guard
 
 ```bash
-mount | grep -q "/Volumes/External HD" || {
-  echo "BLOCKED: External HD unmounted — profile repo unreachable. Mount it and retry."
+# Generic: works for any operator clone, not just the original machine.
+[ -d "$PROFILE_REPO/.git" ] || {
+  echo "BLOCKED: profile repo not found at $PROFILE_REPO"
+  echo "  set SHAREKIT_PROFILE_REPO to your clone of the profile repo and retry."
   exit 1
 }
 ```
@@ -331,7 +335,7 @@ The scanner lives in the **sharekit** repo, not the profile repo (path fixed 202
 the profile's `claude/` dir:
 
 ```bash
-SHAREKIT_REPO="/Volumes/External HD/Desenvolvimento/sharekit"
+SHAREKIT_REPO="${SHAREKIT_REPO:-/Volumes/External HD/Desenvolvimento/sharekit}"
 cd "$SHAREKIT_REPO"
 npx tsx src/index.ts scan "$PROFILE_DIR" 2>&1
 ```
