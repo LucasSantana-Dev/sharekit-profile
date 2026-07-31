@@ -13,9 +13,11 @@ setup() {
 }
 
 @test "scan-transcripts: detects planted synthetic token in transcript" {
-  cat > "$TEST_TMP/leaky/session.jsonl" <<'EOF'
-{"type":"user","message":{"content":"deploy this with token ghp_SyntheticTestToken0123456789abcdEFGH"}}
-EOF
+  # Token assembled at runtime so the repo-wide gitleaks CI job does not
+  # flag this test file (no literal secret-shaped string in the repo).
+  local token="ghp_""SyntheticTestToken0123456789abcdEFGH"
+  printf '%s\n' "{\"type\":\"user\",\"message\":{\"content\":\"deploy this with token ${token}\"}}" \
+    > "$TEST_TMP/leaky/session.jsonl"
   run bash "$REPO_ROOT/scripts/scan-transcripts.sh" "$TEST_TMP/leaky"
   [ "$status" -eq 1 ]
 }
