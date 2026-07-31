@@ -145,6 +145,35 @@
 
 ---
 
+## OWASP Agentic 2026 Control Mapping
+
+Mapping of the OWASP Top 10 for Agentic Applications (2026) and OWASP Agentic
+Threats & Mitigations v1.0 to this profile's controls. Layer model follows
+Anthropic's containment stack: OS sandbox (host-level) > hooks (application) >
+permissions (policy).
+
+| OWASP item | Threat | Control (existing) | Layer | Status |
+|------------|--------|--------------------|-------|--------|
+| ASI01 Agent Goal Hijack | Prompt injection redirects agent goals (via web content, RAG, tool output) | `check-dangerous-patterns.sh`, transcript-scanner injection tells, `pr-automation-halt` invariant | hooks + policy | Partial: injection detection is advisory, no sandbox |
+| ASI02 Tool Misuse & Exploitation | Dangerous tool invocation (rm -rf, force-push, SQL drops) | `mcp-policy.json` dangerousPatterns, `policy-gate.sh` deterministic deny, `maxToolCallsPerTurn: 80` | policy + hooks | Covered |
+| ASI03 Identity & Privilege Abuse | Wrong-identity commits, token misuse | `check-identity.sh` (`.harness/identity.json`), per-repo git identity guidance | hooks | Covered (2026-07-31) |
+| ASI04 Agentic Supply Chain | Malicious skills/hooks/MCP servers (executable code) | `manifest.json` sha256 fingerprints (CI-checked), `skill-validate.sh` security pass, `mcp-policy.json` defaultDeny + routingContract, branch protection on all changes | policy + CI | Covered; ahead of GitHub Copilot's name-matching-only MCP allowlist. Gap: no signed manifest, no third-party scanner (SkillSpector-style) — see issue #74 |
+| ASI05 Unexpected Code Execution | `curl\|sh` installs, dynamic backtick injection in skills | `check-dangerous-patterns.sh`, skill-validate exfil patterns, security_exempt audit trail | hooks | Covered |
+| ASI06 Memory & Context Poisoning | Malicious/stale memory alters future behavior | `memory/` review cadence, `memory-prune` skill, cooperative-mode memory isolation (repo-scoped recall) | policy | Partial: no cross-user scope enforcement yet (issue #68) |
+| ASI07 Insecure Inter-Agent Communication | Subagent fan-out with forged results | Parallel-dispatch contract, verification-subagent pattern (claude-code#29181 mitigation) | policy | Partial: advisory only |
+| ASI08 Cascading Failures | Retry/compaction loops burn budget or corrupt state | `check-stuck-loop.sh`, session-budget hooks, autocompact override | hooks | Covered |
+| T1 Memory Poisoning | Persistent malicious entries in memory vault | Personal-vault-only (single operator), git-backed memory with history | policy | Covered for solo; multi-user gap = issue #68 |
+| T8 Repudiation / Untraceability | No audit trail of agent decisions | append-only decision log (`.harness/`), git history, session transcripts, `attributionPolicy` (strip/trailer/signed) | policy | Partial: hash-chained audit emitter not built |
+| T10 Overwhelming HITL | Gate fatigue causes rubber-stamping | Deterministic gates fail-closed, advisory/hard split documented per gate, autonomy tiers | policy | Covered |
+
+**Posture note:** this profile's fingerprinted `mcp-policy.json` + deterministic
+`policy-gate.sh` is ahead of GitHub Copilot's GA MCP allowlist (server-name
+matching only, bypassable by config edit). Residual fleet-level gaps are
+tracked as backlog issues (#68 memory scopes, #72 transcript scanning,
+#74 supply-chain scanning).
+
+---
+
 ## Severity Summary
 
 | # | Threat | Severity | Likelihood | Impact |
@@ -167,4 +196,4 @@ This threat model should be reviewed:
 - When new hooks are wired to tool events
 - After any security incident (P0/P1 → root-cause artifact committed before next task)
 
-**Last reviewed:** 2026-06-29
+**Last reviewed:** 2026-07-31 (OWASP Agentic 2026 mapping added, issue #71)

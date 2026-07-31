@@ -1,0 +1,41 @@
+name: Eval Gate
+
+# LLM-behavioral routing gate (evals/routing/). Offline validation runs on
+# every PR; the full model gate runs only when skill descriptions or the eval
+# suite change (network + cost), plus a weekly drift check.
+on:
+  pull_request:
+    branches: [main, release]
+  schedule:
+    - cron: "23 5 * * 1"  # Mondays 05:23 UTC
+  workflow_dispatch:
+
+jobs:
+  validate-offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate datasets, baseline, and skill listing (offline)
+        run: python3 evals/routing/router_eval.py --validate-only
+
+  routing-gate:
+    # Full gate: needs OPENROUTER_API_KEY. Skips gracefully on forks/PRs
+    # without secrets instead of failing red.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check for API key
+        id: keycheck
+        run: |
+          if [ -n "${OPENROUTER_API_KEY:-}" ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; fi
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      - name: Run routing gate (pinned model, >5pp drop fails)
+        if: steps.keycheck.outputs.present == 'true'
+        run: python3 evals/routing/router_eval.py
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      - name: Skip notice
+        if: steps.keycheck.outputs.present != 'true'
+        run: echo "::notice::OPENROUTER_API_KEY not configured; routing gate skipped (offline validation still ran)."
