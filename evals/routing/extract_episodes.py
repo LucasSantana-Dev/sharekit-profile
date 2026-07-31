@@ -118,26 +118,38 @@ def extract_file(path: str) -> list[dict]:
 
 
 def main() -> int:
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--since", default=None,
+                    help="ISO date (YYYY-MM-DD); only episodes with ts >= this "
+                         "date are kept. Use for held-out refreshes after the "
+                         "frozen dataset's creation date (temporal split).")
+    ap.add_argument("--out", default=OUT,
+                    help="output path (default dataset/episodes.jsonl)")
+    args = ap.parse_args()
+
     files = sorted(glob.glob(os.path.join(PROJECTS, "*", "*.jsonl")),
                    key=os.path.getmtime)
     all_eps: list[dict] = []
     seen: set[tuple[str, str]] = set()
     for path in files:
         for ep in extract_file(path):
+            if args.since and (not ep.get("ts") or ep["ts"][:10] < args.since):
+                continue
             key = (ep["prompt"][:200].lower().strip(), ep["skill"])
             if key in seen:
                 continue
             seen.add(key)
             all_eps.append(ep)
-    os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    with open(OUT, "w") as f:
+    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+    with open(args.out, "w") as f:
         for ep in all_eps:
             f.write(json.dumps(ep, ensure_ascii=False) + "\n")
     auto = sum(1 for e in all_eps if not e["explicit"])
     explicit = len(all_eps) - auto
     print(f"{len(all_eps)} episodes ({auto} auto-routed, {explicit} explicit) "
-          f"from {len(files)} session files -> {OUT}")
-    print("REMINDER: episodes.jsonl contains real prompts — do not commit it.")
+          f"from {len(files)} session files -> {args.out}")
+    print("REMINDER: episodes output contains real prompts - do not commit it.")
     return 0
 
 

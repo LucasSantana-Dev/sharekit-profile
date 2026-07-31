@@ -61,6 +61,23 @@ sessions after it (temporal split, anti-contamination).
 
 - The eval set is frozen; no optimization loop (GEPA etc.) may tune skill
   descriptions against these tasks. Build a held-out set before optimizing.
+
+## Held-out refresh (temporal split)
+
+The held-out set comes from sessions AFTER the freeze date (2026-07-28):
+
+```bash
+python3 extract_episodes.py --since 2026-07-28 --out dataset/episodes_heldout.jsonl
+python3 build_dataset.py --in dataset/episodes_heldout.jsonl \
+  --out dataset/routing_heldout_v0.jsonl --id-prefix rh
+# then HUMAN-REVIEW + sanitize every task before committing
+```
+
+`router_eval.py` globs `routing_*.jsonl`, so the held-out file joins the gate
+automatically once it exists. Status 2026-07-31: mechanism shipped, dataset
+deferred - only 1 auto-routed episode exists post-freeze (too few; a <5-task
+set is statistically useless at ±8pp CI). Re-run the recipe monthly; commit
+`routing_heldout_v0.jsonl` once it reaches ~15 tasks.
 - The replay simulates routing with a single model call; the real harness
   routes with the full system prompt. Divergence is expected: the gate guards
   *changes* (description edits, listing structure), not absolute quality.

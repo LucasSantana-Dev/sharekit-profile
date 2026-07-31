@@ -55,8 +55,14 @@ EXCLUDE_HASHES = {
 
 
 def main() -> int:
+    import argparse
     import hashlib
-    eps = [json.loads(l) for l in open(EPISODES)]
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--in", dest="inp", default=EPISODES)
+    ap.add_argument("--out", dest="out", default=OUT)
+    ap.add_argument("--id-prefix", default="rt")
+    args = ap.parse_args()
+    eps = [json.loads(l) for l in open(args.inp)]
     auto = [e for e in eps if not e["explicit"]]
     kept: list[dict] = []
     for e in auto:
@@ -67,17 +73,17 @@ def main() -> int:
         if h in EXCLUDE_HASHES:
             continue
         kept.append({
-            "id": f"rt-{len(kept):03d}",
+            "id": f"{args.id_prefix}-{len(kept):03d}",
             "prompt": prompt,
             "expected": e["skill"],
             "ts": e.get("ts"),
         })
-    with open(OUT, "w") as f:
+    with open(args.out, "w") as f:
         for k in kept:
             f.write(json.dumps(k, ensure_ascii=False) + "\n")
     from collections import Counter
     dist = Counter(k["expected"] for k in kept)
-    print(f"{len(kept)} routing tasks -> {OUT}")
+    print(f"{len(kept)} routing tasks -> {args.out}")
     print("distribution:", dist.most_common())
     return 0
 

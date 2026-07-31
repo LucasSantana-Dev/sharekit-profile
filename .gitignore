@@ -20,4 +20,4 @@ index.html.bak-*
 # and stays tracked, only the run output under .harness/eval/<name>/runs.jsonl is runtime.
 .harness/eval/
 __pycache__/
-evals/routing/dataset/episodes.jsonl
+evals/routing/dataset/episodes*.jsonl
