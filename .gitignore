@@ -21,3 +21,4 @@ index.html.bak-*
 .harness/eval/
 __pycache__/
 evals/routing/dataset/episodes*.jsonl
+.agents/memory/.vault/
