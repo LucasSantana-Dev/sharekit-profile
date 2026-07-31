@@ -38,7 +38,7 @@ jobs:
       - name: Catalog drift-guard (counts)
         run: bash scripts/check-catalog.sh index.html
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
 
       - uses: actions/upload-pages-artifact@v5
         with:
