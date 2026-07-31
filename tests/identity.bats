@@ -50,3 +50,23 @@ mkrepo() {
   run bash "$REPO_ROOT/hooks/check-identity.sh"
   [ "$status" -eq 1 ]
 }
+
+@test "check-identity: operators.json passes any operator email" {
+  mkrepo "$TEST_TMP/ops"
+  cat > "$TEST_TMP/ops/.harness/operators.json" <<'EOF'
+{"operators": [{"name": "A", "emails": ["someone@example.com"], "role": "owner"},
+               {"name": "B", "emails": ["b@corp.com"], "role": "member"}]}
+EOF
+  run bash "$REPO_ROOT/hooks/check-identity.sh"
+  [ "$status" -eq 0 ]
+}
+
+@test "check-identity: operators.json rejects unknown email" {
+  mkrepo "$TEST_TMP/ops-bad"
+  cat > "$TEST_TMP/ops-bad/.harness/operators.json" <<'EOF'
+{"operators": [{"name": "A", "emails": ["a@corp.com"], "role": "owner"}]}
+EOF
+  run bash "$REPO_ROOT/hooks/check-identity.sh"
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"operators.json"* ]]
+}

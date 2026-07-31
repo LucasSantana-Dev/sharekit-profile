@@ -1,0 +1,12 @@
+{
+  "schema": "harness-operators/v1",
+  "comment": "Multi-operator identity map for this harness installation. hooks/check-identity.sh validates git user.email against the emails listed here (fallback: .harness/identity.json for single-identity repos). Each operator commits with their own identity; the gate enforces membership, not a single email.",
+  "operators": [
+    {
+      "name": "Lucas Santana",
+      "github": "LucasSantana-Dev",
+      "emails": ["lucas.diassantana@gmail.com"],
+      "role": "owner"
+    }
+  ]
+}
