@@ -1,0 +1,11 @@
+{
+  "skill_name": "verify",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I think this hook fix is done. Check before we merge.",
+      "expected_output": "Runs the narrowest meaningful validation sequence (lint/type/build then tests), reports actual results instead of asserting readiness.",
+      "files": []
+    }
+  ]
+}

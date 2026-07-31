@@ -1,0 +1,11 @@
+{
+  "skill_name": "tdd",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add a function that parses semver strings. Start.",
+      "expected_output": "Writes a failing test first (red), names the smallest implementation to pass it (green), does not write implementation before the test.",
+      "files": []
+    }
+  ]
+}

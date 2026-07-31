@@ -67,4 +67,11 @@ check_skill_count() {
 }
 check_skill_count
 
+# Per-skill eval coverage — non-blocking. Skills carrying eval fixtures
+# (<skill>/evals/*.json, skill-creator format) get regression-tested; the rest
+# are unrated. Warn only, never fail: coverage grows incrementally.
+eval_cov=$(fd -t d '^evals$' claude/skills 2>/dev/null | wc -l | tr -d ' ')
+skill_cov=$(fd -t f '^SKILL\.md$' claude/skills 2>/dev/null | wc -l | tr -d ' ')
+echo "eval coverage: $eval_cov/$skill_cov curated skills have eval fixtures (WARN only)"
+
 exit "$fail"
