@@ -65,5 +65,5 @@ Current state: governance layer shipped (PRs #81-88, 2026-07-31). Publish/sync/i
 ## Deferred (with reasons)
 
 - CI-native review pack (opp 7): SHIPPED 2026-07-31 via spec `.claude/plans/spec-ci-review-pack.md` + plan `.claude/plans/ci-review-pack-impl-2026-07-31.md` (claude-code-action orchestration, fork decision resolved).
-- Dual-emit AGENTS.md/CLAUDE.md (opp 8): fold into Phase 2 if trivial, else next cycle.
-- Adoption signal panel (opp 10): needs privacy model decision first.
+- Dual-emit AGENTS.md/CLAUDE.md (opp 8): SHIPPED 2026-07-31 (PR #96, scripts/sync-agents-claude.sh + drift-guard).
+- Adoption signal panel (opp 10): SHIPPED 2026-07-31 (PR #96, scripts/adoption-panel.sh; privacy model = local-only by design).
