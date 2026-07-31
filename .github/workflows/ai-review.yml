@@ -36,7 +36,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PR="${{ github.event.pull_request.number || inputs.pr_number }}"
-          gh pr diff "$PR" --patch | bash ../.harness-profile/scripts/review-tier.sh --context-dir ../review-context >> "$GITHUB_OUTPUT"
+          gh pr diff "$PR" --patch | REVIEW_CONTEXT_DIR=../review-context bash ../.harness-profile/scripts/review-tier.sh >> "$GITHUB_OUTPUT"
 
   review:
     needs: tier
