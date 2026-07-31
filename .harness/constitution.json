@@ -72,5 +72,19 @@
       "rule": "changing ROUTER_EVAL_MODEL invalidates the baseline; re-baseline and record why",
       "ci_mode": "--validate-only (offline); full gate runs pre-PR or scheduled with OPENROUTER_API_KEY"
     }
+  },
+  "attributionPolicy": {
+    "mode": "strip",
+    "modes": [
+      "strip",
+      "trailer",
+      "signed"
+    ],
+    "default_per_repo_mode": {
+      "solo": "strip",
+      "cooperative": "trailer"
+    },
+    "doc": "docs/ai-attribution.md",
+    "note": "strip = reject AI co-author trailers (check-coauthor-trailers.py). EU AI Act Art. 50 applies 2026-08-02."
   }
 }

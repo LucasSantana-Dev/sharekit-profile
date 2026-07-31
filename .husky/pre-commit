@@ -8,6 +8,10 @@ echo "Running pre-commit checks..."
 # Check for bot Co-authored-by trailers
 python3 scripts/check-coauthor-trailers.py
 
+# Verify git identity matches repo-declared expected identity (no-op when
+# .harness/identity.json is absent)
+bash hooks/check-identity.sh
+
 # Check harness/app boundary
 bash scripts/check-harness-boundary.sh
 

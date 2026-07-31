@@ -56,6 +56,24 @@ def get_log() -> str:
     return result.stdout
 
 
+def attribution_mode() -> str:
+    """Read .harness/constitution.json attributionPolicy.mode (default strip).
+
+    `trailer` mode (cooperative/enterprise repos recording AI authorship,
+    see docs/ai-attribution.md) disables this gate intentionally.
+    """
+    try:
+        root = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True, text=True, check=True,
+        ).stdout.strip()
+        with open(f"{root}/.harness/constitution.json") as f:
+            import json
+            return json.load(f).get("attributionPolicy", {}).get("mode", "strip")
+    except Exception:
+        return "strip"
+
+
 def scan(log: str) -> list[tuple[str, str]]:
     """Return list of (commit_sha, coauthor_value) for offending trailers."""
     offenses: list[tuple[str, str]] = []
@@ -82,6 +100,10 @@ def scan(log: str) -> list[tuple[str, str]]:
 
 
 def main() -> int:
+    mode = attribution_mode()
+    if mode == "trailer":
+        print("OK: attributionPolicy.mode=trailer — AI co-author trailers allowed")
+        return 0
     try:
         log = get_log()
     except subprocess.CalledProcessError as exc:

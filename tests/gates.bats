@@ -123,6 +123,23 @@ setup() {
   [ $? -eq 0 ]
 }
 
+@test "check-coauthor-trailers: trailer mode in constitution disables gate" {
+  tmpgit="$TEST_TMP/repo-trailer-mode"
+  mkdir -p "$tmpgit/.harness"
+
+  cd "$tmpgit"
+  git init -q
+  git config user.email "test@test.com"
+  git config user.name "Test User"
+  echo '{"attributionPolicy": {"mode": "trailer"}}' > .harness/constitution.json
+  echo "test" > file.txt
+  git add .
+  git commit -q -m $'Test\n\nCo-authored-by: Claude <noreply@anthropic.com>'
+
+  python3 "$REPO_ROOT/scripts/check-coauthor-trailers.py" 2>&1
+  [ $? -eq 0 ]
+}
+
 @test "check-coauthor-trailers: detects Copilot coauthor" {
   tmpgit="$TEST_TMP/repo-copilot"
   mkdir -p "$tmpgit"
