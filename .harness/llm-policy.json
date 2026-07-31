@@ -1,0 +1,68 @@
+{
+  "schema": "https://json-schema.org/draft/2020-12/schema",
+  "policy_version": "1.0",
+  "defaultDeny": true,
+  "enforcement": "fail-open",
+  "comment_on_enforcement": "fail-open: hooks/check-llm-policy.sh warns locally (stderr, exit 0) when a model above the agent role's tier is requested. fail-closed makes the same violation exit 2 (block). Hard enforcement of the allowlist and of budget ceilings is delegated to the gateway: Claude Code availableModels/enforceAvailableModels (native since v2.1.175), OpenRouter spend limits, or the opencode-go subscription gateway. The hook is the soft local layer; the gateway is the hard layer.",
+  "tiers": {
+    "zero-cost": {
+      "description": "Subscription-quota models (no metered spend). Never count against budget ceilings; usable as fallback for mechanical work when metered providers are rate-limited.",
+      "models": [
+        "opencode-go/deepseek-v4-flash",
+        "opencode-go/mimo-v2.5"
+      ]
+    },
+    "haiku": {
+      "description": "Mechanical work: formatting, symbol lookups, grep, simple renames, exploration, planning drafts.",
+      "models": [
+        "anthropic/claude-haiku-4-5",
+        "opencode-go/deepseek-v4-flash",
+        "opencode-go/mimo-v2.5"
+      ]
+    },
+    "sonnet": {
+      "description": "Implementation, feature work, code review, single-phase dispatch.",
+      "models": [
+        "anthropic/claude-sonnet-4-5",
+        "opencode-go/glm-5.2",
+        "opencode-go/deepseek-v4-pro",
+        "opencode-go/qwen3.7-max",
+        "opencode-go/kimi-k2.7-code"
+      ]
+    },
+    "opus": {
+      "description": "Deep reasoning only: critic role, architecture review, cross-session synthesis, ADRs, >=5-step reasoning.",
+      "models": [
+        "anthropic/claude-opus-4-8"
+      ]
+    }
+  },
+  "roleTiers": {
+    "comment": "Highest tier each agent role may request. Matches AGENTS.md model efficiency policy. Roles not listed resolve to 'default'.",
+    "default": "sonnet",
+    "mechanical": "haiku",
+    "implementation": "sonnet",
+    "deep-reasoning": "opus",
+    "explore": "haiku",
+    "plan": "sonnet",
+    "critic": "opus",
+    "code-reviewer": "sonnet",
+    "security-reviewer": "opus",
+    "debugger": "sonnet",
+    "test-engineer": "sonnet"
+  },
+  "budgets": {
+    "comment": "Ceilings per scope. Not enforceable from a local hook (the hook never sees metered cost); enforced gateway-side (OpenRouter limits, provider spend caps). Declared here so every scope has one canonical ceiling.",
+    "operator": {"usdPerDay": 50, "usdPerMonth": 500},
+    "team": {"usdPerDay": 200, "usdPerMonth": 2000},
+    "agent": {"usdPerSession": 5, "usdPerDay": 20}
+  },
+  "fallbackChain": {
+    "order": ["anthropic", "openrouter", "opencode-go"],
+    "comment": "When the primary provider is rate-limited or unavailable, walk the chain in order. opencode-go is the zero-cost tier: its models consume subscription quota, not metered budget, so fallback to it never spends against budgets.*. A fallback event must be reported in the session evidence."
+  },
+  "attributionTags": {
+    "inject": ["harness=sharekit-profile", "policy=llm-policy", "role=<agent_role>", "scope=<budget_scope>"],
+    "comment": "Tags the gateway attaches to every metered request for cost attribution. <agent_role> and <budget_scope> are substituted per call; hook input fields agent_role and scope supply the values."
+  }
+}

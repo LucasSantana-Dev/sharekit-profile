@@ -1,0 +1,33 @@
+{
+  "schema": "harness-memory-scopes/v1",
+  "policy_version": "1.0",
+  "defaultDeny": true,
+  "comment": "Multi-operator memory isolation. Cross-scope reads are denied by default and enforced at the retrieval layer by memory-scope-gate.sh, never by prompt instruction. Research: enterprise track 2 (2026-07-30) - deterministic namespace isolation, personal->team promotion by curated review only.",
+  "scopes": {
+    "personal": {
+      "backend": "~/.claude/projects/<slug>/memory/ (single operator)",
+      "readable_by": ["author"],
+      "writable_by": ["author"],
+      "promotion": "curated review via memory-promote skill into team scope; <private>-tagged content and secrets stripped before promotion"
+    },
+    "team": {
+      "backend": "repo .agents/memory/ or shared team vault (git-backed)",
+      "readable_by": ["team"],
+      "writable_by": ["promotion-only"],
+      "promotion": "org-scope promotion requires team maintainer review"
+    },
+    "org": {
+      "backend": "org knowledge service (namespace-per-tenant, tenant identity from verified principal)",
+      "readable_by": ["org"],
+      "writable_by": ["promotion-only"],
+      "promotion": "none (top scope)"
+    }
+  },
+  "invariants": [
+    "cross-scope-reads-deny-by-default",
+    "isolation-at-retrieval-layer-never-prompt",
+    "private-tags-never-promote",
+    "promotion-requires-review"
+  ],
+  "write_metadata_required": ["author", "scope", "project"]
+}

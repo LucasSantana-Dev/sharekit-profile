@@ -40,6 +40,27 @@ shasum -a 256 AGENTS.md                  # paste hex into manifest.json
 
 The `generated_at` timestamp should also be bumped to the edit time.
 
+## Policy drop-in fragments (`policy.d/`)
+
+`.harness/policy.d/*.json` lets platform, security, and team policies compose
+without editing one shared file (mirrors Claude Code's `managed-settings.d/`
+pattern). `scripts/merge-policy-fragments.sh` merges all fragments into a
+single effective policy JSON on stdout.
+
+Merge semantics:
+
+1. Fragments load in lexicographic filename order. Use numeric prefixes
+   (`10-platform.json`, `20-security.json`) so precedence is deterministic.
+2. Objects merge recursively.
+3. Arrays union (concatenate + dedupe), so deny lists from every layer apply.
+4. Scalars: the fragment with the higher prefix wins.
+5. Fail-closed: any fragment that is not a valid JSON object aborts the merge
+   with exit 1 and no output.
+
+`check-harness-manifest.sh` validates every fragment as JSON and fingerprints
+each one individually once it has a `manifest.json` entry; fragments without an
+entry emit a warning until the manifest records them.
+
 ## Verifiers
 
 ### `scripts/check-harness-manifest.sh`
