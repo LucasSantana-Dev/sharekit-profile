@@ -36,6 +36,33 @@ while IFS=$'\t' read -r relpath recorded; do
   fi
 done < <(jq -r '.files | to_entries[] | [.key, .value] | @tsv' "$MANIFEST")
 
+# --- policy.d drop-in fragments ---
+# If .harness/policy.d/ exists, every fragment must be a valid JSON object
+# (fail-closed, same contract as merge-policy-fragments.sh). Fragments with a
+# manifest entry are fingerprinted individually; fragments without one are
+# warned about until the manifest records them.
+POLICY_D="$ROOT/.harness/policy.d"
+if [[ -d "$POLICY_D" ]]; then
+  while IFS= read -r fragment; do
+    rel="${fragment#"$ROOT"/}"
+    if ! jq -e 'type == "object"' "$fragment" >/dev/null 2>&1; then
+      echo "ERROR: invalid policy fragment (not a JSON object): $rel" >&2
+      status=1
+      continue
+    fi
+    recorded="$(jq -r --arg k "$rel" '.files[$k] // empty' "$MANIFEST")"
+    if [[ -z "$recorded" ]]; then
+      echo "WARN: policy fragment not yet fingerprinted in manifest: $rel" >&2
+      continue
+    fi
+    computed="$(shasum -a 256 "$fragment" | awk '{print $1}')"
+    if [[ "$recorded" != "$computed" ]]; then
+      echo "ERROR: fingerprint mismatch for $rel" >&2
+      status=1
+    fi
+  done < <(find "$POLICY_D" -maxdepth 1 -type f -name '*.json' | LC_ALL=C sort)
+fi
+
 # --- Policy invariants ---
 default_deny="$(jq -r '.defaultDeny' "$POLICY")"
 if [[ "$default_deny" != "true" ]]; then

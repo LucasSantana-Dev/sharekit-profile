@@ -1,0 +1,17 @@
+{
+  "comment": "Platform baseline layer (prefix 10). Lowest precedence for scalars; arrays union upward.",
+  "defaultDeny": true,
+  "allowNetwork": true,
+  "allowShell": true,
+  "allowFileWrite": true,
+  "maxToolCallsPerTurn": 40,
+  "toolTimeoutMs": 30000,
+  "dangerousPatterns": [
+    "rm -rf /",
+    "curl .* \\| sh"
+  ],
+  "telemetry": {
+    "enabled": false,
+    "endpoint": null
+  }
+}
