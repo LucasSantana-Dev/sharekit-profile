@@ -30,3 +30,8 @@ paths = [
   "claude/skills/secure/",              # Secure coding references
   ".gitleaks.toml"                      # This config file
 ]
+# Synthetic test token used by tests/scan-transcripts.bats (assembled at
+# runtime; present in branch history). Not a real credential.
+regexes = [
+  "ghp_SyntheticTestToken0123456789abcdEFGH"
+]
