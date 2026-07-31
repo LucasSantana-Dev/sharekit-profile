@@ -93,7 +93,18 @@ mkfrag() {
 }
 
 @test "check-harness-manifest: tolerates unfingerprinted policy.d fragments" {
+  # The repo's shipped fragments are fingerprinted; a NEW fragment not yet in
+  # the manifest must WARN but still pass (exit 0) until recorded.
+  local tmp_fragment="$REPO_ROOT/.harness/policy.d/99-test-unfingerprinted.json"
+  echo '{"test": true}' > "$tmp_fragment"
   run bash "$REPO_ROOT/scripts/check-harness-manifest.sh"
+  rm -f "$tmp_fragment"
   [ "$status" -eq 0 ]
   [[ "$output" == *"not yet fingerprinted"* ]]
+}
+
+@test "check-harness-manifest: fingerprinted policy.d fragments pass clean" {
+  run bash "$REPO_ROOT/scripts/check-harness-manifest.sh"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"OK:"* ]]
 }
