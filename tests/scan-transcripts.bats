@@ -13,9 +13,10 @@ setup() {
 }
 
 @test "scan-transcripts: detects planted synthetic token in transcript" {
-  # Token assembled at runtime so the repo-wide gitleaks CI job does not
-  # flag this test file (no literal secret-shaped string in the repo).
-  local token="ghp_""SyntheticTestToken0123456789abcdEFGH"
+  # Token assembled at runtime so the repo-wide gitleaks CI job never sees a
+  # secret-shaped string in the repo, and distinct from the allowlisted
+  # historical fixture token so this scan still detects it.
+  local token="ghp_""RuntimeFixtureToken9876543210zyxwVUTS"
   printf '%s\n' "{\"type\":\"user\",\"message\":{\"content\":\"deploy this with token ${token}\"}}" \
     > "$TEST_TMP/leaky/session.jsonl"
   run bash "$REPO_ROOT/scripts/scan-transcripts.sh" "$TEST_TMP/leaky"
