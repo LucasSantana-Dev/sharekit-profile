@@ -17,6 +17,8 @@ jobs:
       - uses: actions/checkout@v7
       - name: Validate datasets, baseline, and skill listing (offline)
         run: python3 evals/routing/router_eval.py --validate-only
+      - name: Validate per-skill eval fixtures (offline)
+        run: python3 evals/skills/validate_fixtures.py
 
   routing-gate:
     # Full gate: needs OPENROUTER_API_KEY. Skips gracefully on forks/PRs

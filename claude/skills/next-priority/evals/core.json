@@ -1,0 +1,17 @@
+{
+  "skill_name": "next-priority",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "All PRs are merged and CI is green everywhere. What next?",
+      "expected_output": "Signal-first verdict with Priority/Why/Blocked by/Next step fields; picks a diagnostic skill or plan execution over inventing work; does not idle-poll CI.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "There is a merge-ready PR with all checks passed and a vague idea for a new feature. Which comes first?",
+      "expected_output": "Picks the merge-ready PR (rank 1) over greenfield work; states the ranking reason in one line.",
+      "files": []
+    }
+  ]
+}

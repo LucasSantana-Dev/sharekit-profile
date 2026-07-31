@@ -35,6 +35,8 @@ Use planning only when it actually reduces risk.
 - If work is already partly done, document the current state before planning the rest.
 - Prefer the provided plan template (`references/plan-template.md`).
 - Don't over-specify: too much detail buries priorities. File paths, scope, verification — then stop.
+- **AC contract (team/product work):** when a spec exists in `specs/`, every task must carry its requirement ID (`REQ-n`) and the EARS acceptance criteria (`AC-x.y`, GIVEN/WHEN/THEN) that prove it done — the AC-coverage gate (`hooks/check-ac-coverage.sh`) fails untraceable tasks. Acceptance criteria map 1:1 to eval tasks where an eval suite exists.
+- **Spec-anchored:** extend the existing spec for a feature rather than creating a new one (`specs/<feature>/`; template at `specs/_template/`). The spec directory, not personal memory, is the cross-operator source of truth.
 
 ## Extend vs new plan
 
