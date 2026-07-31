@@ -81,6 +81,23 @@ The spec is the cross-operator source of truth, not personal memory:
   changes while feature specs exist.
 - Extend the existing spec; never start a second one for the same feature.
 
+## 7. AI review pack (optional)
+
+Risk-tiered automated PR review (spec: `.claude/plans/spec-ci-review-pack.md`):
+
+```bash
+bash scripts/bootstrap-team.sh --with-review
+# then set ANTHROPIC_API_KEY in the repo's Actions secrets
+```
+
+Tiers: trivial (<=10 lines: 1 reviewer, downgraded coordinator), lite (<=100
+lines: 3 reviewers), full (>50 files or security paths: all reviewers). The
+coordinator posts ONE review per PR: critical findings block
+(REQUEST_CHANGES), warnings comment, everything else approves. Re-reviews
+after force-push only re-flag unfixed findings. Escape hatch: the
+`break-glass` label/comment when the pack is wrong (use sparingly; Cloudflare
+measured 0.6% legitimate use). Cost is governed by `.harness/llm-policy.json`.
+
 ## Troubleshooting
 
 - **Identity gate blocks your commit:** your `git config user.email` is not in

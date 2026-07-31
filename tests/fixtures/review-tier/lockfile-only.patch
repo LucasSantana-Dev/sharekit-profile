@@ -1,0 +1,29 @@
+diff --git a/package-lock.json b/package-lock.json
+index 1111111..2222222 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -1,8 +1,23 @@
+ {
+   "name": "demo",
+-  "version": "1.0.0",
+-  "lockfileVersion": 3,
+-  "requires": true,
+-  "old line 4",
+-  "old line 5",
++  "version": "1.0.1",
++  "lockfileVersion": 3,
++  "requires": true,
++  "new line 4",
++  "new line 5",
++  "new line 6",
++  "new line 7",
++  "new line 8",
++  "new line 9",
++  "new line 10",
++  "new line 11",
++  "new line 12",
++  "new line 13",
++  "new line 14",
++  "new line 15",
+   "packages": {}
+ }

@@ -1,0 +1,93 @@
+name: AI Review
+
+# CI-native review pack (spec: .claude/plans/spec-ci-review-pack.md).
+# Risk-tiered reviewer fan-out + coordinator, one batched review per PR.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to review"
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  tier:
+    runs-on: ubuntu-latest
+    outputs:
+      tier: ${{ steps.classify.outputs.tier }}
+      coordinator_model: ${{ steps.classify.outputs.coordinator_model }}
+      reviewers: ${{ steps.classify.outputs.reviewers }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          repository: LucasSantana-Dev/sharekit-profile
+          path: .harness-profile
+      - uses: actions/checkout@v7
+        with:
+          path: repo
+      - id: classify
+        working-directory: repo
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR="${{ github.event.pull_request.number || inputs.pr_number }}"
+          gh pr diff "$PR" --patch | REVIEW_CONTEXT_DIR=../review-context bash ../.harness-profile/scripts/review-tier.sh >> "$GITHUB_OUTPUT"
+
+  review:
+    needs: tier
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          repository: LucasSantana-Dev/sharekit-profile
+          path: .harness-profile
+      - uses: actions/checkout@v7
+        with:
+          path: repo
+      - name: Fetch prior review state (incremental re-review)
+        working-directory: repo
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR="${{ github.event.pull_request.number || inputs.pr_number }}"
+          bash ../.harness-profile/scripts/review-state.sh "$PR" > ../review-state.json \
+            || echo '{"previous_review": "", "fingerprints": []}' > ../review-state.json
+      - name: Check for API key
+        id: keycheck
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "${ANTHROPIC_API_KEY:-}" ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; fi
+      - name: Run review pack
+        # Fork PRs get a read-only GITHUB_TOKEN; degrade to a full review
+        # without attempting comment writes (spec D5 / AC-6). Skip with a
+        # notice when no API key is configured instead of failing red.
+        if: steps.keycheck.outputs.present == 'true' && (github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: anthropics/claude-code-action@v1
+        with:
+          prompt: |
+            You are the review coordinator. Risk tier: ${{ needs.tier.outputs.tier }}.
+            Reviewers to run: ${{ needs.tier.outputs.reviewers }}.
+            Prior review state is in review-state.json (fixed findings: omit and
+            mark resolved; unfixed: re-emit with the SAME fingerprint).
+            Review context is in review-context/. Findings only on diff lines.
+          claude_args: >-
+            --model ${{ needs.tier.outputs.coordinator_model }}
+            --json-schema "$(cat .harness-profile/claude/agents/review/coordinator-schema.json)"
+          plugin_marketplaces: LucasSantana-Dev/sharekit-profile
+          plugins: review-pack@sharekit-profile
+          use_sticky_comment: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - name: Fork PR notice
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "::notice::fork PR - review pack skipped comment writes (read-only token); run via workflow_dispatch for a full review"
+      - name: No API key notice
+        if: steps.keycheck.outputs.present != 'true'
+        run: echo "::notice::ANTHROPIC_API_KEY not configured; review pack skipped (tier classification still ran)"
