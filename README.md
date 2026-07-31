@@ -331,7 +331,9 @@ The full catalog with triggers and frontmatter details is indexed by `hooks/skil
 - **graphify** — knowledge graph queries
 
 ### Cloud (via claude.ai)
-Context7, Gmail, Google Calendar, Google Drive, Hugging Face, Jam, Linear, Sentry, Vercel, Cloudflare, GitHub, Playwright, Supabase, Serena, codebase-memory-mcp, filesystem, claude-mem
+Context7, Gmail, Google Calendar, Google Drive, Hugging Face, Jam, Linear, Sentry, Vercel, Cloudflare, GitHub, Playwright, Supabase, Serena, claude-mem
+
+> CLI-first policy (2026-07-30): local `github`, `filesystem`, and `codebase-memory-mcp` MCP servers were removed — `gh` CLI and native file tools cover those capabilities at zero per-request schema cost. See `.harness/mcp-policy.json` → `cliFirst`.
 
 ---
 
