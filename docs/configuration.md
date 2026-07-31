@@ -271,4 +271,51 @@ Key policy documents in `~/.agents/skills/standards/`:
 
 ---
 
-**Last updated:** 2026-06-25
+## Enterprise Configuration Precedence
+
+Canonical mapping of this profile onto the host harnesses' managed-settings
+stacks. Three tiers, deny-side only; org policy travels through the managed
+tier, never through repo hooks users can delete.
+
+| Tier | This profile | Claude Code | OpenCode |
+|------|--------------|-------------|----------|
+| Managed (org, un-overridable) | `.harness/` (constitution.json, mcp-policy.json, manifest.json) | `managed-settings.json` (`/Library/Application Support/ClaudeCode/`, `/etc/claude-code/`), MDM plist (`com.anthropic.claudecode`), server-managed (claude.ai admin console) | managed files (`/etc/opencode/`, `%ProgramData%`), MDM (`ai.opencode.managed`, highest) |
+| Team (committed) | repo `.claude/settings.json`, `opencode/opencode.jsonc` | project `.claude/settings.json` | project `opencode.json(c)` |
+| Personal (user) | `~/.claude/`, `~/.agents/` | `~/.claude/settings.json` | global config |
+
+**Merge semantics per key class:** deny/permission arrays union across scopes
+(users can extend, never remove); scalars override (higher tier wins); model
+allowlists replace (`availableModels` / `enforceAvailableModels`, native since
+Claude Code v2.1.175). Invalid managed entries: stripped with a warning, rest
+enforced; security-enforcement fields fail CLOSED (invalid allowlist = empty
+allowlist). Validate before fleet rollout (`claude doctor`, `opencode debug config`).
+
+**OpenCode asymmetry:** the managed layer locks config keys, not hooks/skills.
+Org-grade hook enforcement on OpenCode must come from this profile's own
+deterministic gates (`hooks/policy-gate.sh` + `manifest.json` fingerprint
+verification), not from the host.
+
+### Third-party provider policy-bypass matrix
+
+Server-managed settings (and the Audit Logs API) are delivered through
+Anthropic's control plane. Routing traffic elsewhere silently drops them:
+
+| Provider path | Server-managed policy | Audit Logs API | Enforcement floor |
+|---------------|----------------------|----------------|-------------------|
+| Anthropic direct (subscription/API) | applies | applies | server-managed or MDM |
+| AWS Bedrock | **skipped** | **skipped** | endpoint-managed (MDM) + network egress policy |
+| Google Vertex | **skipped** | **skipped** | endpoint-managed (MDM) + network egress policy |
+| Custom `ANTHROPIC_BASE_URL` (OpenRouter fallback) | **skipped** | **skipped** | endpoint-managed (MDM) + network egress policy |
+
+This profile declares OpenRouter as the fallback provider: on any machine where
+org policy matters, the MDM/endpoint-managed channel is the only enforcement
+floor, and gateway-level controls (see `.harness/llm-policy.json` when shipped)
+are the only spend/routing guarantees. `forceRemoteSettingsRefresh` helps only
+when policy comes from an admin-controlled source.
+
+Sources: code.claude.com/docs/en/settings, /admin-setup, /server-managed-settings,
+opencode.ai/docs/config (verified 2026-07-29/30).
+
+---
+
+**Last updated:** 2026-07-31
