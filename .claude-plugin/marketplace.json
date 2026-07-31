@@ -78,6 +78,23 @@
       "strict": false
     },
     {
+      "name": "review-pack",
+      "source": "./claude/agents/review",
+      "description": "CI-native multi-agent review pack: risk-tiered reviewer fan-out plus a coordinator judge pass emitting one severity-rated review (critical-only blocking).",
+      "version": "0.10.0",
+      "author": {
+        "name": "Sharekit Maintainers"
+      },
+      "license": "MIT",
+      "keywords": [
+        "agents",
+        "review",
+        "ci"
+      ],
+      "category": "productivity",
+      "strict": false
+    },
+    {
       "name": "standards",
       "source": "./claude/standards",
       "description": "Operator standards and decision records (curated-standards.txt): routing, testing, security, workflow.",

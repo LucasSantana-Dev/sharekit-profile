@@ -14,10 +14,12 @@ set -euo pipefail
 
 TARGET="$PWD"
 DRY_RUN=0
+WITH_REVIEW=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --target) TARGET="$2"; shift 2 ;;
     --dry-run) DRY_RUN=1; shift ;;
+    --with-review) WITH_REVIEW=1; shift ;;
     *) echo "unknown arg: $1" >&2; exit 2 ;;
   esac
 done
@@ -75,6 +77,23 @@ bootstrap: starter profile (week 1 — enable these first, expand later):
           with 1-3, add per pain. See docs/team-rollout-playbook.md (Phase 4).
 bootstrap: posture check: bash $PROFILE_ROOT/scripts/repo-mode.sh "$TARGET"
 EOF
+
+if [ "$WITH_REVIEW" -eq 1 ]; then
+  TEMPLATE="$PROFILE_ROOT/.github/workflows-templates/ai-review.yml"
+  if [ -f "$TEMPLATE" ]; then
+    if [ "$DRY_RUN" -eq 1 ]; then
+      say "DRY-RUN would install $TARGET/.github/workflows/ai-review.yml"
+    else
+      mkdir -p "$TARGET/.github/workflows"
+      if [ -f "$TARGET/.github/workflows/ai-review.yml" ]; then
+        say "already done - skipping ai-review.yml (exists)"
+      else
+        cp "$TEMPLATE" "$TARGET/.github/workflows/ai-review.yml"
+        say "installed ai-review.yml - set ANTHROPIC_API_KEY in repo secrets"
+      fi
+    fi
+  fi
+fi
 
 if [ "$DRY_RUN" -eq 1 ]; then
   say "DRY-RUN complete - no files written"

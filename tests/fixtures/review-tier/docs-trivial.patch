@@ -1,0 +1,17 @@
+diff --git a/docs/guide.md b/docs/guide.md
+index 1111111..2222222 100644
+--- a/docs/guide.md
++++ b/docs/guide.md
+@@ -1,2 +1,12 @@
+ # Guide
+ intro text
++added line 1
++added line 2
++added line 3
++added line 4
++added line 5
++added line 6
++added line 7
++added line 8
++added line 9
++added line 10

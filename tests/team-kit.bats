@@ -60,3 +60,17 @@ setup() {
 EOF
   [ "$(bash "$REPO_ROOT/scripts/repo-mode.sh" "$TEST_TMP/repo")" = "solo" ]
 }
+
+@test "bootstrap-team: --with-review installs the ai-review workflow" {
+  run bash "$REPO_ROOT/scripts/bootstrap-team.sh" --target "$TEST_TMP/repo" --with-review
+  [ "$status" -eq 0 ]
+  [ -f "$TEST_TMP/repo/.github/workflows/ai-review.yml" ]
+  grep -q "claude-code-action" "$TEST_TMP/repo/.github/workflows/ai-review.yml"
+}
+
+@test "bootstrap-team: --with-review is idempotent" {
+  bash "$REPO_ROOT/scripts/bootstrap-team.sh" --target "$TEST_TMP/repo" --with-review >/dev/null
+  run bash "$REPO_ROOT/scripts/bootstrap-team.sh" --target "$TEST_TMP/repo" --with-review
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"already done - skipping ai-review.yml"* ]]
+}
