@@ -54,10 +54,10 @@ locally-cloned repos currently have other human contributors, so this section st
 **template and schema, not active behavior**.
 
 **Wired as of 2026-07-25** (Phase 1 of the compliance/homologation/teamwork debate; the
-overall decision record — reject a second sharekit profile, wire this instead — lives in
+overall decision record - reject a second sharekit profile, wire this instead - lives in
 `sharekit-profile/docs/adr/0003-homologation-gate-taxonomy.md`'s Context section):
 `~/.claude/hooks/team-mode-guard.sh` (UserPromptSubmit, cached per session) checks two
-signals — (1) repo-committed `.claude/team.md` with `team_mode: true`, (2) repo owner
+signals - (1) repo-committed `.claude/team.md` with `team_mode: true`, (2) repo owner
 (via `git remote get-url origin`, not `gh repo view`, to stay correctly scoped to the
 reported cwd on a multi-repo machine) != the authenticated `gh` user, i.e. the operator is a
 guest contributor (the common case: Thoughtworks client repos he doesn't administer).

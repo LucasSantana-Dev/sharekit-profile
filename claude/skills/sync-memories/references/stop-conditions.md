@@ -6,7 +6,7 @@ When to halt the skill and surface a blocker.
 
 ### 1. External HD Unmounted (Pre-flight Mount Guard)
 
-**Condition:** `mount | grep -q "${DEV_ROOT}"` returns false.
+**Condition:** `[ ! -d "${DEV_ROOT}/knowledge-brain/.git" ]` (knowledge-brain unreachable). Directory reachability is the real signal; `mount` lists mount points only, so grepping it for `${DEV_ROOT}` false-positives as "unmounted" (same test as push-protocol.sh).
 
 **Action:** Surface immediately:
 ```
@@ -114,7 +114,7 @@ Vault push skipped (incomplete state). Recommend manual fix to .agents/memory/ p
 ```
 INFO: Memory sync complete (Serena + local). Vault push deferred (session continues).
 Memories will push automatically at session end via sync push-memories hook.
-To push now: git -C ${DEV_ROOT}/Desenvolvimento/knowledge-brain push
+To push now: git -C "${DEV_ROOT}/knowledge-brain" push
 ```
 
 ---

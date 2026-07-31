@@ -5,7 +5,7 @@ set -e  # fail loud
 
 BRAIN="${DEV_ROOT}/knowledge-brain"
 
-# Mount guard (standards/knowledge-brain.md §1) — fail loud, never silent.
+# Mount guard (standards/knowledge-brain.md §1) - fail loud, never silent.
 # Directory reachability is the real signal: `mount` lists mount points only
 # (e.g. ${DEV_ROOT}), never nested paths like $DEV_ROOT, so grepping
 # it for $DEV_ROOT false-positives as "unmounted" (same fix as mount-guard.sh).

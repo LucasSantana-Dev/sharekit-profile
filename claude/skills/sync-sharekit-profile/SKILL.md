@@ -264,7 +264,7 @@ filtering. After Phase 3/3b:
 
    ```bash
    /usr/bin/find "$PROFILE_DIR" -name "*.sh" -print0 | xargs -0 -n1 bash -n
-   /usr/bin/find "$PROFILE_DIR" -name "*.py" -print0 | xargs -0 -n1 python3 -m py_compile
+   /usr/bin/find "$PROFILE_DIR" -name "*.py" -print0 | xargs -0 -I{} python3 -c "import ast; ast.parse(open('{}').read())"
    /usr/bin/find "$PROFILE_DIR" -name "*.json" -print0 | xargs -0 -I{} python3 -c "import json; json.load(open('{}'))"
    ```
 
@@ -275,8 +275,11 @@ filtering. After Phase 3/3b:
    source, never by hand-editing the profile copy:
 
    ```bash
-   git -C "$PROFILE_REPO" diff --cached -U0 | grep -E '^\+' | \
-     grep -Ei '<your-real-identity-patterns>' && echo "BLOCKER: sanitization regressed"
+   if git -C "$PROFILE_REPO" diff --cached -U0 | grep -E '^\+' | \
+     grep -Ei '<your-real-identity-patterns>'; then
+     echo "BLOCKER: sanitization regressed" >&2
+     exit 1
+   fi
    ```
 
 ---
@@ -407,8 +410,12 @@ The round trip is NOT symmetric. Publishing sanitizes; pulling back can revert
 portability fixes, delete machine-local settings, and reintroduce placeholders
 into executable code. NEVER rsync/mirror the profile back over the live tree.
 
-1. **Backup first:** snapshot before any write (`cp -a ~/.claude ~/.claude.bak-$(date +%Y%m%d-%H%M)`
-   or a git snapshot of the trees in scope).
+1. **Backup first:** snapshot before any write. `cp -a` preserves symlinks, so
+   snapshot canonical targets, not the symlinked runtime view: `~/.claude/skills`
+   points at `~/.agents/skills`, so copy `~/.agents` (canonical) plus the
+   non-symlinked parts of `~/.claude`
+   (`cp -a ~/.agents ~/.agents.bak-$(date +%Y%m%d-%H%M)`), or use a git snapshot
+   of the trees in scope.
 2. **Three-way classification per changed file** — compare the last-applied public
    version (A), the new public version (B), and the live version (C):
 
@@ -425,9 +432,11 @@ into executable code. NEVER rsync/mirror the profile back over the live tree.
 3. **Settings files are merge targets, never copy targets.** Absence of a key in
    the incoming version is not an instruction to remove it. Merge by key; keep
    machine-local values (model, UI prefs, locally registered hooks).
-4. **Post-apply verification:** `bash -n` every script touched, parse every
+4. **Post-apply verification + rollback:** `bash -n` every script touched, parse every
    config file, grep the applied set for placeholder tokens (a placeholder inside
-   a pattern/path/command/comparison is a defect until reviewed).
+   a pattern/path/command/comparison is a defect until reviewed). If any check
+   fails, restore the step-1 backup over every applied file and stop with a
+   failure status; never leave the live tree partially updated.
 
 ---
 

@@ -62,14 +62,6 @@ except Exception:
  print("")' <<< "$INPUT")
 [ -z "$CWD" ] && CWD="$PWD"
 
-# Cooperative-mode guard (standards/cooperative-mode.md): the RAG pack contains
-# personal-vault content (memory/plans/handoffs). In team repos, allow only the
-# repo-local graph context (handled above); skip the pack entirely.
-if [ "$("$HOME/.claude/scripts/repo-mode.sh" "$CWD" 2>/dev/null || echo solo)" = "cooperative" ]; then
-  echo "coop-skip $TS prompt-len=${#PROMPT}" >> "$LOG"
-  exit 0
-fi
-
 if [ -f "$CWD/graphify-out/graph.json" ] && command -v graphify &>/dev/null; then
   GRAPH_OUT=$(cd "$CWD" && timeout 15 graphify query "$PROMPT" --budget 500 2>/dev/null || true)
   if [ -n "$GRAPH_OUT" ] && [ ${#GRAPH_OUT} -le 3500 ]; then
@@ -78,6 +70,14 @@ if [ -f "$CWD/graphify-out/graph.json" ] && command -v graphify &>/dev/null; the
     exit 0
   fi
   echo "graph-miss $TS prompt-len=${#PROMPT} graph-bytes=${#GRAPH_OUT}" >> "$LOG"
+fi
+
+# Cooperative-mode guard (standards/cooperative-mode.md): the RAG pack contains
+# personal-vault content (memory/plans/handoffs). In team repos, allow only the
+# repo-local graph context (handled above); skip the pack entirely.
+if [ "$("$HOME/.claude/scripts/repo-mode.sh" "$CWD" 2>/dev/null || echo solo)" = "cooperative" ]; then
+  echo "coop-skip $TS prompt-len=${#PROMPT}" >> "$LOG"
+  exit 0
 fi
 
 PACK_TOOL="${DEV_ROOT}/rag-index/venv/bin/python"

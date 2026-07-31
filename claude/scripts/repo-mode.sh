@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# repo-mode.sh — print "solo" or "cooperative" for the repo containing $1 (default: cwd).
+# repo-mode.sh - print "solo" or "cooperative" for the repo containing $1 (default: cwd).
 #
 # Cooperative repos are team/employer/third-party repos where the harness must act as
 # a guest: no personal-vault recall injection, no memory writes into personal stores,

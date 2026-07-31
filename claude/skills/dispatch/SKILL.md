@@ -97,9 +97,11 @@ See [references/remote-tasks.md](references/remote-tasks.md) for the complete ta
 
 ### Execution flow
 
-1. If `<task>` matches a named alias (see references/remote-tasks.md), run the mapped script directly on <homelab>:
+1. If `<task>` matches a named alias (see references/remote-tasks.md), run the mapped script directly on <homelab>. Substitute before execution: `HOST` = the configured homelab SSH alias (from `~/.ssh/config`), `SCRIPT` = the script filename from the alias table:
    ```bash
-   ssh <homelab> "${HOMELAB_ROOT}/scripts/agent-tasks/<script>"
+   HOST=<homelab>   # homelab SSH alias from ~/.ssh/config
+   SCRIPT=<script>  # script filename mapped in references/remote-tasks.md
+   ssh "$HOST" "${HOMELAB_ROOT}/scripts/agent-tasks/$SCRIPT"
    ```
    **Done when:** script executes and output is streamed; execution exits cleanly.
 

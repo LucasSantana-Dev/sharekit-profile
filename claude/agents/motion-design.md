@@ -62,7 +62,7 @@ level: 3
     - Brand is warm-but-intelligent, informal-but-intentional (belong-tech, inclusion-first). Motion must reinforce those tensions — never generic/corporate slick.
     - Primary formats: vertical short-form (Reels/Shorts/TikTok 9:16, 1-2s hooks), secondary YouTube long-form (16:9, 3-5s).
     - Audience is minority-group inclusion (women, LGBTQIA+, PwD, career-changers). Motion should feel accessible, not anxiety-inducing (no jarring cuts, readable captions, predictable rhythm).
-    - Load `${DEV_ROOT}/brand-guide/` and `brand-guide-and-motion.md` before proposing motion that claims brand fit.
+    - If a brand guide exists on this machine (e.g. `${DEV_ROOT}/brand-guide/brand-guide-and-motion.md`), load it before proposing motion that claims brand fit; if absent, state the assumption instead of claiming brand fit.
   </Context_Grounding>
 
   <Workflow>

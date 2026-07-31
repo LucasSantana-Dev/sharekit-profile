@@ -164,9 +164,13 @@ gh pr view "$PR" --json body,closingIssuesReferences -q '{body: .body, linked: [
   → `SKIP` ("no linked card — untracked PRs are a normal pattern on this developer's repos,
   not a defect; don't WARN small/solo/dep-bump/typo PRs that never had a card to begin with")
 - Linked issue found but already `CLOSED` independent of this PR (check
-  `gh issue view <N> --json state,closedAt` — closed before this PR's `mergeStateStatus`
-  went clean) → `WARN` ("linked issue #N already closed by something else — verify this PR
-  still matches its current state before merging, board-hygiene drift risk")
+  `gh issue view <N> --json state,closedAt`, then confirm closure provenance via the
+  issue timeline (`mergeStateStatus` is current PR mergeability state, not a closing
+  event, so never use it as provenance):
+  `gh api repos/{owner}/{repo}/issues/<N>/timeline --jq '.[] | select(.event=="closed") | {actor: .actor.login, commit_id}'`;
+  a closing actor/commit unrelated to this PR means independent closure) → `WARN`
+  ("linked issue #N already closed by something else: verify this PR still matches
+  its current state before merging, board-hygiene drift risk")
 - Linked issue found and `OPEN` → `PASS`
 - Repo doesn't use issues for this workflow (no issues enabled) → `SKIP`
 

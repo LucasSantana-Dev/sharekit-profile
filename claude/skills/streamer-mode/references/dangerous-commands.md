@@ -9,12 +9,12 @@ Everything printed to the terminal is broadcast. Rule of thumb: if a command's o
 | `env`, `printenv` | Dumps every env var incl. keys | `test -n "$VAR" && echo set` |
 | `echo $API_KEY` (any secret var) | Direct value exposure | `test -n "$API_KEY" && echo set` |
 | `cat .env`, `cat *.pem`, `cat ~/.netrc` | Direct file exposure | `test -f .env && echo exists`; `grep -c '=' .env` (count only) |
-| `git remote -v`, `git config --list` | HTTPS remotes can embed PATs | `git remote > /tmp/out` (names only); token check: `git config --get-regexp 'remote\..*\.url' > /tmp/out` then report yes/no |
+| `git remote -v`, `git config --list` | HTTPS remotes can embed PATs | `git remote` (names only); token check: `git config --get-regexp 'remote\..*\.url' \| grep -q 'https://[^ ]*@' && echo yes \|\| echo no` (never store the URL) |
 | `curl -v`, `curl -i` | Prints Authorization headers, cookies | `curl -s URL -o /tmp/response`; inspect file with narrow grep |
 | `docker inspect <id>` | Env vars, mounts, network config | `docker inspect --format '{{.State.Status}}' <id>` (narrow format) |
 | `docker compose config` | Renders interpolated secrets | `docker compose config --quiet` (validation only) |
 | `kubectl get secret -o yaml`, `kubectl describe secret` | Base64 secrets are trivially decoded | `kubectl get secrets` (names only) |
-| `aws configure list`, `aws sts get-caller-identity` | Access key IDs, account ID | Verify auth by exit code: `aws sts get-caller-identity > /dev/null && echo authed` |
+| `aws configure list`, `aws sts get-caller-identity` | Access key IDs, account ID | Verify auth by exit code only, both streams suppressed: `aws sts get-caller-identity > /dev/null 2>&1 && echo authed` |
 | `gcloud auth list`, `az account show` | Account emails, tenant/subscription IDs | Redirect to file, report authed yes/no |
 | `history` | Past commands often contain inline secrets | Don't display; `history \| grep -c <term>` if counting needed |
 | `ps aux`, `ps -ef` | Process args can carry passwords/DSNs | `pgrep -l <name>` |

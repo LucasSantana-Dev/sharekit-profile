@@ -1,4 +1,4 @@
-# Cooperative Mode — guest behavior in team repos
+# Cooperative Mode - guest behavior in team repos
 
 **Status:** active (defined 2026-07-24). Canonical answer to "how does the harness
 behave in repos it does not own." Decision record: global ADR

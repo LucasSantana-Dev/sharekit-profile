@@ -14,6 +14,7 @@ metadata:
   owner: global-agents
   tier: contextual
   canonical_source: ~/.agents/skills/streamer-mode/SKILL.md
+security_exempt: true
 ---
 
 # Streamer Mode
@@ -35,12 +36,12 @@ Everything the agent prints — tool output, file reads, command results, error 
 1. Confirm mode is ON in one short line. Stays on until user says "stop streamer mode" / "stream over" / "done streaming".
 2. Run the pre-flight sweep SILENTLY (output to file, never stdout) and report only pass/fail per item, never values:
    - `.env*` or credential-pattern files in cwd? (`ls` check only — never open them)
-   - Git remotes with embedded tokens? (`git config --get-regexp 'remote\..*\.url' > /tmp/…` then check for `https://.*@` — report "1 remote has an embedded token, fix after stream", never print the URL)
+   - Git remotes with embedded tokens? (`git config --get-regexp 'remote\..*\.url' | grep -q 'https://.*@'`: report "1 remote has an embedded token, fix after stream"; never print or store the URL)
    - Shell prompt / OS notifications likely exposing hostname or messages? Remind once: enable OS Do-Not-Disturb, Discord streamer mode.
 
 ## Core Rules (while ON)
 
-1. **Never run commands that print secrets or network identity.** Full table with safe alternatives: `references/dangerous-commands.md`. Headline bans: `env`, `printenv`, `echo $ANY_SECRET`, `cat .env*`, `git remote -v`, `curl -v`, `docker inspect` (unfiltered), `kubectl get/describe secret`, `aws configure list`, `aws sts get-caller-identity`, `gcloud auth list`, `history`, `ps aux`, `ifconfig`/`ipconfig`/`netstat` (IPs).
+1. **Never run commands that print secrets or network identity.** Full table with safe alternatives: `references/dangerous-commands.md`. Headline bans: `env`, `printenv`, `echo $ANY_SECRET`, `cat .env*`, `git remote -v`, `curl -v`, `docker inspect` (unfiltered), `kubectl get/describe secret`, `aws configure list`, `aws sts get-caller-identity` (unfiltered; the exit-code-only check with both streams suppressed is the documented exception), `gcloud auth list`, `history`, `ps aux`, `ifconfig`/`ipconfig`/`netstat` (IPs).
 2. **Never open sensitive files on screen.** Read/cat output is visible. Patterns: `.env*`, `*.pem`, `*.key`, `id_rsa*`, `.pgpass`, `.netrc`, `.npmrc`, `.aws/credentials`, `kubeconfig`, anything named `secret*`/`credential*`. Existence checks (`test -f`) and counts (`grep -c`) are fine.
 3. **Check existence, not value:** `test -n "$VAR" && echo set` instead of `echo $VAR`.
 4. **Redirect verbose output to file, grep narrowly:** `cmd > /tmp/out 2>&1` then extract only the non-sensitive line needed.
@@ -52,7 +53,7 @@ Everything the agent prints — tool output, file reads, command results, error 
 
 If you notice a vulnerability, misconfiguration, or exposed secret while working:
 
-- **Default — silent defer.** Append the finding to `~/.claude/streamer-findings/<YYYY-MM-DD>.md` (create dir if needed) via redirected shell write (never Write-tool preview, never echo the content). On screen say only: "Noted one item for your post-stream review — saved privately."
+- **Default: silent defer.** Append the finding to `~/.claude/streamer-findings/<YYYY-MM-DD>.md` via redirected shell write (never Write-tool preview, never echo the content), keeping finding details masked per rule 5. Apply restrictive perms explicitly: `umask 077` before writing, and `mkdir -p ~/.claude/streamer-findings && chmod 700 ~/.claude/streamer-findings` (dir 700, file 600). On screen say only: "Noted one item for your post-stream review: saved privately."
 - **Exception — active exposure.** If a credential or secret is visible on screen RIGHT NOW (already printed, in an open file, in a pasted log), interrupt immediately: name the category and location ("an API key is visible in the output above — rotate it after the stream, viewers may have captured it"), but NEVER repeat or quote the value itself.
 - Never enumerate vulnerabilities, attack vectors, or "here's how someone could exploit this" on stream.
 

@@ -1,5 +1,9 @@
 # Named Remote Tasks
 
+Placeholders resolve per the substitution contract in [../SKILL.md](../SKILL.md)
+execution flow: `<homelab>` = homelab SSH alias, `<project-a>` = the project-a
+repo name. Substitute both before running any mapped script.
+
 | Alias         | Script                       |
 |---------------|------------------------------|
 | ci-watch      | ci-watch.sh                  |

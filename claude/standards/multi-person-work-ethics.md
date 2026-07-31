@@ -1,4 +1,4 @@
-# Multi-Person Work Ethics — agents in shared repositories
+# Multi-Person Work Ethics - agents in shared repositories
 
 **Status:** active (defined 2026-07-24, from an incident postmortem on config round-trips
 and solo-default autonomy). Mechanics live in `standards/cooperative-mode.md`; this file is
