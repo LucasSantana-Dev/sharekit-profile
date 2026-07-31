@@ -316,6 +316,36 @@ when policy comes from an admin-controlled source.
 Sources: code.claude.com/docs/en/settings, /admin-setup, /server-managed-settings,
 opencode.ai/docs/config (verified 2026-07-29/30).
 
+### Managed plugin supply chain (org adopters)
+
+This repo ships `.claude-plugin/marketplace.json`, so an org can add it as a
+Claude Code marketplace (`/plugin marketplace add LucasSantana-Dev/sharekit-profile`)
+and install one plugin per concern (`core-skills`, `security-hooks`,
+`role-agents`, `standards`). For fleet rollout, pin the marketplace in
+`managed-settings.json` with `strictKnownMarketplaces` so users can only add
+the allowlisted sources, and pair it with `strictPluginOnlyCustomization` so
+skills, agents, hooks, and MCP servers load only from plugins or managed
+settings, never from user or project directories.
+
+The two keys close the customization supply chain together: the allowlist
+controls which marketplaces can be added, and the surface lock controls where
+customizations may come from. `strictPluginOnlyCustomization` accepts `true`
+(all four surfaces) or an array naming the surfaces to lock. Template for org
+adopters:
+
+```json
+{
+  "strictKnownMarketplaces": [
+    { "source": "github", "repo": "LucasSantana-Dev/sharekit-profile" }
+  ],
+  "strictPluginOnlyCustomization": ["skills", "hooks"],
+  "enabledPlugins": {
+    "core-skills@sharekit-profile": true,
+    "security-hooks@sharekit-profile": true
+  }
+}
+```
+
 ---
 
 **Last updated:** 2026-07-31

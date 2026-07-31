@@ -30,6 +30,24 @@ jobs:
       - name: Verify harness manifest fingerprints
         run: bash scripts/check-harness-manifest.sh
 
+  marketplace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate marketplace manifest (structural)
+        # JSON parse + source paths exist + name/description/version per plugin
+        # + curated-*.txt sync (scripts/check-marketplace.sh).
+        run: bash scripts/check-marketplace.sh
+      - name: Validate with claude CLI when available
+        # ubuntu-latest has no claude CLI today; structural checks above are the
+        # gate, this upgrades to the official validator if the image gains one.
+        run: |
+          if command -v claude >/dev/null 2>&1; then
+            claude plugin validate .
+          else
+            echo "claude CLI not available on runner; structural checks only"
+          fi
+
   bats:
     runs-on: ubuntu-latest
     steps:

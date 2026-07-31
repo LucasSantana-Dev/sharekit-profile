@@ -21,11 +21,16 @@
 #     5. invocation_type (if present) is auto|slash|internal
 #     6. allow_implicit (if present) is true|false
 #   SECURITY PASS:
-#     7. No pipe-to-shell installers (curl|sh, wget|bash, etc.)
+#     7. No pipe-to-shell installers (curl|sh, wget|bash, fetch|sh, sudo
+#        variants, `bash <(curl ...)`, `sh -c "$(curl ...)"`)
 #     8. No secret exfiltration (sending ~/.ssh, ~/.aws, id_rsa off-host)
 #     9. No reverse shell patterns (bash -i >& /dev/tcp, nc -e)
 #    10. No prompt-injection lures ("ignore previous instructions")
-#    11. No obfuscated execution (base64 decode + exec)
+#    11. No obfuscated execution (base64 decode + exec, incl. openssl
+#        -base64 -d and eval "$(echo ... | base64 -d)" variants)
+#    12. No dynamic-context command injection (backtick or $() substitution
+#        in YAML frontmatter, which is templated into the prompt at load
+#        time, or substitution wrapping a fetch/decode sink in prose)
 #
 # Security exemption: skills that document dangerous patterns BY DESIGN (e.g.
 # a security-analysis skill that teaches how to detect curl|sh) set
@@ -208,9 +213,10 @@ for f in "${skill_files[@]}"; do
   fi
   body="$(bat -p --paging=never "$f" 2>/dev/null || sed -n '1,$p' "$f" 2>/dev/null)"
 
-  # 7. Pipe-to-shell installers
-  if printf '%s' "$body" | rg -qi 'curl\s+[^\|]*\|\s*(sh|bash|zsh)|wget\s+[^\|]*\|\s*(sh|bash|zsh)|curl.*\|\s*sh|wget.*\|\s*bash'; then
-    findings="${findings}CRIT   | ${rel} | pipe-to-shell installer detected (curl|sh or wget|bash)\n"
+  # 7. Pipe-to-shell installers: extended beyond curl|sh to cover fetch,
+  # sudo-piped shells, process substitution, and `sh -c "$(curl ...)"`.
+  if printf '%s' "$body" | rg -qi 'curl\s+[^\|]*\|\s*(sh|bash|zsh)|wget\s+[^\|]*\|\s*(sh|bash|zsh)|curl.*\|\s*sh|wget.*\|\s*bash|fetch\s+[^\|]*\|\s*(sudo\s+)?(ba|z)?sh|curl\s+[^\|]*\|\s*sudo\s+(ba|z)?sh|wget\s+[^\|]*\|\s*sudo\s+(ba|z)?sh|(ba|z)?sh\s+<\(\s*(curl|wget|fetch)|(ba|z)?sh\s+-c\s+"\$\(\s*(curl|wget|fetch)'; then
+    findings="${findings}CRIT   | ${rel} | pipe-to-shell installer detected (curl|sh, wget|bash, fetch|sh, or sudo/process-substitution variant)\n"
     security_critical=$((security_critical+1))
   fi
 
@@ -240,9 +246,26 @@ for f in "${skill_files[@]}"; do
     security_warnings=$((security_warnings+1))
   fi
 
-  # 11. Obfuscated execution (base64 decode + exec)
-  if printf '%s' "$body" | rg -qi 'base64\s+-d.*\|\s*(sh|bash|eval)|eval.*base64|echo.*\|\s*base64.*\|\s*sh'; then
+  # 11. Obfuscated execution (base64 decode + exec): extended to macOS -D,
+  # --decode, openssl enc -base64, and eval-wrapped decode variants.
+  if printf '%s' "$body" | rg -qi 'base64\s+-d.*\|\s*(sh|bash|eval)|eval.*base64|echo.*\|\s*base64.*\|\s*sh|base64\s+(-D|--decode)[^\|]*\|\s*(sudo\s+)?(ba|z|fi)?sh|eval\s+"?\$\([^)]*\|\s*base64\s+(-[dD]|--decode)|openssl\s+(enc\s+)?-base64\s+-d[^\|]*\|\s*(ba|z)?sh'; then
     findings="${findings}CRIT   | ${rel} | obfuscated execution detected (base64 decode + exec)\n"
+    security_critical=$((security_critical+1))
+  fi
+
+  # 12. Dynamic-context command injection: command substitution (backtick or
+  # $()) that would execute when the skill is loaded into context.
+  # Frontmatter fields are templated into the prompt at load time, so a
+  # substitution there is never legitimate. In instructions (frontmatter and
+  # fenced code blocks excluded, since that is where shell examples live)
+  # only substitution wrapping a fetch/decode sink (curl, wget, fetch, nc,
+  # base64, http) is flagged, to avoid hitting skills that document dynamic
+  # paths like $(pwd). One finding per skill regardless of hit location.
+  frontmatter="$(awk 'BEGIN{inf=0} /^---/{inf++; next} inf==1' "$f")"
+  prose="$(awk '/^---/ && inf<2 {inf++; next} inf<2 {next} /^```/{flip=!flip; next} !flip' "$f")"
+  if printf '%s' "$frontmatter" | rg -q '(`|\$\()' \
+    || printf '%s' "$prose" | rg -qi '(`|\$\()\s*(curl|wget|fetch|nc |ncat|base64|http )'; then
+    findings="${findings}CRIT   | ${rel} | dynamic-context command injection detected (command substitution in frontmatter or instructions)\n"
     security_critical=$((security_critical+1))
   fi
 done
