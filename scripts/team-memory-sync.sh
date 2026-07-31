@@ -78,8 +78,13 @@ case "$CMD" in
       exit 0
     fi
     cp "$NOTE" "$dest"
+    # Vault commits carry the operator's identity; CI runners and fresh
+    # machines have no git identity configured, so fall back explicitly.
+    AUTHOR_EMAIL="${HARNESS_AUTHOR:-$(git config user.email 2>/dev/null || echo harness@localhost)}"
+    AUTHOR_NAME="$(git config user.name 2>/dev/null || echo harness)"
     git -C "$VAULT_DIR" add "$SUBDIR/$(basename "$NOTE")"
-    git -C "$VAULT_DIR" commit --quiet -m "memory: promote $(basename "$NOTE" .md) (${HARNESS_AUTHOR:-$(git config user.email)})"
+    git -C "$VAULT_DIR" -c user.name="$AUTHOR_NAME" -c user.email="$AUTHOR_EMAIL" \
+      commit --quiet -m "memory: promote $(basename "$NOTE" .md) ($AUTHOR_EMAIL)"
     git -C "$VAULT_DIR" push --quiet origin "$BRANCH"
     echo "team-memory-sync: pushed $(basename "$NOTE") -> vault $BRANCH"
     ;;
