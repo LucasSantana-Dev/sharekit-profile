@@ -71,7 +71,7 @@ Audits do not know history. Memory does. Before drafting fixes:
   proceed with the fix and supersede the old memory.
 - Findings that pass recall with zero hits keep their `AUTO_FIX` tag.
 
-**Why this phase exists:** 2026-05-14 Wave 6 (homelab PR #100) shipped a wrong
+**Why this phase exists:** 2026-05-14 Wave 6 (<homelab> PR #100) shipped a wrong
 `agent-box:latest` pin because a subagent acted on a config-drift finding without
 checking memory #3415 (2026-05-07) which explicitly documented the exception.
 Required a revert commit before merge. This phase prevents the same class of

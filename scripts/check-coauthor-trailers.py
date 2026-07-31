@@ -31,6 +31,12 @@ ALLOWED_COAUTHORS = [
     r"\boz\b.*@ai\.dev",     # Warp Oz — legacy @ai.dev address
     r"\boz\b.*\.ai\b",       # Warp Oz — any email ending with .ai domain
     r"oz.*@anthropic\.com",  # Oz — Anthropic email
+    # Dependency-automation bots are not AI attribution — the invariant targets
+    # AI co-authorship of commits, and without this allowlist the full-history
+    # scan fails on every legitimate dependabot merge already on main.
+    r"dependabot\[bot\]",
+    r"renovate\[bot\]",
+    r"github-actions\[bot\]",
 ]
 ALLOWED_COMPILED = [re.compile(p, re.IGNORECASE) for p in ALLOWED_COAUTHORS]
 

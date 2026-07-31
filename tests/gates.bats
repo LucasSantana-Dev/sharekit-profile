@@ -107,6 +107,22 @@ setup() {
   [ $? -eq 0 ]
 }
 
+@test "check-coauthor-trailers: allows dependabot coauthor" {
+  tmpgit="$TEST_TMP/repo-dependabot"
+  mkdir -p "$tmpgit"
+
+  cd "$tmpgit"
+  git init -q
+  git config user.email "test@test.com"
+  git config user.name "Test User"
+  echo "test" > file.txt
+  git add file.txt
+  git commit -q -m $'Bump dep\n\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>'
+
+  python3 "$REPO_ROOT/scripts/check-coauthor-trailers.py" 2>&1
+  [ $? -eq 0 ]
+}
+
 @test "check-coauthor-trailers: detects Copilot coauthor" {
   tmpgit="$TEST_TMP/repo-copilot"
   mkdir -p "$tmpgit"

@@ -75,7 +75,7 @@
 
 **Mitigation:**
 - `mcp-policy.json` sets `allowFileWrite: false` by default — write access governed at tool layer
-- `filesystem` MCP server in `approvedServers` but scoped by its own configuration
+- `filesystem` MCP server removed 2026-07-30 (CLI-first policy) — native Read/Write/Edit tools plus `PreToolUse` hooks are the only file path, all path-guarded
 - Storage policy invariant constrains new file creation to `${DEV_ROOT}/`
 - `PreToolUse` hook blocks writes to protected paths (`~/.ssh`, `/etc`, system directories)
 

@@ -60,3 +60,5 @@ decisions/2026-06-10-skills-canonical-reconciliation.md
 decisions/2026-06-22-skill-name-collisions-resolution.md
 decisions/2026-06-23-harness-genericization.md
 decisions/2026-07-01-parallel-mandate-token-economics.md
+cooperative-mode.md
+multi-person-work-ethics.md

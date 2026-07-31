@@ -30,32 +30,28 @@
   "toolTimeoutMs": 300000,
   "approvedServers": [
     "rag-index",
-    "github",
-    "filesystem",
     "git",
     "fetch",
     "context7",
     "memory",
     "firecrawl"
   ],
+  "cliFirst": {
+    "policy": "Prefer CLI tools over MCP servers whenever a maintained CLI or native tool covers the capability. MCP servers pay a per-request tool-schema cost (~1-1.4k tokens/server even with deferred loading) and re-validate every session; CLI calls ride through Bash with rtk output filtering and cost zero prefix tokens.",
+    "evidence": "Anthropic Claude Code costs playbook (code.claude.com/docs/en/costs, 2026-07): 'prefer CLI tools over MCP servers'. Systima wire-level measurements (2026-07): baseline x request count dominates whole-task cost. 30-day usage audit 2026-07-30: github MCP 29 calls (all gh-CLI-coverable), filesystem MCP 129 calls (all native-tool-coverable), codebase-memory-mcp 0 calls.",
+    "removedServers": {
+      "github": {"removed": "2026-07-30", "replacement": "gh CLI via Bash (gh issue/pr/api/search covers 100% of observed calls)"},
+      "filesystem": {"removed": "2026-07-30", "replacement": "native Read/Write/Edit/Glob + Bash ls/find"},
+      "codebase-memory-mcp": {"removed": "2026-07-30", "replacement": "zero use in 30 days; re-add only if a graph query need actually recurs"}
+    },
+    "candidates": "Audit any new MCP server for a CLI equivalent before approving. Trello MCP retained (146 calls/30d, no maintained CLI). rag-index retained (high-frequency semantic search; CLI exists at ~/.claude/rag-index/query.py as fallback)."
+  },
   "routingContract": {
     "rag-index": {
       "use_when": "repo-scoped semantic search over memory, plans, handoffs, code, and commits — 'what did we decide about X', 'where did we hit this before'",
       "do_not_use_when": "exact symbol/definition lookup (use serena or grep instead); current library/API docs (use context7)",
-      "fallback": "rg/grep over local memory files and repo docs",
+      "fallback": "python3 ~/.claude/rag-index/query.py '<query>' --top 5 --format json, or rg/grep over local memory files",
       "expected_callers": ["recall", "knowledge-loop", "rag-maintenance", "memory-prune", "context-pack"]
-    },
-    "github": {
-      "use_when": "PR/issue/repo metadata operations against the GitHub API (create/search/review PRs and issues, check status)",
-      "do_not_use_when": "local-only git operations (branch, commit, diff, log) — use the native git CLI via Bash, no API round-trip needed",
-      "fallback": "gh CLI via Bash",
-      "expected_callers": ["ci-watch", "pr-merge-readiness", "dep-sweep"]
-    },
-    "filesystem": {
-      "use_when": "cross-directory file operations spanning multiple allowed roots in one call (Desenvolvimento, .claude, .codex)",
-      "do_not_use_when": "single-file read/write/edit in the current repo — use the native Read/Write/Edit/Glob tools, they're faster and don't need an MCP round-trip",
-      "fallback": "native Read/Write/Edit/Glob tools",
-      "expected_callers": ["docs-sync"]
     },
     "git": {
       "use_when": "not currently observed in active use this session — the native git CLI via Bash covers essentially all git operations already",

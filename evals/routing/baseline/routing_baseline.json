@@ -1,0 +1,250 @@
+{
+  "model": "moonshotai/kimi-k2.6",
+  "accuracy": 0.9444444444444444,
+  "n": 18,
+  "n_tasks": 40,
+  "n_uncoverable": 22,
+  "ts": "2026-07-31T00:31:33Z",
+  "results": [
+    {
+      "id": "ra-000",
+      "expected": "next-priority",
+      "answer": "next-priority",
+      "ok": true
+    },
+    {
+      "id": "ra-001",
+      "expected": "knowledge-loop",
+      "answer": "sync-memories",
+      "ok": false
+    },
+    {
+      "id": "ra-002",
+      "expected": "deep-research",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "ra-003",
+      "expected": "plan",
+      "answer": "plan",
+      "ok": true
+    },
+    {
+      "id": "ra-004",
+      "expected": "code-review",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "ra-005",
+      "expected": "handoff",
+      "answer": "handoff",
+      "ok": true
+    },
+    {
+      "id": "ra-006",
+      "expected": "recall",
+      "answer": "recall",
+      "ok": true
+    },
+    {
+      "id": "ra-007",
+      "expected": "sync-memories",
+      "answer": "sync-memories",
+      "ok": true
+    },
+    {
+      "id": "ra-008",
+      "expected": "audit-deep",
+      "answer": "audit-deep",
+      "ok": true
+    },
+    {
+      "id": "ra-009",
+      "expected": "debate",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "ra-010",
+      "expected": "repaint",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "ra-011",
+      "expected": "parallel-investigate",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "ra-012",
+      "expected": "systematic-debugging",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "ra-013",
+      "expected": "ci-watch",
+      "answer": "ci-watch",
+      "ok": true
+    },
+    {
+      "id": "ra-014",
+      "expected": "tdd",
+      "answer": "test-driven-development",
+      "ok": true
+    },
+    {
+      "id": "ra-015",
+      "expected": "ship",
+      "answer": "ship",
+      "ok": true
+    },
+    {
+      "id": "ra-016",
+      "expected": "pr-merge-readiness",
+      "answer": "pr-merge-readiness",
+      "ok": true
+    },
+    {
+      "id": "ra-017",
+      "expected": "coverage-gap",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "ra-018",
+      "expected": "none",
+      "answer": "none",
+      "ok": true
+    },
+    {
+      "id": "ra-019",
+      "expected": "none",
+      "answer": "none",
+      "ok": true
+    },
+    {
+      "id": "ra-020",
+      "expected": "refactor",
+      "answer": "refactor",
+      "ok": true
+    },
+    {
+      "id": "ra-021",
+      "expected": "test-health",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "rt-000",
+      "expected": "code-review:code-review",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "rt-001",
+      "expected": "deep-research",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "rt-002",
+      "expected": "sync-sharekit-profile",
+      "answer": "sync-sharekit-profile",
+      "ok": true
+    },
+    {
+      "id": "rt-003",
+      "expected": "shorts-edit",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "rt-004",
+      "expected": "code-review",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "rt-005",
+      "expected": "sync-memories",
+      "answer": "sync-memories",
+      "ok": true
+    },
+    {
+      "id": "rt-006",
+      "expected": "schedule",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "rt-007",
+      "expected": "deep-research",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "rt-008",
+      "expected": "debate",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "rt-009",
+      "expected": "video-anatomy",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "rt-010",
+      "expected": "dataviz",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "rt-011",
+      "expected": "canva-design-feedback",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "rt-012",
+      "expected": "disk-cleanup",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "rt-013",
+      "expected": "research-and-decide",
+      "answer": "research-and-decide",
+      "ok": true
+    },
+    {
+      "id": "rt-014",
+      "expected": "repaint",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "rt-015",
+      "expected": "find-skills",
+      "answer": null,
+      "ok": null
+    },
+    {
+      "id": "rt-016",
+      "expected": "sync-sharekit-profile",
+      "answer": "sync-sharekit-profile",
+      "ok": true
+    },
+    {
+      "id": "rt-017",
+      "expected": "code-review",
+      "answer": null,
+      "ok": null
+    }
+  ]
+}

@@ -29,11 +29,11 @@ rag_query(query="<natural-language question>", top=5)
 Optional args:
 - `top` (1–20, default 5) — more isn't always better; reranker quality drops past 8.
 - `scope_types` — narrow to e.g. `["memory", "handoffs"]` for "what did I write down" queries, or `["commit"]` for "what did we ship lately on X".
-- `scope_repos` — pass `["all"]` to ignore cwd auto-scope; pass `["Lucky"]` etc. to force a specific repo.
+- `scope_repos` — pass `["all"]` to ignore cwd auto-scope; pass `["<project-a>"]` etc. to force a specific repo.
 
 ## Failure modes
 
-- **Unmounted external drive** - if the drive drops mid-session, the RAG index becomes stale or inaccessible. Mount guard (above) catches this; surface "WARNING: RAG degraded" and skip the query or fall back to grep.
+- **Unmounted external drive** — if the drive drops mid-session, the RAG index becomes stale or inaccessible. Mount guard (above) catches this; surface "WARNING: RAG degraded" and skip the query or fall back to grep.
 - **Stale index** — if memory or code changed recently and the reindex hook hasn't run (2–5 minute lag typical), you may miss the latest decisions or commits. Fallback: ask directly ("what did we just decide") or grep recent files / `git log`.
 - **Low-quality rerank** — if you ask a vague question ("fix this") without context, the reranker may return false positives. Be specific ("why did we choose D1 for Progress Tracker storage").
 
@@ -48,7 +48,7 @@ A `rag_query()` result includes:
       "text": "<chunk content>",
       "source": {
         "type": "memory" | "handoff" | "plan" | "commit" | "code" | "readme",
-        "repo": "Lucky" | "homelab" | "...",
+        "repo": "<project-a>" | "<homelab>" | "...",
         "path": "..."
       },
       "score": 0.87  // reranker confidence; >0.8 usually relevant

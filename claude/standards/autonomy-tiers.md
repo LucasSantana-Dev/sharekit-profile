@@ -50,8 +50,22 @@ above only fires once another person has already commented on or authored a PR; 
 an autonomous merge past a review nobody has given yet.
 
 Resolved by debate (2026-07-25, 5 lenses/2 rounds) rather than building speculatively: zero
-locally-cloned repos currently have other human contributors, so this section is a **template
-and schema, not active behavior**. No hooks read these fields yet.
+locally-cloned repos currently have other human contributors, so this section started as a
+**template and schema, not active behavior**.
+
+**Wired as of 2026-07-25** (Phase 1 of the compliance/homologation/teamwork debate; the
+overall decision record - reject a second sharekit profile, wire this instead - lives in
+`sharekit-profile/docs/adr/0003-homologation-gate-taxonomy.md`'s Context section):
+`~/.claude/hooks/team-mode-guard.sh` (UserPromptSubmit, cached per session) checks two
+signals - (1) repo-committed `.claude/team.md` with `team_mode: true`, (2) repo owner
+(via `git remote get-url origin`, not `gh repo view`, to stay correctly scoped to the
+reported cwd on a multi-repo machine) != the authenticated `gh` user, i.e. the operator is a
+guest contributor (the common case: Thoughtworks client repos he doesn't administer).
+Either signal injects an `additionalContext` reminder to tighten T2->T3 for that session
+(merges/schema changes/dependency additions need explicit human go-ahead, not
+critic-then-proceed). `require_review_signal`/`disable_direct_commit_to_shared_branches`
+fields are still not read by any hook — only `team_mode: true` and the owner-mismatch
+heuristic are wired; those two remain reference schema until a real need surfaces.
 
 **Schema** (copy `~/.claude/templates/team.md.template` into a shared repo's `.claude/team.md`
 when one exists — must be repo-committed, not personal, so any other contributor's tooling sees

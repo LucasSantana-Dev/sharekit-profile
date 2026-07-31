@@ -26,9 +26,18 @@
     "feature": "pr-required"
   },
   "verification_policy": {
-    "pre-commit": ["lint", "type-check"],
-    "pre-push": ["test", "build"],
-    "pre-merge": ["ci-pass", "review-approved"]
+    "pre-commit": [
+      "lint",
+      "type-check"
+    ],
+    "pre-push": [
+      "test",
+      "build"
+    ],
+    "pre-merge": [
+      "ci-pass",
+      "review-approved"
+    ]
   },
   "escalate_when": [
     "security-sensitive",
@@ -45,7 +54,23 @@
   "handoffs": {
     "trigger": "context-approaching-limit | session-end | explicit-save",
     "location": "~/.claude/handoffs/<project>/latest.md",
-    "required_fields": ["task", "current_step", "completed", "next_action", "git_state"],
+    "required_fields": [
+      "task",
+      "current_step",
+      "completed",
+      "next_action",
+      "git_state"
+    ],
     "archive_on_complete": "~/.claude/handoffs/<project>/<timestamp>-completed.md"
+  },
+  "evals": {
+    "routing": {
+      "gate": "evals/routing/router_eval.py",
+      "gate_tolerance_pp": 5,
+      "model_pin_env": "ROUTER_EVAL_MODEL",
+      "baseline": "evals/routing/baseline/routing_baseline.json",
+      "rule": "changing ROUTER_EVAL_MODEL invalidates the baseline; re-baseline and record why",
+      "ci_mode": "--validate-only (offline); full gate runs pre-PR or scheduled with OPENROUTER_API_KEY"
+    }
   }
 }

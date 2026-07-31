@@ -1,0 +1,22 @@
+{"id": "ra-000", "prompt": "What should I work on next in this repo? Pick the highest-value thing.", "expected": "next-priority", "source": "authored"}
+{"id": "ra-001", "prompt": "We just merged the caching layer PR. Save what we decided and write a handoff so the next session can pick this up.", "expected": "knowledge-loop", "source": "authored"}
+{"id": "ra-002", "prompt": "Research whether we should adopt event sourcing for the billing service. I want primary sources, contradictions reconciled, and a recommendation.", "expected": "deep-research", "source": "authored"}
+{"id": "ra-003", "prompt": "Break this migration into phases with exact file paths and a verification command per phase before I start writing code.", "expected": "plan", "source": "authored"}
+{"id": "ra-004", "prompt": "Review the diff on this branch for logic errors and security issues before I open the PR.", "expected": "code-review", "source": "authored"}
+{"id": "ra-005", "prompt": "I'm running out of context. Compact this session into a resume packet for the next agent.", "expected": "handoff", "source": "authored"}
+{"id": "ra-006", "prompt": "What did we decide about the hitgate caveat timing? Check if there's a memory note for it.", "expected": "recall", "source": "authored"}
+{"id": "ra-007", "prompt": "This session shipped three features. Persist the durable knowledge so future sessions have it.", "expected": "sync-memories", "source": "authored"}
+{"id": "ra-008", "prompt": "Run a full health check on this project: tests, config drift, hooks, security, performance. I want one severity-ranked report.", "expected": "audit-deep", "source": "authored"}
+{"id": "ra-009", "prompt": "I'm torn between Postgres and SQLite for the queue. Have multiple critical lenses argue it out and give me a reconciled verdict.", "expected": "debate", "source": "authored"}
+{"id": "ra-010", "prompt": "Rebuild this landing page so it doesn't look AI-made. Premium typography, real motion, OKLCH tokens.", "expected": "repaint", "source": "authored"}
+{"id": "ra-011", "prompt": "Ask the same question against all five repos at once and roll up the answers — fan out one investigation per repo.", "expected": "parallel-investigate", "source": "authored"}
+{"id": "ra-012", "prompt": "This bug is intermittent. Form root-cause hypotheses and trace the evidence before touching any code.", "expected": "systematic-debugging", "source": "authored"}
+{"id": "ra-013", "prompt": "The PR checks are red. Figure out the first real blocker and the smallest fix that unblocks the merge.", "expected": "ci-watch", "source": "authored"}
+{"id": "ra-014", "prompt": "Write the failing test first for this pagination bug, then make it pass.", "expected": "tdd", "source": "authored"}
+{"id": "ra-015", "prompt": "Bump the version, update the changelog, tag, cut the GitHub release, and verify the deploy.", "expected": "ship", "source": "authored"}
+{"id": "ra-016", "prompt": "Check whether this PR is actually ready to merge: CI, reviews, conflicts, the lot. Give me MERGE, WAIT, or FIX.", "expected": "pr-merge-readiness", "source": "authored"}
+{"id": "ra-017", "prompt": "Find the test coverage gaps in this diff and write tests that fill them.", "expected": "coverage-gap", "source": "authored"}
+{"id": "ra-018", "prompt": "Can you explain what the retry logic in src/queue.ts does? I just want to understand it.", "expected": "none", "source": "authored"}
+{"id": "ra-019", "prompt": "Fix the typo in the README title.", "expected": "none", "source": "authored"}
+{"id": "ra-020", "prompt": "Refactor this method: rename getUserById to findUserById everywhere it's called and clean up the call sites.", "expected": "refactor", "source": "authored"}
+{"id": "ra-021", "prompt": "Audit our test suite: how many tests, what's the coverage situation, which ones look flaky?", "expected": "test-health", "source": "authored"}

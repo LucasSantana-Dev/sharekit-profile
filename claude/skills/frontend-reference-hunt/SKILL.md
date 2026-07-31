@@ -93,5 +93,5 @@ training-data averages (the root cause of slop convergence).
 
 ## Memory Hooks
 
-- Read memory for project brand constraints (e.g. Criativaria guia-de-marca) before curating.
+- Read memory for project brand constraints (e.g. <project-b> guia-de-marca) before curating.
 - Write memory only if the hunt establishes a durable brand reference direction for a project.
