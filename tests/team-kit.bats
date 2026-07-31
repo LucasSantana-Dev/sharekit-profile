@@ -74,3 +74,46 @@ EOF
   [ "$status" -eq 0 ]
   [[ "$output" == *"already done - skipping ai-review.yml"* ]]
 }
+
+@test "sync-agents-claude: CLAUDE.md is generated and in sync" {
+  [ -f "$REPO_ROOT/CLAUDE.md" ]
+  head -1 "$REPO_ROOT/CLAUDE.md" | grep -q "GENERATED from AGENTS.md"
+  run bash "$REPO_ROOT/scripts/sync-agents-claude.sh" --check
+  [ "$status" -eq 0 ]
+}
+
+@test "sync-agents-claude: --check fails on stale CLAUDE.md" {
+  tmp="$BATS_TEST_TMPDIR/sync-$BATS_TEST_NUMBER"
+  mkdir -p "$tmp/scripts"
+  cp "$REPO_ROOT/scripts/sync-agents-claude.sh" "$tmp/scripts/"
+  echo "# canonical" > "$tmp/AGENTS.md"
+  echo "stale content" > "$tmp/CLAUDE.md"
+  run bash "$tmp/scripts/sync-agents-claude.sh" --check
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"stale"* ]]
+  bash "$tmp/scripts/sync-agents-claude.sh" >/dev/null
+  run bash "$tmp/scripts/sync-agents-claude.sh" --check
+  [ "$status" -eq 0 ]
+}
+
+@test "adoption-panel: runs local-only and handles missing logs" {
+  run bash "$REPO_ROOT/scripts/adoption-panel.sh" --days 7 --projects "$BATS_TEST_TMPDIR/no-such-dir"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"local-only"* ]]
+  [[ "$output" == *"no session logs"* ]]
+  [[ "$output" == *"nothing left this machine"* ]]
+}
+
+@test "adoption-panel: counts skill invocations from fixture logs" {
+  d="$BATS_TEST_TMPDIR/panel-$BATS_TEST_NUMBER"
+  mkdir -p "$d/proj"
+  cat > "$d/proj/s.jsonl" <<'JSON'
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Skill","input":{"skill":"plan"}}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Skill","input":{"skill":"plan"}}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Skill","input":{"skill":"verify"}}]}}
+JSON
+  run bash "$REPO_ROOT/scripts/adoption-panel.sh" --days 1 --projects "$d"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"2  plan"* ]]
+  [[ "$output" == *"1  verify"* ]]
+}
