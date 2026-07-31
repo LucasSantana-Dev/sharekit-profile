@@ -120,3 +120,30 @@ teardown() {
     rm -rf "$TEST_TMP" 2>/dev/null || true
   fi
 }
+
+@test "check-marketplace: channel version mismatch fails" {
+  mk_fixture "$TEST_TMP/channel-bad"
+  python3 - "$TEST_TMP/channel-bad/.claude-plugin/marketplace.json" <<'PY'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p))
+d["metadata"] = {"version": "9.9.9"}
+json.dump(d, open(p, "w"), indent=2)
+PY
+  echo '{"." : "1.0.0"}' > "$TEST_TMP/channel-bad/.release-please-manifest.json"
+  result=$( bash "$REPO_ROOT/scripts/check-marketplace.sh" "$TEST_TMP/channel-bad" 2>&1 || true )
+  [[ "$result" == *"!= release channel"* ]]
+}
+
+@test "check-marketplace: channel version match passes" {
+  mk_fixture "$TEST_TMP/channel-ok"
+  python3 - "$TEST_TMP/channel-ok/.claude-plugin/marketplace.json" <<'PY'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p))
+d["metadata"] = {"version": "1.0.0"}
+json.dump(d, open(p, "w"), indent=2)
+PY
+  echo '{"." : "1.0.0"}' > "$TEST_TMP/channel-ok/.release-please-manifest.json"
+  bash "$REPO_ROOT/scripts/check-marketplace.sh" "$TEST_TMP/channel-ok"
+}

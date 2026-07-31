@@ -348,4 +348,31 @@ adopters:
 
 ---
 
-**Last updated:** 2026-07-31
+
+### Update channels (stable / latest)
+
+The marketplace listing tracks the canonical release stream:
+`.release-please-manifest.json` is the single version source, and
+`check-marketplace.sh` fails CI when `marketplace.json` metadata drifts from
+it (the 2026-07 version-triple-drift class of bug, now gated).
+
+- **`stable`** = the latest GitHub release tag (release-please cut). Teams
+  that want reviewed, versioned updates pin the marketplace source by tag:
+
+  ```json
+  {
+    "extraKnownMarketplaces": [
+      { "source": "LucasSantana-Dev/sharekit-profile", "ref": "v0.10.0" }
+    ]
+  }
+  ```
+
+- **`latest`** = `main`. Every merge is a release; use for pilot teams only.
+
+Channel assignment is per team repo, decided in the committed
+`.claude/settings.json` (project tier). Personal overrides never change the
+channel: scalars override, and the channel is a team-tier scalar.
+
+---
+
+**Last updated:** 2026-07-31 (update channels added)

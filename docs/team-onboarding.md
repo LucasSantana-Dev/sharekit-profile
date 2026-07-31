@@ -20,7 +20,9 @@ Two supported paths:
   ```
 
   Claude Code prompts each teammate to install on folder trust; plugins
-  arrive versioned, no fork drift. Pin `stable` for conservative teams.
+  arrive versioned, no fork drift. Conservative teams pin the `stable`
+  channel (`"ref": "v0.10.0"` tag); pilot teams track `latest` (main).
+  See "Update channels" in `docs/configuration.md`.
 - **npm installer:** `npx @lucassantana/sharekit install LucasSantana-Dev`
   (the installer lives in the separate `sharekit` repo; use the marketplace
   path if you do not want that dependency).

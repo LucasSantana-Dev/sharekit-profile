@@ -99,6 +99,19 @@ sync_pair curated-hooks.txt      ./claude/hooks
 sync_pair curated-standards.txt  ./claude/standards
 sync_pair curated-agents.txt     ./claude/agents
 
+# Channel gate: the marketplace metadata version must track the canonical
+# release stream (.release-please-manifest.json). Version drift between the
+# two silently breaks the stable/latest channel contract (teams pinning
+# `stable` get a listing that lies about what it contains).
+RPM="$ROOT/.release-please-manifest.json"
+if [ -f "$RPM" ]; then
+  channel_version="$(jq -r '.["."] // empty' "$RPM")"
+  mk_version="$(jq -r '.metadata.version // empty' "$MK")"
+  if [ -n "$channel_version" ] && [ "$mk_version" != "$channel_version" ]; then
+    err "marketplace metadata.version $mk_version != release channel $channel_version (.release-please-manifest.json)"
+  fi
+fi
+
 if [ "$fail" = 0 ]; then
   echo "marketplace checks passed: $plugin_count plugins, $curated_count curated entries verified"
 fi
