@@ -36,9 +36,13 @@ review; private tags never promote).
    proposal: if any `<private>` tag or personal-scope path reference survives,
    stop and report — do not submit. Present the diff to the user for explicit
    approval.
-5. **Submit.** Only after user approval: move the proposal into the team scope
-   (`.agents/memory/`) or open it as a PR when the team vault is a separate
-   repo. Record the promotion in the note header.
+5. **Submit.** Only after user approval: push the proposal through the team
+   vault — `bash scripts/team-memory-sync.sh push <proposal.md>` (requires
+   `.harness/team-vault.json`; the transport re-checks for `<private>` tags
+   and refuses them). The note lands in the shared vault repo; teammates
+   receive it on their next `team-memory-sync.sh pull`. If the team vault is
+   a PR-governed repo, open the vault PR instead of a direct push. Record the
+   promotion in the note header.
 
 ## Hard rules
 
