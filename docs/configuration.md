@@ -356,16 +356,21 @@ The marketplace listing tracks the canonical release stream:
 `check-marketplace.sh` fails CI when `marketplace.json` metadata drifts from
 it (the 2026-07 version-triple-drift class of bug, now gated).
 
-- **`stable`** = the latest GitHub release tag (release-please cut). Teams
-  that want reviewed, versioned updates pin the marketplace source by tag:
+- **`stable`** = a moving tag pointing at the latest release commit
+  (`git tag -f stable v<release>^{} && git push -f origin stable` after each
+  release-please merge; currently v0.11.0). Teams that want reviewed,
+  versioned updates pin either the moving ref or a fixed tag:
 
   ```json
   {
     "extraKnownMarketplaces": [
-      { "source": "LucasSantana-Dev/sharekit-profile", "ref": "v0.10.0" }
+      { "source": "LucasSantana-Dev/sharekit-profile", "ref": "stable" }
     ]
   }
   ```
+
+  Pin `"ref": "stable"` to follow releases deliberately, or `"ref": "v0.11.0"`
+  to freeze at a version until the team chooses to move.
 
 - **`latest`** = `main`. Every merge is a release; use for pilot teams only.
 
