@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Sharekit operator harness profile: curated skills, hooks, agents, and standards packaged as a Claude Code marketplace, one plugin per concern.",
-    "version": "0.10.0"
+    "version": "0.11.0"
   },
   "plugins": [
     {
       "name": "core-skills",
       "source": "./claude/skills",
       "description": "Curated portable skills (curated-skills.txt): workflows, composites, and operator utilities.",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "author": {
         "name": "Sharekit Maintainers"
       },
@@ -30,7 +30,7 @@
       "name": "security-hooks",
       "source": "./claude/hooks",
       "description": "Curated portable hooks (curated-hooks.txt): policy gates, drift checks, and session guards that ship to installers.",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "author": {
         "name": "Sharekit Maintainers"
       },
@@ -47,7 +47,7 @@
       "name": "gate-hooks",
       "source": "./hooks",
       "description": "Repo governance hooks: constitution gates, catalog guards, and CI drift checks for the profile itself.",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "author": {
         "name": "Sharekit Maintainers"
       },
@@ -64,7 +64,7 @@
       "name": "role-agents",
       "source": "./claude/agents",
       "description": "Curated portable agents (curated-agents.txt): critic, reviewer, debugger, and specialist roles.",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "author": {
         "name": "Sharekit Maintainers"
       },
@@ -81,7 +81,7 @@
       "name": "review-pack",
       "source": "./claude/agents/review",
       "description": "CI-native multi-agent review pack: risk-tiered reviewer fan-out plus a coordinator judge pass emitting one severity-rated review (critical-only blocking).",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "author": {
         "name": "Sharekit Maintainers"
       },
@@ -98,7 +98,7 @@
       "name": "standards",
       "source": "./claude/standards",
       "description": "Operator standards and decision records (curated-standards.txt): routing, testing, security, workflow.",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "author": {
         "name": "Sharekit Maintainers"
       },
@@ -115,7 +115,7 @@
       "name": "typed-schemas",
       "source": "./standards",
       "description": "Shared schema contracts (typed-result-schema.md) kept at the repo root for cross-harness reuse.",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "author": {
         "name": "Sharekit Maintainers"
       },
