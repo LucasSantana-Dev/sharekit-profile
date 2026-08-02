@@ -15,6 +15,9 @@ bash hooks/check-identity.sh
 # Check harness/app boundary
 bash scripts/check-harness-boundary.sh
 
+# Regenerate harness manifest fingerprints (self-heals drift, re-stages if changed)
+bash scripts/regen-manifest.sh
+
 # Check harness manifest fingerprints
 bash scripts/check-harness-manifest.sh
 

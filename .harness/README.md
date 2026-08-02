@@ -30,15 +30,20 @@ operator harness. It converts the prose security rules scattered across
 
 ### Regenerating fingerprints
 
-After any edit to a tracked file, recompute its sha256 and update
-`manifest.json`:
-
 ```bash
-shasum -a 256 .harness/mcp-policy.json   # paste hex into manifest.json
-shasum -a 256 AGENTS.md                  # paste hex into manifest.json
+bash scripts/regen-manifest.sh
 ```
 
-The `generated_at` timestamp should also be bumped to the edit time.
+Recomputes sha256 for every tracked file, updates only the entries that
+changed (targeted string replace — doesn't reformat or reserialize the rest
+of the file), bumps `generated_at`, and re-stages `manifest.json` if it
+changed. Idempotent: no-op if nothing drifted. Runs automatically in
+`.husky/pre-commit` before `check-harness-manifest.sh`, so a commit that
+edits a tracked file no longer needs a manual rehash step — it self-heals
+and the check passes.
+
+Manual `shasum -a 256 <file>` + hand-paste still works as a fallback if the
+script is unavailable, but should not be needed in normal flow.
 
 ## Policy drop-in fragments (`policy.d/`)
 
