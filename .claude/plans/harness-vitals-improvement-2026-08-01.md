@@ -162,13 +162,33 @@ a mechanism that doesn't exist — would have needed an upstream feature request
 local config edit. Moot now given the flat-subscription answer, but worth knowing before
 assuming this path is available for any other unpriced model in the future.
 
-**Steps 2-3 — still open, not part of this pass:**
-2. Re-run the Haiku/Sonnet/Opus routing audit from `spec-token-optimization-work-setup.md` Decision 1 against **this** repo's own sessions, not just the work-machine spec — the 59% Opus share suggests the policy isn't being followed here either.
+**Step 2 — RESOLVED (2026-08-02):** Ran the routing audit against this repo's own
+sessions via `agentsview stats --include-project <slug> --format json` (28d window). Found
+a data-quality issue first: project names fragmented into 4 buckets — `sharekit-profile`
+(hyphen, 3 sessions, kimi-only), `sharekit_profile` (underscore, 7 sessions, all the real
+Claude data), `sharekit` (0), `sharekit-cli` (2, kimi-only). `--include-project` matches
+exact slug only, doesn't merge variants.
+
+Model mix in the real bucket (`sharekit_profile`, 1,800,513 Claude tokens): sonnet-5 42.1%,
+fable-5 31.4%, opus-4-8 26.5%, **haiku 0%**. Opus alone looks better than the org-wide 59%
+figure, but Opus+Fable combined is 57.9% — nearly identical, this repo replicates the same
+heavy-tier skew, not an exception.
+
+Investigated the zero-Haiku reading before concluding anything: confirmed
+`CLAUDE_CODE_SUBAGENT_MODEL=claude-haiku-4-5-20251001` **is** correctly set globally
+(`~/.claude/settings.json`, `~/.claude-env/settings/shared.json`). Globally, only 4 of 120
+sessions this month are tracked as `sessions_subagent` in `agentsview` — a large undercount
+given actual dispatch volume. **Conclusion: zero Haiku tokens in this project's data is an
+`agentsview` subagent-attribution gap, not a real routing violation.** The Haiku routing
+policy is correctly configured; no routing change applied because none was warranted — the
+policy was never actually broken, only invisible to this measurement tool.
+
+**Step 3 — still open, not part of this pass:**
 3. File a short follow-up note on the grade-distribution discrepancy (Phase 8 finding #3) for whoever next touches `agentsview` stats — don't silently trust either number until reconciled.
 
-**Files Touched:** none for Step 1 (no config change needed — flat subscription confirmed, no rate card to add); this repo's own model-tier practice (no specific file — a practice change) for Step 2
-**Verify:** Step 1 — none needed, resolved by operator confirmation, no re-check applicable; Steps 2-3 — `agentsview stats --since 28d --format json | jq '.model_mix.by_tokens'` shows Opus share trending down after routing changes land
-**Done When:** Step 1 done (2026-08-02). Steps 2-3 remain: a concrete Opus→Sonnet/Haiku routing change identified and applied to this repo's own session practice, AND the grade-distribution discrepancy note filed
+**Files Touched:** none — Step 1 needed no config change (flat subscription, no rate card to add); Step 2 needed no routing change (policy already correctly configured, gap was in measurement not routing)
+**Verify:** Step 1 — none needed, resolved by operator confirmation; Step 2 — confirmed `CLAUDE_CODE_SUBAGENT_MODEL` set correctly + confirmed `agentsview` subagent-session undercount globally (4/120), root cause identified; Step 3 — pending
+**Done When:** Steps 1-2 done (2026-08-02) — no fix applied to either because neither had a real underlying problem once investigated. Step 3 remains: the grade-distribution discrepancy note filed
 **Time:** 30-45 min (mostly the pricing research + routing audit)
 
 **Replanning triggers:**
@@ -196,10 +216,13 @@ ADR-0005 defer reconfirmed, revisit extended to 2027-03-31. **Phase 8: findings 
 (Opus ~59% share, kimi-code/k3 untracked cost) but its own Done-When criteria — a rate card
 for kimi-code/k3 in `~/.agentsview/config.toml` AND an applied Opus→Sonnet/Haiku routing
 change — are NOT met** (confirmed 2026-08-02: no `kimi-code` entry exists in
-`~/.agentsview/config.toml`). **Update (2026-08-02, later):** Step 1 resolved — operator
-confirmed kimi-code/k3 is a flat subscription, no marginal cost exists to price, and
-`agentsview` has no rate-card mechanism regardless. Steps 2-3 (routing audit, grade-
-distribution follow-up note) remain open. Full
+`~/.agentsview/config.toml`). **Update (2026-08-02, later):** Steps 1-2 resolved — Step 1:
+operator confirmed kimi-code/k3 is a flat subscription, no marginal cost exists to price,
+and `agentsview` has no rate-card mechanism regardless. Step 2: routing audit run, found
+`agentsview` project-name fragmentation (4 slug variants) and a subagent-attribution gap
+(4/120 sessions tracked globally) causing a misleading zero-Haiku reading — `CLAUDE_CODE_
+SUBAGENT_MODEL` is confirmed correctly configured, no real routing violation, no fix
+needed. Step 3 (grade-distribution follow-up note) remains open. Full
 detail in `knowledge-brain/memory/project_harness_vitals_execution_2026-08-02.md`.
 
 <!-- Superseded, kept for history -->
