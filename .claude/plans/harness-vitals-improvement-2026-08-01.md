@@ -183,12 +183,22 @@ given actual dispatch volume. **Conclusion: zero Haiku tokens in this project's 
 policy is correctly configured; no routing change applied because none was warranted — the
 policy was never actually broken, only invisible to this measurement tool.
 
-**Step 3 — still open, not part of this pass:**
-3. File a short follow-up note on the grade-distribution discrepancy (Phase 8 finding #3) for whoever next touches `agentsview` stats — don't silently trust either number until reconciled.
+**Step 3 — RESOLVED, root cause found (2026-08-02):** Original finding #3 hypothesized "two
+different grading computations." Actually a pagination artifact: `health --limit 300`
+truncates the session population — the 28d window actually contains 412 sessions, and
+`--limit 300` silently cuts off some before reaching all F-grade rows. Re-ran with
+`--limit 5000` (returns 500 total, covers the full window) and filtered to the exact 28d
+boundary: **F-grade count = 2**, matching `stats`' `outcomes.grade_distribution.F: 2`
+exactly (schema note: this moved from a top-level `grade_distribution` key to
+`.outcomes.grade_distribution` since the version this finding was originally written
+against). Both F-grade sessions identified: `4005d715...` (2026-07-16, `music_jam`,
+score 0) and `12d91a98...` (2026-07-05, `Criativaria`, score 28). No discrepancy remains —
+always pass a `--limit` covering the full window (or check `sessions_all` from `stats`
+first) when cross-checking `health` against `stats` for any project, not just this one.
 
-**Files Touched:** none — Step 1 needed no config change (flat subscription, no rate card to add); Step 2 needed no routing change (policy already correctly configured, gap was in measurement not routing)
-**Verify:** Step 1 — none needed, resolved by operator confirmation; Step 2 — confirmed `CLAUDE_CODE_SUBAGENT_MODEL` set correctly + confirmed `agentsview` subagent-session undercount globally (4/120), root cause identified; Step 3 — pending
-**Done When:** Steps 1-2 done (2026-08-02) — no fix applied to either because neither had a real underlying problem once investigated. Step 3 remains: the grade-distribution discrepancy note filed
+**Files Touched:** none — Step 1 needed no config change (flat subscription, no rate card to add); Step 2 needed no routing change (policy already correctly configured, gap was in measurement not routing); Step 3 needed no fix, only a wider `--limit`
+**Verify:** Step 1 — resolved by operator confirmation; Step 2 — `CLAUDE_CODE_SUBAGENT_MODEL` confirmed set + subagent-attribution gap identified; Step 3 — `agentsview health --limit 5000 --format json`, filtered to 28d window, F-count matches `stats` exactly (both = 2)
+**Done When:** All three steps done (2026-08-02) — Phase 8 fully closed. No fixes were applied to Steps 1-2 because neither had a real underlying problem; Step 3's "discrepancy" wasn't real either, just insufficient `--limit`.
 **Time:** 30-45 min (mostly the pricing research + routing audit)
 
 **Replanning triggers:**
@@ -216,13 +226,15 @@ ADR-0005 defer reconfirmed, revisit extended to 2027-03-31. **Phase 8: findings 
 (Opus ~59% share, kimi-code/k3 untracked cost) but its own Done-When criteria — a rate card
 for kimi-code/k3 in `~/.agentsview/config.toml` AND an applied Opus→Sonnet/Haiku routing
 change — are NOT met** (confirmed 2026-08-02: no `kimi-code` entry exists in
-`~/.agentsview/config.toml`). **Update (2026-08-02, later):** Steps 1-2 resolved — Step 1:
-operator confirmed kimi-code/k3 is a flat subscription, no marginal cost exists to price,
-and `agentsview` has no rate-card mechanism regardless. Step 2: routing audit run, found
-`agentsview` project-name fragmentation (4 slug variants) and a subagent-attribution gap
-(4/120 sessions tracked globally) causing a misleading zero-Haiku reading — `CLAUDE_CODE_
-SUBAGENT_MODEL` is confirmed correctly configured, no real routing violation, no fix
-needed. Step 3 (grade-distribution follow-up note) remains open. Full
+`~/.agentsview/config.toml`). **Update (2026-08-02, later): Phase 8 fully closed, all 3
+steps resolved.** Step 1: operator confirmed kimi-code/k3 is a flat subscription, no
+marginal cost exists to price, and `agentsview` has no rate-card mechanism regardless.
+Step 2: routing audit run, found `agentsview` project-name fragmentation (4 slug variants)
+and a subagent-attribution gap (4/120 sessions tracked globally) causing a misleading
+zero-Haiku reading — `CLAUDE_CODE_SUBAGENT_MODEL` is confirmed correctly configured, no
+real routing violation, no fix needed. Step 3: the "two grading computations" hypothesis
+was wrong — root cause was `health --limit 300` truncating the 412-session window;
+re-run with `--limit 5000` matches `stats`' F:2 exactly, no real discrepancy. Full
 detail in `knowledge-brain/memory/project_harness_vitals_execution_2026-08-02.md`.
 
 <!-- Superseded, kept for history -->
