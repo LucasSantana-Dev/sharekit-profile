@@ -15,6 +15,21 @@ if [[ ! -f "$MANIFEST" ]]; then
   exit 1
 fi
 
+# Fail closed on partial staging (CodeRabbit finding on PR #116): if a tracked
+# file has unstaged changes on top of (or instead of) what's staged, hashing
+# the working tree here while only re-staging manifest.json would record a
+# fingerprint for content that never actually gets committed. Refuse and let
+# the caller stage/resolve first rather than silently mismatching.
+if command -v git >/dev/null 2>&1 && git -C "$ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  while IFS= read -r relpath; do
+    [[ "$relpath" == ".harness/manifest.json" ]] && continue
+    if ! git -C "$ROOT" diff --quiet -- "$relpath" 2>/dev/null; then
+      echo "ERROR: $relpath has unstaged changes — stage or stash before regenerating the manifest (partial-stage would record a fingerprint for content that isn't actually committed)" >&2
+      exit 1
+    fi
+  done < <(jq -r '.files | keys[]' "$MANIFEST")
+fi
+
 python3 - "$ROOT" "$MANIFEST" <<'PYEOF'
 import sys, json, hashlib, re
 from datetime import datetime, timezone
