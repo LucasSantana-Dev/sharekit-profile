@@ -164,11 +164,22 @@ Fix the 7 concrete issues `harness-vitals.sh` flagged this session, plus fold in
 - Phase 1's root-cause diagnosis may reveal the uid-501 error is specific to this session's sandbox, in which case the "fix" is just a retry, not a hook change — don't over-build a fix for a problem that isn't real.
 - Phases 3, 4, 6, 7 touch locations outside this git repo (`~/Library/LaunchAgents`, `~/.agents/skills`, `~/.claude/`, knowledge-brain memory) — none of that is version-controlled by `sharekit-profile`; only Phases 5 and 6 touch this repo directly.
 
-## Current State (if partial)
+## Current State (2026-08-02, superseding the line below)
 
-- Diagnostics complete for all 7 vitals issues (git status, log tails, launchd list, symlink counts all captured this session — see conversation).
-- All 3 deep-research passes complete and reconciled (ADR-0005, skill catalog, security posture).
-- Zero phases executed yet — this plan is diagnosis-complete, execution-pending confirm.
+**All 8 phases done.** Phase 1: uid-501 was a sandbox artifact, no real hook bug, confirmed
+non-issue. Phase 2: sonnet confirmed canonical, opus machine-level override removed. Phase 3:
+RAG nightly-rebuild was stuck `OnDemand=true` (0 scheduled runs), reset + rebuilt. Phase 4: 87
+broken symlinks removed, `.archive/` relocated out of skills root. Phase 5+6: shipped in PR #101
+(merged `5a7690f`), refined further post-merge via CodeRabbit fixes (45-vs-47 count distinction,
+THREAT_MODEL.md path/key corrections — see `docs/skill-catalog-efficiency.md` 2026-08-01 update).
+Phase 7: ADR-0005 defer reconfirmed, revisit extended to 2027-03-31. Phase 8: findings verified
+(Opus ~59% share, kimi-code/k3 untracked cost) — full detail in
+`knowledge-brain/memory/project_harness_vitals_execution_2026-08-02.md`.
+
+<!-- Superseded, kept for history -->
+- ~~Diagnostics complete for all 7 vitals issues (git status, log tails, launchd list, symlink counts all captured this session — see conversation).~~
+- ~~All 3 deep-research passes complete and reconciled (ADR-0005, skill catalog, security posture).~~
+- ~~Zero phases executed yet — this plan is diagnosis-complete, execution-pending confirm.~~
 
 ## Notes
 
