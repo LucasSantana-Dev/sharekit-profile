@@ -147,14 +147,28 @@ Fix the 7 concrete issues `harness-vitals.sh` flagged this session, plus fold in
 2. **The apparent ~50% total-spend drop is partly a measurement artifact, not a real reduction.** `agentsview session usage <id>` on a `kimi-code/k3` session returns `Cost: n/a (unpriced: kimi-code/k3)` — confirmed no rate card exists in `~/.agentsview/config.toml` for `kimi-code/k3` or `k2p6`. The daily rollup (`usage daily`) silently displays unpriced models as `$0.00`, which reads as "free" but means "unknown." Real spend on those providers (if kimi-code is a paid API, not local) is untracked.
 3. **Open discrepancy, not yet resolved:** `stats --since 28d` JSON reports `grade_distribution.F: 3`, but pulling `health --limit 300 --format json` and filtering `health_grade=='F'` returns zero across the same period. These appear to be two different grading computations scoped differently — not chased further this session (stopped per rabbit-hole discipline after 2 failed reproduction attempts).
 
-**Steps:**
-1. Add a rate card for `kimi-code/k3`/`k2p6` to `~/.agentsview/config.toml` if pricing is knowable (check the provider's actual billing — flat subscription vs. per-token), OR explicitly confirm they're free/local and the `n/a` label should read that way instead of `$0.00`.
+**Step 1 — RESOLVED (2026-08-02):** Operator confirmed `kimi-code/k3`/`k2p6` is a **flat
+monthly subscription**, not pay-per-token — no marginal per-token cost exists to price.
+This means the original "50% total-spend drop is partly a measurement artifact" framing
+in finding #2 above was itself wrong: there is no untracked real spend to worry about,
+because there's no marginal spend at all. Correcting that finding rather than treating it
+as urgent, per this phase's own replanning trigger.
+
+Separately, confirmed `agentsview` (`agentsview.io`, closed-source Homebrew cask) has **no
+rate-card override mechanism at all** — `~/.agentsview/config.toml` only holds
+`auth_token`/`cursor_secret`, no pricing subcommand, no `models.json`. So even if pricing
+had been per-token, Step 1 as originally scoped ("add a rate card to config.toml") assumed
+a mechanism that doesn't exist — would have needed an upstream feature request, not a
+local config edit. Moot now given the flat-subscription answer, but worth knowing before
+assuming this path is available for any other unpriced model in the future.
+
+**Steps 2-3 — still open, not part of this pass:**
 2. Re-run the Haiku/Sonnet/Opus routing audit from `spec-token-optimization-work-setup.md` Decision 1 against **this** repo's own sessions, not just the work-machine spec — the 59% Opus share suggests the policy isn't being followed here either.
 3. File a short follow-up note on the grade-distribution discrepancy (Phase 8 finding #3) for whoever next touches `agentsview` stats — don't silently trust either number until reconciled.
 
-**Files Touched:** `~/.agentsview/config.toml` (if pricing added), this repo's own model-tier practice (no specific file — a practice change)
-**Verify:** re-run `agentsview session usage <kimi-session-id>` — no longer shows `n/a`; `agentsview stats --since 28d --format json | jq '.model_mix.by_tokens'` shows Opus share trending down after routing changes land
-**Done When:** pricing gap resolved (priced or explicitly confirmed free) AND a concrete Opus→Sonnet/Haiku routing change is identified and applied to this repo's own session practice
+**Files Touched:** none for Step 1 (no config change needed — flat subscription confirmed, no rate card to add); this repo's own model-tier practice (no specific file — a practice change) for Step 2
+**Verify:** Step 1 — none needed, resolved by operator confirmation, no re-check applicable; Steps 2-3 — `agentsview stats --since 28d --format json | jq '.model_mix.by_tokens'` shows Opus share trending down after routing changes land
+**Done When:** Step 1 done (2026-08-02). Steps 2-3 remain: a concrete Opus→Sonnet/Haiku routing change identified and applied to this repo's own session practice, AND the grade-distribution discrepancy note filed
 **Time:** 30-45 min (mostly the pricing research + routing audit)
 
 **Replanning triggers:**
@@ -182,7 +196,10 @@ ADR-0005 defer reconfirmed, revisit extended to 2027-03-31. **Phase 8: findings 
 (Opus ~59% share, kimi-code/k3 untracked cost) but its own Done-When criteria — a rate card
 for kimi-code/k3 in `~/.agentsview/config.toml` AND an applied Opus→Sonnet/Haiku routing
 change — are NOT met** (confirmed 2026-08-02: no `kimi-code` entry exists in
-`~/.agentsview/config.toml`). Phase 8 remains open; its Steps 1-3 still need doing. Full
+`~/.agentsview/config.toml`). **Update (2026-08-02, later):** Step 1 resolved — operator
+confirmed kimi-code/k3 is a flat subscription, no marginal cost exists to price, and
+`agentsview` has no rate-card mechanism regardless. Steps 2-3 (routing audit, grade-
+distribution follow-up note) remain open. Full
 detail in `knowledge-brain/memory/project_harness_vitals_execution_2026-08-02.md`.
 
 <!-- Superseded, kept for history -->
