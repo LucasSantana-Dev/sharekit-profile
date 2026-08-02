@@ -64,7 +64,7 @@ Only after all four: relax the recency gate. Never relax the slop-cluster gate.
 
 ## Motion archetype naming
 
-Name motion observations using the archetype vocabulary in
-`premium-frontend-ui/references/motion-references.md` (scroll-driven narrative, magnetic
-cursor, reveal/masking, kinetic type, parallax depth, orchestrated load). Shared vocabulary
-is what lets build skills consume the board without re-watching the sites.
+Name motion observations using the archetype vocabulary in `repaint`'s reference library
+(scroll-driven narrative, magnetic cursor, reveal/masking, kinetic type, parallax depth,
+orchestrated load — absorbed from the retired `premium-frontend-ui` skill, 2026-07-16).
+Shared vocabulary is what lets build skills consume the board without re-watching the sites.

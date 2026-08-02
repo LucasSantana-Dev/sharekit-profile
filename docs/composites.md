@@ -9,7 +9,7 @@ Composite behavior now lives mostly inside active skills rather than many standa
 | `rag-maintenance` | archived — consolidated into `rag-curate` + `adt-rag-drift` (2026-07-01) |
 | `scope-it` | archived — superseded by `scope-and-execute` (2026-07-01) |
 | `architecture-patterns` | archived — zero-use per canonical 30d audit; use `improve-codebase-architecture` (2026-07-01) |
-| `codebase-design` | archived — zero-use per canonical 30d audit; see `impeccable` for design review (2026-07-01) |
+| `codebase-design` | archived — zero-use per canonical 30d audit; see `repaint` for design review (`impeccable`, its prior redirect target, was itself retired into `repaint` 2026-07-16) |
 | `context-save` | archived — zero-use per canonical 30d audit; use `sync-memories` or `handoff` (2026-07-01) |
 | `domain-modeling` | archived — zero-use per canonical 30d audit (2026-07-01) |
 | `request-refactor-plan` | archived — zero-use per canonical 30d audit; use `refactor-pipeline` directly (2026-07-01) |
@@ -28,7 +28,7 @@ When routing suggests a composite workflow, invoke the active composite or skill
 | `rag-maintenance` | archived — consolidated into `rag-curate` + `adt-rag-drift` (2026-07-01) |
 | `scope-it` | archived — superseded by `scope-and-execute` (2026-07-01) |
 | `architecture-patterns` | archived — zero-use per canonical 30d audit; use `improve-codebase-architecture` (2026-07-01) |
-| `codebase-design` | archived — zero-use per canonical 30d audit; see `impeccable` for design review (2026-07-01) |
+| `codebase-design` | archived — zero-use per canonical 30d audit; see `repaint` for design review (`impeccable`, its prior redirect target, was itself retired into `repaint` 2026-07-16) |
 | `context-save` | archived — zero-use per canonical 30d audit; use `sync-memories` or `handoff` (2026-07-01) |
 | `domain-modeling` | archived — zero-use per canonical 30d audit (2026-07-01) |
 | `request-refactor-plan` | archived — zero-use per canonical 30d audit; use `refactor-pipeline` directly (2026-07-01) |
@@ -107,7 +107,7 @@ Safe broad-refactor setup.
 | `rag-maintenance` | archived — consolidated into `rag-curate` + `adt-rag-drift` (2026-07-01) |
 | `scope-it` | archived — superseded by `scope-and-execute` (2026-07-01) |
 | `architecture-patterns` | archived — zero-use per canonical 30d audit; use `improve-codebase-architecture` (2026-07-01) |
-| `codebase-design` | archived — zero-use per canonical 30d audit; see `impeccable` for design review (2026-07-01) |
+| `codebase-design` | archived — zero-use per canonical 30d audit; see `repaint` for design review (`impeccable`, its prior redirect target, was itself retired into `repaint` 2026-07-16) |
 | `context-save` | archived — zero-use per canonical 30d audit; use `sync-memories` or `handoff` (2026-07-01) |
 | `domain-modeling` | archived — zero-use per canonical 30d audit (2026-07-01) |
 | `request-refactor-plan` | archived — zero-use per canonical 30d audit; use `refactor-pipeline` directly (2026-07-01) |

@@ -1,6 +1,6 @@
 ---
 name: frontend-reference-hunt
-description: Search and map visual frontend references from Dribbble, Mobbin, Pinterest, and curated galleries (Awwwards, Godly, Land-book, siteinspire) into a structured reference board covering register, typography, palette, spacing, layout, and named motion archetypes, with steal/avoid notes per reference. Use when a UI task needs real-world visual direction before building ("busca referências", "find design references", "reference hunt", "moodboard pra essa página", "procura no Dribbble/Mobbin", "referências de UI/UX/motion") or when repaint, frontend-craft, or premium-frontend-ui needs its reference-anchor phase fed with live, current references instead of training-data memory. Searches and maps only; does not build UI.
+description: Search and map visual frontend references from Dribbble, Mobbin, Pinterest, and curated galleries (Awwwards, Godly, Land-book, siteinspire) into a structured reference board covering register, typography, palette, spacing, layout, and named motion archetypes, with steal/avoid notes per reference. Use when a UI task needs real-world visual direction before building ("busca referências", "find design references", "reference hunt", "moodboard pra essa página", "procura no Dribbble/Mobbin", "referências de UI/UX/motion") or when repaint or frontend-craft needs its reference-anchor phase fed with live, current references instead of training-data memory. Searches and maps only; does not build UI.
 triggers:
   - busca referências visuais
   - find design references
@@ -25,7 +25,7 @@ training-data averages (the root cause of slop convergence).
 ## Use When
 
 - A frontend task needs visual direction and no reference board exists yet.
-- A build skill (repaint, frontend-craft, ui-expert, premium-frontend-ui) is about to run
+- A build skill (repaint, frontend-craft) is about to run
   its reference-anchor phase and would otherwise anchor from memory.
 - User asks for UI/UX/motion references, a moodboard, or "what does good look like" for a surface.
 
@@ -33,7 +33,7 @@ training-data averages (the root cause of slop convergence).
 
 - References already curated this session (reuse the existing board).
 - The task is building or restyling UI itself — hand the board to `repaint` / `frontend-craft`.
-- Pure motion implementation questions — `premium-frontend-ui` archetypes may suffice without a hunt.
+- Pure motion implementation questions — `repaint`'s motion archetypes may suffice without a hunt.
 
 ## Inputs / Prereqs
 
@@ -87,8 +87,9 @@ training-data averages (the root cause of slop convergence).
 
 ## Related Skills
 
-- `repaint`, `frontend-craft`, `ui-expert`, `premium-frontend-ui` — consumers of the board (build).
-- `ai-slop-audit` — post-build lint; shares the slop-cluster definition.
+- `repaint`, `frontend-craft` — consumers of the board (build). `repaint`'s reference
+  library (§D slop) absorbed the retired `ui-expert`/`premium-frontend-ui`/`ai-slop-audit`
+  skills (2026-07-16) and shares the slop-cluster definition used here.
 - `use-my-browser` — the browsing layer this skill drives.
 
 ## Memory Hooks

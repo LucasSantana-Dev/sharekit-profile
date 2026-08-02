@@ -64,6 +64,8 @@ Minimalism and over-engineering control. Use audit/review mode for bloat scans, 
 
 ## /impeccable
 
-Polish frontend interfaces: UX review, visual hierarchy, accessibility, responsive behavior, and design-system fit.
+Retired 2026-07-16, folded into `repaint` (frontend build skill) along with `ui-expert`,
+`frontend-design`, `premium-frontend-ui`, `tailwind-design-system`, and `ai-slop-audit`.
+See `docs/composites.md` for the archived-skills table.
 
-**Last updated:** 2026-07-01
+**Last updated:** 2026-08-02

@@ -76,7 +76,7 @@ For new features, compose active skills rather than restoring archived wrappers:
 
 1. `/scope-it` to define MVP and constraints.
 2. `/plan` for non-trivial design and validation.
-3. `/frontend-design`, `/domain-modeling`, or `/codebase-design` as needed.
+3. `/repaint`, `/domain-modeling`, or `/codebase-design` as needed.
 4. `/tdd` or `/test-driven-development` for test-first implementation.
 5. `/quality-gates` and `/ship` when ready.
 6. `/knowledge-loop` to capture decisions and handoff.
