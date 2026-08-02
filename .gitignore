@@ -22,3 +22,6 @@ index.html.bak-*
 __pycache__/
 evals/routing/dataset/episodes*.jsonl
 .agents/memory/.vault/
+
+# Graphify local knowledge-graph output — regenerated on demand, not tracked here
+graphify-out/
