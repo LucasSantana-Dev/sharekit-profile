@@ -12,6 +12,8 @@
 #   scripts/install-scheduler.sh run                       # trigger one cycle now
 set -euo pipefail
 
+[ "$(uname)" = "Darwin" ] || { echo "install-scheduler.sh: macOS only (requires launchd)" >&2; exit 1; }
+
 LABEL="dev.sharekit.flywheel"
 PLIST_DEST="$HOME/Library/LaunchAgents/${LABEL}.plist"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

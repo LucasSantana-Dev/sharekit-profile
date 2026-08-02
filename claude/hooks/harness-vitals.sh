@@ -190,12 +190,17 @@ fi
 # If one of these goes missing, the rules citing it are instructions, not rails.
 for art in \
   "$HOME/.claude/scripts/repo-mode.sh" \
-  "$HOME/.kimi-code/hooks/rtk-rewrite.sh" \
   "$ENV_DIR/bin/sync" \
   "$HOME/.agents/skills/standards/cooperative-mode.md" \
   "$HOME/.agents/skills/standards/multi-person-work-ethics.md"; do
   [ -e "$art" ] || warns+=("enforcement artifact MISSING: $art - rules citing it are phantom guardrails")
 done
+# kimi-code hook only applies to operators who have kimi-code installed; skip the
+# check entirely rather than false-warn on every other operator's SessionStart.
+if [ -d "$HOME/.kimi-code" ]; then
+  art="$HOME/.kimi-code/hooks/rtk-rewrite.sh"
+  [ -e "$art" ] || warns+=("enforcement artifact MISSING: $art - rules citing it are phantom guardrails")
+fi
 
 # 13. resurrection guard - uncommitted deletions in the config repos are exactly
 # what the WIP-sync restores silently (2026-07-24/27 incident: 8 skill deletions +
