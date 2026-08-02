@@ -74,4 +74,13 @@ eval_cov=$(fd -t d '^evals$' claude/skills 2>/dev/null | wc -l | tr -d ' ')
 skill_cov=$(fd -t f '^SKILL\.md$' claude/skills 2>/dev/null | wc -l | tr -d ' ')
 echo "eval coverage: $eval_cov/$skill_cov curated skills have eval fixtures (WARN only)"
 
+# SKILLS array vs actual claude/skills/ folder count — non-blocking (F-004,
+# ROI backlog 2026-08-02). The two metrics are allowed to diverge (curation
+# freeze, ADR 0002: publish on-demand only, not automatic), so this warns
+# rather than fails; it just makes the drift visible instead of silent.
+folder_cov=$(find claude/skills -maxdepth 1 -mindepth 1 -type d -not -name '.archive' -not -name '.git' 2>/dev/null | wc -l | tr -d ' ')
+if [ "$folder_cov" != "$SKILLS" ]; then
+  echo "WARN: index.html SKILLS array has $SKILLS entries but claude/skills/ has $folder_cov folders — see ADR 0002 (curation freeze) for whether the gap is intentional"
+fi
+
 exit "$fail"

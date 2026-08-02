@@ -1,7 +1,7 @@
 {
   "schema": "https://json-schema.org/draft/2020-12/schema",
   "manifest_version": "1.0",
-  "generated_at": "2026-08-02T20:49:37.743961+00:00",
+  "generated_at": "2026-08-02T20:54:54.495253+00:00",
   "hosts": [
     "claude-code",
     "opencode",
@@ -9,7 +9,7 @@
   ],
   "files": {
     ".harness/mcp-policy.json": "9a5fa1da78129b6ac5bbee27dbc5918d06be6c702a8671c71cfe5e675d6e14ba",
-    "AGENTS.md": "691ce2c1de94a473811258d7ae4e78d24903253aa4a94978bc0708bd2798b204",
+    "AGENTS.md": "76ef963210c826c0ee19103250dcb2a57e52450a18d1198501204d796d4c8967",
     "claude/settings.json": "081f2c03b70871b608004b6fa336780e76c4498a37ea84192bcd5404ed681358",
     "hooks/skill-index.sh": "932f9b15fe7c04f344e5570b52ff65bf082e818995c68991f67df3e5449d51ac",
     "hooks/skill-validate.sh": "d9ec7efe42808d2d9c465281cd3d3206824e7fd47f3caa396b6736eda3a94766",
