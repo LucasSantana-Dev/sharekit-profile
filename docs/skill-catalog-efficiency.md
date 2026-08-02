@@ -9,6 +9,13 @@
 >
 > **Update (2026-07-01, later):** `sync-memories` restored from archive as `invocation_type: internal` (was misapplied archival — see note below); it's a real folder but stays out of the listed count since it's hidden from the always-loaded listing. Active repo-tracked folders: 51 (50 listed + 1 internal); 52 remain archived. (`ads` was briefly added here, then moved to its client project the same day — client-scoped skills don't belong in the public catalog.)
 
+> **Update (2026-08-01):** Catalog count corrected again — `scripts/check-catalog.sh`'s
+> canonical run now reports 45 skills in `index.html`'s `SKILLS` array (down from the
+> stale 51 recorded below); `claude/skills/` itself holds 47 skill folders (`fd -t f
+> '^SKILL\.md$' claude/skills | wc -l`), 2 more than the site-listed count — those are
+> real, tracked skills not yet surfaced in the public catalog, not drift. `AGENTS.md`/
+> `CLAUDE.md` now cite the 45 figure as the site-catalog count specifically.
+
 ## Execution status (2026-07-01)
 
 - **Catalog**: 51 active skill folders in `claude/skills/` (50 consolidated + restored `sync-memories`); 52 archived in `claude/skills/.archive/` for recoverability. `curated-skills.txt` now mirrors the active repo catalog exactly.

@@ -32,7 +32,7 @@ The goal is to share what's genuinely useful to others — not your personal ide
 # The old sharekit/sharekit-profile/.claude mirror is legacy — do NOT target it.
 # Resolve from env first; fall back to the operator default. Any operator can
 # point this at their own clone — no personal path is required.
-PROFILE_REPO="${SHAREKIT_PROFILE_REPO:-/Volumes/External HD/Desenvolvimento/sharekit-profile}"
+PROFILE_REPO="${SHAREKIT_PROFILE_REPO:-.}"
 PROFILE_DIR="$PROFILE_REPO/claude"   # standalone uses claude/ (not .claude/)
 SOURCE_DIR="$HOME/.claude"
 ```

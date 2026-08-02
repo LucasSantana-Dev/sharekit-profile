@@ -154,10 +154,12 @@ permissions (policy).
 
 | OWASP item | Threat | Control (existing) | Layer | Status |
 |------------|--------|--------------------|-------|--------|
-| ASI01 Agent Goal Hijack | Prompt injection redirects agent goals (via web content, RAG, tool output) | `check-dangerous-patterns.sh`, transcript-scanner injection tells, `pr-automation-halt` invariant | hooks + policy | Partial: injection detection is advisory, no sandbox |
+| ASI01 Agent Goal Hijack — Direct | User prompt injection redirects agent goals (user input directly influences behavior) | `transcript-scanner.sh` (6 injection tells), prompt structure (role-based isolation), instruction layering | hooks | Covered: advisory detection, no sandbox |
+| ASI01 Agent Goal Hijack — Indirect | Malicious content in RAG-ingested docs, web fetches, or MCP tool output redirects goals | None (architectural gap) | N/A | Gap: static regex scanners (like `transcript-scanner.sh`) cannot catch feedback-optimized or adversarially-tuned payloads (see IterInject research); indirect injection accounts for 85%+ of real-world 2026 agentic attacks per OWASP Q1 2026 assessment |
 | ASI02 Tool Misuse & Exploitation | Dangerous tool invocation (rm -rf, force-push, SQL drops) | `mcp-policy.json` dangerousPatterns, `policy-gate.sh` deterministic deny, `maxToolCallsPerTurn: 80` | policy + hooks | Covered |
 | ASI03 Identity & Privilege Abuse | Wrong-identity commits, token misuse | `check-identity.sh` (`.harness/identity.json`), per-repo git identity guidance | hooks | Covered (2026-07-31) |
 | ASI04 Agentic Supply Chain | Malicious skills/hooks/MCP servers (executable code) | `manifest.json` sha256 fingerprints (CI-checked), `skill-validate.sh` security pass, `mcp-policy.json` defaultDeny + routingContract, branch protection on all changes | policy + CI | Covered; ahead of GitHub Copilot's name-matching-only MCP allowlist. Gap: no signed manifest, no third-party scanner (SkillSpector-style) — see issue #74 |
+| ASI04 Configuration Injection (CVE-2025-59536) | Malicious `.claude/settings.json` (the active project-level hook config; `claude/settings.json` is its manifest-tracked shipping-artifact copy) loaded without integrity check, altering agent behavior at runtime (CVSS 8.7) | `.harness/mcp-policy.json` gates MCP tool *invocation*, NOT hook definitions or settings integrity; `.harness/manifest.json` fingerprints `claude/settings.json` (the shipping copy) but not the live `.claude/settings.json` | policy | Gap: hook/settings integrity not gated by MCP policy — a compromised or malicious `.claude/settings.json` can register arbitrary hooks without going through MCP allowlist, and isn't covered by the manifest fingerprint since that only checks the shipping copy; fix requires hook-code signing or extending manifest integrity enforcement to the live settings file (related: issue #72 hook-source validation) |
 | ASI05 Unexpected Code Execution | `curl\|sh` installs, dynamic backtick injection in skills | `check-dangerous-patterns.sh`, skill-validate exfil patterns, security_exempt audit trail | hooks | Covered |
 | ASI06 Memory & Context Poisoning | Malicious/stale memory alters future behavior | `memory/` review cadence, `memory-prune` skill, cooperative-mode memory isolation (repo-scoped recall) | policy | Partial: no cross-user scope enforcement yet (issue #68) |
 | ASI07 Insecure Inter-Agent Communication | Subagent fan-out with forged results | Parallel-dispatch contract, verification-subagent pattern (claude-code#29181 mitigation) | policy | Partial: advisory only |
@@ -171,6 +173,26 @@ permissions (policy).
 matching only, bypassable by config edit). Residual fleet-level gaps are
 tracked as backlog issues (#68 memory scopes, #72 transcript scanning,
 #74 supply-chain scanning).
+
+---
+
+---
+
+## 8. MCP Credential Handling & Server Compromise
+
+**Threat:** MCP servers holding API tokens (context7, firecrawl, others in `approvedServers`) are compromised or misconfigured, leaking credentials or enabling lateral movement.
+
+**Attack Vector:**
+- Approved MCP server with stored credentials (OAuth token, API key) in its config is compromised via remote vulnerability
+- Agent passes credentials through MCP to an unapproved or impersonated server
+- Server rotated or revoked, but cached credentials remain active in settings until manual rotation
+
+**Mitigation:**
+- Per-server credential scoping: credentials for context7, firecrawl, and other approved servers with token storage should be isolated (session-level keys, short-lived tokens, or per-repo secrets where applicable)
+- Documented fallback: if an approved server is suspected compromised, immediate action is (1) revoke its credentials, (2) disable the server in `.harness/mcp-policy.json`'s `approvedServers` list, (3) alert to any local agents using that server, (4) rotate operator credentials if the server had access to sensitive APIs (AWS, GitHub, etc.). Automation for this flow not yet wired (see issue #68 MCP credential-lifecycle)
+- `mcp-policy.json` policy review cadence: quarterly or upon new vulnerability disclosure affecting any approved server
+
+**Severity:** Medium (depends on server permissions and credential scope)
 
 ---
 
