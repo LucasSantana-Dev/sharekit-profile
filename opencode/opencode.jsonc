@@ -20,6 +20,17 @@
   // formatting, ref numbering). Flash-class: cheap and fast.
   "small_model": "opencode/google/gemini-2.5-flash",
 
+  // Skill discovery paths. OpenCode loads reusable SKILL.md instructions from
+  // these directories on-demand. Paths support ~ (home) and ./ (project-local).
+  // The canonical skill catalog (~163 skills) lives in ~/.agents/skills.
+  "skills": {
+    "paths": [
+      "./.opencode/skills",
+      "~/.agents/skills",
+      "~/.claude/skills"
+    ]
+  },
+
   // Provider configuration. OpenCode Go is the hosted gateway; OpenRouter is
   // configured as a fallback so if the primary gateway is unavailable or a
   // model is missing, OpenCode can route through OpenRouter instead.
