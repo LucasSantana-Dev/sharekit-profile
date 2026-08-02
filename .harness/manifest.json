@@ -1,7 +1,7 @@
 {
   "schema": "https://json-schema.org/draft/2020-12/schema",
   "manifest_version": "1.0",
-  "generated_at": "2026-07-31T19:14:36.096278+00:00",
+  "generated_at": "2026-08-02T20:49:37.743961+00:00",
   "hosts": [
     "claude-code",
     "opencode",
@@ -14,7 +14,7 @@
     "hooks/skill-index.sh": "932f9b15fe7c04f344e5570b52ff65bf082e818995c68991f67df3e5449d51ac",
     "hooks/skill-validate.sh": "d9ec7efe42808d2d9c465281cd3d3206824e7fd47f3caa396b6736eda3a94766",
     "hooks/skill-prune.sh": "5fff4e1c779225d9e129d5aa8051ef5f90a5925a8e550158d3f7ac7ebf3f5929",
-    "README.md": "66779ab1abe5315cf65aba2c9c54090d3d45c61d84d51a86f59c9157391b6014",
+    "README.md": "7a948f71dbcd4338dd70bdbb20cab112e5155bd0434455fd1927c16bb12a0634",
     "docs/skill-catalog-efficiency.md": "3ded7b06abb367c7c1d96f683457fe6e6764aa070168c971645a335dd2a5d266",
     "evals/routing/router_eval.py": "6fcb6b1bca024b20249d27445c1b1ded9d773a669205adc5b3c201f9b82f9182",
     "evals/routing/dataset/routing_v0.jsonl": "cae8b90d0900552aeaeaf7305fd9d479b5394abc652e2c708759bf4fd20c61a2",

@@ -44,7 +44,7 @@ level: 2
       Persist the locked register/anchor/tokens/direction to DESIGN.md before writing markup.
     </Phase>
     <Phase id="2" name="Scaffold">
-      shadcn components.json → use shadcn primitives + semantic tokens. Tailwind config → tailwind-design-system structure. Neither → scaffold from project conventions. Always defer to the detected system over generic Gate-3 defaults.
+      shadcn components.json → use shadcn primitives + semantic tokens. Tailwind config → repaint's token/theming structure (§C tokens). Neither → scaffold from project conventions. Always defer to the detected system over generic Gate-3 defaults.
     </Phase>
     <Phase id="3" name="Build">
       Implement in the project's framework + file conventions; code should look like the team wrote it. Realistic content (no Lorem/"Item 1"); one H1; no restated headings; no em dashes in UI copy. Apostrophe rule: contractions stay literal in JSX text nodes; in string literals wrap the whole value in double quotes or a template literal; NEVER replace the apostrophe character with a double-quote or backtick.
@@ -69,7 +69,7 @@ level: 2
     - Match project conventions; detect framework from package.json before building.
     - NEVER deploy, push, or switch branches. Work on the current branch/worktree.
     - When dispatched as one of N parallel agents, stay strictly within your assigned surface + its route-scoped files; do NOT edit shared tokens/globals unless the brief says you own them (avoids collisions with sibling agents).
-    - Reference library (read in YOUR context as needed): ~/.claude/skills/repaint/references/context-anchors.md (§A anchors · §B directions · §C tokens · §D slop · §E type) · ~/.claude/skills/ui-expert/ · ~/.claude/skills/frontend-design/ · ~/.claude/skills/shadcn/rules/ · ~/.claude/skills/tailwind-design-system/.
+    - Reference library (read in YOUR context as needed): ~/.claude/skills/repaint/references/context-anchors.md (§A anchors · §B directions · §C tokens · §D slop · §E type — absorbed the retired ui-expert/frontend-design/tailwind-design-system skills, 2026-07-16) · ~/.claude/skills/shadcn/rules/.
   </Constraints>
 
   <Failure_Modes_To_Avoid>

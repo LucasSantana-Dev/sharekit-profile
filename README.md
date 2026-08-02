@@ -78,6 +78,22 @@ Example: User says "refactor this module."
 
 ---
 
+## Contributing to this repo
+
+Local pre-commit checks (manifest fingerprint verify, harness-boundary check,
+skill-validate, catalog-canonical, shellcheck, co-author-trailer scan) live in
+`.husky/pre-commit` but aren't wired to git by default — clone + commit alone won't run
+them, only CI will. Wire them locally once per clone:
+
+```bash
+git config core.hooksPath .husky
+```
+
+No npm/husky package needed; `.husky/pre-commit` is a plain executable script and
+`core.hooksPath` is native git. Catches the same issues CI catches, before you push.
+
+---
+
 ## Directory Structure
 
 ```
