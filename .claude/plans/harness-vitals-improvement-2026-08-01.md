@@ -1,7 +1,9 @@
 # Plan: Harness vitals improvement (data-driven)
 
 **Date:** 2026-08-01
-**Status:** draft — needs confirm before Phase 1/2/4/5 execute (git push, deletes, config change, doc edit)
+**Status:** executed (2026-08-02) — Phases 1-7 done, Phase 8 findings verified but its
+concrete fix actions not applied (see Current State section below); superseded the
+original "draft — needs confirm" line, which no longer applies.
 
 ## Goal
 
@@ -166,15 +168,22 @@ Fix the 7 concrete issues `harness-vitals.sh` flagged this session, plus fold in
 
 ## Current State (2026-08-02, superseding the line below)
 
-**All 8 phases done.** Phase 1: uid-501 was a sandbox artifact, no real hook bug, confirmed
-non-issue. Phase 2: sonnet confirmed canonical, opus machine-level override removed. Phase 3:
-RAG nightly-rebuild was stuck `OnDemand=true` (0 scheduled runs), reset + rebuilt. Phase 4: 87
-broken symlinks removed, `.archive/` relocated out of skills root. Phase 5+6: shipped in PR #101
-(merged `5a7690f`), refined further post-merge via CodeRabbit fixes (45-vs-47 count distinction,
-THREAT_MODEL.md path/key corrections — see `docs/skill-catalog-efficiency.md` 2026-08-01 update).
-Phase 7: ADR-0005 defer reconfirmed, revisit extended to 2027-03-31. Phase 8: findings verified
-(Opus ~59% share, kimi-code/k3 untracked cost) — full detail in
-`knowledge-brain/memory/project_harness_vitals_execution_2026-08-02.md`.
+**Phases 1-7 done. Phase 8 partially done — findings verified, fix actions not applied.**
+Phase 1: uid-501 was a sandbox artifact, no real hook bug, confirmed non-issue. Phase 2:
+sonnet confirmed canonical, opus machine-level override removed. Phase 3: RAG
+nightly-rebuild was stuck `OnDemand=true` (0 scheduled runs), reset + rebuilt. Phase 4: 87
+broken symlinks removed, `.archive/` relocated out of skills root. Phase 5+6: shipped in PR
+#101 (merged `5a7690f`), refined further post-merge via CodeRabbit fixes — specifically, the
+`index.html` `SKILLS`-array count (45, site-listed) and the raw `claude/skills/` folder
+count (47, `fd -t f '^SKILL\.md$' claude/skills`) are now distinguished explicitly in
+AGENTS.md/CLAUDE.md instead of conflated as one number; THREAT_MODEL.md path/key
+corrections also landed (see `docs/skill-catalog-efficiency.md` 2026-08-01 update). Phase 7:
+ADR-0005 defer reconfirmed, revisit extended to 2027-03-31. **Phase 8: findings verified
+(Opus ~59% share, kimi-code/k3 untracked cost) but its own Done-When criteria — a rate card
+for kimi-code/k3 in `~/.agentsview/config.toml` AND an applied Opus→Sonnet/Haiku routing
+change — are NOT met** (confirmed 2026-08-02: no `kimi-code` entry exists in
+`~/.agentsview/config.toml`). Phase 8 remains open; its Steps 1-3 still need doing. Full
+detail in `knowledge-brain/memory/project_harness_vitals_execution_2026-08-02.md`.
 
 <!-- Superseded, kept for history -->
 - ~~Diagnostics complete for all 7 vitals issues (git status, log tails, launchd list, symlink counts all captured this session — see conversation).~~
@@ -183,6 +192,6 @@ Phase 7: ADR-0005 defer reconfirmed, revisit extended to 2027-03-31. Phase 8: fi
 
 ## Notes
 
-- Priority order follows this harness's own CLAUDE.md priorities: fix broken/blocking state first (Phases 1-3 — sync risk, RAG staleness), then safe security fixes (Phase 5), then hygiene/docs (Phases 4, 6, 7).
-- Phase 1, 2, 4, and 5 involve push/delete/config-change/doc-edit actions — presenting as a plan for confirm before execution, per this session's own risk-tiering discipline (git push and irreversible deletes are not auto-executed without a nod).
+- Priority order followed this harness's own CLAUDE.md priorities: fix broken/blocking state first (Phases 1-3 — sync risk, RAG staleness), then safe security fixes (Phase 5), then hygiene/docs (Phases 4, 6, 7). All were executed in that order, per the Current State section above.
+- Phase 1, 2, 4, and 5 involved push/delete/config-change/doc-edit actions — this plan was presented for confirm before execution, per this session's own risk-tiering discipline (git push and irreversible deletes are not auto-executed without a nod). That confirmation happened; all listed phases except Phase 8's fix actions are complete.
 - One flagged item during research: the security-research agent's raw report was auto-tagged by this harness's own injection scanner as matching instruction-shaped patterns — verified as a false positive (the report's *content* discusses settings.json injection risk, not an actual attempt to redirect the agent). No action needed beyond this note.
