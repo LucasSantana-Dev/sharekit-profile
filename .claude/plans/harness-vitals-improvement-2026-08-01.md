@@ -34,7 +34,7 @@ Fix the 7 concrete issues `harness-vitals.sh` flagged this session, plus fold in
 3. `git -C ~/.agents/skills push`
 
 **Files Touched:** `~/.claude-env/.last-push.log` (read), whatever hook/script performs the SessionEnd push (locate via `grep -r "sync push" ~/.claude/hooks/`), git remotes for both repos
-**Verify:** `git -C ~/.claude-env status -sb` and `git -C ~/.agents/skills status -sb` both show `ahead 0`; a fresh SessionEnd triggers a push that succeeds (check log for absence of the uid-501 error)
+**Verify:** for both repos, `git status --porcelain` returns empty AND `git rev-list --left-right --count @{upstream}...HEAD` returns `0 0`; a fresh SessionEnd triggers a push that succeeds (check log for absence of the uid-501 error)
 **Done When:** both repos synced AND the auth root cause is fixed, not just this one push retried
 **Time:** 20-30 min (root-cause diagnosis is the real work; the pushes themselves are seconds)
 
@@ -52,8 +52,8 @@ Fix the 7 concrete issues `harness-vitals.sh` flagged this session, plus fold in
 3. Do NOT just let the drift stand — `sync pull` will silently override the live value at some point, undoing today's explicit `/model` choice with no warning.
 
 **Files Touched:** `~/.claude-env/settings/shared.json` or `~/.claude-env/settings/machines/MacBook-Pro-de-Lucas-10.json`
-**Verify:** `grep -A1 '"model"' ~/.claude/settings.json ~/.claude-env/settings/shared.json ~/.claude-env/settings/machines/$(hostname -s).json` — all three agree
-**Done When:** three-way agreement confirmed
+**Verify:** if shared scope chosen, live `~/.claude/settings.json` `model` matches `~/.claude-env/settings/shared.json`; if machine scope chosen, it matches `~/.claude-env/settings/machines/$(hostname -s).json` instead — do not require all three files to agree, a machine override is meant to diverge from shared
+**Done When:** live value agrees with whichever source was selected as canonical
 **Time:** 5 min once the decision is made
 
 **Blocked on:** operator decision — this is a T2-shaped config change (affects every session's default model tier, i.e. cost profile), not a mechanical fix.
@@ -102,22 +102,23 @@ Fix the 7 concrete issues `harness-vitals.sh` flagged this session, plus fold in
 3. Add MCP credential-handling guidance: key scoping/rotation per session for approved servers with API tokens (context7, firecrawl), and documented fallback behavior if an approved server is compromised.
 
 **Files Touched:** `docs/THREAT_MODEL.md` (this repo)
-**Verify:** `grep -c "indirect\|CVE-2025-59536\|credential" docs/THREAT_MODEL.md` shows the new sections landed
+**Verify:** `docs/THREAT_MODEL.md` contains both the `ASI01 Agent Goal Hijack — Indirect` OWASP row and the `## 8. MCP Credential Handling & Server Compromise` heading, verbatim — a keyword grep can pass against pre-existing text and doesn't prove the specific entries exist
 **Done When:** all three gaps have a named section with the cited evidence
 **Time:** 2-3h (research agent's own estimate)
 
 ---
 
 ### Phase 6: Fix stale catalog counts in this repo's own CLAUDE.md
-**Objective:** CLAUDE.md claims "51 active skill folders... 52 archived"; actual count read this session is 47 active, 1 archived. Small, but this repo's own gate script (`check-catalog.sh`) presumably checks against the `SKILLS` array, not prose — verify the array is accurate even if the prose isn't.
+**Objective:** CLAUDE.md claims "51 active skill folders... 52 archived"; stale against both metrics `check-catalog.sh` actually reports: the `index.html` `SKILLS` array (site-listed count) and the raw `claude/skills/` folder count (`fd -t f '^SKILL\.md$' claude/skills`) — these are two distinct numbers, not one canonical count, and CLAUDE.md/AGENTS.md must say which one it's citing.
 
 **Steps:**
-1. Re-run `scripts/check-catalog.sh` to get the authoritative current count.
-2. Update the "Current state" section of `CLAUDE.md` to match.
+1. Re-run `scripts/check-catalog.sh` to get the authoritative current SKILLS-array count.
+2. Separately count `claude/skills/` folders with `fd -t f '^SKILL\.md$' claude/skills | wc -l`.
+3. Update AGENTS.md's "Skill count" line (CLAUDE.md is generated from it, not edited directly) to state both numbers explicitly and which is which.
 
-**Files Touched:** `CLAUDE.md` (this repo)
-**Verify:** `bash scripts/check-catalog.sh` output matches what's written in CLAUDE.md
-**Done When:** counts agree
+**Files Touched:** `AGENTS.md` (canonical), `CLAUDE.md` (generated via `scripts/sync-agents-claude.sh`, this repo)
+**Verify:** `bash scripts/check-catalog.sh` SKILLS-array count and `fd -t f '^SKILL\.md$' claude/skills | wc -l` folder count both match what AGENTS.md/CLAUDE.md state
+**Done When:** counts agree and the two metrics are distinguished, not conflated
 **Time:** 10 min
 
 ---

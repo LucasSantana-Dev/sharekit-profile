@@ -46,12 +46,12 @@ Cut token/cost spend on the operator's vanilla work-machine Claude Code install 
 **Objective:** Route mechanical/subagent work to Haiku, keep Sonnet as session default, reserve Opus/Fable for genuine deep reasoning.
 
 **Steps:**
-1. Set `CLAUDE_CODE_SUBAGENT_MODEL=haiku` (env var or `settings.json`).
+1. Set `CLAUDE_CODE_SUBAGENT_MODEL=haiku` (env var or `settings.json`) as the default floor for subagents without an explicit `model:` in their frontmatter — this is a default, not a blanket override; agents that genuinely need Sonnet/Opus keep an explicit frontmatter `model:` and are unaffected.
 2. Confirm no default override forces Opus for the main session.
 
 **Files Touched:** work-machine `~/.claude/settings.json` (or shell profile for the env var)
-**Verify:** launch a session that triggers a subagent, confirm it dispatches on Haiku (via `/usage` per-model breakdown)
-**Done When:** subagent dispatch confirmed on Haiku in `/usage` output
+**Verify:** launch a session that triggers a subagent with no frontmatter `model:`, confirm it dispatches on Haiku (via `/usage` per-model breakdown); separately confirm an agent with an explicit frontmatter `model:` still dispatches on that model, not Haiku
+**Done When:** default-floor dispatch confirmed on Haiku AND frontmatter overrides confirmed to still take precedence
 **Time:** 10 min
 
 ---
@@ -66,8 +66,8 @@ Cut token/cost spend on the operator's vanilla work-machine Claude Code install 
 4. Optional (D9): enable beta context-editing (`clear_tool_uses_20250919`) if the work machine's SDK/CLI version exposes it — native, no proxy risk, but do not count on Anthropic's self-reported 29-39% savings figure; it has zero independent verification, unlike the rtk/caveman/ponytail numbers this spec already corrected.
 
 **Files Touched:** work-machine `~/.claude/CLAUDE.md`, `~/.claude/settings.json`
-**Verify:** `wc -l ~/.claude/CLAUDE.md` reports <200; `grep effortLevel ~/.claude/settings.json`
-**Done When:** both checks pass
+**Verify:** `wc -l ~/.claude/CLAUDE.md` reports <200; `grep effortLevel ~/.claude/settings.json`; also confirm `echo $DISABLE_AUTO_COMPACT` is unset/`0` in the actual session shell/env — `autoCompactEnabled: true` in settings.json can still be overridden off by this env var, so the settings-file check alone can pass while compaction is actually disabled at runtime
+**Done When:** all three checks pass (settings value AND runtime env agree compaction is enabled)
 **Time:** 30-45 min (mostly the CLAUDE.md trim)
 
 ---
@@ -129,8 +129,8 @@ Cut token/cost spend on the operator's vanilla work-machine Claude Code install 
 4. Run `docs-sync` if `~/.claude-env` mirrors these files (per this harness's dual-location convention).
 
 **Files Touched:** `~/.claude/adrs/0008-headroom-vs-rtk-token-compression.md`, `~/.claude/adrs/0049-rtk-rewrite-hook-wired-truncation-flags-rejected.md`, `~/.claude/rag-index` memory files noted above (outside this git repo — separate harness-config location, not `sharekit-profile`)
-**Verify:** `grep -l "JetBrains" ~/.claude/adrs/0008*.md ~/.claude/adrs/0049*.md` returns both files
-**Done When:** both ADRs carry the addendum, memory notes updated, docs-sync run if applicable
+**Verify:** `grep -l "JetBrains" ~/.claude/adrs/0008*.md ~/.claude/adrs/0049*.md` returns both files; `rtk_hook_wired_2026-07-09` and `token_baseline_2026-05-13` memory notes both show the corrected figures (not just grepped, actually read); if `~/.claude-env` mirrors these files, confirm the mirror matches too (`docs-sync` applied)
+**Done When:** both ADRs carry the addendum, both memory records carry the correction, and any applicable mirror is synchronized — not just the ADR text alone
 **Time:** 20 min
 
 **Replanning triggers:**
@@ -144,7 +144,7 @@ Cut token/cost spend on the operator's vanilla work-machine Claude Code install 
 
 ## Current State (if partial)
 
-- Spec written and corrected: `.claude/plans/spec-token-optimization-work-setup.md` (Decisions 1-8, all cited/graded).
+- Spec written and corrected: `.claude/plans/spec-token-optimization-work-setup.md` (Decisions 1-11, all cited/graded).
 - Deep-research on rtk alternatives complete — verdict: reject rtk and all three alternatives; keep native compaction + terse-prompting.
 - No work-machine changes applied yet (Phases 1-6 not started).
 - Phase 7 (ADR correction) not started.
