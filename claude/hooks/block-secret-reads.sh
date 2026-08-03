@@ -48,7 +48,7 @@ content="${f[3]:-} ${f[4]:-}"
 if [ -n "${content// /}" ] && command -v node >/dev/null 2>&1 && [ -f "$mask_script" ]; then
     masked="$(printf '%s' "$content" | node "$mask_script" 2>/dev/null || printf '%s' "$content")"
     if [ "$masked" != "$content" ]; then
-        echo "BLOCKED: '$tool' command/pattern contains a secret-shaped literal (Bearer token, sk-/ak-/pk- key, or long opaque token). Do not paste credentials directly into tool calls — reference them via an env var or ask the operator." >&2
+        echo "BLOCKED: '$tool' command/pattern contains a secret-shaped literal (Bearer token, sk-/ak-/pk- key, or long opaque token). Do not paste credentials directly into tool calls. Reference them via an env var or ask the operator." >&2
         exit 2
     fi
 fi
@@ -61,7 +61,7 @@ header_script="$HOME/.claude/scripts/omniroute-sanitize-headers.mjs"
 if [ -n "${content// /}" ] && command -v node >/dev/null 2>&1 && [ -f "$header_script" ]; then
     header_masked="$(printf '%s' "$content" | node "$header_script" 2>/dev/null || printf '%s' "$content")"
     if [ "$header_masked" != "$content" ]; then
-        echo "BLOCKED: '$tool' command/pattern contains a secret-bearing header (Authorization/Cookie/Set-Cookie/X-Api-Key/...) with a real-looking value. Do not paste credentials directly into tool calls — reference them via an env var or ask the operator." >&2
+        echo "BLOCKED: '$tool' command/pattern contains a secret-bearing header (Authorization/Cookie/Set-Cookie/X-Api-Key/...) with a real-looking value. Do not paste credentials directly into tool calls. Reference them via an env var or ask the operator." >&2
         exit 2
     fi
 fi
