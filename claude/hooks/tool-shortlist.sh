@@ -41,18 +41,24 @@ ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 # Each entry: tool name + the keywords that signal relevance. This is the
 # "shortlist source" — the full catalog lives here, but only matching entries
 # are surfaced to the agent, keeping the active context bounded.
-declare -A TOOL_KEYWORDS
-TOOL_KEYWORDS[Read]="read file contents view source"
-TOOL_KEYWORDS[Write]="write create file contents new"
-TOOL_KEYWORDS[Bash]="bash shell command run execute terminal"
-TOOL_KEYWORDS[Grep]="search find grep regex symbol"
-TOOL_KEYWORDS[Glob]="glob find files pattern match"
-TOOL_KEYWORDS[Edit]="edit modify replace patch diff"
-TOOL_KEYWORDS[WebSearch]="search web internet query"
-TOOL_KEYWORDS[WebFetch]="fetch url web page http"
-TOOL_KEYWORDS[TodoWrite]="todo task list track manage"
-TOOL_KEYWORDS[Task]="subagent spawn delegate parallel"
-TOOL_KEYWORDS[MCP]="mcp server external tool resource"
+# Parallel indexed arrays, not `declare -A` — this hook is invoked as a literal
+# `bash script.sh` by the host, which resolves whatever /bin/bash is first on
+# PATH (macOS system bash 3.2 on unconfigured machines); associative arrays
+# need bash 4+, so keep this bash-3.2-safe.
+TOOL_NAMES=(Read Write Bash Grep Glob Edit WebSearch WebFetch TodoWrite Task MCP)
+TOOL_KWS=(
+  "read file contents view source"
+  "write create file contents new"
+  "bash shell command run execute terminal"
+  "search find grep regex symbol"
+  "glob find files pattern match"
+  "edit modify replace patch diff"
+  "search web internet query"
+  "fetch url web page http"
+  "todo task list track manage"
+  "subagent spawn delegate parallel"
+  "mcp server external tool resource"
+)
 
 # --- CLI mode: suggest -------------------------------------------------------
 if [[ "${1:-}" == "suggest" ]]; then
@@ -62,8 +68,9 @@ if [[ "${1:-}" == "suggest" ]]; then
   echo "# (bounded — only tools whose keywords match the prompt are surfaced)"
   echo
   matched=0
-  for tool in "${!TOOL_KEYWORDS[@]}"; do
-    kws="${TOOL_KEYWORDS[$tool]}"
+  for i in "${!TOOL_NAMES[@]}"; do
+    tool="${TOOL_NAMES[$i]}"
+    kws="${TOOL_KWS[$i]}"
     # Lowercase match on any keyword.
     if printf '%s' "$prompt" | grep -Eqi "$(printf '%s' "$kws" | tr ' ' '|')"; then
       printf -- "- %s (keywords: %s)\n" "$tool" "$kws"
@@ -99,8 +106,9 @@ if [[ -n "$prompt_text" ]]; then
     printf 'bounded set instead of the full catalog reduces system-prompt context\n'
     printf '(contextweaver 92.2%% route-prompt reduction pattern).\n\n'
     matched=0
-    for tool in "${!TOOL_KEYWORDS[@]}"; do
-      kws="${TOOL_KEYWORDS[$tool]}"
+    for i in "${!TOOL_NAMES[@]}"; do
+      tool="${TOOL_NAMES[$i]}"
+      kws="${TOOL_KWS[$i]}"
       if printf '%s' "$prompt_text" | grep -Eqi "$(printf '%s' "$kws" | tr ' ' '|')"; then
         printf -- '- %s\n' "$tool"
         matched=$((matched + 1))
