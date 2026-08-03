@@ -79,7 +79,11 @@
       "name": "OmniRoute (local gateway, manual opt-in, requires OmniRoute running on localhost:20128)",
       "options": {
         "baseURL": "http://localhost:20128/v1",
-        "apiKey": "omniroute"
+        // The local daemon is unauthenticated by design (localhost-only), so
+        // any value works; sourced from env to avoid a committed placeholder.
+        // If your opencode version rejects an empty key, set OMNIROUTE_API_KEY
+        // to any non-empty string.
+        "apiKey": "{env:OMNIROUTE_API_KEY}"
       },
       "models": {
         "auto/best-free": {
