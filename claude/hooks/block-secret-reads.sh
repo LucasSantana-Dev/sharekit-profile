@@ -37,4 +37,33 @@ if printf '%s' "$haystack" | grep -qE "$secret_re"; then
     echo "BLOCKED: '$tool' targets a secret-bearing file. Reading it would leak credentials into the transcript (see ~/.claude/standards/shell-secret-management.md). If you genuinely need a value, ask the operator to provide it — do not read the file." >&2
     exit 2
 fi
+
+# Content check (distinct from the path check above): catches a secret VALUE
+# typed directly into the command/pattern text itself (e.g. a Bearer token or
+# sk-/ak-/pk- key pasted inline into a curl command) rather than a read of a
+# secret-bearing file. Reuses omniroute-mask-secrets.mjs's maskSecret() —
+# masking changed the text = a secret-shaped literal was present.
+mask_script="$HOME/.claude/scripts/omniroute-mask-secrets.mjs"
+content="${f[3]:-} ${f[4]:-}"
+if [ -n "${content// /}" ] && command -v node >/dev/null 2>&1 && [ -f "$mask_script" ]; then
+    masked="$(printf '%s' "$content" | node "$mask_script" 2>/dev/null || printf '%s' "$content")"
+    if [ "$masked" != "$content" ]; then
+        echo "BLOCKED: '$tool' command/pattern contains a secret-shaped literal (Bearer token, sk-/ak-/pk- key, or long opaque token). Do not paste credentials directly into tool calls. Reference them via an env var or ask the operator." >&2
+        exit 2
+    fi
+fi
+
+# Header-shaped check: catches a secret header VALUE that doesn't match
+# maskSecret's shape heuristics (e.g. a short Cookie/Set-Cookie session value —
+# "session=abc123" isn't Bearer/sk-/40-char-shaped, so the check above misses
+# it), by header NAME instead.
+header_script="$HOME/.claude/scripts/omniroute-sanitize-headers.mjs"
+if [ -n "${content// /}" ] && command -v node >/dev/null 2>&1 && [ -f "$header_script" ]; then
+    header_masked="$(printf '%s' "$content" | node "$header_script" 2>/dev/null || printf '%s' "$content")"
+    if [ "$header_masked" != "$content" ]; then
+        echo "BLOCKED: '$tool' command/pattern contains a secret-bearing header (Authorization/Cookie/Set-Cookie/X-Api-Key/...) with a real-looking value. Do not paste credentials directly into tool calls. Reference them via an env var or ask the operator." >&2
+        exit 2
+    fi
+fi
+
 exit 0
