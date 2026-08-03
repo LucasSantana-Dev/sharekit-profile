@@ -67,6 +67,35 @@
         "anthropic/claude-haiku-4.5": { "name": "Claude Haiku 4.5 (OpenRouter)" },
         "google/gemini-2.5-flash": { "name": "Gemini 2.5 Flash (OpenRouter)" }
       }
+    },
+
+    // OmniRoute — optional, manual opt-in only. Points at a local OmniRoute
+    // gateway daemon (github.com/diegosouzapw/OmniRoute, MIT) if you happen to
+    // run one on localhost:20128. Not referenced by any default `model` or
+    // agent — inert for anyone who doesn't run OmniRoute; select it explicitly
+    // (`omniroute-local/auto/best-free`) only if you have the daemon running.
+    "omniroute-local": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OmniRoute (local gateway, manual opt-in, requires OmniRoute running on localhost:20128)",
+      "options": {
+        "baseURL": "http://localhost:20128/v1",
+        // The local daemon is unauthenticated by design (localhost-only), so
+        // any value works; sourced from env to avoid a committed placeholder.
+        // If your opencode version rejects an empty key, set OMNIROUTE_API_KEY
+        // to any non-empty string.
+        "apiKey": "{env:OMNIROUTE_API_KEY}"
+      },
+      "models": {
+        "auto/best-free": {
+          "name": "Auto-route: best free connected provider (OmniRoute, weighted, $0)",
+          "tool_call": true,
+          "temperature": true,
+          "limit": {
+            "context": 8192,
+            "output": 4096
+          }
+        }
+      }
     }
   },
 
