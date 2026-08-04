@@ -1,6 +1,6 @@
 # Configuration: Hard Rules & Defaults
 
-Reference guide for how the operator harness (OpenCode primary, Claude Code supported) is configured, including non-negotiable rules, default behaviors, model tiering, and the OpenRouter fallback provider.
+Reference guide for how the operator harness (harness-agnostic — Claude Code and OpenCode both supported natively) is configured, including non-negotiable rules, default behaviors, model tiering, and OpenCode's OpenRouter fallback provider.
 
 ---
 

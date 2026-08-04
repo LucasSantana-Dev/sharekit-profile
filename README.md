@@ -9,7 +9,7 @@ This is a **profile, not a framework**: an installable, forkable, opinionated ba
 - **Security-first hooks** — gitleaks, dangerous-pattern, injection-tell, and secret-read scanners in the pre-tool-use pipeline.
 - **Harness-portable** — one source of truth compiled to Claude Code and OpenCode, with drift detection between runtime copies.
 
-> **Harnesses:** OpenCode (primary, `opencode.json`) → Claude Code (supported) → OpenRouter (fallback provider). The skill/agent/hook library is harness-agnostic and works across both.
+> **Harnesses:** Claude Code (primary tag/discoverability surface) and OpenCode (`opencode.json`, multi-provider routing via OpenRouter fallback) are both supported natively from the same tracked source. The skill/agent/hook library is plain files — Markdown, shell, JSON — and is not locked to either harness.
 
 ---
 
