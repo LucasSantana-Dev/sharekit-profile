@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.12.0](https://github.com/LucasSantana-Dev/sharekit-profile/compare/v0.11.0...v0.12.0) (2026-08-04)
+
+
+### Features
+
+* **hooks:** wire OmniRoute secret-detection utilities into block-secret-reads.sh ([872f1b3](https://github.com/LucasSantana-Dev/sharekit-profile/commit/872f1b3c0c8a3c5a55790310e7c7128f4b2ee461))
+* **hooks:** wire OmniRoute secret-detection utilities into block-secret-reads.sh ([5c76884](https://github.com/LucasSantana-Dev/sharekit-profile/commit/5c76884981ee90a5d19cbe97d847495801cfa557))
+* **opencode:** add OmniRoute as optional local provider ([b8737b3](https://github.com/LucasSantana-Dev/sharekit-profile/commit/b8737b3a80a4f018a9ba7bafdcc8740d1288f8ed))
+* **opencode:** add OmniRoute as optional local provider ([a2dd135](https://github.com/LucasSantana-Dev/sharekit-profile/commit/a2dd13591343893118423c8e7489f67f26aa6fd6))
+* product hardening — license, governance positioning, docs accuracy fixes, GTM plan ([7c7ae0c](https://github.com/LucasSantana-Dev/sharekit-profile/commit/7c7ae0cf106738371dce4822e38ceb81eee1adec))
+* product hardening — license, governance positioning, docs accuracy, GTM plan ([8831231](https://github.com/LucasSantana-Dev/sharekit-profile/commit/8831231546e7a850b118fb27785b4a8586ce37ed))
+
+
+### Bug Fixes
+
+* **catalog:** add 4 curated-but-undisplayed skills to index.html, warn on drift ([#119](https://github.com/LucasSantana-Dev/sharekit-profile/issues/119)) ([f90f907](https://github.com/LucasSantana-Dev/sharekit-profile/commit/f90f907ac4b946bb8f61739493d91b618abf1e25)), closes [#110](https://github.com/LucasSantana-Dev/sharekit-profile/issues/110)
+* **catalog:** gitignore .DS_Store, fix stale frontend routing, document hook wiring ([#118](https://github.com/LucasSantana-Dev/sharekit-profile/issues/118)) ([7ea4156](https://github.com/LucasSantana-Dev/sharekit-profile/commit/7ea415626eb6df34e6cac12d2d2376387e0f6897)), closes [#111](https://github.com/LucasSantana-Dev/sharekit-profile/issues/111)
+* **docs:** address CodeRabbit review on PR [#132](https://github.com/LucasSantana-Dev/sharekit-profile/issues/132) ([ef40e44](https://github.com/LucasSantana-Dev/sharekit-profile/commit/ef40e446678e38f4520984bb3a3f2d32cbd6c849))
+* **harness:** auto-heal manifest fingerprint drift in pre-commit ([#116](https://github.com/LucasSantana-Dev/sharekit-profile/issues/116)) ([5536703](https://github.com/LucasSantana-Dev/sharekit-profile/commit/55367036de6822cdce4fd34b8fc28e51e5ca2c29))
+* **hooks:** address CodeRabbit findings on secret-detection utilities ([82afb44](https://github.com/LucasSantana-Dev/sharekit-profile/commit/82afb44941ba2a7b22a0b4732e4540c13036ea8a))
+* **hooks:** make tool-shortlist.sh bash-3.2-safe ([8fa7085](https://github.com/LucasSantana-Dev/sharekit-profile/commit/8fa70857bb4eb24db80b0fb029a2a034cd2dd4bf))
+
 ## [0.11.0](https://github.com/LucasSantana-Dev/sharekit-profile/compare/v0.10.0...v0.11.0) (2026-07-31)
 
 

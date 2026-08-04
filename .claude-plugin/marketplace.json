@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Sharekit operator harness profile: curated skills, hooks, agents, and standards packaged as a Claude Code marketplace, one plugin per concern.",
-    "version": "0.11.0"
+    "version": "0.12.0"
   },
   "plugins": [
     {
