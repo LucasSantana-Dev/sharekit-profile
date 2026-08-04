@@ -75,11 +75,11 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
 - `evals/routing/` — LLM-behavioral skill-routing eval gate (ported from harness-evals Phase 0, 2026-07-30): 40 frozen tasks, OpenRouter-pinned model, gate = accuracy drop >5pp vs fingerprinted baseline. `--validate-only` runs offline in CI; full gate needs `OPENROUTER_API_KEY`. Tasks expecting skills outside the listing under test are SKIPped, not scored.
 - `~/.claude/settings.json` sets `skillListingBudgetFraction: 0.05` to keep Claude Code's skill listing from truncating at 200+ skills. If count grows past 75, run `skill-maintainer` to prune duplicates.
 
-## Current state (2026-06-30)
+## Current state (2026-08-04)
 
-**Schema validation:** `skill-validate.sh` reports `errors=0` after PRs #13-14 fixed 55 frontmatter errors (28 block-scalar descriptions → single-line, 2 missing `description:` fields inserted). 262 non-blocking warnings remain (261 "no triggers field" + 1 "description exceeds 500 chars") — these are tracked in [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) but do not fail CI.
+**Schema validation:** `hooks/skill-validate.sh` reports `errors=0` after PRs #13-14 fixed 55 frontmatter errors (28 block-scalar descriptions → single-line, 2 missing `description:` fields inserted). 3 non-blocking warnings remain (per `hooks/skill-validate.sh --dir claude/skills`, 2026-08-04) — these are tracked in [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) but do not fail CI.
 
-**Hook count:** 42 hook scripts in `hooks/` (up from 30+ at session start).
+**Hook count:** 49 top-level `.sh` hook scripts in `hooks/` (up from 30+ at session start).
 
 **Skill count:** 49 skills listed in `index.html`'s `SKILLS` array (per `scripts/check-catalog.sh` 2026-08-02 canonical count; down from 103 via consolidation). `claude/skills/` itself holds 47 skill folders (`fd -t f '^SKILL\.md$' claude/skills`) — the array is now 2 *over* the folder count, not under: `add`/`debug`/`fallback` are listed built-in/composite entries with no dedicated `claude/skills/` folder (documented-but-not-a-directory, not drift). `check-catalog.sh` WARNs (non-blocking) if this gap ever changes shape. Archived skills live in `claude/skills/.archive/` for recoverability. Runtime skills are reconciled through canonical `~/.agents/skills`; `~/.claude/skills` is the symlinked runtime view and `~/.claude-env/skills` is a downstream mirror.
 
@@ -94,7 +94,7 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
 - `hooks/check-stuck-loop.sh` — gains real state file
 - `hooks/reflect-retry.sh` + `hooks/textgrad.sh` — advisory reflection + textual gradient
 
-**Known limitation:** `skill-validate.sh` grep-based extractor cannot parse YAML block scalars (`|`, `>`, `>-`). Accepted as-is — block scalars are valid YAML but fail the validator; skill authors should use single-line descriptions.
+**Known limitation:** `hooks/skill-validate.sh` grep-based extractor cannot parse YAML block scalars (`|`, `>`, `>-`). Accepted as-is — block scalars are valid YAML but fail the validator; skill authors should use single-line descriptions.
 
 ## Storage
 

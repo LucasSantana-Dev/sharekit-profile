@@ -19,6 +19,18 @@ set -u
 LIVE_DIR="${HOME}/.claude"
 ENV_DIR="${HOME}/.claude-env"
 
+# Machine-local allowlist: files that legitimately exist only in the live
+# ~/.claude tree and are NOT part of this profile, so they are excluded from
+# the drift comparison. `rtk-rewrite.sh` and `.rtk-hook.sha256` are installed
+# by the external `rtk` tool (machine-local, never tracked in ~/.claude-env;
+# see README). Matched by basename against `diff -x` patterns.
+DRIFT_ALLOWLIST=("rtk-rewrite.sh" ".rtk-hook.sha256")
+
+diff_excludes=()
+for pattern in "${DRIFT_ALLOWLIST[@]}"; do
+    diff_excludes+=(-x "${pattern}")
+done
+
 # If the tracked source mirror does not exist, there is nothing to compare
 # against. Warn the operator and exit cleanly so CI/cron invocations do not
 # fail purely because the mirror has not been cloned yet.
@@ -52,7 +64,7 @@ for subtree in agents hooks; do
 
     # `diff -rq` recurses, reports only differences (quiet), and compares
     # file contents rather than just metadata.
-    if ! diff -rq "${live_path}" "${env_path}" >/tmp/harness-drift.$$ 2>&1; then
+    if ! diff -rq "${diff_excludes[@]}" "${live_path}" "${env_path}" >/tmp/harness-drift.$$ 2>&1; then
         echo "drift detected in ${subtree}/:"
         sed "s|^|  |" /tmp/harness-drift.$$
         drift=1
