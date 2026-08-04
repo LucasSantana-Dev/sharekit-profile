@@ -1,6 +1,6 @@
 # sharekit-profile — governed agent harness for Claude Code + OpenCode
 
-**A portable, governance-first harness profile: enforced constitution, committed threat model, MCP deny-by-default policy, and a behavioral eval gate that fails CI when agent routing regresses. Plus the full operator toolkit — 48 skills, 55 agents, 78 lifecycle hooks, 61 standards, RAG retrieval, and memory persistence.**
+**A portable, governance-first harness profile: enforced constitution, committed threat model, MCP deny-by-default policy, and a behavioral eval gate that fails CI when agent routing regresses. Plus the full operator toolkit — 49 catalog skills (47 tracked skill folders), 55 agents, 78 lifecycle hooks, 61 standards, RAG retrieval, and memory persistence.**
 
 This is a **profile, not a framework**: an installable, forkable, opinionated baseline you stay in control of — the home-manager for your agent config. What sets it apart from skill catalogs and agent frameworks:
 
@@ -19,7 +19,7 @@ This is a **profile, not a framework**: an installable, forkable, opinionated ba
 npx @lucassantana/sharekit install LucasSantana-Dev
 ```
 
-What lands where: `claude/` → `~/.claude/` (48 skill folders, 55 agents, 78 hooks, 61 standards, CLAUDE.md), plus `cursor/`, `opencode/` → `~/.config/opencode/`, `gjc/` → `~/.gjc/`, and `warp/` as portable defaults.
+What lands where: `claude/` → `~/.claude/` (47 skill folders, 55 agents, 78 hooks, 61 standards, CLAUDE.md), plus `cursor/`, `opencode/` → `~/.config/opencode/`, `gjc/` → `~/.gjc/`, and `warp/` as portable defaults.
 
 Fresh-machine caveats:
 

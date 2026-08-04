@@ -19,7 +19,7 @@ This category framing is structural: a framework competes head-on with 9 incumbe
 
 The positioning skill's core lesson: "autonomous" scared enterprises; "AI teammate" closed deals. Same product, different framing. For sharekit the equivalent trap is **"catalog" vs "profile"** — and **"controls" vs "governance"**:
 
-- Never lead with "49 skills / 49 hooks / 50 agents." "Catalog" sounds like davila7/claude-code-templates (30.1k) — a losing comparison, and it invites "I can get skills elsewhere" as the takeaway.
+- Never lead with "48 skills / 55 agents / 78 hooks / 61 standards." "Catalog" sounds like davila7/claude-code-templates (30.1k) — a losing comparison, and it invites "I can get skills elsewhere" as the takeaway.
 - Lead with **"enforce"**, **"auditable"**, **"gates"**. The buyer psychology being reassured is "my agent won't leak secrets / drift from policy / silently degrade" — not "I get more stuff."
 - Use "you stay in control" language: the constitution, threat model, and MCP default-deny policy are artifacts *your team* can read, diff, and gate in CI. The agent augments; the constitution constrains.
 
@@ -46,9 +46,9 @@ Verified 2026-08-04: no incumbent enforces agent behavior. Agent OS v3 — the c
 - Two README/tagline variants tested in the wild, not by internal consensus:
   - A: "The governed profile for Claude Code and OpenCode" (governance angle)
   - B: "Agent config you can audit, gate, and enforce in CI" (compliance/CI angle)
-- Show HN title doubles as the A/B: post once with A; gauge comment uptake on the governance claim vs the skills claim.
-- Direct messages to ~15 Claude Code power users (from r/ClaudeAI, Discord, X replies to Anthropic posts): pitch variant A to half, B to half. Measure reply quality: "how does the eval gate work?" is a win signal; "cool collection" is a loss signal.
-- Go/No-Go: one variant generates measurably better engagement (replies asking about governance/eval, not skills count). If both variants get "nice skills repo," the positioning failed — fix messaging, not product.
+- Show HN is a single-variant post (title = A only) — it is not the A/B itself, just a supplementary read on comment uptake for the governance claim vs the skills claim.
+- The actual A/B: direct messages to ~15 Claude Code power users (from r/ClaudeAI, Discord, X replies to Anthropic posts) — pitch variant A to half, B to half. Measure reply quality: "how does the eval gate work?" is a win signal; "cool collection" is a loss signal.
+- Go/No-Go: from the DM split, one variant generates measurably better engagement (replies asking about governance/eval, not skills count) — Show HN comment tenor is corroborating evidence, not the deciding signal. If both DM variants get "nice skills repo," the positioning failed — fix messaging, not product.
 
 **Walk (weeks 3–4) — align everything to the winner:**
 
@@ -99,9 +99,11 @@ Demand for this exact artifact is unproven (1 star). Cheap validation precedes a
 | G4 Positioning | Weeks 2–4 | Message-market fit | Inbound mentions governance/eval/security unprompted | Inbound says "nice skill collection" |
 | G5 Retention proxy | Week 4 | Return behavior | 2+ users open a second issue / PR / config question | All engagement is one-shot drive-by |
 
+G2/G3/G5 counts are tracked as a **deduped running total of distinct GitHub handles**, not independent per-gate counts — the same person opening an issue (G2), referencing a firing gate (G3), and returning with a second issue (G5) counts once toward the cumulative total, not three times. The section 2 activation goal (10 users who install, hit a hook or gate, and come back) is satisfied when this deduped total reaches 10 distinct non-author users by week 4, separate from each gate's individual pass/fail threshold above.
+
 Decisions:
 
-- **All pass** → proceed to Run phase + ads test tier (section 4). Allocate 3x effort per the 2-week experiment cycle.
+- **All pass** → proceed to Run phase. Ads test tier (section 4) additionally requires 2+ organic channels producing repeatable inbound (section 4's trigger condition) — G1-G5 passing alone does not start paid spend. Allocate 3x effort per the 2-week experiment cycle.
 - **G1+G2 pass, G3–G5 fail** → Layer 2 (experience) problem per the three-layer diagnosis: install or first-run is broken. Fix onboarding, re-gate in 2 weeks. No marketing spend.
 - **G1 passes, G2 fails** → Layer 1 (positioning) problem: attention without demand. Iterate messaging once, re-run Crawl. If second iteration also fails → pivot the artifact (sell the eval gate standalone, or fold into OpenCode ecosystem) or kill.
 - **G1 fails** → distribution problem, not product. Do NOT iterate the product; iterate channels (newsletter sponsorships, OpenCode community first). One retry with a different surface, then kill if flat again.

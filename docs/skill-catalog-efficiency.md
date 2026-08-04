@@ -18,7 +18,7 @@
 
 ## Execution status (2026-07-01)
 
-- **Catalog**: 51 active skill folders in `claude/skills/` (50 consolidated + restored `sync-memories`); 52 archived in `claude/skills/.archive/` for recoverability. `curated-skills.txt` now mirrors the active repo catalog exactly.
+- **Catalog**: 51 active skill folders in `claude/skills/` (50 consolidated + restored `sync-memories`); 52 archived in `claude/skills/.archive/` for recoverability. `curated-skills.txt` now mirrors the active repo catalog exactly. **Superseded — see the 2026-08-01 Update above: `.archive/` now holds only 1 skill, and `claude/skills/` holds 47 tracked folders, not 51.**
 - **Capability preservation (executed)**: archived over-engineering audit behavior consolidated; systematic debugging discipline folded into `debug`; RAG quality/curation/drift details represented in `rag-curate`, `adt-rag-drift`, and `knowledge-loop`; scanner/security wrappers represented as evidence sources inside `secure` and `verify`.
 - **Docs alignment (executed)**: `README.md`, `AGENTS.md`, `docs/composites.md`, `docs/overview.md`, `docs/troubleshooting.md`, `docs/hooks.md`, and relevant `docs/skills/*` guides now describe active equivalents instead of archived command names.
 - **Runtime topology documented**: runtime skills reconcile through canonical `~/.agents/skills`; `~/.claude/skills` is the symlinked runtime view and `~/.claude-env/skills` is a downstream mirror.
@@ -37,7 +37,7 @@
 
 ## The problem
 
-The sharekit catalog lists **49 skills** to the agent at startup (per `index.html`'s `SKILLS` array, verified 2026-08-04; 47 repo-tracked skill folders in `claude/skills/`, down from 103 — the array runs 2 over the folder count because `add`/`debug`/`fallback` are listed built-in/composite entries with no dedicated folder). Competitive
+The sharekit catalog lists **49 skills** to the agent at startup (per `index.html`'s `SKILLS` array, verified 2026-08-04; 47 repo-tracked skill folders in `claude/skills/`, down from 103 — a net gap of 2. That net figure nets two offsetting mismatches: 3 array entries (`add`/`debug`/`fallback`) are listed built-in/composite entries with no dedicated folder (+3), while 1 folder (`memory-promote`) has no matching array entry (-1); 3 - 1 = 2). Competitive
 analysis of lean harnesses shows the always-listed catalog median is **~10-43
 items**:
 
