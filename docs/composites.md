@@ -1,6 +1,8 @@
 # Composites: Chained Skills & Gatekeeping
 
-Composite behavior now lives mostly inside active skills rather than many standalone wrapper commands. Prefer the active entry point that owns the workflow; archived wrappers remain recoverable in `claude/skills/.archive/` but should not be documented as active slash commands.
+Composite behavior now lives mostly inside active skills rather than many standalone wrapper commands. Prefer the active entry point that owns the workflow; archived wrappers should not be documented as active slash commands. `claude/skills/.archive/` currently holds only 1 skill (`skill-maintainer`); the other archived wrappers were dropped from the tracked tree in commit `cb4ba0d` and remain recoverable from git history pre-consolidation.
+
+> **Note (external targets):** several replacement targets referenced below (`repaint`, `scope-and-execute`, `improve-codebase-architecture`, `onboard-new-repo`, `test-health`, `security-audit`, `refactor-pipeline`, …) are **not shipped in this repo** — they live in the operator's machine-local `~/.agents/skills`. A fresh install of this profile will not have them; treat those rows as operator-machine routing notes.
 
 
 | `ponytail` | archived — zero-use per canonical 30d audit (2026-07-01) |
@@ -87,6 +89,8 @@ Safe broad-refactor setup.
 **Flow:** discovery → scope/rollback → validation plan → handoff to `orchestrate` or `three-man-team`.
 
 ## Replacements for archived wrappers
+
+> Same external-targets caveat as above: equivalents such as `repaint`, `scope-and-execute`, `improve-codebase-architecture`, `onboard-new-repo`, `test-health`, `security-audit`, and `refactor-pipeline` live in `~/.agents/skills` on the operator machine, not in this repo.
 
 | Archived wrapper | Active equivalent |
 |---|---|

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # review-tier.sh - deterministic PR risk-tier classifier + review-context
-# builder (spec: .claude/plans/spec-ci-review-pack.md, D2 tiering, D4 noise
-# pre-filter, D6 shared context file).
+# builder (spec: ephemeral plan, superseded - see git history for context;
+# D2 tiering, D4 noise pre-filter, D6 shared context file).
 #
 # Input:
 #   review-tier.sh            read a diff summary on stdin: either a unified

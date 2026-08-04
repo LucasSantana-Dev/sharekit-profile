@@ -1,6 +1,13 @@
-# Operator Harness Documentation
+# sharekit-profile — governed agent harness for Claude Code + OpenCode
 
-**Comprehensive reference guide for a fully-configured OpenCode / Claude Code operator environment with 52 skills, 40+ agents, automated hook pipeline, RAG retrieval, memory persistence, and integrated MCP servers.**
+**A portable, governance-first harness profile: enforced constitution, committed threat model, MCP deny-by-default policy, and a behavioral eval gate that fails CI when agent routing regresses. Plus the full operator toolkit — 49 catalog skills (47 tracked skill folders), 55 agents, 78 lifecycle hooks, 61 standards, RAG retrieval, and memory persistence.**
+
+This is a **profile, not a framework**: an installable, forkable, opinionated baseline you stay in control of — the home-manager for your agent config. What sets it apart from skill catalogs and agent frameworks:
+
+- **Governance-as-code** — invariants live in `.harness/constitution.json`, enforced by hooks and CI, auditable by anyone. Agent permissions are artifacts, not vibes.
+- **Behavioral eval gates** — 40 frozen routing tasks; a >5pp accuracy drop vs the fingerprinted baseline blocks the merge. Config changes are tested against measured agent behavior.
+- **Security-first hooks** — gitleaks, dangerous-pattern, injection-tell, and secret-read scanners in the pre-tool-use pipeline.
+- **Harness-portable** — one source of truth compiled to Claude Code and OpenCode, with drift detection between runtime copies.
 
 > **Harnesses:** OpenCode (primary, `opencode.json`) → Claude Code (supported) → OpenRouter (fallback provider). The skill/agent/hook library is harness-agnostic and works across both.
 
@@ -12,7 +19,7 @@
 npx @lucassantana/sharekit install LucasSantana-Dev
 ```
 
-What lands where: `claude/` → `~/.claude/` (50 skills, 42 agents, 78 hooks, 42 standards, CLAUDE.md), plus `cursor/`, `opencode/` → `~/.config/opencode/`, `gjc/` → `~/.gjc/`, and `warp/` as portable defaults.
+What lands where: `claude/` → `~/.claude/` (47 skill folders, 55 agents, 78 hooks, 61 standards, CLAUDE.md), plus `cursor/`, `opencode/` → `~/.config/opencode/`, `gjc/` → `~/.gjc/`, and `warp/` as portable defaults.
 
 Fresh-machine caveats:
 

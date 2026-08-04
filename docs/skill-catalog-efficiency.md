@@ -3,7 +3,7 @@
 > **51 skills listed vs a lean-harness median of ~10-43.** This is the analysis,
 > the concrete reduction plan, and a record of what was actually executed.
 >
-> **Update (2026-06-30):** Consolidation execution complete. 103 repo-tracked skills reduced to 50 via skill-family merges, stack-specific removal, and meta-skill pruning. 53 archived in `claude/skills/.archive/` (recoverable).
+> **Update (2026-06-30):** Consolidation execution complete. 103 repo-tracked skills reduced to 50 via skill-family merges, stack-specific removal, and meta-skill pruning. 53 archived at the time; the tracked `.archive/` was later dropped (commit `cb4ba0d`) and now holds only 1 skill (`skill-maintainer`) — the rest are recoverable from git history pre-consolidation.
 >
 > **Update (2026-07-01):** Capability-preservation pass folded high-value archived details into active skills and updated reference docs so archived wrappers are no longer presented as active commands.
 >
@@ -18,7 +18,7 @@
 
 ## Execution status (2026-07-01)
 
-- **Catalog**: 51 active skill folders in `claude/skills/` (50 consolidated + restored `sync-memories`); 52 archived in `claude/skills/.archive/` for recoverability. `curated-skills.txt` now mirrors the active repo catalog exactly.
+- **Catalog**: 51 active skill folders in `claude/skills/` (50 consolidated + restored `sync-memories`); 52 archived in `claude/skills/.archive/` for recoverability. `curated-skills.txt` now mirrors the active repo catalog exactly. **Superseded — see the 2026-08-01 Update above: `.archive/` now holds only 1 skill, and `claude/skills/` holds 47 tracked folders, not 51.**
 - **Capability preservation (executed)**: archived over-engineering audit behavior consolidated; systematic debugging discipline folded into `debug`; RAG quality/curation/drift details represented in `rag-curate`, `adt-rag-drift`, and `knowledge-loop`; scanner/security wrappers represented as evidence sources inside `secure` and `verify`.
 - **Docs alignment (executed)**: `README.md`, `AGENTS.md`, `docs/composites.md`, `docs/overview.md`, `docs/troubleshooting.md`, `docs/hooks.md`, and relevant `docs/skills/*` guides now describe active equivalents instead of archived command names.
 - **Runtime topology documented**: runtime skills reconcile through canonical `~/.agents/skills`; `~/.claude/skills` is the symlinked runtime view and `~/.claude-env/skills` is a downstream mirror.
@@ -32,12 +32,12 @@
 
 - **Archived (executed)**: `skill-creator-local` (explicitly superseded by the official plugin), stack-specific skills, plugin-injected meta-skills, project-specific skills, and narrow wrappers whose durable capability was merged into broader active skills.
 - **Fixed (executed)**: all repo-tracked active skill frontmatter validates with `errors=0`; duplicate and malformed entries from the 103-skill catalog were resolved during the consolidation campaign.
-- **Known validator limitation**: `skill-validate.sh` uses grep-based extraction and cannot parse YAML block scalar descriptions. Skill authors should keep descriptions single-line.
+- **Known validator limitation**: `hooks/skill-validate.sh` uses grep-based extraction and cannot parse YAML block scalar descriptions. Skill authors should keep descriptions single-line.
 - **Guardrail**: do not delete further skills based only on description similarity or starved telemetry. Further reductions require real usage data plus a relationship audit against composite routing and memory references.
 
 ## The problem
 
-The sharekit catalog lists **50 skills** to the agent at startup (51 active repo-tracked folders, down from 103; `sync-memories` is a 51st folder but stays out of this listed count since it's `invocation_type: internal` — a knowledge-loop sub-skill, not standalone-invocable). Competitive
+The sharekit catalog lists **49 skills** to the agent at startup (per `index.html`'s `SKILLS` array, verified 2026-08-04; 47 repo-tracked skill folders in `claude/skills/`, down from 103 — a net gap of 2. That net figure nets two offsetting mismatches: 3 array entries (`add`/`debug`/`fallback`) are listed built-in/composite entries with no dedicated folder (+3), while 1 folder (`memory-promote`) has no matching array entry (-1); 3 - 1 = 2). Competitive
 analysis of lean harnesses shows the always-listed catalog median is **~10-43
 items**:
 
@@ -207,7 +207,7 @@ The telemetry prerequisite for further dedup/merge remains **blocked**:
 
 ### Validator behavior documentation
 
-**Known limitation:** `skill-validate.sh` uses grep-based `extract_field` that cannot parse YAML block scalars. When `description:` is followed by `|`, `>`, or `>-`, the validator reads only the marker character as the description value. This is a parser limitation, not a schema violation.
+**Known limitation:** `hooks/skill-validate.sh` uses grep-based `extract_field` that cannot parse YAML block scalars. When `description:` is followed by `|`, `>`, or `>-`, the validator reads only the marker character as the description value. This is a parser limitation, not a schema violation.
 
 **Decision:** Accepted as-is. The validator is a quick security + sanity check, not a full YAML parser. Real YAML parsing would require Python/PyYAML dependency and slower validation. Block scalar descriptions are valid YAML but not recommended for skills because:
 1. They fail the validator (even though valid)

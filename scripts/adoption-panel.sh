@@ -28,7 +28,7 @@ done
 echo "== adoption panel (local-only, last $DAYS days) =="
 
 if [ ! -d "$PROJECTS" ]; then
-  echo "no session logs at $PROJECTS (set --projects or CLAUDE_PROJECTS_DIR)"
+  echo "no session logs at $PROJECTS (set --projects or CLAUDE_PROJECTS_DIR; present only on the operator machine)"
 else
   FILES=$(find "$PROJECTS" -name '*.jsonl' -mtime "-$DAYS" 2>/dev/null | wc -l | tr -d ' ')
   echo "sessions: $FILES files with activity"

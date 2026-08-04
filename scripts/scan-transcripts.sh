@@ -20,7 +20,7 @@ if ! command -v gitleaks >/dev/null 2>&1; then
 fi
 
 if [ ! -d "$TARGET" ]; then
-  echo "scan-transcripts: target $TARGET does not exist - skip" >&2
+  echo "scan-transcripts: requires runtime $TARGET - present only on the operator machine" >&2
   exit 0
 fi
 
