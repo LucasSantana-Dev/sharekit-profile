@@ -5,6 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agent OS — Claude Code Operator Harness Guide</title>
   <meta name="description" content="A clear guide to the sharekit agent operator harness for Claude Code (and any Claude-compatible provider, incl. OpenCode) — 49 skills, composites, sub-agents, lifecycle hooks, MCP servers, and plugin integrations.">
+  <link rel="canonical" href="https://harness.lucassantana.tech">
+  <meta property="og:title" content="Agent OS — Claude Code Operator Harness Guide">
+  <meta property="og:description" content="A clear guide to the sharekit agent operator harness for Claude Code and any Claude-compatible provider — 49 skills, composites, sub-agents, lifecycle hooks, and MCP servers.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://harness.lucassantana.tech">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Agent OS — Claude Code Operator Harness Guide">
+  <meta name="twitter:description" content="A clear guide to the sharekit agent operator harness for Claude Code and any Claude-compatible provider — 49 skills, composites, sub-agents, lifecycle hooks, and MCP servers.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Agent OS — Claude Code Operator Harness",
+    "description": "A clear guide to the sharekit agent operator harness for Claude Code and any Claude-compatible provider — 49 skills, composites, sub-agents, lifecycle hooks, and MCP servers.",
+    "url": "https://harness.lucassantana.tech",
+    "sameAs": [
+      "https://github.com/LucasSantana-Dev/sharekit-profile"
+    ]
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -75,7 +95,7 @@
     }
     .nav-brand-icon {
       width: 28px; height: 28px; border-radius: 7px;
-      background: linear-gradient(135deg, #6366f1 0%, #22d3ee 100%);
+      background: var(--cyan);
       display: flex; align-items: center; justify-content: center;
       font-size: 15px;
     }
@@ -562,8 +582,7 @@
     .g-hero h1 {
       font-size: clamp(32px, 6vw, 48px); font-weight: 800; letter-spacing: -1.4px;
       line-height: 1.1; margin-bottom: 18px;
-      background: linear-gradient(125deg, #fafafa 25%, #a78bfa 55%, #22d3ee 100%);
-      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      color: var(--text);
     }
     .g-hero-sub { font-size: 16px; color: var(--text-muted); line-height: 1.65; max-width: 680px; margin-bottom: 32px; }
     .g-hero-sub strong { color: var(--text); font-weight: 600; }
@@ -644,9 +663,8 @@
     .g-step-num {
       flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; font-family: 'Geist Mono', monospace;
       font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(135deg, rgba(34,211,238,.15), rgba(167,139,250,.1));
+      background: var(--surface-2);
       border: 1.5px solid var(--cyan); color: var(--cyan);
-      box-shadow: 0 0 12px rgba(34,211,238,.15);
       flex-shrink: 0; margin-top: 1px;
     }
     .g-step-body { flex: 1; min-width: 0; }
@@ -672,7 +690,7 @@
     .g-card:hover {
       border-color: var(--cyan);
       background: #1a1a1e;
-      box-shadow: 0 4px 12px rgba(34,211,238,.12);
+      box-shadow: 0 2px 8px rgba(0,0,0,.3);
       transform: translateY(-1px);
     }
     .g-card:focus-within { outline: 2px solid var(--cyan); outline-offset: -1px; }
@@ -699,7 +717,7 @@
     .g-task:hover {
       border-color: var(--cyan);
       background: #1a1a1e;
-      box-shadow: 0 4px 12px rgba(34,211,238,.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,.3);
       transform: translateY(-1px);
     }
     .g-task:focus-visible { outline: 2px solid var(--cyan); outline-offset: -1px; }
@@ -1122,7 +1140,7 @@
         </div>
 
         <!-- FOOTER -->
-        <div class="g-footer" id="g-foot">
+        <footer class="g-footer" id="g-foot">
           <div class="g-footer-links">
             <a href="https://github.com/LucasSantana-Dev/sharekit-profile" target="_blank" rel="noopener">GitHub ↗</a>
             <a href="https://github.com/LucasSantana-Dev/sharekit-profile/tree/main/docs" target="_blank" rel="noopener">Full docs ↗</a>
@@ -1130,7 +1148,7 @@
             <a href="#" data-panel-jump="skills">Skill catalog →</a>
           </div>
           <div class="g-footer-meta">Agent OS · install: npx @lucassantana/sharekit install LucasSantana-Dev</div>
-        </div>
+        </footer>
 
       </div>
     </div>
