@@ -597,6 +597,14 @@
     .g-stat-num { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; font-family: 'Geist Mono', monospace; margin-bottom: 4px; }
     .g-stat-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .06em; font-weight: 500; }
 
+    .g-demo-gif { display: block; max-width: 100%; height: auto; margin-top: 12px; border: 1px solid var(--border); border-radius: var(--radius); }
+
+    .g-proof { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 28px 0 8px; }
+    .g-proof-cell { background: var(--surface); padding: 16px 18px; }
+    .g-proof-num { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; font-family: 'Geist Mono', monospace; color: var(--cyan); }
+    .g-proof-label { font-size: 12px; font-weight: 600; color: var(--text); margin: 2px 0 6px; }
+    .g-proof-cap { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
     .g-cta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
     .g-btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 600;
@@ -881,6 +889,19 @@
             <button class="g-btn g-btn-ghost" data-goto="g-tasks">I want to…</button>
             <button class="g-btn g-btn-ghost" data-panel-jump="skills">Browse all skills</button>
           </div>
+
+          <div class="g-proof">
+            <div class="g-proof-cell">
+              <div class="g-proof-num">79%</div>
+              <div class="g-proof-label">per-turn context cut, one hook merge</div>
+              <div class="g-proof-cap">Consolidating two mode hooks into one dropped the fixed per-turn directive from ~600 to ~128 tokens. One measured change already shipped in this hook chain, not a blanket product claim.</div>
+            </div>
+            <div class="g-proof-cell">
+              <div class="g-proof-num">&gt;5pp</div>
+              <div class="g-proof-label">routing-eval regression gate</div>
+              <div class="g-proof-cap">40 frozen routing tasks. CI blocks the merge if a config change drops agent-routing accuracy more than 5 percentage points versus the fingerprinted baseline.</div>
+            </div>
+          </div>
         </div>
 
         <!-- MENTAL MODEL -->
@@ -952,6 +973,7 @@
                 <div class="g-step-title">Preview first — see every change, apply nothing</div>
                 <div class="g-code"><span class="c-cmd">$ npx @lucassantana/sharekit preview LucasSantana-Dev</span>
 <span class="c-out">→ lists files, counts, target paths · flags conflicts · zero writes</span></div>
+                <img class="g-demo-gif" src="assets/preview-demo.gif" width="900" height="480" loading="lazy" alt="Real terminal recording of npx @lucassantana/sharekit preview LucasSantana-Dev, showing the actual dry-run output: new and changed files, a settings.json conflict flag, and zero writes.">
               </div>
             </div>
             <div class="g-step">
@@ -1994,6 +2016,19 @@ const GUIDE_PT = {
       <button class="g-btn g-btn-ghost" data-goto="g-quickstart">Comece em 5 minutos</button>
       <button class="g-btn g-btn-ghost" data-goto="g-tasks">Eu quero…</button>
       <button class="g-btn g-btn-ghost" data-panel-jump="skills">Ver todas as skills</button>
+    </div>
+
+    <div class="g-proof">
+      <div class="g-proof-cell">
+        <div class="g-proof-num">79%</div>
+        <div class="g-proof-label">corte de contexto por turno, um merge de hook</div>
+        <div class="g-proof-cap">Consolidar dois mode hooks em um derrubou a diretiva fixa por turno de ~600 para ~128 tokens. Uma mudança medida já em produção nesta cadeia de hooks, não uma alegação genérica de produto.</div>
+      </div>
+      <div class="g-proof-cell">
+        <div class="g-proof-num">&gt;5pp</div>
+        <div class="g-proof-label">gate de regressão do routing-eval</div>
+        <div class="g-proof-cap">40 tarefas de roteamento congeladas. O CI bloqueia o merge se uma mudança de config derrubar a acurácia de roteamento de agentes em mais de 5 pontos percentuais vs. o baseline fingerprinted.</div>
+      </div>
     </div>`,
 
   'g-model': `
@@ -2062,6 +2097,7 @@ const GUIDE_PT = {
           <div class="g-step-title">Preview primeiro — veja cada mudança, sem aplicar nada</div>
           <div class="g-code"><span class="c-cmd">$ npx @lucassantana/sharekit preview LucasSantana-Dev</span>
 <span class="c-out">→ lista arquivos, contagens, caminhos-alvo · sinaliza conflitos · zero escrita</span></div>
+          <img class="g-demo-gif" src="assets/preview-demo.gif" width="900" height="480" loading="lazy" alt="Gravação real do terminal rodando npx @lucassantana/sharekit preview LucasSantana-Dev, mostrando a saída real do dry-run: arquivos novos e alterados, um conflito sinalizado no settings.json, e zero escritas.">
         </div>
       </div>
       <div class="g-step">
