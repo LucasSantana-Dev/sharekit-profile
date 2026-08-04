@@ -225,6 +225,10 @@
 
     .panel { display: none; }
     .panel.active { display: block; }
+    @media (prefers-reduced-motion: no-preference) {
+      .panel.active { animation: panel-in 180ms ease-out; }
+      @keyframes panel-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    }
 
     /* ── SKILL GRID ─────────────────────────────── */
     .grid-header {
@@ -893,12 +897,12 @@
 
           <div class="g-proof">
             <div class="g-proof-cell">
-              <div class="g-proof-num">79%</div>
+              <div class="g-proof-num"><span class="g-count" data-target="79">0</span>%</div>
               <div class="g-proof-label">per-turn context cut, one hook merge</div>
               <div class="g-proof-cap">Consolidating two mode hooks into one dropped the fixed per-turn directive from ~600 to ~128 tokens. One measured change already shipped in this hook chain, not a blanket product claim.</div>
             </div>
             <div class="g-proof-cell">
-              <div class="g-proof-num">&gt;5pp</div>
+              <div class="g-proof-num">&gt;<span class="g-count" data-target="5">0</span>pp</div>
               <div class="g-proof-label">routing-eval regression gate</div>
               <div class="g-proof-cap">40 frozen routing tasks. CI blocks the merge if a config change drops agent-routing accuracy more than 5 percentage points versus the fingerprinted baseline.</div>
             </div>
@@ -1247,40 +1251,40 @@
 <nav class="mobile-tabs" id="mobile-tabs">
   <div class="mobile-tab-grid">
     <button class="mobile-tab active" data-panel="guide">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M9 3v15"/>
       </svg>
       Guide
     </button>
     <button class="mobile-tab" data-panel="skills">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
         <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
       </svg>
       Skills
     </button>
     <button class="mobile-tab" data-panel="agents">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
       </svg>
       Agents
     </button>
     <button class="mobile-tab" data-panel="hooks">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M12 2v10m0 0c0 3.3-2.7 6-6 6H4"/><circle cx="12" cy="20" r="2"/>
         <path d="M20 8l-3 3-3-3"/>
       </svg>
       Hooks
     </button>
     <button class="mobile-tab" data-panel="mcp">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <rect x="2" y="7" width="20" height="10" rx="2"/><path d="M6 11h.01M10 11h.01"/>
         <path d="M14 11h4"/>
       </svg>
       MCP
     </button>
     <button class="mobile-tab" data-panel="plugins">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/>
         <path d="M2 12l10 5 10-5"/>
       </svg>
@@ -2021,12 +2025,12 @@ const GUIDE_PT = {
 
     <div class="g-proof">
       <div class="g-proof-cell">
-        <div class="g-proof-num">79%</div>
+        <div class="g-proof-num"><span class="g-count" data-target="79">0</span>%</div>
         <div class="g-proof-label">corte de contexto por turno, um merge de hook</div>
         <div class="g-proof-cap">Consolidar dois mode hooks em um derrubou a diretiva fixa por turno de ~600 para ~128 tokens. Uma mudança medida já em produção nesta cadeia de hooks, não uma alegação genérica de produto.</div>
       </div>
       <div class="g-proof-cell">
-        <div class="g-proof-num">&gt;5pp</div>
+        <div class="g-proof-num">&gt;<span class="g-count" data-target="5">0</span>pp</div>
         <div class="g-proof-label">gate de regressão do routing-eval</div>
         <div class="g-proof-cap">40 tarefas de roteamento congeladas. O CI bloqueia o merge se uma mudança de config derrubar a acurácia de roteamento de agentes em mais de 5 pontos percentuais vs. o baseline fingerprinted.</div>
       </div>
@@ -2285,6 +2289,23 @@ const GUIDE_PT = {
     <div class="g-footer-meta">sharekit · instale: npx @lucassantana/sharekit install LucasSantana-Dev</div>`,
 };
 
+function animateProofCounts() {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.g-count').forEach(el => {
+    const target = parseInt(el.dataset.target, 10);
+    if (reduceMotion) { el.textContent = target; return; }
+    const start = performance.now();
+    const dur = 700;
+    function tick(now) {
+      const p = Math.min((now - start) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3); // ease-out-cubic
+      el.textContent = Math.round(target * eased);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
 const guideEnCache = {};
 function translateGuide(l) {
   Object.keys(GUIDE_PT).forEach(id => {
@@ -2299,6 +2320,7 @@ function translateGuide(l) {
   });
   deriveCounts();  // re-fill hero stat numbers after innerHTML swap
   wireGuide();     // re-attach listeners to freshly-rendered buttons
+  animateProofCounts(); // freshly-rendered .g-count nodes start at 0, re-animate
 }
 
 // ══ INIT ════════════════════════════════════════════════════════════════════
@@ -2310,6 +2332,7 @@ renderMCP();
 renderPlugins();
 deriveCounts();
 wireGuide();
+animateProofCounts();
 switchPanel('guide');  // sync UI state (hide skills sidebar on the default guide panel)
 </script>
 </body>
