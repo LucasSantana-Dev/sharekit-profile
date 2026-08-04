@@ -4,7 +4,7 @@
 
 > See `SOUL.md` for identity and philosophy. See `RULES.md` for constraints and hard rules.
 
-This repo is the **sharekit operator harness profile**. It ships a portable Claude Code / OpenCode workflow: skills, agents, hooks, standards, and a memory system.
+This repo is the **sharekit operator harness profile**. It ships a portable, harness-agnostic workflow — skills, agents, hooks, standards, and a memory system that works with Claude Code, OpenCode, or any Claude-compatible CLI/provider. Claude Code is the primary distribution channel (npm package, marketplace listing) for discoverability; it is not the only supported way to run this profile.
 
 ## Governance
 
@@ -14,14 +14,13 @@ This repo is the **sharekit operator harness profile**. It ships a portable Clau
 - `docs/THREAT_MODEL.md` — committed threat model artifact
 - `docs/hook-firing-order.md` — hook/skill firing order contract
 
-## Primary harness: OpenCode
+## Harness support: any provider, any way of using
 
-OpenCode is the **first-choice harness** for this profile. Claude Code remains supported; OpenCode is preferred where its multi-provider routing and lower token overhead matter.
+The skill/agent/hook library is the source of truth and is harness-agnostic — it installs into `~/.claude/` (Claude Code) and `~/.config/opencode/` (OpenCode) from the same tracked source, with drift detection keeping runtime copies identical. Neither harness is required over the other:
 
-- Config: `opencode/opencode.jsonc` (OpenCode config, primary harness).
-- Default model: `anthropic/claude-sonnet-4-5` (Sonnet tier — implementation).
-- Small/planning model: `anthropic/claude-haiku-4-5` (Haiku tier — mechanical/planning).
-- **Fallback provider: OpenRouter** — used when the primary provider is rate-limited or unavailable. Configure via `opencode auth login openrouter` (set `OPENROUTER_API_KEY`).
+- **Claude Code** — supported natively, and the primary tag/discoverability surface (`npx @lucassantana/sharekit install`, marketplace listing).
+- **OpenCode** — supported natively via `opencode/opencode.jsonc`, useful where its multi-provider routing matters. Default model: `anthropic/claude-sonnet-4-5` (Sonnet tier — implementation); small/planning model: `anthropic/claude-haiku-4-5` (Haiku tier). **Fallback provider: OpenRouter** when the primary provider is rate-limited or unavailable — configure via `opencode auth login openrouter` (set `OPENROUTER_API_KEY`).
+- **Any other Claude-compatible CLI/provider** — the skills/hooks/standards are plain files (Markdown + shell + JSON); nothing in the profile hard-requires OpenCode's or Claude Code's runtime beyond how each harness loads skills.
 
 ## Model efficiency policy
 
@@ -69,7 +68,7 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
 ## Harness files
 
 - `claude/CLAUDE.md` — operator config for Claude Code.
-- `opencode.json` — OpenCode config (primary harness).
+- `opencode.json` — OpenCode config.
 - `docs/` — reference docs (overview, configuration, hooks, agents, composites).
 - `scripts/check-catalog.sh` — validate the showcase skill catalog; also enforces a skill-count guardrail (warn >50, fail >75).
 - `evals/routing/` — LLM-behavioral skill-routing eval gate (ported from harness-evals Phase 0, 2026-07-30): 40 frozen tasks, OpenRouter-pinned model, gate = accuracy drop >5pp vs fingerprinted baseline. `--validate-only` runs offline in CI; full gate needs `OPENROUTER_API_KEY`. Tasks expecting skills outside the listing under test are SKIPped, not scored.
