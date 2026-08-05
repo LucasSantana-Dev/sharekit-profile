@@ -45,3 +45,14 @@ Loss signal: "cool collection" / "nice skills."
 - [ ] Personalize the bracketed reference line
 - [ ] Log handle + variant + channel (X/Reddit/Discord) + date sent
 - [ ] Reply within 12h per launch-week discipline
+
+## Sent log
+
+| Handle | Channel | Variant | Date | Delivery | Notes |
+|--------|---------|---------|------|----------|-------|
+| u/shhdwi | Reddit DM | Custom (Graft-specific, tool-governance angle) | 2026-08-05 | Sent | Built Graft (NanoNets), 865 stars. Their post: Claude Code silently ignores MCP tools rather than erroring, "sent me looking in the wrong place for weeks." Pitched sharekit as the adjacent problem (what's reachable + behavior gating) rather than a competitor to Graft. |
+| u/Known_Isopod_1581 | Reddit comment (DM blocked, account restricts message requests) | Custom (Rootpilot-specific, boundary-check angle) | 2026-08-05 | Sent as public comment | Built Rootpilot, a Claude Code orchestration app. Their post: "context drift is real," strict boundary checks per execution slice cut hallucinated features. Post explicitly invited comments/DMs. Comment posted under u/LukDoLolo on their thread. |
+
+Both sourced via live Reddit research (r/ClaudeAI, r/ClaudeCode), verified directly
+(post + username checked in-browser, not taken from an automated summary at face
+value) before drafting or sending.
