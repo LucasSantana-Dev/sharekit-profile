@@ -101,48 +101,60 @@ No npm/husky package needed; `.husky/pre-commit` is a plain executable script an
 
 ---
 
-## Directory Structure
+## Repository Structure
+
+What you actually see when you clone this repo (for anyone submitting a PR — the
+next section, "What lands where," describes the *installed* layout on an end
+user's machine instead, which is a different thing):
 
 ```
-~/.claude/                              # Operator rules, hooks, state
-├── CLAUDE.md                           # Global operator config
-├── SKILLS.md                           # Skill index + descriptions
-├── settings.json                       # Hook definitions + env config
-├── settings.local.json                 # Local overrides + project-specific hooks
-├── agents/                             # ~40 specialized agent definitions
-├── hooks/                              # 42 shell scripts for automation
-├── memory/                             # Persistent memory database
-├── handoffs/                           # Session checkpoint packets
-├── plans/                              # Implementation plans
-├── tasks/                              # Task tracker state
-├── rag-index/                          # RAG retrieval + reindex hooks
-├── workflows/                          # Saved Workflow() scripts
-├── plugins/                            # Installed Claude Code plugins
-├── templates/                          # Reusable artifact templates
-├── standards -> ~/.agents/skills/standards/
-└── skills -> ~/.agents/skills/
+sharekit-profile/
+├── hooks/                    # This repo's OWN dev-time governance: .husky/pre-commit
+│                             #   and .harness/manifest.json run these when YOU commit
+│                             #   here. Can assume maintainer-machine tools (e.g. rg).
+├── claude/                   # THE PRODUCT — installs into ~/.claude/ via
+│   ├── hooks/                #   `npx sharekit install`. Must work with zero assumed
+│   ├── skills/                #   deps (grep/cat, no rg) since it runs on machines
+│   ├── agents/                #   this repo doesn't control.
+│   ├── standards/
+│   ├── settings.json          # Hook lifecycle registration for the product
+│   └── CLAUDE.md               # Operator config shipped as part of the product
+├── skills/                   # A second, smaller skill set (catalog-gardener,
+│                             #   phase-0-audit, three-layer-eval) distinct from
+│                             #   claude/skills/, added separately (#2)
+├── docs/                     # Reference docs (overview, configuration, hooks,
+│                             #   agents, composites, threat model)
+├── tests/                    # bats test suite — `bats tests/` in CI
+├── scripts/                  # Repo maintenance scripts (catalog checks, manifest
+│                             #   regen, harness-boundary checks)
+├── evals/                    # Behavioral routing eval gate (40 frozen tasks)
+├── .harness/                 # Governance config: constitution.json, mcp-policy.json,
+│                             #   manifest.json (tracked-file fingerprints)
+├── .github/workflows/        # CI: harness-gates (bats + eval-gate), release-please
+├── .husky/pre-commit         # Wire with `git config core.hooksPath .husky`
+├── opencode/, gjc/, warp/, cursor/   # Portable default configs for other harnesses
+├── specs/                    # Spec templates (docs/specs/ convention)
+├── AGENTS.md                 # Governance + harness-file index (start here)
+├── RULES.md                  # Hard constraints
+├── SOUL.md                   # Identity/philosophy
+├── CONTRIBUTING.md           # How to propose a change
+└── README.md                 # This file
+```
 
-~/.agents/                              # Canonical skill and agent definitions
-├── skills/                             # 52 skill folders
-├── standards/                          # Policy and discipline docs (~20 files)
-├── agents/                             # Agent definition mirrors
-├── bin/                                # Utilities (sync binary)
-├── memory/                             # Memory archive
-└── scripts/
+### What lands where (installed layout)
 
-~/.claude-env/                          # Environment/bootstrap layer
-├── bin/sync                            # Sync push/pull for memories + ADRs
-├── adrs/                               # Architecture Decision Records
-├── hooks/                              # Env-level hooks
-└── ... (config, memory, scripts)
+`npx sharekit install` copies `claude/` into `~/.claude/` on the *installing*
+machine — this is what an end user's runtime looks like after install, not this
+repo's own tree:
 
-~/.config/opencode/                     # OpenCode portable default (mirrored by sharekit)
-├── opencode.jsonc                       # Go primary + OpenRouter fallback + agent tiering
-└── agents/                              # OpenCode agent overrides (architect, planner, critic, task)
+```
+~/.claude/                    # Operator rules, hooks, state (post-install)
+├── CLAUDE.md, settings.json, agents/, hooks/, skills -> ~/.agents/skills/, ...
 
-~/.gjc/                                 # Gajae-Code portable default (mirrored by sharekit)
-├── config.yml                          # Provider retry budgets (requestMaxRetries, streamMaxRetries, ...)
-└── agents/                             # gjc role agent references (executor, architect, planner, critic)
+~/.agents/                    # Canonical skill and agent definitions (post-install)
+├── skills/, standards/, agents/, ...
+
+~/.config/opencode/, ~/.gjc/  # OpenCode / Gajae-Code portable defaults (post-install)
 ```
 
 ### OpenCode + OpenRouter + Gajae-Code integration

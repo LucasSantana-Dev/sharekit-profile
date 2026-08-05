@@ -40,3 +40,6 @@ claude/.harness/
 # curated public profile content; leaked personal project context (2026-08-14)
 .claude/plans/
 .claude/backlog/
+# Local git worktrees created for parallel-agent work (mandatory-parallel-execution
+# pattern): machine-local, never meant to be committed
+.claude/worktrees/

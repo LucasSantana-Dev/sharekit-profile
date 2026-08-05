@@ -65,6 +65,16 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
 
 ## Harness files
 
+- **`hooks/` vs `claude/hooks/` — two different trees, not duplicates.** `hooks/`
+  (repo root) is this repo's *own* dev-time governance: what `.husky/pre-commit`
+  and `.harness/manifest.json` run when *you* commit to sharekit-profile. It can
+  assume tools present on a maintainer's machine (e.g. `rg`). `claude/hooks/` is
+  the *distributable product* — what `npx sharekit install` copies into an end
+  user's `~/.claude/hooks/`. It has to work with zero assumed dependencies
+  (`grep`/`cat`, no `rg`), because it runs on machines this repo doesn't control.
+  Some scripts share a name across both trees (e.g. `check-idempotency.sh`) because
+  the repo dogfoods its own product for self-governance — expect small, intentional
+  portability-driven diffs between same-named files in each tree, not drift to fix.
 - `claude/CLAUDE.md` — operator config for Claude Code.
 - `opencode.json` — OpenCode config.
 - `docs/` — reference docs (overview, configuration, hooks, agents, composites).
@@ -76,7 +86,10 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
 
 **Schema validation:** `hooks/skill-validate.sh` reports `errors=0` after PRs #13-14 fixed 55 frontmatter errors (28 block-scalar descriptions → single-line, 2 missing `description:` fields inserted). 3 non-blocking warnings remain (per `hooks/skill-validate.sh --dir claude/skills`, 2026-08-04) — these are tracked in [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) but do not fail CI.
 
-**Hook count:** 49 top-level `.sh` hook scripts in `hooks/` (up from 30+ at session start).
+**Hook count:** 50 top-level `.sh` hook scripts in `hooks/` (this repo's own dev-governance tree)
+plus 71 in `claude/hooks/` (the distributable product tree) — see "Harness files" above for why
+these are two separate counts, not one drifted number. This section drifts fast (was 49 a day
+after being corrected in #125); don't trust it without re-running `git ls-files hooks/ | grep '.sh$' | wc -l`.
 
 **Skill count:** 49 skills listed in `index.html`'s `SKILLS` array (per `scripts/check-catalog.sh` 2026-08-02 canonical count; down from 103 via consolidation). `claude/skills/` itself holds 47 skill folders (`fd -t f '^SKILL\.md$' claude/skills`) — the array is now 2 *over* the folder count, not under: `add`/`debug`/`fallback` are listed built-in/composite entries with no dedicated `claude/skills/` folder (documented-but-not-a-directory, not drift). `check-catalog.sh` WARNs (non-blocking) if this gap ever changes shape. Archived skills live in `claude/skills/.archive/` for recoverability. Runtime skills are reconciled through canonical `~/.agents/skills`; `~/.claude/skills` is the symlinked runtime view and `~/.claude-env/skills` is a downstream mirror.
 
