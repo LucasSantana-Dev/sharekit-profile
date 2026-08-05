@@ -49,6 +49,7 @@ Hooks fire in a deterministic order tied to lifecycle events. The order matters:
 7. Warn if on release branch — alert before making commits to release branches
 8. Bounded tool shortlist (`tool-shortlist.sh`) — surface only the tools whose keywords match the prompt instead of the full catalog (contextweaver 92.2% route-prompt reduction). Advisory.
 9. Cache-aware model routing (`model-cache-guard.sh`) — flag mid-conversation model switches as cache-unsafe; the only cache-safe switch boundaries are first-turn and post-compaction (Copilot). Advisory.
+10. Predictive constitution injection (`constitution-injection-guard.sh`): pattern-match the prompt for risk categories (irreversible, production-impacting, security-sensitive, self-mod-human-review, pr-automation-halt) and inject the matching `.harness/constitution.json` clause into context before the model plans any tool call. Every PreToolUse gate below fires after the model has already decided to call a risky tool; this is the proactive counterpart, not a replacement. Advisory, capped at 2 clauses per prompt.
 
 **Why second:** Every prompt needs context injection and routing before the agent starts thinking. RAG recall must happen before the agent formulates a response. Complexity classification must happen before model selection. The bounded tool shortlist and cache-aware routing guards run here too because they shape the system-prompt context for the turn before any tool fires. This is the "prepare the agent for this specific turn" step.
 
@@ -188,6 +189,7 @@ Hooks fire in a deterministic order tied to lifecycle events. The order matters:
   2. UserPromptSubmit      — per-turn context injection and routing
     + tool-shortlist      — bounded tool shortlist (context defense)
     + model-cache-guard   — flag cache-unsafe mid-conversation model switches
+    + constitution-injection-guard: pre-load matching constitution clause (proactive, complements PreToolUse gates below)
   3. PreToolUse:
     3a. Bash safety       — block destructive shell commands
     3b. Dangerous patterns — block credential/SSRF/path traversal
