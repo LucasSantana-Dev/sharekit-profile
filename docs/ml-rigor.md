@@ -11,12 +11,13 @@ reveals: not a skill gap, an exposure gap.
 
 ## What the eval gate shows publicly
 
-`evals/routing/README.md` documents 40 frozen tasks against an
-OpenRouter-pinned model, gated on accuracy drop >5pp vs a fingerprinted
-baseline. Small-n statistical gating, a fixed catalog, `--validate-only` for
-offline CI. Solid, but it reads as a testing harness, not as ML work — nothing
-in it says *why* 5pp, why frozen tasks over a live curriculum, or what
-retrieval method sits underneath "routing" at all.
+`evals/routing/README.md` documents 40 frozen routing-task files, gated on
+accuracy drop >5pp vs a fingerprinted baseline when `OPENROUTER_API_KEY` is
+available; `--validate-only` runs the rest offline in CI without that key.
+Small-n statistical gating, a fixed task catalog. Solid, but it reads as a
+testing harness, not as ML work — nothing in it says *why* 5pp, why frozen
+tasks over a live curriculum, or what retrieval method sits underneath
+"routing" at all.
 
 ## What's underneath it: the E0-E6 program
 
@@ -30,9 +31,10 @@ the way it is:
   pathology (the ranker validating itself against its own outputs) reproduced
   on purpose to characterize it before guarding against it, not discovered by
   accident in production.
-- **A distilled reranker vs. RRF ablation** on 7,850 teacher pairs — measured,
-  not assumed, that cosine similarity is the actual bottleneck and that RRF is
-  unbeatable at the ~100-label scale this system operates at.
+- **A distilled reranker vs. RRF ablation** on 7,850 teacher pairs — measured
+  that RRF performed best in the tested configuration, and that cosine
+  similarity was the bottleneck in that configuration, at the ~100-label
+  scale this system operates at.
 - **LoRA fine-tuning** and **propensity/IPS counterfactual correction** —
   correcting for the selection bias in which labels get collected at all,
   not just fitting a model to the labels that exist.
@@ -71,10 +73,10 @@ That's empirically false — the E0-E6 program and ADR-0036 are that depth,
 done with real rigor (ablations, reproduced failure modes, critic-gated
 revision, documented protocol drift).
 
-The real gap is narrower and more fixable: **all of this is internal-only.**
-It lives in `~/.claude/rag-index/experiments/` and ADRs that nothing
-public-facing links to. `evals/routing/README.md` is downstream of a genuine
-ML research program and doesn't say so. A reader (or a prospective enterprise
+The real gap is narrower and more fixable: **the source artifacts are
+internal-only.** The experiments live in a private rag-index and ADRs that
+nothing public-facing links to. `evals/routing/README.md` is downstream of
+a genuine ML research program and doesn't say so. A reader (or a prospective enterprise
 buyer evaluating the accountability story, per `docs/gtm/launch-plan.md`)
 sees a testing harness and has no way to know it's backed by measured
 ablations and a documented failure-mode catalog.
