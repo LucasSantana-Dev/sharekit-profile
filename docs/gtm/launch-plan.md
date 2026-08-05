@@ -91,9 +91,9 @@ The skill's canonical failure: 50K impressions, 12 signups, 2 conversions. A sha
 
 The real enterprise objection to agentic tooling isn't "will the agent break something," it's "who's responsible when it does." Most AI products dodge this; sharekit's core artifacts answer it directly:
 
-- "Who gets paged when the agent does something wrong?" → the constitution + threat model define what it's allowed to touch before it acts, not after.
-- "Who debugs it?" → the routing-eval gate catches behavioral regressions in CI, same review path as code.
-- "Who owns the call?" → MCP deny-by-default means nothing new is reachable without an explicit, diffable approval.
+- "Who gets paged when the agent does something wrong?" → whoever owns the constitution + threat model for that repo, the same person who'd own an incident from any other CI-gated system. The artifact defines what it's allowed to touch before it acts, not after — so the page is a policy review, not a fire drill.
+- "Who debugs it?" → whoever owns the PR the routing-eval gate ran on. Offline routing validation runs on every PR; the >5pp regression check runs when an OpenRouter key is configured, same review path and same owner as any other failing check.
+- "Who owns the call?" → whoever reviews and merges MCP policy changes. Deny-by-default means nothing new is reachable without an explicit, diffable approval from that reviewer — the approval log names the owner, not a black box.
 
 Lead with this framing in segment-2 outreach and the demo script, not accuracy or feature count. Don't answer "our AI is 95% accurate" to the objection; answer with the artifact.
 

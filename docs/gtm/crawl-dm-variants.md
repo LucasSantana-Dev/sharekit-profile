@@ -15,8 +15,8 @@ Loss signal: "cool collection" / "nice skills."
 >
 > It's a constitution file for your agent (what it can/can't touch, enforced not
 > just documented) plus drift detection between machines. `npx @lucassantana/sharekit
-> install <you>` to try installing your own profile from it, or happy to just talk
-> shop if you've solved this differently.
+> install [your-org/repo]` to try installing your own profile from it, or happy to
+> just talk shop if you've solved this differently.
 >
 > [link]
 
@@ -26,10 +26,11 @@ Loss signal: "cool collection" / "nice skills."
 > your agent config get gated in CI anywhere, or is drift/regression something
 > you catch by hand after the fact?
 >
-> I built sharekit to gate agent behavior the way you'd gate code, a routing-eval
-> check that fails CI on regression, plus a threat model and MCP deny-by-default
-> policy you can diff in review. `npx @lucassantana/sharekit install <you>` if
-> you want to see the gate fire, or happy to compare notes.
+> I built sharekit to gate agent behavior the way you'd gate code: offline routing
+> validation on every PR, a >5pp regression check when you wire in an OpenRouter
+> key, plus a threat model and MCP deny-by-default policy you can diff in review.
+> `npx @lucassantana/sharekit install [your-org/repo]` if you want to see the gate
+> fire, or happy to compare notes.
 >
 > [link]
 

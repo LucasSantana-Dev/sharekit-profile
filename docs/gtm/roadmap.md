@@ -7,7 +7,7 @@ portability/noise findings (not yet filed as issues).
 
 ## Portfolio balance
 
-3 themes, deliberately front-loaded toward table-stakes + one big bet, not
+4 themes, deliberately front-loaded toward table-stakes + one big bet, not
 incremental polish. Pre-launch stage: reactive noise/doc fixes would be exactly
 the "speed bump" mistake the framework warns against right now — they don't
 move the one thing that matters (does anyone outside this repo use it).
@@ -19,7 +19,7 @@ move the one thing that matters (does anyone outside this repo use it).
 | Trust backfill (test coverage) | Table stakes | ongoing background, no dedicated sprint |
 | Operator noise/doc polish | Incremental | opportunistic only, no time-box |
 
-Ratio: 2 table-stakes tracks + 1 big bet, incremental deliberately unscheduled.
+Ratio: 2 table-stakes tracks + 1 big bet + 1 incremental track, deliberately unscheduled.
 
 ## Theme 1 — Ship-readiness (do first, blocks the big bet)
 
