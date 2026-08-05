@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.13.0](https://github.com/LucasSantana-Dev/sharekit-profile/compare/v0.12.0...v0.13.0) (2026-08-05)
+
+
+### Features
+
+* **brand:** new logo mark - fork-merge glyph ([b0ccdd2](https://github.com/LucasSantana-Dev/sharekit-profile/commit/b0ccdd2302dd06e371745bd6bb689ceca77aad03))
+* **brand:** new logo mark - fork-merge glyph (concept C3) ([f3a6650](https://github.com/LucasSantana-Dev/sharekit-profile/commit/f3a6650cdff87da1de9f051c95987a5ec13f80ed))
+* **hooks:** predictive constitution injection at UserPromptSubmit ([#145](https://github.com/LucasSantana-Dev/sharekit-profile/issues/145)) ([c9467f5](https://github.com/LucasSantana-Dev/sharekit-profile/commit/c9467f515f9b3b8e3e6857f6edf6cb30549b5074))
+* **site:** add measured-efficiency proof strip + real terminal demo GIF ([97cdbc1](https://github.com/LucasSantana-Dev/sharekit-profile/commit/97cdbc1ab9e2b6157073a3d6e2ced0c4dd5c9676))
+* **site:** add measured-efficiency proof strip + real terminal demo GIF ([ae6d1f2](https://github.com/LucasSantana-Dev/sharekit-profile/commit/ae6d1f23012d45de33c2bee6c3c95697558f4fad))
+* **site:** icon consistency fix + functional motion pass ([#139](https://github.com/LucasSantana-Dev/sharekit-profile/issues/139)) ([9e22827](https://github.com/LucasSantana-Dev/sharekit-profile/commit/9e22827529d51c3adab508a36ce9cd7d9b6c7d59))
+
+
+### Bug Fixes
+
+* bash-3.2 declare -A crash risk in claude/hooks/ ([#140](https://github.com/LucasSantana-Dev/sharekit-profile/issues/140)) ([5ceb181](https://github.com/LucasSantana-Dev/sharekit-profile/commit/5ceb18138e2a4af1cbab12affe24d32b1096b16d))
+* **brand:** consolidate site branding from Agent OS to sharekit ([ec95bee](https://github.com/LucasSantana-Dev/sharekit-profile/commit/ec95bee79bcdf5157d79fbb5856daeaf3d54ea11))
+* **brand:** consolidate site branding from Agent OS to sharekit ([090d907](https://github.com/LucasSantana-Dev/sharekit-profile/commit/090d9076ef9d937937273d19772031e95a9d8209))
+* **design:** repaint hero/guide - kill gradient tells, add SEO metadata ([01463f6](https://github.com/LucasSantana-Dev/sharekit-profile/commit/01463f6f7b51a680310d9089d917448e828de01c))
+* **design:** repaint landing/guide page - kill gradient tells, add SEO ([f4702b3](https://github.com/LucasSantana-Dev/sharekit-profile/commit/f4702b307b222c80086b8bf8094714289a0ee22d))
+
 ## [0.12.0](https://github.com/LucasSantana-Dev/sharekit-profile/compare/v0.11.0...v0.12.0) (2026-08-04)
 
 
