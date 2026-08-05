@@ -71,7 +71,21 @@ mapfile -t fact_files < <(fd -e md . "$MEM_DIR" 2>/dev/null || find "$MEM_DIR" -
 
 decay_candidates=""
 supersede_candidates=""
-declare -A tag_index   # tag -> list of files (for clustering)
+# bash-3.2-safe: parallel indexed arrays, not `declare -A` (this hook resolves
+# whatever /bin/bash is first on PATH; associative arrays need bash 4+).
+tag_keys=()   # tag -> list of files (for clustering), via tag_keys/tag_vals
+tag_vals=()
+tag_index_add() {
+  local key="$1" file="$2" i
+  for i in "${!tag_keys[@]}"; do
+    if [[ "${tag_keys[$i]}" == "$key" ]]; then
+      tag_vals[$i]="${tag_vals[$i]} $file"
+      return 0
+    fi
+  done
+  tag_keys+=("$key")
+  tag_vals+=("$file")
+}
 scanned=0
 
 extract_field() {
@@ -114,7 +128,7 @@ for f in "${fact_files[@]}"; do
   if [[ -n "$tags" ]]; then
     # tags may be comma- or space-separated.
     for tag in $(printf '%s' "$tags" | tr ',' ' '); do
-      [[ -n "$tag" ]] && tag_index["$tag"]="${tag_index[$tag]:-} $base"
+      [[ -n "$tag" ]] && tag_index_add "$tag" "$base"
     done
   fi
 done
@@ -122,15 +136,28 @@ done
 # --- Supersede candidates: same title stem, different files ------------------
 # Group by the leading token of the filename (a crude title stem). Two files
 # sharing a stem are supersede candidates (recommend a link, not an overwrite).
-declare -A stem_index
+stem_keys=()
+stem_vals=()
+stem_index_add() {
+  local key="$1" file="$2" i
+  for i in "${!stem_keys[@]}"; do
+    if [[ "${stem_keys[$i]}" == "$key" ]]; then
+      stem_vals[$i]="${stem_vals[$i]} $file"
+      return 0
+    fi
+  done
+  stem_keys+=("$key")
+  stem_vals+=("$file")
+}
 for f in "${fact_files[@]}"; do
   [[ -f "$f" ]] || continue
   base="$(basename "$f" .md)"
   stem="$(printf '%s' "$base" | cut -d- -f1)"
-  stem_index["$stem"]="${stem_index[$stem]:-} $base"
+  stem_index_add "$stem" "$base"
 done
-for stem in "${!stem_index[@]}"; do
-  files="${stem_index[$stem]}"
+for i in "${!stem_keys[@]}"; do
+  stem="${stem_keys[$i]}"
+  files="${stem_vals[$i]}"
   count="$(printf '%s' "$files" | wc -w | tr -d ' ')"
   if [[ "$count" -gt 1 ]]; then
     supersede_candidates="${supersede_candidates}- stem '${stem}' (${count} files):${files} -> review for supersession LINK (keep both, mark older status/superseded)\n"
@@ -139,8 +166,9 @@ done
 
 # --- Clusters: tags shared by >=2 facts --------------------------------------
 clusters=""
-for tag in "${!tag_index[@]}"; do
-  files="${tag_index[$tag]}"
+for i in "${!tag_keys[@]}"; do
+  tag="${tag_keys[$i]}"
+  files="${tag_vals[$i]}"
   count="$(printf '%s' "$files" | wc -w | tr -d ' ')"
   if [[ "$count" -ge 2 ]]; then
     clusters="${clusters}- tag '${tag}' (${count} facts):${files} -> candidate to compress into one higher-order note\n"

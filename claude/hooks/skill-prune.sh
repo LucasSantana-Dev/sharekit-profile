@@ -66,14 +66,24 @@ report="$FORGE/${datestamp}-skill-prune.md"
 # --- Catalog skill names (the universe of candidates) -------------------------
 mapfile -t skill_files < <(fd -t f -e md '^SKILL\.md$' "$CATALOG" 2>/dev/null \
   || find "$CATALOG" -type f -name 'SKILL.md' 2>/dev/null)
-declare -A skill_present
+# bash-3.2-safe: parallel indexed arrays, not `declare -A` (this hook resolves
+# whatever /bin/bash is first on PATH; associative arrays need bash 4+).
+skill_names=()
+skill_hits=()
+skill_name_seen() { # dedup by name, mirrors declare -A's unique-key behavior
+  local name="$1" i
+  for i in "${!skill_names[@]}"; do
+    [[ "${skill_names[$i]}" == "$name" ]] && return 0
+  done
+  return 1
+}
 for f in "${skill_files[@]}"; do
   [[ -f "$f" ]] || continue
   name="$(grep -iE '^name:' "$f" 2>/dev/null | head -1 | sed -E 's/^name:[[:space:]]*//I' | tr -d '"' | tr -d "'")"
   [[ -z "$name" ]] && name="$(basename "$(dirname "$f")")"
-  skill_present["$name"]=0
+  skill_name_seen "$name" || { skill_names+=("$name"); skill_hits+=(0); }
 done
-total=${#skill_present[@]}
+total=${#skill_names[@]}
 
 # --- Hit counts from trajectory ----------------------------------------------
 # Skill invocations appear as tool calls whose input mentions a skill name.
@@ -82,17 +92,18 @@ total=${#skill_present[@]}
 # is the safe direction for a prune CANDIDATE list.
 while IFS= read -r line; do
   [[ -z "$line" ]] && continue
-  for name in "${!skill_present[@]}"; do
-    if printf '%s' "$line" | grep -qF "/$name"; then
-      skill_present["$name"]=$(( ${skill_present["$name"]} + 1 ))
+  for i in "${!skill_names[@]}"; do
+    if printf '%s' "$line" | grep -qF "/${skill_names[$i]}"; then
+      skill_hits[$i]=$(( skill_hits[$i] + 1 ))
     fi
   done
 done < "$TRAJECTORY"
 
 never=0; low=0; active=0
 never_list=""; low_list=""
-for name in "${!skill_present[@]}"; do
-  hits="${skill_present[$name]}"
+for i in "${!skill_names[@]}"; do
+  name="${skill_names[$i]}"
+  hits="${skill_hits[$i]}"
   if   [[ "$hits" -eq 0 ]]; then never=$((never+1)); never_list="${never_list}- ${name}: 0 hits -> archive candidate\n"
   elif [[ "$hits" -le 2 ]]; then low=$((low+1)); low_list="${low_list}- ${name}: ${hits} hits -> review for retirement\n"
   else active=$((active+1)); fi
