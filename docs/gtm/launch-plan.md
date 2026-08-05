@@ -87,6 +87,16 @@ The skill's canonical failure: 50K impressions, 12 signups, 2 conversions. A sha
 2. **Security-conscious teams** (2–10 devs) adopting agentic coding who need an auditable answer to "what is the agent allowed to do?" — the governance/eval story is written for them. Found via LinkedIn and direct outreach to platform/DevEx leads.
 3. Not: casual users wanting a skill grab-bag. If they arrive anyway, fine — but no messaging is optimized for them.
 
+### The accountability answer (for segment 2)
+
+The real enterprise objection to agentic tooling isn't "will the agent break something," it's "who's responsible when it does." Most AI products dodge this; sharekit's core artifacts answer it directly:
+
+- "Who gets paged when the agent does something wrong?" → whoever owns the constitution + threat model for that repo, the same person who'd own an incident from any other CI-gated system. The artifact defines what it's allowed to touch before it acts, not after — so the page is a policy review, not a fire drill.
+- "Who debugs it?" → whoever owns the PR the routing-eval gate ran on. Offline routing validation runs on every PR; the >5pp regression check runs when an OpenRouter key is configured, same review path and same owner as any other failing check.
+- "Who owns the call?" → whoever reviews and merges MCP policy changes. Deny-by-default means nothing new is reachable without an explicit, diffable approval from that reviewer — the approval log names the owner, not a black box.
+
+Lead with this framing in segment-2 outreach and the demo script, not accuracy or feature count. Don't answer "our AI is 95% accurate" to the objection; answer with the artifact.
+
 ## 3. Validation Gates
 
 Demand for this exact artifact is unproven (1 star). Cheap validation precedes any heavy investment. All metrics from week 0 = launch day.
