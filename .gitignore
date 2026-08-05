@@ -35,3 +35,7 @@ graphify-out/
 # Nested harness runtime dir (written from claude/ cwd instead of repo root by
 # some tool run) — same runtime-log class as the root .harness/runtime/ rule above
 claude/.harness/
+
+# Local git worktrees created for parallel-agent work (mandatory-parallel-execution
+# pattern) — machine-local, never meant to be committed
+.claude/worktrees/
