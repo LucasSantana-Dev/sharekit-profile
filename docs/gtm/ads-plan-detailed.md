@@ -237,7 +237,7 @@ Description: Constitution in git, eval gates in CI. Same rigor you give your cod
 - **G3 Activation**: 3+ users reference hooks/gates firing in their setup
 - **G5 Retention proxy**: 2+ users open a second issue/PR/config question
 
-**Ads success**: same metrics, attributed to ad source via UTM + Google Analytics. Ad spend is profitable if cost per engaged inbound (user who opens an issue or asks a config question) stays < $25 test tier, < $20 scale tier.
+**Ads success**: same metrics, attributed to ad source via UTM + Google Analytics. Ad spend is profitable if cost per engaged inbound (user who opens an issue or asks a config question) stays < $50 test tier (same bar as the Test Tier success criteria above), < $20 scale tier.
 
 ### Pausing rules (stop all spend if any of these trigger)
 
