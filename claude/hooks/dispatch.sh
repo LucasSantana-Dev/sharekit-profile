@@ -44,21 +44,29 @@ mkdir -p "$RUNTIME"
 # Deterministic transition table: state -> next state on --advance.
 # Gates (review_gate, merge_gate) are NOT advanced past by --advance alone;
 # they require --allow-gate. BLOCKED does not advance on --advance.
-declare -A NEXT=(
-  [intake]=triage
-  [triage]=plan
-  [plan]=research
-  [research]=implement
-  [implement]=review_gate
-  [review_gate]=eval
-  [eval]=merge_gate
-  [merge_gate]=done
-)
+# Functions, not `declare -A`: this hook resolves whatever /bin/bash is first
+# on PATH (macOS system bash 3.2 on unconfigured machines); associative arrays
+# need bash 4+, so keep this bash-3.2-safe (same pattern as tool-shortlist.sh).
+next_state() {
+  case "$1" in
+    intake) echo triage ;;
+    triage) echo plan ;;
+    plan) echo research ;;
+    research) echo implement ;;
+    implement) echo review_gate ;;
+    review_gate) echo eval ;;
+    eval) echo merge_gate ;;
+    merge_gate) echo done ;;
+    *) echo "" ;;
+  esac
+}
 # Gates: states that require an explicit allow before advancing.
-declare -A IS_GATE=(
-  [review_gate]=1
-  [merge_gate]=1
-)
+is_gate() {
+  case "$1" in
+    review_gate|merge_gate) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 
 ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -72,13 +80,22 @@ while [[ $# -gt 0 ]]; do
       [[ -s "$LEDGER" ]] || { echo "no tasks yet"; exit 0; }
       # Print the LATEST state line per task (last write wins).
       mapfile -t lines < <(jq -r '[.task_id,.state,.ts,.summary] | @tsv' "$LEDGER" 2>/dev/null)
-      declare -A latest
+      latest_ids=()
+      latest_lines=()
       for l in "${lines[@]}"; do
         id="$(printf '%s' "$l" | cut -f1)"
-        latest["$id"]="$l"
+        found=0
+        for i in "${!latest_ids[@]}"; do
+          if [[ "${latest_ids[$i]}" == "$id" ]]; then
+            latest_lines[$i]="$l"
+            found=1
+            break
+          fi
+        done
+        [[ "$found" -eq 0 ]] && { latest_ids+=("$id"); latest_lines+=("$l"); }
       done
-      for id in "${!latest[@]}"; do
-        printf '%s\n' "${latest[$id]}"
+      for l in "${latest_lines[@]}"; do
+        printf '%s\n' "$l"
       done | sort
       exit 0 ;;
     --intake) action="intake"; arg="$2"; shift 2 ;;
@@ -118,9 +135,9 @@ case "$action" in
     # BLOCKED does not advance silently.
     [[ "$current_state" == "BLOCKED" ]] && die "task $task_id is BLOCKED; resolve the blocker or --allow-gate"
     # Gates require an explicit allow.
-    [[ -n "${IS_GATE[$current_state]:-}" ]] && die "task $task_id is at gate $current_state; use --allow-gate $current_state to pass"
-    new_state="${NEXT[$current_state]:-done}"
-    [[ -z "${NEXT[$current_state]:-}" ]] && die "task $task_id is terminal ($current_state); nothing to advance"
+    is_gate "$current_state" && die "task $task_id is at gate $current_state; use --allow-gate $current_state to pass"
+    new_state="$(next_state "$current_state")"
+    [[ -z "$new_state" ]] && die "task $task_id is terminal ($current_state); nothing to advance"
     ;;
   block)
     [[ -n "$current_state" ]] || die "task $task_id not found"
@@ -130,9 +147,9 @@ case "$action" in
     ;;
   allow_gate)
     [[ -n "$current_state" ]] || die "task $task_id not found"
-    [[ -n "${IS_GATE[$current_state]:-}" ]] || die "task $task_id is not at a gate (state=$current_state)"
+    is_gate "$current_state" || die "task $task_id is not at a gate (state=$current_state)"
     [[ "$arg" == "$current_state" ]] || die "gate mismatch: at $current_state, asked to pass $arg"
-    new_state="${NEXT[$current_state]}"
+    new_state="$(next_state "$current_state")"
     ;;
   status)
     [[ -n "$current_state" ]] || { echo "task $task_id not found"; exit 0; }
