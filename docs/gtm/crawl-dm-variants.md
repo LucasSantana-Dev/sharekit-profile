@@ -52,7 +52,15 @@ Loss signal: "cool collection" / "nice skills."
 |--------|---------|---------|------|----------|-------|
 | u/shhdwi | Reddit DM | Custom (Graft-specific, tool-governance angle) | 2026-08-05 | Sent | Built Graft (NanoNets), 865 stars. Their post: Claude Code silently ignores MCP tools rather than erroring, "sent me looking in the wrong place for weeks." Pitched sharekit as the adjacent problem (what's reachable + behavior gating) rather than a competitor to Graft. |
 | u/Known_Isopod_1581 | Reddit comment (DM blocked, account restricts message requests) | Custom (Rootpilot-specific, boundary-check angle) | 2026-08-05 | Sent as public comment | Built Rootpilot, a Claude Code orchestration app. Their post: "context drift is real," strict boundary checks per execution slice cut hallucinated features. Post explicitly invited comments/DMs. Comment posted under u/LukDoLolo on their thread. |
+| u/Wise_Resource_8648 | Reddit DM | Custom (governance/eval gate angle) | 2026-08-05 | Sent | Subject: "sharekit: same category, different angle (governance/eval gate)". |
+| u/funkadelic1 | Reddit DM | Custom (config-sync angle) | 2026-08-05 | Sent | Subject: "sharekit: syncing config is half the problem". |
+| u/LegitimateManner3087 | Reddit DM | Custom (deny-by-default angle) | 2026-08-05 | Sent | Subject: "sharekit: deny-by-default would've stopped that key grab". |
+| u/zimxero | Reddit DM | Custom (Context Harness, memory-persistence angle) | 2026-08-05 | Sent | Subject: "sharekit: memory survives sessions, does your governance?". Built Context Harness, file-based persistent memory across sessions; pitched sharekit as the adjacent problem, persisted permissions/behavior needing the same re-check as persisted context. |
+| u/weltern | Reddit DM | Custom (Clawdmeter, usage-vs-behavior angle) | 2026-08-05 | Sent | Subject: "sharekit: Clawdmeter measures usage, we gate behavior". Built Clawdmeter, a Claude Code usage/cost tracker; pitched sharekit as the adjacent axis, visibility into usage vs. gating what the agent is allowed to do. |
+| u/MirafoldHQ | Reddit DM | Custom (Mirafold, orchestration-layer angle) | 2026-08-05 | Sent | Subject: "sharekit: same instinct as Mirafold, different layer". Built Mirafold, an agent orchestration/workflow tool; pitched sharekit as one layer down, constitution + eval gate vs. orchestration correctness. |
+| u/toshipepe | Reddit DM | Custom (Tokimeter, visibility-vs-permission angle) | 2026-08-05 | Sent | Subject: "sharekit: Tokimeter tracks the clock, we gate the actions". Built Tokimeter, a Claude Code time/usage tracker; pitched sharekit as the permission half of the visibility problem. |
+| u/PutFun1491 | Reddit DM | Custom (sandbox self-tests, policy-vs-isolation angle) | 2026-08-05 | Sent | Subject: "sharekit: sandbox tests the run, constitution scopes it". Built sandbox self-tests for verifying agent actions in isolation; pitched sharekit as the policy-side complement to sandbox isolation. |
 
-Both sourced via live Reddit research (r/ClaudeAI, r/ClaudeCode), verified directly
+All sourced via live Reddit research (r/ClaudeAI, r/ClaudeCode), verified directly
 (post + username checked in-browser, not taken from an automated summary at face
 value) before drafting or sending.
