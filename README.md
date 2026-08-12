@@ -346,7 +346,7 @@ The full catalog with triggers and frontmatter details is indexed by `hooks/skil
 ## MCP Servers
 
 ### Local
-- **rag-index** — semantic search on local knowledge base
+- **rag-index** — semantic search on local knowledge base, powered by the open-source [shelfmark](https://github.com/LucasSantana-Dev/shelfmark) engine (eval methodology: [hitgate](https://github.com/LucasSantana-Dev/hitgate))
 - **tavily** — web search
 - **fetch** — fetch URLs
 - **firecrawl** — web scraping/crawling
