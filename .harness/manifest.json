@@ -11,7 +11,7 @@
     ".harness/mcp-policy.json": "9a5fa1da78129b6ac5bbee27dbc5918d06be6c702a8671c71cfe5e675d6e14ba",
     "AGENTS.md": "58e4508c7062251e4cdfbd7cb26ff0a24cd02d5e2f15f4a334ca7a135d01cd17",
     "CLAUDE.md": "544ce317fc5ca9a44b57d29889c24b39127f3550ea67aa27b9bcbe566dc23138",
-    "claude/settings.json": "081f2c03b70871b608004b6fa336780e76c4498a37ea84192bcd5404ed681358",
+    "claude/settings.json": "2caaf3a0bc7601a5fbdbb1d35d6cee0ee97ca8053008891aa8cc53ceeeb55e51",
     "hooks/skill-index.sh": "932f9b15fe7c04f344e5570b52ff65bf082e818995c68991f67df3e5449d51ac",
     "hooks/skill-validate.sh": "d9ec7efe42808d2d9c465281cd3d3206824e7fd47f3caa396b6736eda3a94766",
     "hooks/skill-prune.sh": "5fff4e1c779225d9e129d5aa8051ef5f90a5925a8e550158d3f7ac7ebf3f5929",
