@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sharekit-profile/schemas/review/coordinator-schema.json",
+  "title": "Review coordinator output",
+  "description": "Structured output contract for the review-pack coordinator (spec D4): one batched review event plus deduped findings. Findings only on lines present in the posted diff.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event", "summary", "findings"],
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": ["APPROVE", "COMMENT", "REQUEST_CHANGES"],
+      "description": "Review event for the single POST /pulls/{n}/reviews call. Mapping: any critical -> REQUEST_CHANGES; warnings only -> COMMENT; else APPROVE."
+    },
+    "summary": {
+      "type": "string",
+      "description": "Human-readable review summary body (posted as the review comment)."
+    },
+    "findings": {
+      "type": "array",
+      "description": "Batched inline findings. Empty array when there is nothing to flag (for example a lockfile-only diff).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "position", "severity", "rule_id", "body", "fingerprint"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Repo-relative file path the finding belongs to."
+          },
+          "position": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Diff position (GitHub pulls review comment `position`), not a file line number."
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "warning", "suggestion"],
+            "description": "critical = outage/exploitable; warning = measurable regression; suggestion = optional improvement."
+          },
+          "rule_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Stable rule identifier that produced the finding (used by fingerprinting and dedupe)."
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Inline comment body for the finding."
+          },
+          "fingerprint": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "sha256 of path + rule_id + normalized snippet (scripts/review-fingerprint.sh). Line numbers are excluded so the fingerprint survives force-push/rebase."
+          }
+        }
+      }
+    }
+  }
+}

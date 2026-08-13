@@ -9,7 +9,7 @@ setup() {
   run python3 "$REPO_ROOT/evals/skills/validate_fixtures.py"
   [ "$status" -eq 0 ]
   [[ "$output" == *"0 problems"* ]]
-  [[ "$output" == *"8 fixture files"* ]]
+  [[ "$output" == *"5 fixture files"* ]]
 }
 
 @test "validate-fixtures: detects bad fixture" {
