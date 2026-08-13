@@ -1,7 +1,7 @@
 ---
 name: refactor-orchestrator
 description: Orchestrate end-to-end refactors across 6 phases: RAG pre-flight (prior context + protected scopes), plan with rollback, critic scope gate, parallel 3-agent execution (architect/builder/reviewer), two-stage review (spec+quality), test cleanup, ADR capture, sync. Use for scope >5 files, cross-module boundaries, or audit-flagged structural issues. Composite — orchestrates agents, does not implement changes itself. Requires explicit critic gate before execution begins.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: pr-reviewer
 description: Two-axis review of a git diff — Standards (does the code follow this repo's documented conventions?) and Spec (does it match what the issue/PRD asked for?). Runs both axes as parallel sub-agents and reports them side by side without merging findings. Use when reviewing a branch, PR, or work-in-progress changes.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 disallowedTools: Write, Edit
 ---

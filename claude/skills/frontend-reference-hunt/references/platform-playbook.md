@@ -45,14 +45,37 @@ SKILL.md; do not nest further.
 |---|---|---|
 | Immersive motion, award-grade | Awwwards | `awwwards.com/websites/<tag>/` |
 | Immersive motion, curated small | Godly | `godly.website` |
+| Immersive motion, curated small | appmotion.design | `appmotion.design` |
+| Immersive motion, curated small | 60fps.design | `60fps.design` |
 | Landing pages, SaaS | Land-book | `land-book.com` |
 | Landing pages, SaaS | SaaS Landing Page | `saaslandingpage.com` |
+| Landing pages, SaaS | purelanding.page | `purelanding.page` |
+| Landing pages, SaaS | saaspo.com | `saaspo.com` |
 | Editorial / typographic | siteinspire | `siteinspire.com` |
+| Web design, broad sweep | curated.design | `curated.design` |
+| Minimal / quiet register | minimal.gallery | `minimal.gallery` |
+| Broad creative work (not web-specific) | Behance | `behance.net` |
 | Component-level React | 21st.dev | `21st.dev` |
+| Component-level React | ui.aceternity.com | `ui.aceternity.com` |
 | Footers/navs (detail studies) | footer.design | `footer.design` |
+| Navbars (component detail) | navbar.gallery | `navbar.gallery` |
+| CTA sections (component detail) | cta.gallery | `cta.gallery` |
+| Bento grids (component detail) | bentogrids.com | `bentogrids.com` |
+| OG/share images (component detail) | ogimage.gallery | `ogimage.gallery` |
+| Design systems, cross-company patterns | component.gallery | `component.gallery` |
+| Brand / rebrand case studies | rebrand.gallery | `rebrand.gallery` |
+| Fonts, type pairing | uncut.wtf | `uncut.wtf` |
+| Icons | hugeicons.com | `hugeicons.com` |
+| Portfolio sites | prettyfolio.com | `prettyfolio.com` |
+| Email design | reallygoodemails.com | `reallygoodemails.com` |
+| AI-friendly stock imagery | lummi.ai | `lummi.ai` |
+| UX flow maps | uxmaps.co | `uxmaps.co` |
+| AI-agent design-doc format ref (not visual) | styles.refero.design | `styles.refero.design` |
 
-Awwwards/Godly sites are live: open them, scroll, and record actual motion behavior
-(what animates on load, on scroll, on hover) instead of trusting thumbnails.
+Awwwards/Godly/appmotion.design/60fps.design sites are live: open them, scroll, and record
+actual motion behavior (what animates on load, on scroll, on hover) instead of trusting
+thumbnails. `styles.refero.design` is a format reference (how to write a DESIGN.md for an
+AI agent), not a visual gallery — read it for structure, don't screenshot it into the board.
 
 ## Query widening ladder (when <5 usable references)
 

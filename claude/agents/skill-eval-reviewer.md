@@ -1,7 +1,7 @@
 ---
 name: skill-eval-reviewer
 description: Review skill-creator benchmark outputs for a completed iteration. Reads benchmark.json, grading.json, eval_metadata.json, and response.md files from an iteration directory, then surfaces discriminating assertions, anti-patterns in winning outputs, and improvement recommendations. Use after skill-creator eval runs complete — before deciding whether to iterate or ship.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 disallowedTools: Write, Edit
 ---

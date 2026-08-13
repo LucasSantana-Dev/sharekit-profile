@@ -1,7 +1,7 @@
 ---
 name: xp-navigator
 description: Drive Extreme Programming pair development cycles with an AI-human pair. Manages plan→test→implement→refactor→release cadence, enforces TDD discipline, and maintains role boundaries. Use for structured incremental development with continuous feedback loops.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 ---
 

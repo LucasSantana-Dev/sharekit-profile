@@ -22,6 +22,10 @@ Terse caveman style every turn (`~/.claude/skills/caveman/SKILL.md`), enforced b
 
 Lazy-senior-dev discipline every turn on any coding task (plugin: `ponytail`), enforced by the `mode-reminder.sh` UserPromptSubmit hook (merged, ADR-0050). Climb the ladder before writing code — YAGNI, reuse-what's-here, stdlib, native platform, already-installed dep, one-liner, only then minimal new code. No unrequested abstractions; never simplify away trust-boundary validation, error handling, or security. Off only on "stop ponytail" / "normal mode", that session only (same trigger phrase turns off both caveman and ponytail together).
 
+## Agent-econ mode — ALWAYS ON by default
+
+Subagent token discipline every turn (rules: `standards/agent-routing.md` § Subagent token economics), enforced by the same `mode-reminder.sh` hook. Recall/ctx_search before dispatching research; cap subagent reports ≤200 lines; grep-first briefs naming the ≤5 files worth full reads; thoroughness=medium default; ctx_index any output >50KB then ctx_search — never Read-page it; resume failed agents, never respawn a swarm on quota 403. Off only on "stop agent-econ", that session only.
+
 ## Model tiering + token-cost discipline
 
 Cache reads are billed at the model's rate and dominate session cost → session/agent model choice is the #1 cost lever.
@@ -79,3 +83,7 @@ Internal disk near capacity — all new repos, clones, worktrees, datasets, weig
 
 - **graphify** (`~/.claude/skills/graphify/SKILL.md`) — any input to knowledge graph. On `/graphify`, invoke the Skill tool with `skill: "graphify"` first.
 - **Graph-first token discipline (mandatory when a graph exists):** if `graphify-out/graph.json` exists in the active repo, query the graph (`graphify query "<question>" --budget 500`) BEFORE wide Grep/Read sweeps; treat injected `# Knowledge graph context` blocks as the primary map. Detail: `standards/graphify-discipline.md`.
+
+## Learned Rules (auto-learned)
+
+- Prefer stdlib-only Python for harness tooling; no new deps without asking

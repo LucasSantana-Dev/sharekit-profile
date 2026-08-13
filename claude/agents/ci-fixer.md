@@ -1,7 +1,7 @@
 ---
 name: ci-fixer
 description: Diagnose and fix failing GitHub CI on your own PRs. Fetches Actions logs, queries repo CI history for prior patterns, summarizes failures, drafts a fix plan, and implements after explicit approval. Hard stop if PR belongs to someone else or has human reviewer comments. Use when PR checks fail and you need root-cause analysis and repair.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 ---
 

@@ -2,6 +2,7 @@
 name: architect
 description: Audit and improve codebase architecture in one orchestrated workflow. Chains coupling analysis → orphan hunt → deepening opportunities → domain sharpening → critic gate → ADR recording. Read-only analysis; does not implement changes. Use when planning a refactor, evaluating architectural health, or audit-deep flagged structural debt.
 model: claude-fable-5
+disallowedTools: Write, Edit
 level: 3
 ---
 

@@ -59,7 +59,7 @@ ACTIVE_BRANCHES=$(git for-each-ref --format='%(refname:short)' refs/heads/ --sor
 MARKERS=$(
   git ls-files '*.ts' '*.tsx' '*.js' '*.jsx' '*.py' '*.go' '*.rs' '*.java' '*.rb' '*.swift' '*.kt' 2>/dev/null \
     | head -2000 \
-    | xargs -I{} grep -HnE '\b(TODO|FIXME|HACK|XXX)\b' {} 2>/dev/null \
+    | { xargs -I{} grep -HnE '\b(TODO|FIXME|HACK|XXX)\b' {} 2>/dev/null || true; } \
     | head -n "$MAX_MARKERS" \
     | jq -Rsn '
         [inputs | split("\n") | .[] | select(length > 0) | capture("^(?<file>[^:]+):(?<line>[0-9]+):(?<text>.*\\b(?<marker>TODO|FIXME|HACK|XXX)\\b.*)$")]

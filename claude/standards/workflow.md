@@ -12,6 +12,16 @@
 8. Merge or ship only when ready.
 9. Leave a checkpoint.
 
+## Research and spec before execution
+
+Every non-trivial task starts with research and a spec, not with code:
+`landscape-scan` when what to build is the question, `spec-research` when the
+task is known. Searching for a DESIGN fact mid-task (API shape, library
+behavior, protocol constraints) is a defect signal: the spec was incomplete.
+Loop back and fix the spec; do not ad-hoc research mid-implementation.
+Exception: runtime diagnostics (error messages, logs, failing tests) are
+debugging, not design research — those stay mid-task.
+
 ## Branching
 
 - Use `feature/`, `fix/`, `refactor/`, `chore/`, `docs/`, `ci/`, or `release/` prefixes.

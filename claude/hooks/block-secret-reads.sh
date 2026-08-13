@@ -56,7 +56,8 @@ fi
 # Header-shaped check: catches a secret header VALUE that doesn't match
 # maskSecret's shape heuristics (e.g. a short Cookie/Set-Cookie session value —
 # "session=abc123" isn't Bearer/sk-/40-char-shaped, so the check above misses
-# it), by header NAME instead.
+# it), by header NAME instead. Reuses the same CLI mode wired into
+# memory-write-guard.sh.
 header_script="$HOME/.claude/scripts/omniroute-sanitize-headers.mjs"
 if [ -n "${content// /}" ] && command -v node >/dev/null 2>&1 && [ -f "$header_script" ]; then
     header_masked="$(printf '%s' "$content" | node "$header_script" 2>/dev/null || printf '%s' "$content")"

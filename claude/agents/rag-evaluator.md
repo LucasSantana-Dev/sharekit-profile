@@ -1,7 +1,7 @@
 ---
 name: rag-evaluator
 description: Run retrieval regression gates (hitgate) against the current repo state. Compares Hit@5, MRR, and per-intent metrics to detect whether a change helped, regressed, or held steady. Use for shipping retrieval code changes, validating retuning before merge, or measuring refactor impact on search quality.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 disallowedTools: Write, Edit
 ---

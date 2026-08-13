@@ -14,7 +14,10 @@ set -uo pipefail
 CLAUDE_DIR="$HOME/.claude"
 ENV_DIR="$HOME/.claude-env"
 SKILLS="$CLAUDE_DIR/skills"
-RAG_ROOT="${DEV_ROOT}/rag-index"
+# Overridable so a sandbox (harness-selftest.sh) can simulate "mounted" without a real
+# external volume — real machine default is unchanged.
+EXTERNAL_HD="${EXTERNAL_HD_DIR:-${DEV_ROOT}}"
+RAG_ROOT="$EXTERNAL_HD/Desenvolvimento/rag-index"
 warns=()
 
 now=$(date +%s)
@@ -76,7 +79,7 @@ fi
 
 # 5b. mount guard — External HD unmounted means RAG/brain/repos silently unreachable
 # (knowledge-brain.md prescribes loud-fail; was only enforced per-skill until 2026-07-09)
-[ -d "${DEV_ROOT}" ] || warns+=("External HD NOT MOUNTED - RAG index, knowledge-brain, and dev repos unreachable; mount before any memory/graph write")
+[ -d "$EXTERNAL_HD" ] || warns+=("External HD NOT MOUNTED - RAG index, knowledge-brain, and dev repos unreachable; mount before any memory/graph write")
 
 # 6. settings drift — a live settings.json value that shared+machine will overwrite on the
 # next `sync pull` (e.g. `/model opus` writes the derived file, but `model` is owned by
@@ -102,20 +105,23 @@ if [ -f "$PUSH_EXIT_FILE" ]; then
 fi
 
 # 7. stale active handoff (> 14d) — a forgotten resume packet
-hand=$(ls -t "$CLAUDE_DIR"/handoffs/latest.md "$CLAUDE_DIR"/handoffs/*/latest.md 2>/dev/null | head -1)
+# -L on both ls and stat: latest.md is a symlink whose own mtime never changes
+# after creation (2026-08-02 — was reporting "41d old" forever regardless of how
+# fresh the target content actually was, a permanent false positive).
+hand=$(ls -tL "$CLAUDE_DIR"/handoffs/latest.md "$CLAUDE_DIR"/handoffs/*/latest.md 2>/dev/null | head -1)
 if [ -n "${hand:-}" ]; then
-  m=$(stat -f %m "$hand" 2>/dev/null || stat -c %Y "$hand" 2>/dev/null || echo "$now")
+  m=$(stat -f %m -L "$hand" 2>/dev/null || stat -c %Y -L "$hand" 2>/dev/null || echo "$now")
   d=$(( (now - m) / 86400 )); [ "$d" -gt 14 ] && warns+=("handoff ${d}d old ($hand) — stale resume packet, clear or act on it")
 fi
 
-# 8. hook + launchd target existence - moved/deleted scripts fail SILENTLY for weeks
+# 8. hook + launchd target existence — moved/deleted scripts fail SILENTLY for weeks
 # (2026-07-23: 4 hooks + graph-refresh plist pointed at the pre-move rag-index path;
 # 2 orphaned plists pointed at a deleted skill dir; autorecall burned a 20s timeout
 # on every prompt). This check turns that class into a same-session alarm.
 settings_json="$CLAUDE_DIR/settings.json"
 if [ -f "$settings_json" ]; then
   while IFS= read -r p; do
-    [ -n "$p" ] && [ ! -e "$p" ] && warns+=("hook target MISSING: $p (registered in settings.json) - hook errors every fire")
+    [ -n "$p" ] && [ ! -e "$p" ] && warns+=("hook target MISSING: $p (registered in settings.json) — hook errors every fire")
   done < <(python3 - "$settings_json" 2>/dev/null <<'PY'
 import json, re, sys
 d = json.load(open(sys.argv[1]))
@@ -144,7 +150,7 @@ for plist in "$HOME/Library/LaunchAgents/$pre"*.plist; do
       first="${p%% *}"
       case "$first" in *.sh|*.py|*.command|*/bin/*) p="$first";; *) continue;; esac
     fi
-    [ -e "$p" ] || warns+=("launchd target MISSING: $raw ($(basename "$plist")) - job errors every fire; unload or repoint")
+    [ -e "$p" ] || warns+=("launchd target MISSING: $raw ($(basename "$plist")) — job errors every fire; unload or repoint")
   done < <(plutil -extract ProgramArguments json -o - "$plist" 2>/dev/null | python3 -c 'import json,sys
 try:
   [print(x) for x in json.load(sys.stdin) if isinstance(x, str)]
@@ -152,36 +158,36 @@ except Exception: pass' 2>/dev/null)
 done
 done
 
-# 9. scheduled-job heartbeats - jobs that exit 0 while doing nothing (nightly rebuild
+# 9. scheduled-job heartbeats — jobs that exit 0 while doing nothing (nightly rebuild
 # logged "skipping" + exit 0 for weeks via a PATH bug) only surface via freshness.
 hb_dir="$HOME/.claude/heartbeats"
 check_hb() { # $1 label, $2 max-age-hours
   f="$hb_dir/$1.ok"
-  if [ ! -f "$f" ]; then warns+=("heartbeat MISSING: $1 never completed since instrumentation - check job + log"); return; fi
+  if [ ! -f "$f" ]; then warns+=("heartbeat MISSING: $1 never completed since instrumentation — check job + log"); return; fi
   h=$(age_h "$(cat "$f" 2>/dev/null || echo 0)")
-  [ "$h" -gt "$2" ] && warns+=("heartbeat STALE: $1 last completed ${h}h ago (expected < ${2}h) - job dead or no-op?")
+  [ "$h" -gt "$2" ] && warns+=("heartbeat STALE: $1 last completed ${h}h ago (expected < ${2}h) — job dead or no-op?")
 }
 check_hb rag-nightly-rebuild 36
 check_hb memory-weekly-sync 200
 
-# 10. ADR-0039 guard - project auto-memory copies must never re-enter the RAG index
+# 10. ADR-0039 guard — project auto-memory copies must never re-enter the RAG index
 # (they are ~84% vault duplicates that filled both retrieval slots; enforced in
 # build.py 2026-07-23). Alert if any chunk reappears under a .claude/projects path.
 rag_db_main="$RAG_ROOT/index.sqlite"
 if [ -f "$rag_db_main" ]; then
   n=$(sqlite3 "$rag_db_main" "SELECT COUNT(*) FROM chunks WHERE path LIKE '%/.claude/projects/%/memory/%';" 2>/dev/null || echo 0)
-  [ "${n:-0}" -gt 0 ] && warns+=("ADR-0039 VIOLATION: $n RAG chunks from ~/.claude/projects/*/memory/ - duplicates are back in the index; purge + check build.py SOURCES")
+  [ "${n:-0}" -gt 0 ] && warns+=("ADR-0039 VIOLATION: $n RAG chunks from ~/.claude/projects/*/memory/ — duplicates are back in the index; purge + check build.py SOURCES")
 fi
 
-# 11. catalog surface - broken skill symlinks + live/archive name collisions
+# 11. catalog surface — broken skill symlinks + live/archive name collisions
 # (2026-07-23 audit: 89 broken symlinks = 30% of listing; overlap grew 120→128 in a week)
 ASK_ROOT="$HOME/.agents/skills"
 if [ -d "$ASK_ROOT" ]; then
   nb=$(find "$ASK_ROOT" -maxdepth 1 -type l ! -exec test -e {} \; -print 2>/dev/null | wc -l | tr -d ' ')
-  [ "${nb:-0}" -gt 0 ] && warns+=("skills catalog: $nb broken symlinks in ~/.agents/skills - delete: find ~/.agents/skills -maxdepth 1 -type l ! -exec test -e {} \; -delete")
+  [ "${nb:-0}" -gt 0 ] && warns+=("skills catalog: $nb broken symlinks in ~/.agents/skills — delete: find ~/.agents/skills -maxdepth 1 -type l ! -exec test -e {} \; -delete")
   if [ -d "$ASK_ROOT/.archive" ]; then
     coll=$(comm -12 <(ls "$ASK_ROOT" 2>/dev/null | grep -v '^\.' | sort) <(ls "$ASK_ROOT/.archive" 2>/dev/null | sort) 2>/dev/null | wc -l | tr -d ' ')
-    [ "${coll:-0}" -gt 0 ] && warns+=("skills catalog: $coll names exist BOTH live and archived - move .archive/ out of the skills root")
+    [ "${coll:-0}" -gt 0 ] && warns+=("skills catalog: $coll names exist BOTH live and archived — move .archive/ out of the skills root")
   fi
 fi
 
@@ -190,19 +196,14 @@ fi
 # If one of these goes missing, the rules citing it are instructions, not rails.
 for art in \
   "$HOME/.claude/scripts/repo-mode.sh" \
+  "$HOME/.kimi-code/hooks/rtk-rewrite.sh" \
   "$ENV_DIR/bin/sync" \
   "$HOME/.agents/skills/standards/cooperative-mode.md" \
   "$HOME/.agents/skills/standards/multi-person-work-ethics.md"; do
-  [ -e "$art" ] || warns+=("enforcement artifact MISSING: $art - rules citing it are phantom guardrails")
+  [ -e "$art" ] || warns+=("enforcement artifact MISSING: $art — rules citing it are phantom guardrails")
 done
-# kimi-code hook only applies to operators who have kimi-code installed; skip the
-# check entirely rather than false-warn on every other operator's SessionStart.
-if [ -d "$HOME/.kimi-code" ]; then
-  art="$HOME/.kimi-code/hooks/rtk-rewrite.sh"
-  [ -e "$art" ] || warns+=("enforcement artifact MISSING: $art - rules citing it are phantom guardrails")
-fi
 
-# 13. resurrection guard - uncommitted deletions in the config repos are exactly
+# 13. resurrection guard — uncommitted deletions in the config repos are exactly
 # what the WIP-sync restores silently (2026-07-24/27 incident: 8 skill deletions +
 # 89 symlinks + .archive resurrected after the clobber-guard blocked the
 # auto-snapshot and the state sat uncommitted for days). If you just deleted a
@@ -210,13 +211,23 @@ fi
 for repo in "$HOME/.agents/skills" "$ENV_DIR"; do
   [ -d "$repo/.git" ] || continue
   dels=$(git -C "$repo" status --porcelain 2>/dev/null | grep -c '^ *D' || true)
-  [ "${dels:-0}" -gt 20 ] && warns+=("resurrection risk: $dels UNCOMMITTED deletions in $repo - commit now (CLAUDE_SYNC_MAX_DEL=500 ~/.claude-env/bin/sync push) or the WIP-sync will restore them")
+  [ "${dels:-0}" -gt 20 ] && warns+=("resurrection risk: $dels UNCOMMITTED deletions in $repo — commit now (CLAUDE_SYNC_MAX_DEL=500 ~/.claude-env/bin/sync push) or the WIP-sync will restore them")
 done
 
-# Emit ONLY if something is off (silent-when-healthy)
+# Emit ONLY if something is off (silent-when-healthy).
+# Cache hygiene (2026-07-28): the volatile vitals block goes to systemMessage
+# (user-only, never enters model context); the model gets a STATIC directive in
+# additionalContext so session-prefix bytes stay stable across sessions.
 if [ ${#warns[@]} -gt 0 ]; then
-  printf '## ⚠ Harness vitals (%d issue%s)\n' "${#warns[@]}" "$([ ${#warns[@]} -eq 1 ] || echo s)"
-  for w in "${warns[@]}"; do printf -- '- %s\n' "$w"; done
-  printf 'Silent-failure check — address or it persists unseen. (harness-vitals.sh)\n'
+  MSG=$(printf '## ⚠ Harness vitals (%d issue%s)\n' "${#warns[@]}" "$([ ${#warns[@]} -eq 1 ] || echo s)"; \
+        for w in "${warns[@]}"; do printf -- '- %s\n' "$w"; done; \
+        printf 'Silent-failure check — address or it persists unseen. (harness-vitals.sh)\n')
+  jq -n --arg m "$MSG" '{
+    systemMessage: $m,
+    hookSpecificOutput: {
+      hookEventName: "SessionStart",
+      additionalContext: "HARNESS VITALS: issues were detected by harness-vitals.sh (shown to the operator via system message, not visible to you). Do not investigate proactively; if the operator asks about harness health, run ~/.claude/hooks/harness-vitals.sh and read its output."
+    }
+  }' 2>/dev/null || printf '%s' "$MSG"
 fi
 exit 0

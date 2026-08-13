@@ -77,6 +77,9 @@ Dispatch all tracks as parallel `Agent()` calls in ONE tool-use block. If ≥2 t
 ### Step 4: Reconcile results
 Collect all track outputs. For each disagreement, apply the resolution rule you named in Step 2.
 
+### Step 4b: Verify the merge (when stakes warrant)
+For fan-outs of ≥3 tracks with non-trivial synthesis, dispatch ONE cheap-model verifier agent with the reconciled output plus the original per-track task list: it confirms every track's question was actually answered and flags coverage gaps or unresolved contradictions. Skip for enum-shaped answers you can check by inspection.
+
 **Done when:** you have one verdict, no open contradictions, one next action.
 
 ## Remote Agent Dispatch
@@ -97,11 +100,9 @@ See [references/remote-tasks.md](references/remote-tasks.md) for the complete ta
 
 ### Execution flow
 
-1. If `<task>` matches a named alias (see references/remote-tasks.md), run the mapped script directly on <homelab>. Substitute before execution: `HOST` = the configured homelab SSH alias (from `~/.ssh/config`), `SCRIPT` = the script filename from the alias table:
+1. If `<task>` matches a named alias (see references/remote-tasks.md), run the mapped script directly on <homelab>:
    ```bash
-   HOST=<homelab>   # homelab SSH alias from ~/.ssh/config
-   SCRIPT=<script>  # script filename mapped in references/remote-tasks.md
-   ssh "$HOST" "${HOMELAB_ROOT}/scripts/agent-tasks/$SCRIPT"
+   ssh <homelab> "${HOMELAB_ROOT}/scripts/agent-tasks/<script>"
    ```
    **Done when:** script executes and output is streamed; execution exits cleanly.
 

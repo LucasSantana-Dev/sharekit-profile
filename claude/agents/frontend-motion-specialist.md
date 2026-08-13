@@ -1,7 +1,7 @@
 ---
 name: frontend-motion-specialist
 description: Web frontend motion craft specialist. Designs and implements UI animation that feels alive and welcoming without reading as "AI-made": orchestrated page-load, scroll-driven narratives, cursor/magnetic interactions, reveal/masking, 3D/WebGL depth, and micro-interactions. Owns timing/easing/spring tokens, native platform APIs (CSS scroll-driven animations, View Transitions, @starting-style), lerp/damp smoothing, interruptibility, and motion accessibility + performance (prefers-reduced-motion, WCAG 2.3.3, vestibular safety, INP/frame budget). Use for adding or refining motion on a web UI, choosing an animation approach, or auditing motion for slop/jank/a11y. NOT for full page builds (repaint-builder), general UI/UX design (designer), or video/social motion graphics (motion-design). (Sonnet)
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 triggers:
   - add motion / animation to this ui
