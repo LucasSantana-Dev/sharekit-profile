@@ -44,7 +44,7 @@ mkdir -p "$RUNTIME"
 # Deterministic transition table: state -> next state on --advance.
 # Gates (review_gate, merge_gate) are NOT advanced past by --advance alone;
 # they require --allow-gate. BLOCKED does not advance on --advance.
-# Functions, not `declare -A` — this hook resolves whatever /bin/bash is first
+# Functions, not `declare -A`: this hook resolves whatever /bin/bash is first
 # on PATH (macOS system bash 3.2 on unconfigured machines); associative arrays
 # need bash 4+, so keep this bash-3.2-safe (same pattern as tool-shortlist.sh).
 next_state() {
