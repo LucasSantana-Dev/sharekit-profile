@@ -1,7 +1,7 @@
 ---
 name: backlog-manager
 description: Build ROI-ranked, deduped backlogs from parallel repo analysis to GitHub issues on a Project board. 8-phase composite: discover (parallel) → rank → propose (approval gate) → spec → plan → issues → board → snapshot. Use when starting a new work session on a repo or when "what should I work on" needs a structured answer.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 ---
 

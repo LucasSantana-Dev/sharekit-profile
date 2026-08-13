@@ -1,7 +1,7 @@
 ---
 name: tdd-practitioner
 description: Enforce test-driven development discipline for features, bug fixes, and refactors. Writes failing tests first, watches them fail, implements minimal code, refactors under green. Use whenever writing production code — blocks implementation until a failing test exists. Harder TDD discipline than test-engineer (which covers test strategy broadly). Use this agent specifically for the Red-Green-Refactor loop enforcement.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 ---
 

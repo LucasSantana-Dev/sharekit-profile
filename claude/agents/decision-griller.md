@@ -1,7 +1,7 @@
 ---
 name: decision-griller
 description: Conduct bounded decision interviews using AskUserQuestion to resolve design, architecture, or product forks one at a time. Maps decision trees first, asks one fork per turn, detects 95% convergence, and produces a confirmed restatement. Use when a plan has knowable alternative paths and bounded choices will resolve ambiguity faster than open text.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 ---
 

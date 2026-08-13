@@ -1,7 +1,7 @@
 ---
 name: team-coordinator
 description: Decompose a task into parallel workstreams, assign agent ownership, run integration at dependency boundaries, and synthesize results. Use when a task is large enough that parallel agents save time or add confidence — and when clear handoffs can be defined. Produces a team plan, bounded prompts per agent, and final integrated outcome.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: overengineering-auditor
 description: Flag code that is heavier than its problem — single-implementation abstractions, speculative generalization, unnecessary indirection, unused config, premature optimization, and type gymnastics for states that can't occur. Scope-first, read-only, proposes the simpler alternative with its cost. Use in PR review, before merge, or when a module feels too clever for what it does.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 disallowedTools: Write, Edit, Bash
 ---

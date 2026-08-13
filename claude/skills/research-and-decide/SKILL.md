@@ -1,6 +1,6 @@
 ---
 name: research-and-decide
-description: Composite skill — research a question, challenge the conclusion, plan adoption, and capture the decision. Chains adt-research or brainstorming (explore) → critic agent (challenge) → plan (sequence) → adr-write (record). Use when evaluating a library / pattern / architecture choice — forces the research-to-ADR pairing that usually slips.
+description: Composite skill — research a question, challenge the conclusion, plan adoption, and capture the decision. Chains deep-research or brainstorming (explore) → critic agent (challenge) → plan (sequence) → adr-write (record). Use when evaluating a library / pattern / architecture choice — forces the research-to-ADR pairing that usually slips.
 user-invocable: true
 auto-invoke: choice-questions + library-evaluations
 metadata:
@@ -30,11 +30,11 @@ research → critique → plan → ADR pairing so the rationale survives.
 
 ### Phase 1 — Research (always)
 - Open-ended exploration: invoke `brainstorming` to surface options and constraints
-- Specific tech evaluation: invoke `adt-research` for web + docs + repo evidence
+- Specific tech evaluation: invoke `deep-research` for web + docs + repo evidence
 - Output: 5-10 candidates with one-line tradeoff per candidate
 
 ### Phase 2 — Challenge (always — this is what makes the decision durable)
-Dispatch ONE read-only `critic` agent (Opus, multi-perspective review; never edits repo state) on the leading 1-2 options:
+Invoke `critic` agent (Opus, multi-perspective review) on the leading 1-2 options:
 - Cost over 12 months
 - Migration friction
 - Lock-in risk

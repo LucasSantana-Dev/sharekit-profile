@@ -50,3 +50,31 @@ function parseAuthToken(token: string): Payload | null { ... }
 ## The test: would removing the comment confuse a future reader?
 
 If no → don't write it. If yes → write it, and make it explain the constraint, not the mechanics.
+
+## Big rationale belongs in a doc, not a comment block
+
+A short WHY comment (1-3 lines) stays inline, next to the code it explains. But when the
+rationale is a paragraph or more — a measured incident, a rejected alternative with numbers,
+a multi-step causal chain, a decision with tradeoffs — write it as a doc (ADR, `DECISIONS.md`
+entry, or a `docs/`/`references/` file) and leave a one-line pointer comment in the code:
+
+```ts
+// See DECISIONS.md 2026-08-09: 8b model hits TPM cap on this project's base prompt.
+const GROQ_MODEL = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
+```
+
+not the full incident writeup inline. Long comment blocks rot the same way redundant ones
+do — they drift from the code as it changes, they're invisible to anyone not reading that
+exact file, and they bloat every read of the function. A doc is discoverable, versioned
+independently, and doesn't force every future reader of the function to scroll past it.
+
+**Why:** stated directly by the user while reviewing a codebase with deeply-reasoned
+multi-paragraph comments (measured latency numbers, rejected model choices, live-incident
+postmortems) embedded throughout `src/`. The reasoning was valuable but belonged in the
+project's decision record, not inline.
+
+**How to apply:** when writing or translating a comment and it runs longer than ~3 lines or
+cites a measured incident/rejected alternative, stop and ask whether this is really a decision
+record. If yes, move it to `DECISIONS.md` (or the project's equivalent) and shrink the inline
+comment to a pointer + the one fact a reader needs right there (e.g. "70b not 8b: TPM cap").
+Applies to new comments and to comments encountered while translating/refactoring existing code.

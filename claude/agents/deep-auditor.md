@@ -1,7 +1,8 @@
 ---
 name: deep-auditor
 description: Composite health audit that runs test-health, config-drift-detect, hook-effectiveness, security-audit, mcp-audit, plugin-audit, and socket-audit in parallel, reconciles into severity-ranked findings, cross-checks against prior decisions via RAG, and produces a prioritized remediation plan. Use for "is this project healthy", before releases, or weekly per active repo.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
+disallowedTools: Write, Edit
 level: 3
 ---
 

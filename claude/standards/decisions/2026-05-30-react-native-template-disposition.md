@@ -34,13 +34,13 @@ The critic (REJECT) correctly flagged: (a) PR #2 is genuinely unmergeable as-is 
 ## Consequences
 
 - (+) Public RCE exposure neutralized in one operator action; no PR/CI grind on dead code.
-- (+) the operator keeps the scaffold privately if they want it.
-- (−) If the operator later wants it as a *public* template offering, they must then fix the CI gates + merge the security fix before re-publishing (tracked below).
+- (+) the operator keeps the scaffold privately if he wants it.
+- (−) If he later wants it as a *public* template offering, he must then fix the CI gates + merge the security fix before re-publishing (tracked below).
 - (~) PR #2's validated fix is parked on a branch, not merged.
 - (lesson) A subagent hallucinated repo recency; **direct verification of the default-branch HEAD date** flipped the disposition. Vitality claims must be checked against `main`, not PR-branch churn.
 
 ## Revisit when
 
 - the operator wants react-native-template **public again** (as a template offering) → first fix the 3 mis-calibrated CI gates (`.npmrc legacy-peer-deps=true`, exclude lockfiles from PR-size, `npm audit --audit-level=high`) + merge the parked security fix, THEN re-publish.
-- The operator resumes active development on it → reassess (keep public + maintain).
-- The same Expo peer-tree / lockfile-PR-size friction appears on a repo the operator DOES keep public → fix the gates there (the research showed they're genuinely mis-calibrated).
+- He resumes active development on it → reassess (keep public + maintain).
+- The same Expo peer-tree / lockfile-PR-size friction appears on a repo he DOES keep public → fix the gates there (the research showed they're genuinely mis-calibrated).

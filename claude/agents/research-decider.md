@@ -1,7 +1,7 @@
 ---
 name: research-decider
 description: Evaluate library, pattern, or architecture choices end-to-end: research candidates, challenge with decision-critic, plan adoption, write ADR with revisit-when condition, index for future recall. Use for any choice where the wrong decision creates technical debt or lock-in. Always produces a durable ADR.
-model: claude-opus-4-8
+model: claude-opus-5
 level: 3
 ---
 

@@ -55,9 +55,33 @@ Stay in the main context (don't dispatch) when:
 
 If a user request matches a hard trigger and you start executing inline anyway, stop after the first unit, re-dispatch the rest as parallel `Agent()` calls, and surface the correction. Sequential execution of independently-parallelizable work violates the CLAUDE.md hard rule.
 
+## Subagent token economics (measured 2026-08-03, router-dissection session)
+
+Subagent cost is dominated by (a) what agents READ and (b) what they RETURN. Two 8-agent thorough sweeps produced 136KB + 183KB of reports that were then paged into main context — the failure mode this section prevents.
+
+Briefing rules (every `Agent()`/`AgentSwarm()` prompt):
+
+1. **Cap the report**: every brief ends with a hard output budget — default "report ≤200 lines: findings with file:line refs, no essays". Deep dissections get ≤400. Agents with no cap write essays.
+2. **Grep-first briefs**: name the load-bearing files to read fully (you locate them first with Glob/Grep); instruct "grep/skim everything else, full-read only these N files". Never write "read every file fully" for repos with god-files.
+3. **Thoroughness default is `medium`**. `thorough` only when the question genuinely spans the whole repo. One agent per question-class or repo — not per file-group — unless the scope is huge.
+4. **Recall before dispatch**: run `recall`/`search_knowledge`/`ctx_search` first. If the answer exists in memory or a prior indexed report, no agent is needed at all.
+5. **Resume over respawn**: failed/timed-out agents keep context — `resume` them. A 403/quota failure means STOP spawning, not retry the whole swarm.
+
+Main-context rules (what to do with returns):
+
+6. **Index, don't page**: any agent output >50KB → `ctx_index` it immediately, then pull answers with `ctx_search`. Never Read-page a >50KB tool result into main context just to summarize it.
+7. **Derive in sandbox**: counts/filters/aggregations over files or logs → `ctx_execute`/`ctx_execute_file`; only the printed answer enters context.
+8. **Structured verdicts over prose**: ask for findings lists (severity, file:line, one-line evidence), not narrative reports.
+
+Anti-pattern registry (do not repeat): 8 thorough agents told to read a 5017-line god-file in full; paging 183KB through Read to synthesize; re-running a swarm after a provider quota 403.
+
 ## Model tier enforcement (ADR-0049)
 
 Every agent definition in `~/.claude/agents/*.md` frontmatter MUST set an explicit `model:` field — no agent inherits a model implicitly. This is the primary lever for model-tier cost control (subagent dispatch is the one place a model choice can be set programmatically; the main-session model can only be changed via `/model`, never by a hook). Tier per CLAUDE.md's Model tiering section: Fable (apex — architecture/critic-of-critical/consequential ADRs), Opus (fallback — composite orchestration entrypoints, standard critic, routine ADR writing), Sonnet (execution — default), Haiku (mechanical — lookups, formatting, transcription). When dispatching `Agent()`/`Workflow() agent()` calls, prefer omitting the `model` override so the call inherits the agent definition's frontmatter tier; only pass an explicit override for a genuine one-off exception, and note why.
+
+### Downgrade-by-default (2026-08-04, from the router's background-task downgrade pattern)
+
+Subagents are background work — dispatch them ONE TIER BELOW your first instinct. Upgrade only with an explicit reason ("cross-file synthesis", "adversarial critic", "touches auth"). Concretely: explore/audit/search agents default Haiku-or-local; implementation agents default Sonnet; Opus+ requires the reason stated in the dispatch. The router downgrades background tasks automatically; the harness does it by discipline.
 
 ## Active agents (post-2026-05-02 consolidation)
 

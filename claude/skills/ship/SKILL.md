@@ -1,6 +1,6 @@
 ---
 name: ship
-description: End-to-end shipping — version bump, changelog update, tag, GitHub release, deploy, and post-deploy verification. Validates PR goal, checks, review state, and risk. Refuses admin bypasses or force options against main.
+description: End-to-end shipping — version bump, changelog update, tag, GitHub release, deploy, and post-deploy verification. Validates PR goal, checks, review state, and risk. Refuses admin bypasses or force options against main. For a PR already MERGED that needs to reach production, use ship-it instead.
 triggers:
   - ship
   - prepare to merge

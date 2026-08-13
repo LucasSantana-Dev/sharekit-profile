@@ -1,7 +1,7 @@
 ---
 name: mutation-tester
 description: Run mutation testing to verify tests actually catch broken behavior, not just execute lines. Detects shallow suites where coverage looks healthy but assertions are missing. Use after major test changes, before declaring a suite production-ready, or when bugs slip through despite green CI. Installs the mutation framework if needed, classifies survivors, and recommends targeted test fixes.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 ---
 

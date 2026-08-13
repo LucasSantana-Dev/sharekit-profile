@@ -267,6 +267,6 @@ esac
 
 # Emit a systemMessage hint. Claude reads this and is biased toward invoking the composite.
 jq -n --arg c "$composite" --arg r "$reason" \
-  '{"systemMessage": (" Composite match: /\($c) — \($r). Per skill-auto-invoke standard (composite-first principle), invoke /\($c) instead of running its sub-skills individually.")}'
+  '{"systemMessage": ("🎯 Composite match: /\($c) — \($r). Per skill-auto-invoke standard (composite-first principle), invoke /\($c) instead of running its sub-skills individually.")}'
 
 exit 0

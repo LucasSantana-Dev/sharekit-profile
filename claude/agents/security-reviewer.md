@@ -1,7 +1,7 @@
 ---
 name: security-reviewer
 description: Security vulnerability detection specialist (OWASP Top 10, secrets, unsafe patterns)
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 disallowedTools: Write, Edit
 ---
