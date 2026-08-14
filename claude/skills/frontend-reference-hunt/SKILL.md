@@ -64,6 +64,18 @@ training-data averages (the root cause of slop convergence).
      not to other niche apps in the same market category that likely have the same coverage gap.
      Search these instead/in addition. State this substitution explicitly in the board's
      coverage notes — never silently swap the target without saying so.
+   - **1b. Prefer live/interactive embedded UI over static screenshots when both exist.**
+     "Real in-app UI" (1a) and "shows the app actually running/interacting" are separate axes —
+     a static App Store screenshot satisfies the first but not the second, and a board of only
+     static shots can still get rejected as insufficient. Before settling for App Store/Mobbin
+     stills, check the product's OWN marketing site for its real UI re-rendered as a live page
+     element: draggable before/after sliders, tab-switchers that swap real content, scrollable
+     live feeds, embedded demo widgets — not video, just interactive DOM built from the app's
+     actual componentry. These read as more production-faithful than a docs screenshot because
+     they show an actual interaction state (an in-progress answer, a live feed), not a single
+     static frame. Note honestly in the board that such captures aren't independently provable
+     as literal desktop screenshots (no OS window chrome) — treat as high-confidence secondary,
+     App Store/Mobbin stills as ground truth when both exist.
    If a build skill dispatched this hunt, inherit its register lock verbatim; never re-decide
    register here.
 2. **Route platforms by goal** — full URL patterns, query recipes, and per-platform quality
