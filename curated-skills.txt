@@ -37,6 +37,7 @@ review
 secure
 session-bootstrap
 ship
+spec-driven-develop
 streamer-mode
 sync-memories
 sync-sharekit-profile
