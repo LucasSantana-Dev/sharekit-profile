@@ -247,6 +247,7 @@ left the regex metacharacters `[a-z]+\.` intact).
   sed -i '' 's|[[:<:]]ai-dev-toolkit-setup[[:>:]]|<toolkit-repo>-setup|g' "$f"
   sed -i '' 's|[[:<:]]ai-dev-toolkit[[:>:]]|<toolkit-repo>|g' "$f"
   sed -i '' 's|-Volumes-External-HD-Desenvolvimento|<project-slug>|g' "$f"
+  sed -i '' 's|[[:<:]]Desenvolvimento[[:>:]]|<dev-folder>|g' "$f"   # personal dev-root subfolder name (distinct from the pt-BR word "Desenvolvimento" = "development" — this pass is case/word-boundary matched, not context-aware, so hand-review any pt-BR UI-copy hit)
 done
 ```
 

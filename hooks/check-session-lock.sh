@@ -66,7 +66,7 @@ if [[ "${1:-}" == "--claim" ]]; then
             printf '  ⚠ WARNING: Uncommitted work WILL be silently lost to race conditions.\n' >&2
             printf '\n' >&2
             printf '  ACTION: Work in a separate worktree:\n' >&2
-            printf '    git worktree add '\''/Volumes/External\ HD/Desenvolvimento/.worktrees/<task>'\'' -b <branch>\n' >&2
+            printf '    git worktree add '\''${DEV_ROOT}/<dev-folder>/.worktrees/<task>'\'' -b <branch>\n' >&2
             printf '\n' >&2
             # Exit 0 (advisory only in v1).
             exit 0
@@ -124,7 +124,7 @@ if [[ -f "$LOCK_FILE" ]]; then
           printf '⚠ CONCURRENT SESSION: another session (%s, pid %s) owns this checkout.\n' \
             "$existing_session" "$existing_pid" >&2
           printf '  Uncommitted work WILL be lost to races. Use a worktree:\n' >&2
-          printf '    git worktree add '\''/Volumes/External\ HD/Desenvolvimento/.worktrees/<task>'\'' -b <branch>\n' >&2
+          printf '    git worktree add '\''${DEV_ROOT}/<dev-folder>/.worktrees/<task>'\'' -b <branch>\n' >&2
           printf '\n' >&2
           # Mark that we warned in this session, so we don't spam.
           touch "$SESSION_WARNED_MARKER"

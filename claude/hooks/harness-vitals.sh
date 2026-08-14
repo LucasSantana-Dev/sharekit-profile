@@ -17,7 +17,7 @@ SKILLS="$CLAUDE_DIR/skills"
 # Overridable so a sandbox (harness-selftest.sh) can simulate "mounted" without a real
 # external volume — real machine default is unchanged.
 EXTERNAL_HD="${EXTERNAL_HD_DIR:-${DEV_ROOT}}"
-RAG_ROOT="$EXTERNAL_HD/Desenvolvimento/rag-index"
+RAG_ROOT="$EXTERNAL_HD/<dev-folder>/rag-index"
 warns=()
 
 now=$(date +%s)
