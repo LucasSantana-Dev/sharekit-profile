@@ -24,7 +24,7 @@ Example: when the user says "the test suite is bad" — invoke `fix-the-suite` (
 
 | Composite | Trigger phrases / intent |
 |---|---|
-| `spec-driven-develop` | Default composite for non-trivial build/add/fix/implement/refactor work. Mirrors GitHub spec-kit's constitution-specify-clarify-plan-tasks-implement-verify phases via existing skills. Check this BEFORE falling through to scope-and-execute or parallel-phases catch-alls. Skip for trivial edits (<3 files, mechanical). |
+| `spec-driven-develop` | Default composite for non-trivial build/add/fix/implement/refactor work when no more specific composite already matches (hotfix, incident-response, release-cut, merge-confidently, debug-deep, etc.). Mirrors GitHub spec-kit's constitution-specify-clarify-plan-tasks-implement-verify phases via existing skills. Check this BEFORE falling through to scope-and-execute or parallel-phases catch-alls. Skip for trivial edits (<3 files, mechanical). |
 | `merge-confidently` | "merge this", "ship this PR", "is this ready to merge" — DIRECT-TO-MAIN repos only |
 | `pr-to-release` | "open a PR", "merge this", "ship this change" — when a `release` branch exists. Lands the change on `release` with a single `[Unreleased]` changelog line; does NOT cut a version |
 | `release-cut` | "cut the release", "promote release branch", "ship the batch", "tag a version" — merges `release` → `main`, tags, cleans up stale branches. MANUAL fire only; auto-nudge when `main..release` ≥ 5 commits |
@@ -143,7 +143,7 @@ and `/hotfix` create tags.
 
 If two composites both match the user's intent:
 1. Prefer the more specific (`incident-response` over `debug-deep` if production-impacting)
-2. For build/add/fix/implement/refactor intent with no lifecycle-specific composite matched (hotfix, incident-response, release-cut, merge-confidently, etc.), prefer `spec-driven-develop` over `scope-and-execute`/`parallel-phases` — those catch-alls apply only when spec-driven-develop's phases don't fit
+2. For build/add/fix/implement/refactor intent with no lifecycle-specific composite matched (hotfix, incident-response, release-cut, merge-confidently, debug-deep, etc.), prefer `spec-driven-develop` over `scope-and-execute`/`parallel-phases` — those catch-alls apply only when spec-driven-develop's phases don't fit
 3. Prefer the more contained scope (`scope-and-execute` over `feature-from-zero` if not greenfield)
 4. Prefer the read-only diagnostic before the action (`test-health` before `fix-the-suite` if state is unknown)
 
