@@ -233,12 +233,20 @@ lowercase compound occurrences untouched by design — audit those by hand per f
 left the regex metacharacters `[a-z]+\.` intact).
 
 ```bash
-/usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" \) | while read f; do
+# 2026-08-14: broadened from *.md/*.sh only — index.html and evals/**/*.jsonl
+# both leaked real project names because this find pattern didn't reach them
+# (a full audit that day found and fixed 5 files this narrower pattern missed).
+/usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" -o -name "*.html" -o -name "*.jsonl" -o -name "*.json" -o -name "*.toml" \) | while read f; do
   case "$f" in */sync-sharekit-profile/*) continue ;; esac
   sed -i '' 's|[[:<:]]Lucky[[:>:]]|<project-a>|g' "$f"
   sed -i '' 's|[[:<:]]Criativaria[[:>:]]|<project-b>|g' "$f"
   sed -i '' 's|[[:<:]]homelab[[:>:]]|<homelab>|g' "$f"
   sed -i '' 's|[[:<:]]CoJam[[:>:]]|<project-c>|g' "$f"
+  sed -i '' 's|[[:<:]]calculadora[[:>:]]|<project-d>|g' "$f"
+  sed -i '' 's|[[:<:]]Craftvaria[[:>:]]|<project-e>|g' "$f"
+  sed -i '' 's|[[:<:]]ai-dev-toolkit-setup[[:>:]]|<toolkit-repo>-setup|g' "$f"
+  sed -i '' 's|[[:<:]]ai-dev-toolkit[[:>:]]|<toolkit-repo>|g' "$f"
+  sed -i '' 's|-Volumes-External-HD-Desenvolvimento|<project-slug>|g' "$f"
 done
 ```
 
@@ -259,8 +267,8 @@ filtering. After Phase 3/3b:
    regex usually is not):
 
    ```bash
-   /usr/bin/find "$PROFILE_DIR" -type f \( -name "*.sh" -o -name "*.py" -o -name "*.json" -o -name "*.toml" \) \
-     | xargs grep -ln '\${DEV_ROOT}\|<github-user>\|<project-a>\|<project-b>\|<project-c>\|<homelab>' 2>/dev/null
+   /usr/bin/find "$PROFILE_DIR" -type f \( -name "*.sh" -o -name "*.py" -o -name "*.json" -o -name "*.toml" -o -name "*.html" -o -name "*.jsonl" \) \
+     | xargs grep -ln '\${DEV_ROOT}\|<github-user>\|<project-a>\|<project-b>\|<project-c>\|<project-d>\|<project-e>\|<toolkit-repo>\|<homelab>\|<project-slug>' 2>/dev/null
    ```
 
 2. **Mechanical verification of the published result.** Any failure = release blocker:
@@ -331,7 +339,7 @@ The scanner lives in the **sharekit** repo, not the profile repo (path fixed 202
 the profile's `claude/` dir:
 
 ```bash
-SHAREKIT_REPO="${SHAREKIT_REPO:-/Volumes/External HD/Desenvolvimento/sharekit}"
+SHAREKIT_REPO="${SHAREKIT_REPO:?set SHAREKIT_REPO to your local sharekit checkout path}"
 cd "$SHAREKIT_REPO"
 npx tsx src/index.ts scan "$PROFILE_DIR" 2>&1
 ```

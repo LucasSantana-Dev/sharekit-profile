@@ -162,7 +162,7 @@ Auto-extract reusable patterns from the current session into skills or memory.
 
 ## /adt-toolkit-sync
 
-Bump the ai-dev-toolkit version pin in a downstream consumer repo and verify the sync path.
+Bump the <toolkit-repo> version pin in a downstream consumer repo and verify the sync path.
 
 **When to use:** Distributing toolkit updates to dependent repos
 

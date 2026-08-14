@@ -79,7 +79,7 @@ REMEDIATION PLAN:
 NEEDS_REVIEW:
   • Finding X conflicts with memory #3415; user to decide
 
-Snapshot: ~/.claude/projects/-Volumes-External-HD-Desenvolvimento/memory/audit_deep_<repo>_<date>.md
+Snapshot: ~/.claude/projects/<project-slug>/memory/audit_deep_<repo>_<date>.md
 ```
 
 ## Partial/Error format
@@ -109,20 +109,20 @@ Next steps:
 
 ```
 audit_deep_<repo-slug>_<YYYY-MM-DD>.md
-Example: audit_deep_homelab_2026-06-22.md
+Example: audit_deep_myrepo_2026-06-22.md
 ```
 
-Store in: `$HOME/.claude/projects/-Volumes-External-HD-Desenvolvimento/memory/` (symlinked to knowledge-brain).
+Store in: `$HOME/.claude/projects/<project-slug>/memory/` (symlinked to knowledge-brain).
 
 ## Trend tracking example (in MEMORY.md)
 
 ```markdown
 # Audit Deep Trend
 
-- [2026-06-22](audit_deep_homelab_2026-06-22.md) — 72/100 DEGRADED (test ceiling spike)
-- [2026-06-15](audit_deep_homelab_2026-06-15.md) — 81/100 DEGRADED (hook spam added)
-- [2026-06-08](audit_deep_homelab_2026-06-08.md) — 86/100 HEALTHY
-- [2026-06-01](audit_deep_homelab_2026-06-01.md) — 87/100 HEALTHY
+- [2026-06-22](audit_deep_myrepo_2026-06-22.md) — 72/100 DEGRADED (test ceiling spike)
+- [2026-06-15](audit_deep_myrepo_2026-06-15.md) — 81/100 DEGRADED (hook spam added)
+- [2026-06-08](audit_deep_myrepo_2026-06-08.md) — 86/100 HEALTHY
+- [2026-06-01](audit_deep_myrepo_2026-06-01.md) — 87/100 HEALTHY
 
 Note: Test suite regression 2026-06-22 tied to Wave 6 gate change.
 Suppressed findings: agent-box:latest pin (memory #3415 — intentional exception).
