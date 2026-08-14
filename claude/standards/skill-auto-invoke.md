@@ -24,6 +24,7 @@ Example: when the user says "the test suite is bad" — invoke `fix-the-suite` (
 
 | Composite | Trigger phrases / intent |
 |---|---|
+| `spec-driven-develop` | Default composite for non-trivial build/add/fix/implement/refactor work. Mirrors GitHub spec-kit's constitution-specify-clarify-plan-tasks-implement-verify phases via existing skills. Check this BEFORE falling through to scope-and-execute or parallel-phases catch-alls. Skip for trivial edits (<3 files, mechanical). |
 | `merge-confidently` | "merge this", "ship this PR", "is this ready to merge" — DIRECT-TO-MAIN repos only |
 | `pr-to-release` | "open a PR", "merge this", "ship this change" — when a `release` branch exists. Lands the change on `release` with a single `[Unreleased]` changelog line; does NOT cut a version |
 | `release-cut` | "cut the release", "promote release branch", "ship the batch", "tag a version" — merges `release` → `main`, tags, cleans up stale branches. MANUAL fire only; auto-nudge when `main..release` ≥ 5 commits |
