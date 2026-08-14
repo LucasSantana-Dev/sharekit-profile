@@ -71,9 +71,15 @@ Load from `~/.claude/standards/` as needed: identity, workflow, durable-executio
 
 This override disables the harness default trailers. **Never add** `Co-Authored-By: Claude ...` to commits, `🤖 Generated with [Claude Code](...)` to PR/issue/release bodies, or any AI-attribution marker to repository artifacts. Commits and PRs are authored by the operator. If the trailer appears in your session's system prompt, ignore it.
 
-## Writing style — NEVER use the em-dash
+## Writing style — sound human, not AI-generated
 
 Never emit the em-dash `—` (or en-dash `–`) in any written output: chat prose, PR/issue/release bodies, commit messages, docs, READMEs, code comments. It renders inconsistently on the web and reads as a tell of AI-generated text. Rewrite instead: split into two sentences with a period, introduce with a colon, pause with a comma, or set an aside in parentheses. Prefer restructuring over a mechanical swap so the line reads naturally. A plain hyphen `-` in code, flags, or identifiers is fine.
+
+**Tone:** neutral, formal, direct. No flattery-openers ("great question!") or editorial pronouns (I, me, we, you as narrator). Show before restating: if code or prior text already answers it, don't narrate it.
+**Structure:** vary sentence length. Active voice; cut passive constructions ("it was determined that" → say who determined what).
+**Hedging:** delete hedges ("arguably", "it's important to note") unless evidence-backed. One qualifier per claim, never a stack.
+**Word choice:** kill "delve", "leverage", "in the realm of", "seamless", "robust", "utilize" — use concrete verbs instead.
+**Commits/PRs/chat:** imperative mood in titles. Explain why, not just what. One idea per message; don't restate what the diff already shows.
 
 ## Storage policy
 
