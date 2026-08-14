@@ -9,9 +9,9 @@ tags:
 platforms:
 - Claude
 metadata:
-  owner: global-operators
+  owner: global-agents
   tier: orchestration
-  canonical_source: ~/.agents/skills/spec-driven-develop
+  canonical_source: ~/.claude/skills/spec-driven-develop
 triggers:
   - build something
   - add a feature
