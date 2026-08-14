@@ -74,11 +74,15 @@ def protected_ref(arg: str) -> bool:
     return ref in PROTECTED or ref.startswith("release/")
 
 
+cwd_hint = ""
 for argv in simple:
     if not argv:
         continue
     exe, args = argv[0], argv[1:]
     exe = exe.rsplit("/", 1)[-1]
+
+    if exe == "cd" and args and not args[0].startswith("-"):
+        cwd_hint = args[0]
 
     if exe == "git" and args[:1] == ["push"]:
         rest = args[1:]
@@ -107,13 +111,15 @@ for argv in simple:
             "comment", "merge", "close", "review", "ready", "edit"):
         num = next((a for a in args[2:] if a.isdigit()), "")
         if num:
-            print("CHECKPR\t" + num)
+            print("CHECKPR\t" + num + "\t" + cwd_hint)
             break
 PY
 )"
 
 kind="${verdict%%$'\t'*}"
-detail="${verdict#*$'\t'}"
+rest="${verdict#*$'\t'}"
+detail="${rest%%$'\t'*}"
+cwd_hint="${rest#*$'\t'}"
 
 if [[ "$kind" == "BLOCK" ]]; then
   echo "BLOCKED by harness PR-automation-halt invariant (RULES.md):" >&2
@@ -150,7 +156,16 @@ fi
 if [[ "$kind" == "CHECKPR" ]] && command -v gh >/dev/null 2>&1; then
   pr="$detail"
   me="$(gh api user --jq '.login' 2>/dev/null || true)"
+  # A PreToolUse hook doesn't inherit the command's own `cd` (it runs in its own
+  # process before the tool's shell starts), so `gh repo view` here resolves
+  # against the SESSION's cwd, not wherever the command's `cd` points — empty
+  # when the session started outside any repo. If the command itself led with
+  # `cd <dir> && gh pr ...` (the common shape), retry resolution from that dir
+  # before giving up; still fails closed if that yields nothing either.
   repo="$(gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>/dev/null || true)"
+  if [[ -z "$repo" && -n "$cwd_hint" && -d "$cwd_hint" ]]; then
+    repo="$(cd "$cwd_hint" 2>/dev/null && gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>/dev/null || true)"
+  fi
   if [[ -z "$me" || -z "$repo" ]]; then
     echo "BLOCKED by harness PR-automation-halt invariant (RULES.md):" >&2
     echo "  Could not resolve GitHub login (got '$me') or repo (got '$repo')." >&2
@@ -185,7 +200,7 @@ if [[ "$kind" == "CHECKPR" ]] && command -v gh >/dev/null 2>&1; then
     | grep -vxF "$me" \
     | sort -u || true)"
 
-  pr_author="$(gh pr view "$pr" --json author --jq '.author.login' 2>/dev/null || true)"
+  pr_author="$(gh pr view "$pr" -R "$repo" --json author --jq '.author.login' 2>/dev/null || true)"
 
   if [[ -n "$humans" ]]; then
     echo "BLOCKED by harness PR-automation-halt invariant (RULES.md):" >&2

@@ -54,7 +54,7 @@ out="$FORGE/${datestamp}-forge.md"
 {
   printf '# Forged: %s\n\n' "$datestamp"
   printf 'Mined from .harness/runtime/trajectory.jsonl. Staged for host-agent review.\n'
-  printf 'Graduate via `hooks/review.sh graduate <id> --rationale "..."` (rationale required).\n\n'
+  printf 'Graduate via `scripts/review.sh graduate <id> --rationale "..."` (rationale required).\n\n'
 
   printf '## Failures (base confidence 1.0)\n\n'
   tail -n 2000 "$TRAJ" 2>/dev/null \
@@ -109,5 +109,5 @@ if [[ -f "$PENDING" ]]; then
 fi
 
 echo "distill: staged $candidate_count candidate(s) → $out" >&2
-echo "  review with: hooks/review.sh list" >&2
+echo "  review with: scripts/review.sh list" >&2
 exit 0
