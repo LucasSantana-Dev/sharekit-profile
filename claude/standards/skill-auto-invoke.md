@@ -7,8 +7,18 @@ Workflows that auto-trigger based on task shape, not only on explicit slash comm
 > skill remains fully invocable by explicit `/name` — only the auto-advertise is gone.
 > Deliberately KEPT despite zero measured use: `incident-response`, `debug-deep`
 > (emergency paths; a missed prod-incident route costs more than their token noise) and
-> `pr-to-release` (conditional target of the still-used merge intent). 14-day
-> false-negative watch: if a real intent stops routing, restore its row from git.
+> `pr-to-release` (conditional target of the still-used merge intent).
+>
+> **False-negative watch, checked 2026-08-14 (36 days post-prune, closing the stale
+> "14-day" framing):** `skill_invocations.jsonl` telemetry (only covers 2026-07-29
+> onward, 145 entries) shows zero invocations of all three kept skills in that window
+> and zero reported "this should have auto-fired" complaints since the prune. Telemetry
+> can't prove a negative (it shows what fired, not what should have) — this is not a
+> guarantee nothing was missed, just confirmation the reactive trigger below hasn't
+> fired. Since a real miss can surface at any time (these are rare/conditional paths
+> by design, not steady-state ones), this is a **standing reactive watch, not a
+> time-boxed one**: if a real intent stops auto-routing to one of these three, restore
+> its row from git immediately — don't wait for a periodic recheck.
 
 ## Composite-first principle
 
@@ -24,7 +34,6 @@ Example: when the user says "the test suite is bad" — invoke `fix-the-suite` (
 
 | Composite | Trigger phrases / intent |
 |---|---|
-| `spec-driven-develop` | Default composite for non-trivial build/add/fix/implement/refactor work when no more specific composite already matches (hotfix, incident-response, release-cut, merge-confidently, debug-deep, etc.). Mirrors GitHub spec-kit's constitution-specify-clarify-plan-tasks-implement-verify phases via existing skills. Check this BEFORE falling through to scope-and-execute or parallel-phases catch-alls. Skip for trivial edits (<3 files, mechanical). |
 | `merge-confidently` | "merge this", "ship this PR", "is this ready to merge" — DIRECT-TO-MAIN repos only |
 | `pr-to-release` | "open a PR", "merge this", "ship this change" — when a `release` branch exists. Lands the change on `release` with a single `[Unreleased]` changelog line; does NOT cut a version |
 | `release-cut` | "cut the release", "promote release branch", "ship the batch", "tag a version" — merges `release` → `main`, tags, cleans up stale branches. MANUAL fire only; auto-nudge when `main..release` ≥ 5 commits |
@@ -36,6 +45,7 @@ Example: when the user says "the test suite is bad" — invoke `fix-the-suite` (
 | `incident-response` | "prod is down", "users reporting X", "Sentry firing", post-deploy new errors, intermittent in prod (Phases 1–2: triage + mitigate); OR "postmortem", "incident review", "what did we learn", "write up the incident" (Phase 3) — Phase 3 auto-queued by `/hotfix` Phase 10 and after any production rollback |
 | `branch-hygiene` | "branch hygiene", "clean up branches", "prune branches", "stale worktrees", "git is a mess"; auto-suggest when local branch count > 30 at session start; queued weekly per active repo |
 | `backlog` | "build a backlog", "generate a backlog", "find gaps", "find opportunities", "what should I work on", "what's missing in this repo", "refactoring opportunities", "audit and plan", "comprehensive backlog", "project audit and plan"; auto-suggest after `/onboard-new-repo` Phase N as the "ok, now populate the work queue" follow-up; produces ranked GitHub issues + Project board cards in one chained workflow |
+| `spec-driven-develop` | **Default composite for non-trivial build/add/fix/implement/refactor work** — "build X", "add X", "implement X", "fix X", any multi-step or ambiguous feature/refactor ask with no more specific composite match. Mirrors GitHub spec-kit's constitution→specify→clarify→plan→tasks→implement→verify phases via existing skills (`adt-specs-spec-new` → `grill-with-docs` → `plan` → `plan-to-issues` → `dispatch`/`orchestrate` → `review`). Check this BEFORE falling through to the `scope-and-execute`/`parallel-phases` catch-alls — those remain the fallback only when spec-driven-develop's own phases don't fit (e.g. read-only analysis-only asks). Skip for trivial edits (<3 files, mechanical) |
 
 ### Periodic / lifecycle composites
 

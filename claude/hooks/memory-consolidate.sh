@@ -179,7 +179,7 @@ done
 {
   printf '# Memory consolidation (sleep cycle) - %s\n\n' "$ts"
   printf 'Read-only scan of `%s` (%s facts). STAGED for host-agent review.\n' "$MEM_DIR" "$scanned"
-  printf 'Apply via `hooks/review.sh graduate <id> --rationale "..."`. Never auto-applied.\n\n'
+  printf 'Apply via `scripts/review.sh graduate <id> --rationale "..."`. Never auto-applied.\n\n'
   printf 'Invariants: supersede-not-overwrite (keep history), decay-not-delete\n'
   printf '(archive, never rm), bi-temporal validity (record when a fact stopped\n'
   printf 'being true, do not erase that it once was). See memory-structure/TEMPORAL_KG.md.\n\n'
@@ -217,5 +217,5 @@ printf '{"ts":"%s","event":"memory-consolidation","scanned":%s,"report":"%s"}\n'
   "$ts" "$scanned" "$report" >> "$RUNTIME/memory-consolidate.jsonl"
 
 echo "memory-consolidate: scanned $scanned facts; report staged -> $report" >&2
-echo "  review with: hooks/review.sh list" >&2
+echo "  review with: scripts/review.sh list" >&2
 exit 0

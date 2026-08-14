@@ -4,9 +4,9 @@
 |---------------|------------------------------|
 | ci-watch      | ci-watch.sh                  |
 | pr-triage     | pr-triage.sh                 |
-| release-check | <project-a>-release-check.sh |
+| release-check | <project-a>-release-check.sh       |
 | dependabot    | dependabot-report.sh         |
-| health        | <project-a>-health.sh        |
+| health        | <project-a>-health.sh              |
 | drift         | <homelab>-drift.sh             |
 | security      | security-hygiene.sh          |
 | sync          | workspace-sync.sh            |

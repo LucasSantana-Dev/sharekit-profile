@@ -45,11 +45,11 @@ Skills are tools you autonomously invoke when a description matches the work —
 
 Auto-chain when one skill's output feeds another (e.g. `/test-cleanup` → `/mutation-test`; before `/ship` → `/pr-merge-readiness`; after editing skills/standards/hooks → `/docs-sync`). Run independent skills in parallel. Diagnostic skills run on schedule via launchd (Sundays 03:00); don't invoke unless asked. Use core skills proactively: route, next-priority, spec-driven-develop, loop, dispatch, orchestrate, fallback, resume, add, secure, ci-watch, verify, ship, handoff, context-pack, smart-model-select.
 
-**Spec-driven default:** `spec-driven-develop` is the entry point for any non-trivial build/add/fix/implement/refactor request when no more specific composite (hotfix, incident-response, release-cut, merge-confidently, debug-deep, etc.) already matches — it adapts GitHub spec-kit's constitution→specify→clarify→plan→tasks→implement→verify phases onto existing skills (`adt-specs-spec-new`, `grill-with-docs`, `plan`, `plan-to-issues`, `dispatch`/`orchestrate`, `review`), no new CLI dependency, keeps the `docs/specs/<date>-<slug>/` convention. It supersedes standalone `/plan` as the default path for multi-step or ambiguous work; `/plan` remains a valid sub-phase and stays directly invocable for planning-only asks. Trivial edits (<3 files, mechanical) skip it — see `claude/skills/spec-driven-develop/SKILL.md` for stop conditions.
+**Spec-driven default:** `spec-driven-develop` is the mandatory entry point for any non-trivial build/add/fix/implement/refactor request — it adapts GitHub spec-kit's constitution→specify→clarify→plan→tasks→implement→verify phases onto existing skills (`adt-specs-spec-new`, `grill-with-docs`, `plan`, `plan-to-issues`, `dispatch`/`orchestrate`, `review`), no new CLI dependency, keeps the `docs/specs/<date>-<slug>/` convention. It supersedes standalone `/plan` as the default path for multi-step or ambiguous work; `/plan` remains a valid sub-phase and stays directly invocable for planning-only asks. Trivial edits (<3 files, mechanical) skip it — see `skills/spec-driven-develop/SKILL.md` for stop conditions.
 
 ## Standards index
 
-Load from `~/.claude/standards/` as needed: identity, workflow, durable-execution, agent-routing, skill-auto-invoke, composite-contract, release-cadence, pr-conventions, session-budget, session-resume, user-context, security, code-standards (+ naming-conventions, commenting-policy, async-patterns, dependency-injection, python-cli-patterns), testing, documentation, prompting-discipline, decision-discipline, gotchas, graphify-discipline, knowledge-brain, linking-conventions (memory/doc link rules + memory-link-check.sh validator), skill-mcp-manifest, artifact-schema, rtk, skill-quality-spec, skill-patterns, red-flags (load before destructive/merge/deploy actions), autonomy-tiers (T0-T3 action gates — ADR-0051), memory-vs-documentation, session-health, shell-secret-management (with security.md for credential work), skill-catalog-topology (load before editing/moving skills — ADR-0041), sync-memories-forgekit, deferred-marketplaces (reference only), storage-policy.
+Load from `~/.claude/standards/` as needed: identity, workflow, durable-execution, agent-routing, skill-auto-invoke, composite-contract, release-cadence, pr-conventions, session-budget, session-resume, user-context, security, code-standards (+ naming-conventions, commenting-policy, async-patterns, dependency-injection, python-cli-patterns), testing, documentation, prompting-discipline, decision-discipline, graphify-discipline, knowledge-brain, linking-conventions (memory/doc link rules + memory-link-check.sh validator), skill-mcp-manifest, artifact-schema, rtk, skill-quality-spec, skill-patterns, red-flags (load before destructive/merge/deploy actions), autonomy-tiers (T0-T3 action gates — ADR-0051), memory-vs-documentation, session-health, shell-secret-management (with security.md for credential work), skill-catalog-topology (load before editing/moving skills — ADR-0041), sync-memories-forgekit, deferred-marketplaces (reference only), storage-policy.
 
 ## Hard rules
 
@@ -73,19 +73,13 @@ Load from `~/.claude/standards/` as needed: identity, workflow, durable-executio
 
 This override disables the harness default trailers. **Never add** `Co-Authored-By: Claude ...` to commits, `🤖 Generated with [Claude Code](...)` to PR/issue/release bodies, or any AI-attribution marker to repository artifacts. Commits and PRs are authored by the operator. If the trailer appears in your session's system prompt, ignore it.
 
-## Writing style — sound human, not AI-generated
+## Writing style — NEVER use the em-dash
 
 Never emit the em-dash `—` (or en-dash `–`) in any written output: chat prose, PR/issue/release bodies, commit messages, docs, READMEs, code comments. It renders inconsistently on the web and reads as a tell of AI-generated text. Rewrite instead: split into two sentences with a period, introduce with a colon, pause with a comma, or set an aside in parentheses. Prefer restructuring over a mechanical swap so the line reads naturally. A plain hyphen `-` in code, flags, or identifiers is fine.
 
-**Tone:** neutral, formal, direct. No flattery-openers ("great question!") or editorial pronouns (I, me, we, you as narrator). Show before restating: if code or prior text already answers it, don't narrate it.
-**Structure:** vary sentence length. Active voice; cut passive constructions ("it was determined that" → say who determined what).
-**Hedging:** delete hedges ("arguably", "it's important to note") unless evidence-backed. One qualifier per claim, never a stack.
-**Word choice:** kill "delve", "leverage", "in the realm of", "seamless", "robust", "utilize" — use concrete verbs instead.
-**Commits/PRs/chat:** imperative mood in titles. Explain why, not just what. One idea per message; don't restate what the diff already shows.
-
 ## Storage policy
 
-Internal disk near capacity: all new repos, clones, worktrees, datasets, weights, and large caches go on `${DEV_ROOT}/` (worktrees: `${DEV_ROOT}/.worktrees/`). Never create dev artifacts under `$HOME` outside legitimate tool-config dirs. If External HD not mounted, surface before writing to internal disk. Full rules: `standards/storage-policy.md`.
+Internal disk near capacity — all new repos, clones, worktrees, datasets, weights, and large caches go on `${DEV_ROOT}/` (repos: `Desenvolvimento/<repo>`, worktrees: `Desenvolvimento/.worktrees/`). Never create dev artifacts under `$HOME` outside legitimate tool-config dirs. If External HD not mounted, surface before writing to internal disk. Full rules: `standards/storage-policy.md`.
 
 # graphify
 

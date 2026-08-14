@@ -114,7 +114,7 @@ Vault push skipped (incomplete state). Recommend manual fix to .agents/memory/ p
 ```
 INFO: Memory sync complete (Serena + local). Vault push deferred (session continues).
 Memories will push automatically at session end via sync push-memories hook.
-To push now: git -C "${DEV_ROOT}/knowledge-brain" push
+To push now: git -C ${DEV_ROOT}/Desenvolvimento/knowledge-brain push
 ```
 
 ---
