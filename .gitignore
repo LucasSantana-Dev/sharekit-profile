@@ -36,7 +36,7 @@ graphify-out/
 # some tool run) — same runtime-log class as the root .harness/runtime/ rule above
 claude/.harness/
 
-# Ephemeral operator working state — internal plans/backlog snapshots, not
+# Ephemeral operator working state: internal plans/backlog snapshots, not
 # curated public profile content; leaked personal project context (2026-08-14)
 .claude/plans/
 .claude/backlog/

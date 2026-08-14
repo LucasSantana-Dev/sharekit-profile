@@ -233,7 +233,7 @@ lowercase compound occurrences untouched by design — audit those by hand per f
 left the regex metacharacters `[a-z]+\.` intact).
 
 ```bash
-# 2026-08-14: broadened from *.md/*.sh only — index.html and evals/**/*.jsonl
+# 2026-08-14: broadened from *.md/*.sh only, index.html and evals/**/*.jsonl
 # both leaked real project names because this find pattern didn't reach them
 # (a full audit that day found and fixed 5 files this narrower pattern missed).
 /usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" -o -name "*.html" -o -name "*.jsonl" -o -name "*.json" -o -name "*.toml" \) | while read f; do
@@ -269,7 +269,7 @@ filtering. After Phase 3/3b:
 
    ```bash
    /usr/bin/find "$PROFILE_DIR" -type f \( -name "*.sh" -o -name "*.py" -o -name "*.json" -o -name "*.toml" -o -name "*.html" -o -name "*.jsonl" \) \
-     | xargs grep -ln '\${DEV_ROOT}\|<github-user>\|<project-a>\|<project-b>\|<project-c>\|<project-d>\|<project-e>\|<toolkit-repo>\|<homelab>\|<project-slug>' 2>/dev/null
+     | xargs grep -ln '\${DEV_ROOT}\|<github-user>\|<project-a>\|<project-b>\|<project-c>\|<project-d>\|<project-e>\|<toolkit-repo>\|<homelab>\|<project-slug>\|<dev-folder>' 2>/dev/null
    ```
 
 2. **Mechanical verification of the published result.** Any failure = release blocker:
@@ -318,7 +318,7 @@ while IFS= read -r f; do
     PERSONAL_REFS="$PERSONAL_REFS
 $f"
   fi
-done < <(/usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" -o -name "*.py" \))
+done < <(/usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" -o -name "*.py" -o -name "*.html" -o -name "*.jsonl" -o -name "*.json" -o -name "*.toml" \))
 
 echo "Phase 4 scan: $(echo "$PERSONAL_REFS" | grep -c . || echo 0) files with residual personal refs"
 ```
