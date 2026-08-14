@@ -15,7 +15,7 @@ Rationale: a budgeted graph query costs ~500 tokens; the file-read sweep it repl
 copies (it added 1156 duplicate worktree nodes to a sharekit graph). There is no `--exclude` /
 `.graphifyignore` flag (verified, graphify 0.8.14). Until upstream adds one:
 - **Prune agent worktrees before `graphify update`** (`git worktree prune` + remove dead dirs under
-  `${EXTERNAL_HD}/Desenvolvimento/.worktrees/`), so duplicates aren't indexed.
+  `${DEV_ROOT}/.worktrees/`), so duplicates aren't indexed.
 - If duplicates are already in a graph, they inflate BFS/`query` noise — prefer codebase-memory-mcp
   for structural code-nav (it excludes `.claude`/worktrees by default; see ADR-0036 scoped-hybrid).
 - This is an upstream graphify limitation, not a config we can set — re-evaluate if graphify ships an ignore mechanism.

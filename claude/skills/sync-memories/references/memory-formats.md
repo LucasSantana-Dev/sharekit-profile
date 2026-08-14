@@ -119,9 +119,9 @@ Markdown file, repo-local checkpoint. Located in project root at `.agents/memory
 
 ## Knowledge-Brain Vault Format
 
-Durable cross-project decision/memory capture in `~/.claude/projects/-Volumes-External-HD-Desenvolvimento/memory/`.
+Durable cross-project decision/memory capture in `~/.claude/projects/<project-slug>/memory/`.
 
-Always write via **symlink path** (not raw brain path) so the reindex hook fires: `~/.claude/projects/-Volumes-External-HD-Desenvolvimento/memory/<name>.md`
+Always write via **symlink path** (not raw brain path) so the reindex hook fires: `~/.claude/projects/<project-slug>/memory/<name>.md`
 
 ### MEMORY.md Index Pointer
 
@@ -129,7 +129,7 @@ The vault's index file (`MEMORY.md`) auto-loads into RAG and lists all memory en
 
 ### Example Session Memory
 
-**File:** `~/.claude/projects/-Volumes-External-HD-Desenvolvimento/memory/session_2026-06-22_forge_patterns_cli.md`
+**File:** `~/.claude/projects/<project-slug>/memory/session_2026-06-22_example_topic.md`
 
 ```markdown
 ---

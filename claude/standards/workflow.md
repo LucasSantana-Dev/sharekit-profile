@@ -97,7 +97,7 @@ If you catch yourself about to execute the second of N independent units sequent
 - ❌ Three Read() calls on three files in three separate assistant turns when reading them in parallel would do.
 - ❌ Auditing 6 repos by `cd`-ing into each one sequentially. Use `Agent()` × 6 with worktrees.
 - ❌ Running `/test-health`, `/config-drift-detect`, `/coverage-gap` in series when they're independent diagnostics. Fan out.
-- ❌ Two parallel agents pointed at the same `~/Desenvolvimento/<repo>` checkout. Worktree each.
+- ❌ Two parallel agents pointed at the same `~/<dev-folder>/<repo>` checkout. Worktree each.
 - ❌ Asking the user "should I do these in parallel?" when the rule already mandates it — just do it.
 
 ## Harness-native tools (use before reaching for skills/scripts)

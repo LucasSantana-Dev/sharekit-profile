@@ -5,8 +5,7 @@ single source of truth for memories + graph snapshots; this file is the single
 source of truth for *how skills interact with it*. When a skill touches memory,
 graphs, or RAG, it must follow the rules below.
 
-Related: [[adr_0029_cross_project_shared_brain]], [[homelab_dashboard_audit_2026-06-18]]
-(prometheus-port + mount-state lessons), `graphify-discipline.md`.
+Related: [[adr_0029_cross_project_shared_brain]] (mount-state lessons), `graphify-discipline.md`.
 
 ## Paths (do not hardcode variants — use these)
 
@@ -15,7 +14,7 @@ BRAIN="${DEV_ROOT}/knowledge-brain"   # vault root (on External HD)
 $BRAIN/memory/      # memory .md files + MEMORY.md index
 $BRAIN/graphs/<project>/graph.json   # per-project graph snapshots
 # memory is symlinked into the Claude memory dir:
-SYM="$HOME/.claude/projects/-Volumes-External-HD-Desenvolvimento/memory"  # -> $BRAIN/memory
+SYM="$HOME/.claude/projects/<project-slug>/memory"  # -> $BRAIN/memory
 ```
 
 GitHub remote: `<github-user>/knowledge-brain`.

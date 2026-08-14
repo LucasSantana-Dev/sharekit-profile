@@ -488,7 +488,7 @@ The profile ships a **Ledger** system: one vault for all projects (memory + grap
 | Agent spawn failed | Verify agent exists: `fd -t f name ~/.claude/agents/` | Use default agent or check agent file syntax |
 | Memory not persisting | Check sync: `bat -p ~/.claude/.sync.log` | Use `/knowledge-loop` to capture memory; verify frontmatter |
 | Slow hooks / timeouts | `time bash ~/.claude/hooks/name.sh` | Increase timeout in settings.json or optimize hook |
-| Parallel agents conflicting | Verify worktrees: `ls /Volumes/External\ HD/Desenvolvimento/.worktrees/` | Ensure `isolation: "worktree"` on agents |
+| Parallel agents conflicting | Verify worktrees: `ls ${DEV_ROOT}/.worktrees/` | Ensure `isolation: "worktree"` on agents |
 | Token budget hit | Check `.harness/runtime/` trajectory logs or hook reports | `/compact` for relief; `/update-config` to raise limit |
 
 ---

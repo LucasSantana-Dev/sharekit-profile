@@ -11,7 +11,7 @@
 - Mount guard check fails → surface blocker, skip push, halt Phase 5.
 
 **What changes**
-- **Memory**: Any file written to `~/.claude/projects/-Volumes-External-HD-Desenvolvimento/memory/`.
+- **Memory**: Any file written to `~/.claude/projects/<project-slug>/memory/`.
 - **Graph**: `graphify` ran a full build (`--update` or new graph) this session — snapshot at `graphify-out/graph.json`.
 
 **How to detect a change**

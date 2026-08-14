@@ -1,11 +1,11 @@
-# Output Patterns — audit-deep
+# Output Patterns - audit-deep
 
 Full reconciliation format when N > 3 findings or NEEDS_REVIEW sections are substantial.
 
 ## Full findings format
 
 ```
-AUDIT DEEP — <repo> — <date>
+AUDIT DEEP - <repo> - <date>
 
 VERDICT: <SCORE/100> <STATUS>
   SCORE: Sum of non-INFO findings severity weights:
@@ -40,12 +40,12 @@ REMEDIATION PLAN (by impact-per-effort):
   2. ...
 
 NEEDS_REVIEW (manual reconciliation required):
-  • Finding X — conflicts with memory <ref>
+  • Finding X - conflicts with memory <ref>
     Decision: <accepted | awaiting user reconciliation>
     Link: <memory file | ADR>
 
 SUPPRESSED FINDINGS (reconciled, not fixed):
-  • Finding Y — prior decision still valid
+  • Finding Y - prior decision still valid
     Comment added: <file> line <N>
     Memory ref: <identity>
 
@@ -57,7 +57,7 @@ Open watch:
 ## Signal-first inline format (when 3 or fewer findings)
 
 ```
-AUDIT DEEP — <repo> — <date>
+AUDIT DEEP - <repo> - <date>
 
 VERDICT: 72/100 DEGRADED
 
@@ -79,13 +79,13 @@ REMEDIATION PLAN:
 NEEDS_REVIEW:
   • Finding X conflicts with memory #3415; user to decide
 
-Snapshot: ~/.claude/projects/-Volumes-External-HD-Desenvolvimento/memory/audit_deep_<repo>_<date>.md
+Snapshot: ~/.claude/projects/<project-slug>/memory/audit_deep_<repo>_<date>.md
 ```
 
 ## Partial/Error format
 
 ```
-AUDIT DEEP — <repo> — <date>
+AUDIT DEEP - <repo> - <date>
 
 STATUS: PARTIAL (some audits errored)
 
@@ -95,8 +95,8 @@ Completed audits:
   • hook-effectiveness ✓
 
 Errored audits:
-  • security-audit — <error message>
-  • mcp-audit — <error message>
+  • security-audit - <error message>
+  • mcp-audit - <error message>
 
 Findings from completed audits: <verdict + top-3>
 
@@ -109,21 +109,21 @@ Next steps:
 
 ```
 audit_deep_<repo-slug>_<YYYY-MM-DD>.md
-Example: audit_deep_homelab_2026-06-22.md
+Example: audit_deep_myrepo_2026-06-22.md
 ```
 
-Store in: `$HOME/.claude/projects/-Volumes-External-HD-Desenvolvimento/memory/` (symlinked to knowledge-brain).
+Store in: `$HOME/.claude/projects/<project-slug>/memory/` (symlinked to knowledge-brain).
 
 ## Trend tracking example (in MEMORY.md)
 
 ```markdown
 # Audit Deep Trend
 
-- [2026-06-22](audit_deep_homelab_2026-06-22.md) — 72/100 DEGRADED (test ceiling spike)
-- [2026-06-15](audit_deep_homelab_2026-06-15.md) — 81/100 DEGRADED (hook spam added)
-- [2026-06-08](audit_deep_homelab_2026-06-08.md) — 86/100 HEALTHY
-- [2026-06-01](audit_deep_homelab_2026-06-01.md) — 87/100 HEALTHY
+- [2026-06-22](audit_deep_myrepo_2026-06-22.md) - 72/100 DEGRADED (test ceiling spike)
+- [2026-06-15](audit_deep_myrepo_2026-06-15.md) - 81/100 DEGRADED (hook spam added)
+- [2026-06-08](audit_deep_myrepo_2026-06-08.md) - 86/100 HEALTHY
+- [2026-06-01](audit_deep_myrepo_2026-06-01.md) - 87/100 HEALTHY
 
 Note: Test suite regression 2026-06-22 tied to Wave 6 gate change.
-Suppressed findings: agent-box:latest pin (memory #3415 — intentional exception).
+Suppressed findings: agent-box:latest pin (memory #3415 - intentional exception).
 ```
