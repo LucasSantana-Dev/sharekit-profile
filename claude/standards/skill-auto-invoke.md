@@ -143,7 +143,8 @@ and `/hotfix` create tags.
 
 If two composites both match the user's intent:
 1. Prefer the more specific (`incident-response` over `debug-deep` if production-impacting)
-2. Prefer the more contained scope (`scope-and-execute` over `feature-from-zero` if not greenfield)
-3. Prefer the read-only diagnostic before the action (`test-health` before `fix-the-suite` if state is unknown)
+2. For build/add/fix/implement/refactor intent with no lifecycle-specific composite matched (hotfix, incident-response, release-cut, merge-confidently, etc.), prefer `spec-driven-develop` over `scope-and-execute`/`parallel-phases` — those catch-alls apply only when spec-driven-develop's phases don't fit
+3. Prefer the more contained scope (`scope-and-execute` over `feature-from-zero` if not greenfield)
+4. Prefer the read-only diagnostic before the action (`test-health` before `fix-the-suite` if state is unknown)
 
 If unsure, invoke `route` to decide.
