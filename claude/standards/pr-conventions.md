@@ -127,6 +127,18 @@ Two things that make this honest rather than a loophole:
   repos too, as does the AI-attribution check and the halt on another person's
   PR. An exemption is narrow or it is not an exemption.
 
+**Where the list lives.** `PUSH_EXEMPTIONS_FILE` if set, else
+`$CLAUDE_CONFIG_DIR/push-exemptions.txt`, else `~/.claude/push-exemptions.txt`.
+Resolved this way so the mechanism works under OpenCode and other
+Claude-compatible CLIs rather than assuming one harness layout.
+
+**What the check actually resolves.** The remote named in the command, not
+`origin`. An earlier version always read `origin`, so in a repo whose origin was
+exempt, `git push upstream main` inherited the exemption and reached a different
+repository. Commands with no refspec (`git push`, `git push origin`) resolve the
+checked-out branch, so a bare push to a protected branch is gated like an
+explicit one.
+
 **Before trusting any repo's "second layer", verify it exists:**
 
 ```bash

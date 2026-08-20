@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# check-pr-automation-halt.sh — PreToolUse hook.
+# check-pr-automation-halt.sh: PreToolUse hook.
 # Enforces the "PR automation halt" + "No AI attribution" invariants
 # against git push / gh CLI operations. Blocks (exit 2) on:
 #   - push to main/release/* (protected branches; PR-required)
@@ -12,7 +12,7 @@
 # Author of record is the human operator; bots (dependabot, renovate,
 # coderabbit, greptile, sonar) are not "another person."
 #
-# WHERE THESE INVARIANTS ARE WRITTEN DOWN. There is no RULES.md — earlier versions of this file
+# WHERE THESE INVARIANTS ARE WRITTEN DOWN. There is no RULES.md. Earlier versions of this file
 # pointed five error messages at one, and it has never existed, so every block sent the reader to
 # a ghost document. The real sources:
 #   - branch policy, merge method, --admin ban ... standards/pr-conventions.md
@@ -94,15 +94,22 @@ def protected_ref(arg: str) -> bool:
 
 # Repos where a direct push to a protected branch IS the intended workflow.
 #
-# READ FROM A LOCAL FILE, NOT HARDCODED HERE, for two reasons. This hook is published to a
-# public profile, so a repo name baked into it would both leak the owner's setup and get
-# rewritten by the publisher's sanitizer into a placeholder — turning the list into a string
-# that matches nothing, a security-relevant behaviour change disguised as a cosmetic one.
-# Whoever installs this profile gets an empty list and therefore no exemptions until they
-# write their own, which is the correct default.
+# READ FROM A FILE, NOT HARDCODED HERE, for two reasons. This hook is published to a public
+# profile, so a repo name baked into it would both leak the owner's setup and get rewritten by
+# the publisher's sanitizer into a placeholder, turning the list into a string that matches
+# nothing: a security-relevant behaviour change disguised as a cosmetic one. Whoever installs
+# this profile gets an empty list and therefore no exemptions until they write their own, which
+# is the correct default.
+#
+# PATH IS HARNESS-NEUTRAL. PUSH_EXEMPTIONS_FILE wins if set; otherwise it sits next to whatever
+# config dir the running harness uses (CLAUDE_CONFIG_DIR, else ~/.claude), so this works under
+# OpenCode and other Claude-compatible CLIs instead of assuming one layout.
 #
 # Format: one `owner/name` per line, `#` comments allowed. Absent file = no exemptions.
-PUSH_EXEMPTIONS = os.path.expanduser("~/.claude/push-exemptions.txt")
+PUSH_EXEMPTIONS = os.environ.get("PUSH_EXEMPTIONS_FILE") or os.path.join(
+    os.environ.get("CLAUDE_CONFIG_DIR") or os.path.expanduser("~/.claude"),
+    "push-exemptions.txt",
+)
 
 
 def exempt_remotes() -> tuple:
@@ -120,16 +127,42 @@ def exempt_remotes() -> tuple:
         return ()
 
 
-def push_is_exempt(cwd_hint: str) -> bool:
-    """True only when the push target resolves to an explicitly exempt remote.
+def git_out(cwd_hint: str, *args) -> str:
+    """Run a read-only git command, returning "" on any failure. 2s cap because this runs
+    inside a PreToolUse hook: a hung `git` would stall the tool call, not just mis-answer."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", cwd_hint or os.getcwd(), *args],
+            capture_output=True, text=True, timeout=2,
+        )
+    except Exception:
+        return ""
+    return out.stdout.strip() if out.returncode == 0 else ""
 
-    MATCHED ON owner/name FROM THE GIT REMOTE, never on the directory name: a fork, or any
+
+def push_remote(rest: list) -> str:
+    """The remote a `git push` actually targets: first non-flag argument, else the configured
+    default. Reading this from the command matters. An earlier version always resolved
+    `origin`, so in a repo whose origin was exempt, `git push upstream main` inherited the
+    exemption and reached a completely different repository."""
+    for i, a in enumerate(rest):
+        if a.startswith("-"):
+            continue
+        # `--repo <name>` and refspecs are not remotes; the remote is the first bare arg.
+        if i and rest[i - 1] in ("--repo", "-o", "--push-option", "--exec", "--receive-pack"):
+            continue
+        return a
+    return ""
+
+
+def push_is_exempt(cwd_hint: str, rest: list) -> bool:
+    """True only when the remote THIS push targets is explicitly exempt.
+
+    MATCHED ON owner/name FROM THE GIT REMOTE URL, never on the directory name: a fork, or any
     local directory that merely shares the name, must not inherit the exemption.
 
-    FAILS CLOSED on every uncertainty (no repo, git missing, timeout, unparseable remote) —
-    returning False just keeps the normal block, the safe direction for a gate. The timeout
-    matters because this runs inside a PreToolUse hook: a hung `git` would stall the tool
-    call, not merely mis-answer it.
+    FAILS CLOSED on every uncertainty (no repo, git missing, timeout, unknown remote name,
+    unparseable URL). Returning False just keeps the normal block, the safe direction.
 
     Does NOT understand `git -C <dir> push` (cwd_hint only tracks a literal `cd`), which
     resolves to the session cwd and so fails closed. Wrong in the harmless direction; use
@@ -138,16 +171,17 @@ def push_is_exempt(cwd_hint: str) -> bool:
     allow = exempt_remotes()
     if not allow:
         return False
-    try:
-        out = subprocess.run(
-            ["git", "-C", cwd_hint or os.getcwd(), "remote", "get-url", "origin"],
-            capture_output=True, text=True, timeout=2,
-        )
-    except Exception:
+    name = push_remote(rest)
+    if not name:
+        # No remote named: ask git which one this branch would push to, rather than assuming.
+        name = git_out(cwd_hint, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{push}")
+        name = name.split("/")[0] if "/" in name else (git_out(cwd_hint, "remote").split("\n")[0])
+    if not name:
         return False
-    if out.returncode != 0:
+    url = git_out(cwd_hint, "remote", "get-url", name)
+    if not url:
         return False
-    remote = re.sub(r"\.git$", "", out.stdout.strip())
+    remote = re.sub(r"\.git$", "", url)
     # Anchor on the separator so `.../evil-<name>` cannot satisfy `<name>`.
     return any(remote.endswith("/" + r) or remote.endswith(":" + r) for r in allow)
 
@@ -167,10 +201,24 @@ for argv in simple:
         if any(a in FORCE or a.startswith("--force-with-lease=") for a in rest):
             print("BLOCK\tforce-push rewrites shared history (protected invariant: no force-push).")
             break
-        if any(not a.startswith("-") and protected_ref(a) for a in rest):
+        # Explicit refspec, else ask git what this command would actually push. `git push`
+        # and `git push origin` name no ref, and used to sail past this check entirely: the
+        # gap the header documents. Resolving @{push}/HEAD closes the common case. When git
+        # cannot answer (no repo, detached, git absent) the old permissive behaviour stands,
+        # because failing closed here would wedge every push in any directory git cannot read.
+        # First bare arg is the REMOTE, the rest are refspecs. Conflating the two made
+        # `git push origin my-feature` resolve HEAD and block on the checked-out branch.
+        bare = [a for a in rest if not a.startswith("-")]
+        refspecs = bare[1:] if bare else []
+        if refspecs:
+            hits = [a for a in refspecs if protected_ref(a)]
+        else:
+            implied = git_out(cwd_hint, "rev-parse", "--abbrev-ref", "HEAD")
+            hits = [implied] if implied and protected_ref(implied) else []
+        if hits:
             # Force-push above is unconditional and stays that way; only the PR-required
             # rule yields, and only for a remote listed in push-exemptions.txt.
-            if not push_is_exempt(cwd_hint):
+            if not push_is_exempt(cwd_hint, rest):
                 print("BLOCK\tdirect push to protected branch (main/release/*); open a PR instead "
                       "(branch_policy: feature=pr-required). See standards/pr-conventions.md.")
                 break
@@ -239,7 +287,7 @@ if [[ "$kind" == "CHECKPR" ]] && command -v gh >/dev/null 2>&1; then
   me="$(gh api user --jq '.login' 2>/dev/null || true)"
   # A PreToolUse hook doesn't inherit the command's own `cd` (it runs in its own
   # process before the tool's shell starts), so `gh repo view` here resolves
-  # against the SESSION's cwd, not wherever the command's `cd` points — empty
+  # against the SESSION's cwd, not wherever the command's `cd` points, empty
   # when the session started outside any repo. If the command itself led with
   # `cd <dir> && gh pr ...` (the common shape), retry resolution from that dir
   # before giving up; still fails closed if that yields nothing either.
