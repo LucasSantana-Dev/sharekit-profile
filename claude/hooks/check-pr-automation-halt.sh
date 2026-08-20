@@ -87,9 +87,22 @@ ATTRIB = re.compile(r"co-authored-by:.*(claude|bot)|generated (with|by) .*claude
 
 
 def protected_ref(arg: str) -> bool:
-    ref = arg.split(":")[-1]                    # git push origin HEAD:main
+    # Leading `+` is git's force marker and belongs to the refspec, not the branch name.
+    # Without stripping it, `git push origin +main` compared "+main" against "main", missed,
+    # and sailed past the gate entirely in EVERY repo, exempt or not.
+    ref = arg.lstrip("+").split(":")[-1]         # git push origin HEAD:main, +main, +HEAD:main
     ref = re.sub(r"^refs/heads/", "", ref)
     return ref in PROTECTED or ref.startswith("release/")
+
+
+def forced(rest: list) -> bool:
+    """Force in any spelling: the flags, or a refspec carrying git's `+` force marker."""
+    for a in rest:
+        if a in FORCE or a.startswith("--force-with-lease="):
+            return True
+        if not a.startswith("-") and a.startswith("+"):
+            return True
+    return False
 
 
 # Repos where a direct push to a protected branch IS the intended workflow.
@@ -198,7 +211,7 @@ for argv in simple:
 
     if exe == "git" and args[:1] == ["push"]:
         rest = args[1:]
-        if any(a in FORCE or a.startswith("--force-with-lease=") for a in rest):
+        if forced(rest):
             print("BLOCK\tforce-push rewrites shared history (protected invariant: no force-push).")
             break
         # Explicit refspec, else ask git what this command would actually push. `git push`
@@ -210,7 +223,12 @@ for argv in simple:
         # `git push origin my-feature` resolve HEAD and block on the checked-out branch.
         bare = [a for a in rest if not a.startswith("-")]
         refspecs = bare[1:] if bare else []
-        if refspecs:
+        # `--all` / `--mirror` push every local ref, so the checked-out branch says nothing
+        # about what actually travels: from a feature branch they still deliver local `main`.
+        # Treat them as touching a protected ref and let the exemption decide.
+        if any(a in ("--all", "--mirror") for a in rest):
+            hits = ["(--all/--mirror: every local ref)"]
+        elif refspecs:
             hits = [a for a in refspecs if protected_ref(a)]
         else:
             implied = git_out(cwd_hint, "rev-parse", "--abbrev-ref", "HEAD")
