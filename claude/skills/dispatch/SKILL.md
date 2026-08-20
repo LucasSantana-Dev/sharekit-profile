@@ -90,7 +90,7 @@ Invoke any agent-box task script from this Mac session, or run an ad-hoc claude 
 
 ```
 /dispatch <task>
-/dispatch <project-a>-health
+/dispatch lucky-health
 /dispatch "check if <project-a> CI is green right now"
 ```
 
