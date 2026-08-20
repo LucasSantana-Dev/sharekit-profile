@@ -1,6 +1,6 @@
 ---
 name: dispatch
-description: "Parallelize independent evidence-gathering or audit work into ≥2 concurrent agent tracks; reconcile into a single verdict and action. Also dispatches named agent-box task scripts or ad-hoc prompts to remote <homelab> infrastructure over SSH. Use when sub-tasks are cleanly separable with no output dependencies and running serially wastes turns. Examples: multi-repo scans, concurrent CI/lint/test audits, N-package dependency sweeps. Skip when tasks depend on prior output."
+description: "Parallelize independent evidence-gathering or audit work into ≥2 concurrent agent tracks; reconcile into a single verdict and action. Also dispatches named agent-box task scripts or ad-hoc prompts to remote homelab infrastructure over SSH. Use when sub-tasks are cleanly separable with no output dependencies and running serially wastes turns. Examples: multi-repo scans, concurrent CI/lint/test audits, N-package dependency sweeps. Skip when tasks depend on prior output."
 triggers:
   - dispatch
   - parallelize this
@@ -90,7 +90,7 @@ Invoke any agent-box task script from this Mac session, or run an ad-hoc claude 
 
 ```
 /dispatch <task>
-/dispatch <project-a>-health
+/dispatch health
 /dispatch "check if <project-a> CI is green right now"
 ```
 
@@ -100,9 +100,9 @@ See [references/remote-tasks.md](references/remote-tasks.md) for the complete ta
 
 ### Execution flow
 
-1. If `<task>` matches a named alias (see references/remote-tasks.md), run the mapped script directly on <homelab>:
+1. If `<task>` matches a named alias (see references/remote-tasks.md), run the mapped script directly on homelab:
    ```bash
-   ssh <homelab> "${HOMELAB_ROOT}/scripts/agent-tasks/<script>"
+   ssh homelab "${HOMELAB_ROOT}/scripts/agent-tasks/<script>"
    ```
    **Done when:** script executes and output is streamed; execution exits cleanly.
 
