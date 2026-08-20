@@ -96,11 +96,23 @@ def protected_ref(arg: str) -> bool:
 
 
 def forced(rest: list) -> bool:
-    """Force in any spelling: the flags, or a refspec carrying git's `+` force marker."""
+    """Force in any spelling: the flags, or a refspec carrying git's `+` force marker.
+
+    The `+` only counts IN REFSPEC POSITION, meaning after the remote. git itself reads it
+    that way: in `git push +foo origin` the `+foo` is a remote name, not a force marker, and
+    a first version that scanned every token flagged those as force pushes. Narrow beats
+    eager here, since each false block trains the reader to route around the gate.
+    """
+    seen_remote = False
     for a in rest:
         if a in FORCE or a.startswith("--force-with-lease="):
             return True
-        if not a.startswith("-") and a.startswith("+"):
+        if a.startswith("-"):
+            continue
+        if not seen_remote:
+            seen_remote = True          # first bare arg is the remote, never a refspec
+            continue
+        if a.startswith("+"):
             return True
     return False
 
