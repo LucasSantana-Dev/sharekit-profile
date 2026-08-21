@@ -98,7 +98,17 @@ def protected_ref(arg: str) -> bool:
 # A token that can actually be an argument to `git push`: a flag, a remote name, or a
 # refspec (optionally force-marked, optionally src:dst). Anything carrying a space, quote,
 # parenthesis or `$` is not one.
-PUSH_TOKEN = re.compile(r"^-|^\+?[A-Za-z0-9._/@~^{}-]+(:\+?[A-Za-z0-9._/@~^{}-]+)?$")
+#
+# THE EMPTY SOURCE IS DELIBERATE. `:main` is git's delete syntax, and an earlier version
+# required a source, so `git push origin :main` was dropped as junk and DELETED a protected
+# branch with no block at all. Destructive, and quieter than the push it was guarding.
+REF = r"[A-Za-z0-9._/@~^{}-]+"
+PUSH_TOKEN = re.compile(r"^-|^\+?(?:%s(?::\+?%s)?|:\+?%s)$" % (REF, REF, REF))
+
+# Deleting a protected branch is at least as destructive as force-pushing over it, so it is
+# blocked the same way: unconditionally, exemption or not. An exemption buys a repo out of
+# the PR-required workflow, never out of losing its trunk.
+DELETE_REFSPEC = re.compile(r"^\+?:")
 
 
 def usable_push_args(rest: list) -> list:
@@ -268,6 +278,16 @@ for argv in simple:
         residue = len(rest) < len(raw)
         if forced(rest):
             print("BLOCK\tforce-push rewrites shared history (protected invariant: no force-push).")
+            break
+        if any(DELETE_REFSPEC.match(a) and protected_ref(a) for a in rest):
+            print("BLOCK\tdeleting a protected branch (main/release/*) is not permitted; "
+                  "this is unconditional and a push exemption does not lift it.")
+            break
+        # `--delete`/`-d` turn every following refspec into a deletion.
+        if any(a in ("--delete", "-d") for a in rest) and any(
+                protected_ref(a) for a in rest if not a.startswith("-")):
+            print("BLOCK\tdeleting a protected branch (main/release/*) is not permitted; "
+                  "this is unconditional and a push exemption does not lift it.")
             break
         # Explicit refspec, else ask git what this command would actually push. `git push`
         # and `git push origin` name no ref, and used to sail past this check entirely: the
