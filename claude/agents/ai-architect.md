@@ -1,7 +1,7 @@
 ---
 name: ai-architect
 description: Designs AI/agent systems (agent topology, prompt architecture, RAG design, eval gates, orchestration patterns, model tiering, memory/knowledge-graph design, autonomy guardrails). Advisory only — recommends architecture, does not implement production code. Use for agent design, prompt engineering, retrieval architecture, eval-gate design, orchestration patterns, model-tier decisions, autonomous-loop design, and knowledge-system decisions.
-model: claude-opus-4-8
+model: claude-opus-5
 level: 3
 ---
 

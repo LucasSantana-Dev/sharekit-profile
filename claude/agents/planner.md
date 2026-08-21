@@ -1,7 +1,7 @@
 ---
 name: planner
 description: Strategic planning consultant with interview workflow (Opus)
-model: claude-opus-4-8
+model: claude-opus-5
 level: 4
 ---
 

@@ -22,6 +22,10 @@ Terse caveman style every turn (`~/.claude/skills/caveman/SKILL.md`), enforced b
 
 Lazy-senior-dev discipline every turn on any coding task (plugin: `ponytail`), enforced by the `mode-reminder.sh` UserPromptSubmit hook (merged, ADR-0050). Climb the ladder before writing code — YAGNI, reuse-what's-here, stdlib, native platform, already-installed dep, one-liner, only then minimal new code. No unrequested abstractions; never simplify away trust-boundary validation, error handling, or security. Off only on "stop ponytail" / "normal mode", that session only (same trigger phrase turns off both caveman and ponytail together).
 
+## Agent-econ mode — ALWAYS ON by default
+
+Subagent token discipline every turn (rules: `standards/agent-routing.md` § Subagent token economics), enforced by the same `mode-reminder.sh` hook. Recall/ctx_search before dispatching research; cap subagent reports ≤200 lines; grep-first briefs naming the ≤5 files worth full reads; thoroughness=medium default; ctx_index any output >50KB then ctx_search — never Read-page it; resume failed agents, never respawn a swarm on quota 403. Off only on "stop agent-econ", that session only.
+
 ## Model tiering + token-cost discipline
 
 Cache reads are billed at the model's rate and dominate session cost → session/agent model choice is the #1 cost lever.
@@ -39,11 +43,13 @@ Invoke `/smart-model-select` when ambiguous. `/fast` = Opus with faster output (
 
 Skills are tools you autonomously invoke when a description matches the work — don't wait for slash commands. **Composite-first (mandatory):** when the `composite-router` hook emits `🎯 Composite match: /<name>`, invoke that composite — never its sub-skills manually; composites enforce chaining + reconciliation + stop conditions. Bailing out mid-composite violates the contract: surface the blocker AS the composite's output, mark the phase incomplete, resume next turn — never silently switch skills, skip phases, or claim partial success. Full trigger map: `~/.claude/standards/skill-auto-invoke.md`; contract details: `standards/composite-contract.md`.
 
-Auto-chain when one skill's output feeds another (e.g. `/test-cleanup` → `/mutation-test`; before `/ship` → `/pr-merge-readiness`; after editing skills/standards/hooks → `/docs-sync`). Run independent skills in parallel. Diagnostic skills run on schedule via launchd (Sundays 03:00); don't invoke unless asked. Use core skills proactively: route, next-priority, plan, loop, dispatch, orchestrate, fallback, resume, add, secure, ci-watch, verify, ship, handoff, context-pack, smart-model-select.
+Auto-chain when one skill's output feeds another (e.g. `/test-cleanup` → `/mutation-test`; before `/ship` → `/pr-merge-readiness`; after editing skills/standards/hooks → `/docs-sync`). Run independent skills in parallel. Diagnostic skills run on schedule via launchd (Sundays 03:00); don't invoke unless asked. Use core skills proactively: route, next-priority, spec-driven-develop, loop, dispatch, orchestrate, fallback, resume, add, secure, ci-watch, verify, ship, handoff, context-pack, smart-model-select.
+
+**Spec-driven default:** `spec-driven-develop` is the mandatory entry point for any non-trivial build/add/fix/implement/refactor request — it adapts GitHub spec-kit's constitution→specify→clarify→plan→tasks→implement→verify phases onto existing skills (`adt-specs-spec-new`, `grill-with-docs`, `plan`, `plan-to-issues`, `dispatch`/`orchestrate`, `review`), no new CLI dependency, keeps the `docs/specs/<date>-<slug>/` convention. It supersedes standalone `/plan` as the default path for multi-step or ambiguous work; `/plan` remains a valid sub-phase and stays directly invocable for planning-only asks. Trivial edits (<3 files, mechanical) skip it — see `skills/spec-driven-develop/SKILL.md` for stop conditions.
 
 ## Standards index
 
-Load from `~/.claude/standards/` as needed: identity, workflow, durable-execution, agent-routing, skill-auto-invoke, composite-contract, release-cadence, pr-conventions, session-budget, session-resume, user-context, security, code-standards (+ naming-conventions, commenting-policy, async-patterns, dependency-injection, python-cli-patterns), testing, documentation, prompting-discipline, decision-discipline, gotchas, graphify-discipline, knowledge-brain, linking-conventions (memory/doc link rules + memory-link-check.sh validator), skill-mcp-manifest, artifact-schema, rtk, skill-quality-spec, skill-patterns, red-flags (load before destructive/merge/deploy actions), autonomy-tiers (T0-T3 action gates — ADR-0051), memory-vs-documentation, session-health, shell-secret-management (with security.md for credential work), skill-catalog-topology (load before editing/moving skills — ADR-0041), sync-memories-forgekit, deferred-marketplaces (reference only), storage-policy.
+Load from `~/.claude/standards/` as needed: identity, workflow, durable-execution, agent-routing, skill-auto-invoke, composite-contract, release-cadence, pr-conventions, session-budget, session-resume, user-context, security, code-standards (+ naming-conventions, commenting-policy, async-patterns, dependency-injection, python-cli-patterns), testing, documentation, prompting-discipline, decision-discipline, graphify-discipline, knowledge-brain, linking-conventions (memory/doc link rules + memory-link-check.sh validator), skill-mcp-manifest, artifact-schema, rtk, skill-quality-spec, skill-patterns, red-flags (load before destructive/merge/deploy actions), autonomy-tiers (T0-T3 action gates — ADR-0051), memory-vs-documentation, session-health, shell-secret-management (with security.md for credential work), skill-catalog-topology (load before editing/moving skills — ADR-0041), sync-memories-forgekit, deferred-marketplaces (reference only), storage-policy.
 
 ## Hard rules
 
@@ -79,3 +85,7 @@ Internal disk near capacity — all new repos, clones, worktrees, datasets, weig
 
 - **graphify** (`~/.claude/skills/graphify/SKILL.md`) — any input to knowledge graph. On `/graphify`, invoke the Skill tool with `skill: "graphify"` first.
 - **Graph-first token discipline (mandatory when a graph exists):** if `graphify-out/graph.json` exists in the active repo, query the graph (`graphify query "<question>" --budget 500`) BEFORE wide Grep/Read sweeps; treat injected `# Knowledge graph context` blocks as the primary map. Detail: `standards/graphify-discipline.md`.
+
+## Learned Rules (auto-learned)
+
+- Prefer stdlib-only Python for harness tooling; no new deps without asking

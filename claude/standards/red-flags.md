@@ -48,6 +48,16 @@ A concise catalogue of anti-actions an agent must never execute or approve. Each
 
 ---
 
+### Auto-Merge or Auto-Deploy Without Clear CI/Review State
+**Observable signal:**
+- Merge or deploy triggered while CI status is pending, unknown, or not queried
+- "Speed" cited as the reason to skip checking review-thread resolution or required-check state
+- Deploy proceeds because a prior deploy succeeded, not because this one was verified
+
+**Why it matters:** This is hidden risk wearing speed's clothes — an unclear CI/review state means the actual risk was never assessed, not that it was low.
+
+---
+
 ### Tag / Release Pushed Without Gate
 **Observable signal:**
 - `git tag` created and pushed without version bump commit
@@ -175,7 +185,47 @@ A concise catalogue of anti-actions an agent must never execute or approve. Each
 
 ---
 
+### Runtime Residue Mistaken for Durable Policy
+**Observable signal:**
+- A behavior only exists as a session-scoped temp file, env var, or in-memory state, with no corresponding entry in a committed standard/skill/hook
+- Next session doesn't reproduce a rule that "worked last time" because it never left runtime
+- A fix applied to a rendered/live file (e.g. `~/.claude/settings.json`) but never to its tracked source (`~/.claude-env/settings/shared.json`), so a later render silently reverts it
+
+**Why it matters:** What isn't durable disappears the moment the session or a resync ends — the exact failure mode that let `tool-failures.log`'s broken hook survive four separate "fixes" undetected.
+
+---
+
+### Duplicate Skill/Hook Names Create Routing Ambiguity
+**Observable signal:**
+- Two skills or hooks share a name across `.archive/` and live catalogs, or across `~/.agents/skills` and a project-local `claude/skills/`
+- Auto-invoke or composite-router matches the wrong one, or the model can't tell which is canonical
+- A catalog audit finds N duplicate names (harness-vitals flagged 127 in this harness as of 2026-08-14)
+
+**Why it matters:** Ambiguous routing means the operator can't predict which version fires; silently picking the stale/archived one ships the wrong behavior.
+
+---
+
+### Hook Trying to Do Too Much
+**Observable signal:**
+- A single hook script handles multiple unrelated responsibilities (detection + logging + blocking + notification all in one file)
+- A hook fails silently on one responsibility because an unrelated code path threw first
+- Debugging "why didn't X fire" requires reading past unrelated logic to find the relevant branch
+
+**Why it matters:** Hooks that do too much become silent-failure factories — one broken branch takes the whole hook down instead of just the feature that actually broke, and a validation gap (like a mistyped event name) hides behind logic that looks like it's working.
+
+---
+
 ## Claims Honesty Domain
+
+### Claiming Done Because the Git Tree Is Clean
+**Observable signal:**
+- "Task complete" stated with `git status` clean, but no check that the diff actually addressed the request
+- Work verified by absence of uncommitted changes rather than by re-reading the requirement
+- A revert or a no-op commit leaves a clean tree that looks identical to a correct fix
+
+**Why it matters:** A clean tree proves nothing was left uncommitted — it says nothing about whether the right thing was committed.
+
+---
 
 ### Claiming Feature "Done" Without Integration Test
 **Observable signal:**

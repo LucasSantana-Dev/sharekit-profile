@@ -36,6 +36,11 @@ STATE_DIR="$HOME/.claude/state/model-tier-router"
 mkdir -p "$STATE_DIR"
 STATE_FILE="$STATE_DIR/$SID"
 
+# Opportunistic prune: one state file per session accumulates forever with no
+# other cleanup mechanism (192 found on 2026-08-14 audit). Stale sessions are
+# done sessions — 30 days is well past any realistic resume window.
+find "$STATE_DIR" -type f -mtime +30 -delete 2>/dev/null || true
+
 # Locate session JSONL
 JSONL=$(find "$HOME/.claude/projects" -maxdepth 2 -name "${SID}.jsonl" -type f 2>/dev/null | head -1)
 [ -z "$JSONL" ] && exit 0

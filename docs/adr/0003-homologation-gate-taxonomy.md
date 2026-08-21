@@ -13,12 +13,12 @@ limited scope, card/prototype fidelity") triggered a 5-lens, 2-round debate (`/d
 already-shipped "homologation" patterns (Brazilian-PT term for a staging/UAT sign-off gate
 before prod) living as separate per-project memory notes, never abstracted:
 
-1. **Lucky** — PR labeled `staging` auto-deploys to a shared staging environment before prod.
-2. **Criativaria admin-panel** — merge-to-main = prod; D1 migrations auto-apply on merge.
-3. **calculadora** — real incident: Cloudflare Pages secrets bind at DEPLOY time, not build
+1. **`<project-a>`** — PR labeled `staging` auto-deploys to a shared staging environment before prod.
+2. **`<project-b>` admin-panel** — merge-to-main = prod; D1 migrations auto-apply on merge.
+3. **`<project-d>`** — real incident: Cloudflare Pages secrets bind at DEPLOY time, not build
    time, which broke a staging-gate flag-flip (caught only because staging existed as a
    distinct step from prod).
-4. **homelab** — release-cut process: squash `chore/release-*` → main, resolve bot review
+4. **`<homelab>`** — release-cut process: squash `chore/release-*` → main, resolve bot review
    threads, tag, cherry-pick reconcile → release branch.
 
 The homologation-lens (Round 1) argued these four share a *conceptual* gate ("what blocks a
@@ -41,16 +41,16 @@ in the canonical profile, not per-repo scaffolds.
 
 1. This document names the four patterns and the one question each answers: *what
    mechanism decides a commit isn't ready for prod yet?*
-   - **Label-routing** (Lucky): a PR label (`staging`) is the review/promotion signal; CI
+   - **Label-routing** (`<project-a>`): a PR label (`staging`) is the review/promotion signal; CI
      reads the label to pick a deploy target.
-   - **Merge-is-prod** (Criativaria): there is no separate staging environment; merge to
+   - **Merge-is-prod** (`<project-b>`): there is no separate staging environment; merge to
      `main` is the promotion event, so all gating has to happen pre-merge (PR review,
      migration-safety checks) since there's no post-merge undo step.
-   - **Deploy-time binding** (calculadora): secrets/config bind at deploy time, not build
+   - **Deploy-time binding** (`<project-d>`): secrets/config bind at deploy time, not build
      time — the gate isn't a branch or label at all, it's *when in the pipeline* a config
      value gets read, and testing that against a build-time assumption silently passes
      while staging fails.
-   - **Branch-promotion** (homelab): a long-lived `release` branch accumulates commits,
+   - **Branch-promotion** (`<homelab>`): a long-lived `release` branch accumulates commits,
      gets squash-reconciled against `main`, tagged, then cherry-picked back — the gate is a
      branch hierarchy + manual reconciliation step, not a single merge event.
 2. **No new template, no `.claude/homologation.md` stub, no `sharekit-cli init --profile`
@@ -72,7 +72,7 @@ in the canonical profile, not per-repo scaffolds.
   deploy_target fields), scaffolded via `sharekit-cli init`: rejected for now, not
   permanently (see Revisit when) — the four real patterns don't share enough mechanism to
   make the fields meaningful today (a `deploy_target`
-  field means nothing for calculadora's deploy-time-binding gate, which isn't about *where*
+  field means nothing for `<project-d>`'s deploy-time-binding gate, which isn't about *where*
   but *when*). Would produce a form most future projects fill in wrong or ignore.
 - **Second `sharekit-profile-work` distribution channel**: rejected — this is the same
   two-channel drift ADR-0039 already burned the operator on (skills silently missing from the

@@ -174,7 +174,7 @@ if [[ $maintain -eq 1 ]]; then
     record_step "skill-prune" "skip" "no trajectory"
   else
     out_file="$RUNTIME/cycle-${ts//[:]/-}-skill-prune.log"
-    if bash "$ROOT/hooks/skill-prune.sh" >"$out_file" 2>&1; then
+    if bash "$ROOT/scripts/skill-prune.sh" >"$out_file" 2>&1; then
       never="$(grep -oE 'never=[0-9]+' "$out_file" | grep -oE '[0-9]+' || echo 0)"
       echo "  ✓ skill-prune: $never never-hit candidate(s) (log: $out_file)"
       record_step "skill-prune" "pass" "never=$never"

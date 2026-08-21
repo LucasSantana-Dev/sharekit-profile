@@ -75,7 +75,7 @@ offer with an announcement — never silently skip.
 - Treating doubt-cycle findings as authoritative without re-reading the ARTIFACT
   yourself
 
-## Retroactive vs proactive — open question (validated 2026-05-20)
+## Retroactive vs proactive — open question (validated 2026-05-20, gate checked 2026-08-14)
 
 Of 9 documented past gotchas in MEMORY.md (Dexie no-op, Wrangler env inheritance,
 Vercel bare URL, Docker port collision, Jest resetMocks, BSD xargs, GitHub
@@ -85,8 +85,24 @@ CAUGHT by this 5-step IF the reviewer looked up the relevant docs (1 MAYBE,
 
 The pattern has **retroactive validity**. Whether naming it as a standard
 shifts the operator from "catch in post-hoc fix" to "catch in-flight" is
-**currently UNVALIDATED**. ADR-0003 sets a 90-day revisit gate at 2026-08-18
-to check claude-mem + git log for ≥2 documented in-flight uses.
+**still UNVALIDATED as of the 2026-08-18 gate**: a memory/git-log search for
+"5-step", "doubt-driven", "doubt cycle", CLAIM/EXTRACT/DOUBT/RECONCILE markers
+found zero genuine in-flight applications — every hit was a false positive
+(unrelated "5-step build pipeline", "≥5-step orchestration" model-tier
+language, or a README's "5-step setup guide"). Null result, not evidence of
+absence: **the search itself may be under-powered**, since nothing in-flight
+is tagged in a way that's distinguishable from these coincidental phrase
+collisions.
+
+**Revisit gate extended to 2026-11-16** (90 more days) with one process change
+to fix the discoverability gap rather than re-running the same search blind:
+when this 5-step protocol is actually invoked in-flight, note it explicitly —
+`decision-discipline: applied` in the commit message, PR description, or the
+memory file it produces — so the next gate check can grep for that literal
+tag instead of ambiguous prose. If the 2026-11-16 recheck still finds zero
+tagged uses, that's a real signal the standard isn't being invoked in
+practice (not just under-logged), and is grounds to fold it into `red-flags.md`
+as a lighter-weight checklist item instead of a standalone standard.
 
 ## Where this standard is cited from
 

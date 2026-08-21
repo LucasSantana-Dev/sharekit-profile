@@ -2,10 +2,10 @@
 # Mount guard — fail loud before any brain/RAG op (standards/knowledge-brain.md §1)
 # Used by: knowledge-loop Phase 5, rag-curate, sync-memories, recall when search_knowledge is invoked
 
+# Default DEV_ROOT when unset: an unset env var is not an unmounted disk.
+# The reachability test below is the real guard (feedback_knowledge_loop_mount_guard_devroot).
 if [ -z "$DEV_ROOT" ]; then
-  echo "BLOCKED: \$DEV_ROOT is unset — cannot locate knowledge-brain." >&2
-  echo "Surface to user; skip push/curate phases." >&2
-  exit 1
+  DEV_ROOT="${DEV_ROOT}"
 fi
 
 BRAIN="${DEV_ROOT}/knowledge-brain"

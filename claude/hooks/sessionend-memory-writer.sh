@@ -132,4 +132,8 @@ with open(out, "w") as f:
     f.write("\n".join(lines) + "\n")
 PY
 
+# Write-path guard: redact any secrets captured from the session JSONL, stamp provenance.
+python3 "${DEV_ROOT}/rag-index/memory_guard.py" guard "$NOTE_FILE" \
+  --provenance hook-auto --trust trusted 2>/dev/null || true
+
 exit 0

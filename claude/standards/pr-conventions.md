@@ -106,6 +106,51 @@ verdict. Use it before clicking merge.
 `gh pr merge --admin` is forbidden. The `gh api ... rulesets` mutation is
 forbidden. Both are blocked at the `PreToolUse` hook layer.
 
+## Exempt repos (direct push to main allowed)
+
+Default for every repo under this account is PR-required: a direct push to
+`main`/`release/*` is blocked by `hooks/check-pr-automation-halt.sh`. The list
+below is the complete set of exceptions. Keep it tiny — each entry is a gate
+that stops existing, so it needs a reason here, not just an entry in the hook.
+
+| Repo | Why exempt | Server-side protection |
+|---|---|---|
+| `<github-user>/knowledge-brain` | Private, single-author memory vault. `skills/knowledge-loop/references/push-protocol.sh` pushes it from the session Stop hook every session; routing memory sync through a PR per session is friction with no reviewer on the other side. | **None** (`protected: false`, verified 2026-08-20) |
+
+Two things that make this honest rather than a loophole:
+
+- **Matched on `owner/name`, from the git remote.** Not on the directory name,
+  so a fork or a lookalike (`evil-knowledge-brain`, or someone else's repo of
+  the same name) does not inherit the exemption. Both cases are covered by the
+  hook's tests.
+- **Only the PR-required rule yields.** Force-push stays blocked on exempt
+  repos too, as does the AI-attribution check and the halt on another person's
+  PR. An exemption is narrow or it is not an exemption.
+
+**Where the list lives.** `PUSH_EXEMPTIONS_FILE` if set, else
+`$CLAUDE_CONFIG_DIR/push-exemptions.txt`, else `~/.claude/push-exemptions.txt`.
+Resolved this way so the mechanism works under OpenCode and other
+Claude-compatible CLIs rather than assuming one harness layout.
+
+**What the check actually resolves.** The remote named in the command, not
+`origin`. An earlier version always read `origin`, so in a repo whose origin was
+exempt, `git push upstream main` inherited the exemption and reached a different
+repository. Commands with no refspec (`git push`, `git push origin`) resolve the
+checked-out branch, so a bare push to a protected branch is gated like an
+explicit one.
+
+**Before trusting any repo's "second layer", verify it exists:**
+
+```bash
+gh api repos/<owner>/<repo>/branches/main --jq .protected
+```
+
+This list was created because knowledge-brain was already exempt in practice —
+a bare `git push` (no refspec) was never caught by the hook, and the server had
+no protection either. It was exempt by accident of command shape. Naming it
+here makes the exemption reviewable; see
+[[gotcha_brain_push_lacuna_sem_guarda_2026-08-20]].
+
 ## Reviewer behavior
 
 When reviewing your own composite-opened PR:

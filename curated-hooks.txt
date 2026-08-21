@@ -41,7 +41,6 @@ model-tier-router.sh
 multiedit-nudge.sh
 observe-otel.sh
 policy-gate.sh
-ponytail-mode.sh
 post-compact-reset.sh
 post-compact-snapshot-surface.sh
 post-incident-adr.sh
@@ -56,12 +55,9 @@ README.md
 reinject-compact.sh
 release-branch-detector.sh
 repeat-read-guard.sh
-repo-map.sh
-review.sh
 rtk-bypass.list
 rtk-miss-detector.sh
 rtk-rewrite.sh
-session-budget-guard.calib.py
 session-budget-guard.sh
 session-cost-telemetry.sh
 session-end-flush.sh
@@ -70,11 +66,9 @@ session-token-stop.sh
 sessionend-memory-writer.sh
 sessionend-rag-sync.sh
 skill-index.sh
-skill-prune.sh
 skill-quality-gate.sh
 snapshot-compact.sh
 statusline.sh
 tool-shortlist.sh
 trajectory-log.sh
-trajectory-seed.sh
 turn-counter.sh

@@ -1,6 +1,6 @@
 ---
 name: knowledge-loop
-description: Composite skill — query, capture, improve, and persist knowledge in one workflow. Chains recall (RAG query) → sync-memories (write durable note) → rag-curate (improve weak retrievals) → handoff (durable snapshot if session-ending). Use when the work involves "what did we decide", "remember this", "save where we are", or any closing checkpoint.
+description: Composite skill — query, capture, improve, and persist knowledge in one workflow. Chains recall (RAG query) → sync-memories (write durable note) → rag-curate (improve weak retrievals) → handoff (durable snapshot if session-ending). Use when the work involves "what did we decide", "remember this", "save where we are", or any closing checkpoint. For the end-of-session close ritual ("wrap up", "sign off"), use session-close — knowledge-loop runs any time knowledge changed, mid-session included.
 user-invocable: true
 auto-invoke: end-of-task + recall-questions + checkpoint-requests
 metadata:

@@ -37,6 +37,7 @@ refactor-orchestrator.md
 release-ci-engineer.md
 repaint-builder.md
 research-decider.md
+review/coordinator-schema.json
 review/coordinator.md
 review/reviewer-docs.md
 review/reviewer-general.md

@@ -13,7 +13,6 @@ deferred-marketplaces.md
 dependency-injection.md
 documentation.md
 durable-execution.md
-gotchas.md
 graphify-discipline.md
 identity.md
 knowledge-brain.md

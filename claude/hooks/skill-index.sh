@@ -106,7 +106,7 @@ done
   printf '%b' "$rows"
   printf '\n## Next\n\n'
   printf -- '- Load only the skill body you need; do not load-all.\n'
-  printf -- '- Run hooks/skill-prune.sh to find low-hit pruning candidates from trajectory.\n'
+  printf -- '- Run scripts/skill-prune.sh to find low-hit pruning candidates from trajectory.\n'
 } > "$report"
 
 printf '{"ts":"%s","event":"skill-index","total":%s,"tiny":%s,"small":%s,"medium":%s,"large":%s,"report":"%s"}\n' \

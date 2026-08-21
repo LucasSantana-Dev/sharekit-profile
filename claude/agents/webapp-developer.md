@@ -1,7 +1,7 @@
 ---
 name: webapp-developer
 description: Full-stack web application developer for React/Next.js + Supabase. Use when building features that span frontend components, Supabase schema/auth/realtime, and API integration. Covers schema design, RLS-aware data access, auth flows, realtime subscriptions, and production deployment.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 2
 ---
 

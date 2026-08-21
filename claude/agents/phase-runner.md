@@ -1,7 +1,7 @@
 ---
 name: phase-runner
 description: Execute phased plans by fanning out one agent per task per wave, reconciling per wave, gating between phases with verify commands, and emitting a phase × outcome report. Use for "execute this plan", "work through these phases", "swarm over this backlog" — any plan with ≥3 total tasks or ≥2 tasks in a single phase that involve writes. Composite — plans the dispatch and reconciles; does not implement tasks itself.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 ---
 

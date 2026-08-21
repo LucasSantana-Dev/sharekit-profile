@@ -1,7 +1,7 @@
 ---
 name: parallel-implementer
 description: Execute implementation plans by dispatching a fresh subagent per task with mandatory two-stage review (spec compliance then code quality) after each task. Use when you have a written plan with mostly independent tasks and want high-quality same-session execution without context pollution between tasks. Enforces review-fix loops — nothing advances with open spec or quality issues.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 ---
 

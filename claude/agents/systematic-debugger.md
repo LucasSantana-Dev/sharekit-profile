@@ -1,7 +1,7 @@
 ---
 name: systematic-debugger
 description: Apply 4-phase systematic debugging to any bug, test failure, or unexpected behavior. Enforces root-cause investigation before proposing any fix, tracks turn efficiency (file read budget, edit budget, subagent escalation), and blocks rationalization attempts. Use when encountering any technical failure — especially when under time pressure or after multiple failed fix attempts.
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 level: 3
 ---
 
