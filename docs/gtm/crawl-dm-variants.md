@@ -48,6 +48,18 @@ Loss signal: "cool collection" / "nice skills."
 
 ## Sent log
 
+> **This round is not part of the A/B.** `launch-plan.md` line 50 defines the
+> experiment as variant A to half the recipients and variant B to the other half.
+> Every row below is instead labelled `Custom`: each message was written against
+> the recipient's own project, so none of them is a clean A or B. One row was
+> delivered as a public comment because the account blocked DMs, which is a
+> different channel again.
+>
+> Recorded as a deviation rather than relabelled after the fact. These rows are
+> excluded from the A/B denominator, and the variant split still needs its own
+> round before the Go/No-Go in `launch-plan.md` line 51 can be read.
+
+
 | Handle | Channel | Variant | Date | Delivery | Notes |
 |--------|---------|---------|------|----------|-------|
 | u/shhdwi | Reddit DM | Custom (Graft-specific, tool-governance angle) | 2026-08-05 | Sent | Built Graft (NanoNets), 865 stars. Their post: Claude Code silently ignores MCP tools rather than erroring, "sent me looking in the wrong place for weeks." Pitched sharekit as the adjacent problem (what's reachable + behavior gating) rather than a competitor to Graft. |
