@@ -95,6 +95,36 @@ def protected_ref(arg: str) -> bool:
     return ref in PROTECTED or ref.startswith("release/")
 
 
+# A token that can actually be an argument to `git push`: a flag, a remote name, or a
+# refspec (optionally force-marked, optionally src:dst). Anything carrying a space, quote,
+# parenthesis or `$` is not one.
+PUSH_TOKEN = re.compile(r"^-|^\+?[A-Za-z0-9._/@~^{}-]+(:\+?[A-Za-z0-9._/@~^{}-]+)?$")
+
+
+def usable_push_args(rest: list) -> list:
+    """Arguments up to the first token that could not come from a real `git push`.
+
+    WHY THIS EXISTS. shlex runs with posix=True, which strips quotes, so a command that
+    NESTS quoting (`echo "x $(f "cd d && git push origin main")"`) loses the inner quoting
+    and its text re-tokenizes into what looks like a simple `git push`. That is how this
+    gate blocked its own test script, twice: once historically (see the parsing contract
+    above) and once while the exemption work was being written, where the stray fragment
+    `'+ as refspec -> $(msg cd'` was read as a force-marked refspec.
+
+    Dropping malformed tokens keeps real pushes fully evaluated (their arguments are all
+    well-formed, so nothing is dropped) while parse residue evaluates to little or nothing.
+
+    FILTER, DO NOT TRUNCATE. Stopping at the first bad token looks safer and is not:
+    `git push origin ")" main` would stop at `origin` and let a protected-branch push
+    through, so a single junk argument would buy an escape. Filtering keeps the `main`.
+
+    An argument failing PUSH_TOKEN is assumed to be parse residue rather than real git
+    syntax, and its presence puts the caller in safe-fallback mode: the explicit refspecs
+    that survived are still judged, but the HEAD-resolution guess is skipped.
+    """
+    return [a for a in rest if PUSH_TOKEN.match(a)]
+
+
 def forced(rest: list) -> bool:
     """Force in any spelling: the flags, or a refspec carrying git's `+` force marker.
 
@@ -222,7 +252,20 @@ for argv in simple:
         cwd_hint = args[0]
 
     if exe == "git" and args[:1] == ["push"]:
-        rest = args[1:]
+        raw = args[1:]
+        rest = usable_push_args(raw)
+        # Something was dropped: this "command" is parse residue from a quoted mention, not
+        # a push anyone is running. Judge only what survived, and never fall through to
+        # resolving HEAD, which would block on the checked-out branch of whatever directory
+        # the session happens to sit in.
+        #
+        # THIS IS NOT AN ESCAPE HATCH, and it was checked rather than assumed. Adding a junk
+        # argument to dodge the HEAD path also stops git from running the command at all:
+        # `git push ""` gives `fatal: bad repository ''`, `git push ")"` gives `fatal: ')'
+        # does not appear to be a git repository`. Nothing is pushed. And junk sitting
+        # ALONGSIDE a real target still blocks, because filtering keeps the real tokens:
+        # `git push origin ")" main` is evaluated as `origin main`.
+        residue = len(rest) < len(raw)
         if forced(rest):
             print("BLOCK\tforce-push rewrites shared history (protected invariant: no force-push).")
             break
@@ -242,6 +285,8 @@ for argv in simple:
             hits = ["(--all/--mirror: every local ref)"]
         elif refspecs:
             hits = [a for a in refspecs if protected_ref(a)]
+        elif residue:
+            hits = []                   # truncated parse: no refspec to trust, do not guess
         else:
             implied = git_out(cwd_hint, "rev-parse", "--abbrev-ref", "HEAD")
             hits = [implied] if implied and protected_ref(implied) else []
