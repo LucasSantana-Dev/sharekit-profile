@@ -64,8 +64,60 @@ if not cmd.strip():
     sys.exit()
 
 OPS = {";", "&&", "||", "|", "&"}
+
+
+def normalize(text: str) -> str:
+    """Make newline-separated commands visible, without corrupting quoted text.
+
+    A NEWLINE ENDS A COMMAND, and treating it as plain whitespace was a real hole: in
+
+        cmd1 | tail -2
+        git push --force-with-lease -q
+
+    the second line merged into the first pipeline's argv, `git` was never argv[0], and
+    a force-push sailed past a gate that blocks it correctly when issued alone. Found by
+    the gate failing to stop an actual force-push during a rebase.
+
+    Two things must survive the rewrite, so it is not a blind newline replace:
+
+    1. HEREDOC BODIES ARE DATA, not commands. Commit messages here routinely discuss
+       `git push origin main`; splitting a heredoc into lines would read that prose as a
+       real push and block the commit describing the fix.
+    2. NEWLINES INSIDE QUOTES ARE LITERAL. `git commit -m 'x\\nCo-Authored-By: ...'`
+       must stay one token, or the AI-attribution check loses the text it inspects.
+
+    Three ways to hide a push from this were tried and none is exploitable, because bash
+    does not run them either (checked by stubbing `git` and counting calls, not reasoned):
+      - unbalanced quote swallowing later newlines: bash refuses the whole script,
+        `unexpected EOF while looking for matching '"'`
+      - a push wrapped in a heredoc: it is a real heredoc, so the body is stdin data for
+        the preceding command, never executed. Removing it here matches bash.
+      - backslash line-continuation before the push: the lines join, so `git push ...`
+        becomes an argument to the previous command rather than a command.
+    """
+    # Heredoc bodies (<<EOF, <<'EOF', <<-"EOF") removed wholesale.
+    text = re.sub(r"<<-?\s*(['\"]?)(\w+)\1.*?^\s*\2\s*$", " ", text, flags=re.S | re.M)
+    out, quote, escaped = [], None, False
+    for ch in text:
+        if escaped:
+            out.append(ch); escaped = False; continue
+        if ch == "\\" and quote != "'":
+            out.append(ch); escaped = True; continue
+        if quote:
+            if ch == quote:
+                quote = None
+            out.append(ch); continue
+        if ch in "'\"":
+            quote = ch; out.append(ch); continue
+        out.append(";" if ch == "\n" else ch)
+    return "".join(out)
+
+
+# normalize() runs BEFORE shlex and must stay there. shlex treats a newline as ordinary
+# whitespace, so a command on its own line merges into the previous pipeline's argv and
+# `git` stops being argv[0]. Do not remove this call to "simplify" the tokenizer.
 try:
-    lex = shlex.shlex(cmd, posix=True, punctuation_chars=True)
+    lex = shlex.shlex(normalize(cmd), posix=True, punctuation_chars=True)
     lex.whitespace_split = True
     tokens = list(lex)
 except Exception:
