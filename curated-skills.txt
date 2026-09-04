@@ -10,6 +10,7 @@ ci-watch
 code-teardown
 codebase-memory
 context-pack
+debate
 decide
 decide-now
 dep-sweep
@@ -32,6 +33,7 @@ rag-curate
 recall
 refactor
 research-and-decide
+resolve-before-asking
 resume
 review
 secure
