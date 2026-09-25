@@ -132,3 +132,116 @@ client_setup() {  # an "acme" client rooted at $TEST_TMP/acme, with a lexicon
   run gate Write "$GENERAL" "plain note"
   [ "$status" -eq 0 ]
 }
+
+gate_json() {  # gate_json <payload json>
+  printf '%s' "$1" | bash "$REPO_ROOT/hooks/memory-scope-gate.sh"
+}
+
+@test "client: writing into another client's vault is blocked" {
+  client_setup; mkdir -p "$TEST_TMP/beta/memory"
+  jq -n --arg a "$(cd "$TEST_TMP/acme" && pwd -P)" --arg b "$(cd "$TEST_TMP/beta" && pwd -P)" \
+    '{acme: {db: "x", roots: [$a]}, beta: {db: "y", roots: [$b]}}' > "$SHELFMARK_CLIENTS"
+  cd "$TEST_TMP/acme"
+  run gate Write "$TEST_TMP/beta/memory/rule.md" "acme pricing notes"
+  [ "$status" -eq 2 ]
+  [[ "$output" == *"client 'beta'"* ]]
+}
+
+@test "client: general vault outside ~/.claude still needs the tag" {
+  client_setup; mkdir -p "$TEST_TMP/kb/memory"; cd "$TEST_TMP/acme"
+  run gate Write "$TEST_TMP/kb/memory/note.md" "acme bills on the fifth"
+  [ "$status" -eq 2 ]
+}
+
+@test "client: general vault matched case-insensitively on macOS" {
+  [ "$(uname -s)" = Darwin ] || skip "case-insensitive file systems only"
+  client_setup; mkdir -p "$TEST_TMP/KB/Memory"; cd "$TEST_TMP/acme"
+  run gate Write "$TEST_TMP/KB/Memory/note.md" "acme bills on the fifth"
+  [ "$status" -eq 2 ]
+}
+
+@test "client: non-markdown file in a memory dir is not a note" {
+  client_setup; cd "$TEST_TMP/acme"
+  run gate Write "$TEST_TMP/home/.claude/projects/p/memory/.harvest-manifest.jsonl" "{}"
+  [ "$status" -eq 0 ]
+}
+
+@test "client: invalid registry blocks memory writes" {
+  client_setup; printf '{not json' > "$SHELFMARK_CLIENTS"; cd "$TEST_TMP/acme"
+  run gate Write "$GENERAL" "plain note"
+  [ "$status" -eq 2 ]
+  [[ "$output" == *"registry"* ]]
+  printf '{"acme": {"roots": "/x"}}' > "$SHELFMARK_CLIENTS"
+  run gate Write "$GENERAL" "plain note"
+  [ "$status" -eq 2 ]
+}
+
+@test "client: MultiEdit content is scanned for lexicon terms" {
+  client_setup; cd "$TEST_TMP/acme"
+  printf -- '---\nknowledge: technical\n---\nold\n' > "$GENERAL"
+  run gate_json "$(jq -cn --arg p "$GENERAL" '{tool_name: "MultiEdit", tool_input: {file_path: $p, edits: [{old_string: "old", new_string: "the walrus rule"}]}}')"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'"permissionDecision":"ask"'* ]]
+}
+
+@test "client: Edit that removes the knowledge tag is blocked" {
+  client_setup; cd "$TEST_TMP/acme"
+  printf -- '---\nknowledge: behavioral\n---\nold\n' > "$GENERAL"
+  run gate_json "$(jq -cn --arg p "$GENERAL" '{tool_name: "Edit", tool_input: {file_path: $p, old_string: "knowledge: behavioral", new_string: "type: finding"}}')"
+  [ "$status" -eq 2 ]
+}
+
+@test "client: tag in an unclosed frontmatter does not count" {
+  client_setup; cd "$TEST_TMP/acme"
+  run gate Write "$GENERAL" "---\nname: x\nknowledge: technical\nacme bills on the fifth"
+  [ "$status" -eq 2 ]
+}
+
+@test "client: CRLF, quoted and nested tags are accepted" {
+  client_setup; cd "$TEST_TMP/acme"
+  run gate Write "$GENERAL" "---\r\nknowledge: technical\r\n---\r\nmake retries idempotent"
+  [ "$status" -eq 0 ]
+  run gate Write "$GENERAL" "---\nknowledge: 'behavioral'\n---\nconfirm before deleting"
+  [ "$status" -eq 0 ]
+  run gate Write "$GENERAL" "---\nmetadata:\n  knowledge: technical\n---\nmake retries idempotent"
+  [ "$status" -eq 0 ]
+}
+
+@test "client: lexicon ask never skips the private-tag rule" {
+  client_setup; cd "$TEST_TMP/repo"
+  RAG_CLIENT=acme run gate Write "$TEST_TMP/repo/.agents/memory/shared.md" "---\nknowledge: technical\n---\nwalrus <private>x</private>"
+  [ "$status" -eq 2 ]
+  [[ "$output" == *"never promotes"* ]]
+}
+
+@test "client: MCP memory tool asks while a client is active" {
+  client_setup; cd "$TEST_TMP/acme"
+  run gate_json '{"tool_name":"mcp__memory__create_entities","tool_input":{"entities":[{"name":"Walrus billing"}]}}'
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'"permissionDecision":"ask"'* ]]
+  run jq -r '.terms | join(",")' "$MEMORY_REVIEW_QUEUE"
+  [ "$output" = "walrus" ]
+}
+
+@test "client: review queue defaults to the client's own vault" {
+  client_setup; unset MEMORY_REVIEW_QUEUE; cd "$TEST_TMP/acme"
+  run gate Write "$GENERAL" "---\nknowledge: technical\n---\nthe walrus rule"
+  [ "$status" -eq 0 ]
+  [ -s "$TEST_TMP/acme/.client/review-queue.jsonl" ]
+}
+
+@test "client: unknown RAG_CLIENT warns and still gates" {
+  client_setup; cd "$TEST_TMP/repo"
+  RAG_CLIENT=ghost run gate Write "$GENERAL" "plain note"
+  [ "$status" -eq 2 ]
+  [[ "$output" == *"not in"* ]]
+}
+
+@test "deploy: the installed gate matches hooks/ and is wired for memory writes" {
+  cmp "$REPO_ROOT/hooks/memory-scope-gate.sh" "$REPO_ROOT/claude/hooks/memory-scope-gate.sh"
+  run jq -r '.hooks.PreToolUse[] | select(any(.hooks[]; .command | contains("memory-scope-gate.sh"))) | .matcher' "$REPO_ROOT/claude/settings.json"
+  [ "$status" -eq 0 ]
+  for t in Write Edit MultiEdit mcp__memory__create_entities; do
+    [[ "$t" =~ ^($output)$ ]]
+  done
+}

@@ -26,8 +26,9 @@ Two invariants, in this order:
 | Client vault | any `memory/` dir under the client's roots (the client's own repo) |
 | General vault | the operator's cross-project memory dir (ask once if unclear) |
 | Lexicon | `<root>/.client/lexicon.txt`: names, people, acronyms, IDs, one per line |
-| Manifest | `<general vault>/.harvest-manifest.jsonl`: one line per promoted lesson |
-| Review queue | `$MEMORY_REVIEW_QUEUE` (the memory gate's lexicon hits) |
+| Origin id | `<root>/.client/origin-id`: 8 random hex chars, made once (`openssl rand -hex 4`). General notes carry this, never the slug |
+| Manifest | `<root>/.client/harvest-manifest.jsonl`: one line per promoted lesson. It lives in the client vault, so the link from a lesson back to the client leaves with the client |
+| Review queue | `<root>/.client/review-queue.jsonl` (or `$MEMORY_REVIEW_QUEUE`): the memory gate's lexicon hits |
 
 **Candidates are derived, never flagged.** A candidate is a client-vault note of type `feedback`, `gotcha` or `finding` whose path is not in the manifest yet, plus every review-queue entry for that client.
 
@@ -45,8 +46,8 @@ Two invariants, in this order:
 4. Grep the draft against the client's lexicon. Any hit means rewrite. Never promote a draft with a hit.
 5. Show the operator the batch: original path, draft and test result. Promote only the ones they approve.
 6. For each approved lesson:
-   - Write the note to the general vault with frontmatter `knowledge: technical` or `knowledge: behavioral`, plus `origin: client-<slug>`. The memory gate requires the tag while a client is active.
-   - Append a line to the manifest: `{ts, client, source, target, sha256 of target}`.
+   - Write the note to the general vault with frontmatter `knowledge: technical` or `knowledge: behavioral`, plus `origin: <origin id>`. The memory gate requires the tag while a client is active. Never put the slug or the client's name in a general note.
+   - Append a line to the manifest (in the client vault): `{ts, origin, source, target, sha256 of target}`.
    - Leave the original untouched in the client vault.
 7. Report: N promoted, M kept client-only, K rejected by the test.
 
@@ -58,18 +59,18 @@ The same steps 2 to 6, for a single note, right when the operator recognizes a l
 
 Order matters. Stop at the first failure.
 
-1. **Final harvest.** Run `harvest` until there are no candidates left. Anything the operator defers goes to a written list in the handoff, not to silence.
+1. **Final harvest.** Run `harvest` until there are no candidates left. Deferred candidates must survive the vault leaving: put their files in an encrypted archive, `tar czf - <files> | age -r <recipient> > "$RAG_HOME/archive/client-<slug>-deferred-$(date +%F).tar.gz.age"`, and write only the count and the archive path in the handoff (never titles, they carry client business).
 2. **Recall baseline.** Run the retrieval eval gate on the general layer and record hit@5/MRR (e.g. `bash eval/check.sh` in the index repo).
 3. **Dry run.** Run `shelfmark-purge <slug> --lexicon <root>/.client/lexicon.txt`. Show the counts: client files, residue paths, query-log rows, canary hits.
 4. **Confirm (T3, destructive).** Show the dry-run output and the archive recipient, then ask the operator explicitly. Do not proceed without a yes in this turn.
-5. **Purge.** Run `shelfmark-purge <slug> --apply --archive <age-recipient> --lexicon <lexicon>`. Exit 1 with `PARTIAL` means re-run the same command. It is idempotent, and the tombstone already blocks leaks.
+5. **Purge.** Run `shelfmark-purge <slug> --apply --archive <age-recipient> --lexicon <lexicon>`. Exit 1 with `PARTIAL` means re-run the same command until it exits 0: every step is idempotent, and the tombstone (written before the first deletion) already keeps the client's files out of the general index. Do not go to step 6 until the purge printed `verified` and `$RAG_HOME/index.client-<slug>.purged` exists.
 6. **Config.** Remove the client from `sources.yaml` together with its globs and `repos:` entries, then rebuild the index. The build stops on orphans, and the tombstone skips the client's files.
 7. **Verify.**
    - The purge printed `verified`.
    - The recall gate on the general layer shows no regression against step 2. On a regression, stop and find which general lesson depended on client context.
-   - Grep the lexicon across the general vault: 0 hits outside notes whose origin is `client-<slug>` and that the operator approved.
+   - Grep the lexicon across the general vault: 0 hits, no exceptions. A hit in a promoted lesson means the lesson still carries client business: rewrite it before closing.
 8. **Surfaces the purge does not own.** List these for the operator to decide:
-   - the client vault repo (it belongs to the client, archive or hand back)
+   - the client vault repo (it belongs to the client, archive or hand back). Its `.client/` dir holds the manifest, the review queue and the origin id, and leaves with it
    - session transcripts under the client's project dir
    - off-machine copies (remote index exports, backups on other hosts)
    - graph snapshots

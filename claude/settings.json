@@ -88,6 +88,17 @@
         ]
       },
       {
+        "matcher": "Write|Edit|MultiEdit|mcp__.*memory.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/memory-scope-gate.sh\"",
+            "timeout": 5000,
+            "comment": "Client memory gate: general notes need a knowledge tag while a client is active; inert without a shelfmark client registry"
+          }
+        ]
+      },
+      {
         "comment": "P4 deterministic governance: ALLOW/DENY/REQUIRE_APPROVAL verdicts from mcp-policy.json, outside the model. Exit 2 on DENY.",
         "hooks": [
           {
