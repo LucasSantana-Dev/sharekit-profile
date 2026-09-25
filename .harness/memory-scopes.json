@@ -40,11 +40,20 @@
     "cross-scope-reads-deny-by-default",
     "isolation-at-retrieval-layer-never-prompt",
     "private-tags-never-promote",
-    "promotion-requires-review"
+    "promotion-requires-review",
+    "client-business-never-crosses-clients"
   ],
   "write_metadata_required": [
     "author",
     "scope",
     "project"
-  ]
+  ],
+  "clients": {
+    "source": "shelfmark registry: $SHELFMARK_CLIENTS or $RAG_HOME/clients.json ({slug: {db, roots}}), written on every shelfmark build",
+    "active": "RAG_CLIENT (none = no client), else the client whose roots contain the cwd",
+    "general_write_requires": "frontmatter knowledge: technical|behavioral while a client is active",
+    "client_vault": "any path under the client's roots; always writable",
+    "lexicon": "<root>/.client/lexicon.txt; a hit in a general write is queued ($MEMORY_REVIEW_QUEUE) and asks the operator, never silently blocks",
+    "purge": "shelfmark-purge <slug> (index side); vault files stay with the client's repo"
+  }
 }
