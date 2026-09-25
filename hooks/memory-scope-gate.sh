@@ -13,17 +13,24 @@
 #   team:      .agents/memory/, memory/, docs/memory/
 #   org:       paths declared under scopes.org in the policy (reserved)
 #
+# Client rules (independent of the scope policy): clients come from the
+# shelfmark registry ($SHELFMARK_CLIENTS, default $RAG_HOME/clients.json,
+# {slug: {db, roots}}), so the index and this gate share one client list.
+# While a client is active (RAG_CLIENT, or cwd under a client root), a write
+# to GENERAL memory must declare `knowledge: technical|behavioral` in its
+# frontmatter; client business goes to the client's own vault (any path
+# under its roots, always allowed). A general write containing a term from
+# <root>/.client/lexicon.txt is not blocked: it is queued for review and the
+# operator is asked (permissionDecision=ask).
+#
 # Exit 0 = allow, exit 2 = block (hook convention: deny the tool call).
 
 set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 POLICY="$ROOT/.harness/memory-scopes.json"
-
-if [[ ! -f "$POLICY" ]]; then
-  echo "memory-scope-gate: no .harness/memory-scopes.json - fail-open (allow)" >&2
-  exit 0
-fi
+CLIENTS_FILE="${SHELFMARK_CLIENTS:-${RAG_HOME:-$HOME/.shelfmark}/clients.json}"
+REVIEW_QUEUE="${MEMORY_REVIEW_QUEUE:-${RAG_HOME:-$HOME/.shelfmark}/review-queue.jsonl}"
 
 payload="$(cat)"
 tool="$(printf '%s' "$payload" | jq -r '.tool_name // empty')"
@@ -56,6 +63,73 @@ scope_rank() {
     *) echo 0 ;;
   esac
 }
+
+# --- client rules -----------------------------------------------------------
+fold() {  # macOS/Windows paths compare case-insensitively
+  case "$(uname -s)" in Darwin|MINGW*|MSYS*|CYGWIN*) tr '[:upper:]' '[:lower:]' ;; *) cat ;; esac
+}
+abspath() {  # resolve even when the file does not exist yet
+  local d; d="$(cd "$(dirname "$1")" 2>/dev/null && pwd -P)" || d="$(dirname "$1")"
+  printf '%s/%s' "$d" "$(basename "$1")"
+}
+client_of() {  # client_of <abs path> -> slug whose root contains it (deepest wins)
+  local p best="" best_len=0 slug root r
+  p="$(printf '%s' "$1" | fold)"
+  while IFS=$'\t' read -r slug root; do
+    [[ -z "$root" ]] && continue
+    r="$(printf '%s' "${root%/}" | fold)"
+    if [[ "$p" == "$r" || "$p" == "$r"/* ]] && (( ${#r} > best_len )); then
+      best="$slug"; best_len=${#r}
+    fi
+  done < <(jq -r 'to_entries[] | .key as $k | .value.roots[]? | "\($k)\t\(.)"' "$CLIENTS_FILE" 2>/dev/null)
+  printf '%s' "$best"
+}
+
+if [[ -n "$path" && -s "$CLIENTS_FILE" ]]; then
+  abs_target="$(abspath "$path")"
+  target_client="$(client_of "$abs_target")"
+  if [[ -n "${RAG_CLIENT:-}" ]]; then
+    active="$RAG_CLIENT"; [[ "$active" == "none" ]] && active=""
+  else
+    active="$(client_of "$(pwd -P)")"
+  fi
+  if [[ -n "$active" && -z "$target_client" && -n "$(scope_of "$path")" ]]; then
+    # General memory written while working for a client.
+    fm_source="$content"
+    [[ "$tool" != "Write" && -f "$path" ]] && fm_source="$(cat "$path")"
+    frontmatter="$(printf '%s\n' "$fm_source" | awk 'NR==1 && $0!="---"{exit} NR>1 && $0=="---"{exit} NR>1{print}')"
+    if ! printf '%s\n' "$frontmatter" | grep -Eq '^knowledge:[[:space:]]*(technical|behavioral)[[:space:]]*$'; then
+      echo "memory-scope-gate: BLOCK - general memory written while working for client '$active'." >&2
+      echo "  Client business goes to the client's vault (a memory/ dir under its roots)." >&2
+      echo "  A technical or behavioral lesson with the client's specifics removed may stay general:" >&2
+      echo "  add 'knowledge: technical' or 'knowledge: behavioral' to its frontmatter." >&2
+      exit 2
+    fi
+    hits=""
+    while IFS= read -r root; do
+      lex="${root%/}/.client/lexicon.txt"
+      [[ -f "$lex" ]] || continue
+      while IFS= read -r term; do
+        [[ -z "$term" || "$term" == \#* ]] && continue
+        printf '%s' "$content" | grep -qiF -- "$term" && hits="$hits${hits:+, }$term"
+      done < "$lex"
+    done < <(jq -r --arg s "$active" '.[$s].roots[]?' "$CLIENTS_FILE")
+    if [[ -n "$hits" ]]; then
+      mkdir -p "$(dirname "$REVIEW_QUEUE")"
+      jq -cn --arg c "$active" --arg p "$abs_target" --arg t "$hits" \
+        '{ts: (now|floor), client: $c, path: $p, terms: ($t | split(", "))}' >> "$REVIEW_QUEUE"
+      jq -cn --arg r "Memory note for GENERAL scope mentions client '$active' terms ($hits). Queued in $REVIEW_QUEUE. Approve only if no client business remains." \
+        '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "ask", permissionDecisionReason: $r}}'
+      exit 0
+    fi
+  fi
+fi
+
+# --- scope rules (need the repo policy) ---------------------------------------
+if [[ ! -f "$POLICY" ]]; then
+  echo "memory-scope-gate: no .harness/memory-scopes.json - fail-open (allow)" >&2
+  exit 0
+fi
 
 target_scope="$(scope_of "$path")"
 [[ -z "$target_scope" ]] && exit 0  # not a memory path
