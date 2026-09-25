@@ -237,6 +237,22 @@ gate_json() {  # gate_json <payload json>
   [[ "$output" == *"not in"* ]]
 }
 
+@test "client: memory index needs no tag but is still lexicon-scanned" {
+  client_setup; cd "$TEST_TMP/acme"
+  run gate Write "$TEST_TMP/home/.claude/projects/p/memory/MEMORY.md" "- [retry](retry.md)"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"permissionDecision"* ]]
+  run gate Write "$TEST_TMP/home/.claude/projects/p/memory/MEMORY.md" "- [walrus rule](w.md)"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'"permissionDecision":"ask"'* ]]
+}
+
+@test "client: relative path to a memory dir that does not exist yet is gated" {
+  client_setup; mkdir -p "$TEST_TMP/elsewhere"; cd "$TEST_TMP/elsewhere"
+  RAG_CLIENT=acme run gate Write "memory/note.md" "acme bills on the fifth"
+  [ "$status" -eq 2 ]
+}
+
 @test "deploy: the installed gate matches hooks/ and is wired for memory writes" {
   cmp "$REPO_ROOT/hooks/memory-scope-gate.sh" "$REPO_ROOT/claude/hooks/memory-scope-gate.sh"
   run jq -r '.hooks.PreToolUse[] | select(any(.hooks[]; .command | contains("memory-scope-gate.sh"))) | .matcher' "$REPO_ROOT/claude/settings.json"

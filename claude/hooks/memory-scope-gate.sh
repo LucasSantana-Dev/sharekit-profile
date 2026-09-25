@@ -19,7 +19,8 @@
 # While a client is active (RAG_CLIENT, or cwd under a client root):
 #   - a note (.md under a memory/ dir) outside every client root is GENERAL
 #     memory and must declare `knowledge: technical|behavioral` in a closed
-#     frontmatter, checked on the content as it will be after the edit;
+#     frontmatter, checked on the content as it will be after the edit
+#     (the index, MEMORY.md or index.md, is exempt from the tag only);
 #   - writing into ANOTHER client's roots is blocked;
 #   - the client's own roots are always allowed (its vault, manifest, queue);
 #   - MCP memory tools cannot carry the tag, so they always ask.
@@ -84,6 +85,7 @@ fold() {  # macOS/Windows paths compare case-insensitively
 }
 abspath() {  # resolve even when the file does not exist yet
   local d; d="$(cd "$(dirname "$1")" 2>/dev/null && pwd -P)" || d="$(dirname "$1")"
+  [[ "$d" == /* ]] || d="$(pwd -P)/$d"
   printf '%s/%s' "$d" "$(basename "$1")"
 }
 client_of() {  # client_of <abs path> -> slug whose root contains it (deepest wins)
@@ -143,7 +145,9 @@ if $is_note && [[ -e "$CLIENTS_FILE" ]]; then
       scan="$(printf '%s' "$payload" | jq -c '.tool_input')"
       ask_reason="MCP memory tool $tool called while working for client '$active'; a knowledge tag cannot be checked here. Approve only if no client business is in it."
     else
-      if ! post_edit | has_knowledge_tag; then
+      # The index (MEMORY.md, index.md) has no frontmatter; it still gets the lexicon scan.
+      base="$(basename "$abs_target" | tr "[:upper:]" "[:lower:]")"
+      if [[ "$base" != "memory.md" && "$base" != "index.md" ]] && ! post_edit | has_knowledge_tag; then
         echo "memory-scope-gate: BLOCK - general memory written while working for client '$active'." >&2
         echo "  Client business goes to the client's vault (a memory/ dir under its roots)." >&2
         echo "  A technical or behavioral lesson with the client's specifics removed may stay general:" >&2
