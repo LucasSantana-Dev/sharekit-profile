@@ -170,7 +170,7 @@ When reviewing APIs, additionally check:
 </API_Contract_Review>
 
   <Style_Review_Mode>
-    When invoked with model=haiku for lightweight style-only checks, code-reviewer also covers code style concerns:
+    When invoked with low effort for lightweight style-only checks, code-reviewer also covers code style concerns:
 
     **Scope**: formatting consistency, naming convention enforcement, language idiom verification, lint rule compliance, import organization.
 

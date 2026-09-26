@@ -108,7 +108,7 @@ The Claude Code harness ships tools that supersede older manual patterns. Prefer
 - **Monitor tool** — stream background events (logs, CI, dev servers) into the conversation and react live. Local, free. Supersedes poll-sleep loops in `ci-watch`-style work.
 - **/schedule (Routines)** — cloud agents on cron/GitHub-event/API triggers (BILLED — counts toward the $25/month cloud ceiling, see ADR 2026-06-10). NEW recurring tasks only: tasks not on launchd today AND needing off-Mac execution. Never migrate existing launchd jobs. Schedule off-hours (22:00–06:00 BRT) to avoid RAG-index / parallel-agent contention.
 - **/code-review ultra** — cloud multi-agent review of current branch or PR (user-triggered, BILLED — same $25/month ceiling). High-stakes diffs to main/release only; note in memory which PRs used it.
-- **/fast (Fast Mode)** — Opus with faster output on Opus 4.6+ at a price premium ($10/$50 MTok vs $5/$25 standard). A speed lever, NOT a tier: use when wall-clock matters on Opus-quality work. Haiku still owns mechanical work.
+- **/fast (Fast Mode)** — Opus with faster output on Opus 4.6+ at a price premium ($10/$50 MTok vs $5/$25 standard). A speed lever, NOT a tier: use when wall-clock matters on Opus-quality work. Mechanical work runs on Sonnet as well; Haiku is retired as of 2026-09-17.
 - **Effort levels (Opus 4.8+)** — `xhigh` for architecture/ADR reasoning chains only; default otherwise. Complements model tiering, does not replace it.
 
 Decision record + revisit triggers: `standards/decisions/2026-06-10-harness-native-tools-adoption.md`.

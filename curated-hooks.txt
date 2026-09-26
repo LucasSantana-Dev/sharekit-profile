@@ -72,3 +72,4 @@ statusline.sh
 tool-shortlist.sh
 trajectory-log.sh
 turn-counter.sh
+memory-scope-gate.sh

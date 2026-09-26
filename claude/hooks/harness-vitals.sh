@@ -25,7 +25,11 @@ age_h() { echo $(( (now - $1) / 3600 )); }   # epoch -> hours ago
 
 # 1. claude-env mirror: unpushed commits OR last push stale (> 36h) => mirror may be silently behind
 if [ -d "$ENV_DIR/.git" ]; then
-  ahead=$(git -C "$ENV_DIR" rev-list --count origin/main..HEAD 2>/dev/null || echo 0)
+  # Compare against the CURRENT branch's upstream, not origin/main: on a feature branch
+  # with an open PR the origin/main baseline calls pushed work "UNPUSHED" and suggests a
+  # push that the PR-required hook refuses — a warning with no resolution (2026-08-28).
+  ahead_ref=$(git -C "$ENV_DIR" rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null || echo origin/main)
+  ahead=$(git -C "$ENV_DIR" rev-list --count "$ahead_ref..HEAD" 2>/dev/null || echo 0)
   [ "${ahead:-0}" -gt 0 ] && warns+=("claude-env: $ahead commit(s) UNPUSHED — run: git -C ~/.claude-env push (or 'sync push')")
   last=$(git -C "$ENV_DIR" log -1 --format=%ct 2>/dev/null || echo "$now")
   h=$(age_h "$last"); [ "$h" -gt 36 ] && warns+=("claude-env: last commit ${h}h ago — mirror may be stale (SessionEnd 'sync push' not firing?)")
@@ -104,6 +108,21 @@ if [ -f "$PUSH_EXIT_FILE" ]; then
   [ -n "$pe" ] && [ "$pe" -ne 0 ] && warns+=("last SessionEnd sync push FAILED (exit $pe) — env changes not on remote; run: ~/.claude-env/bin/sync push (log: ~/.claude-env/.last-push.log)")
 fi
 
+# 6c. hooks-tree drift — the same trap as check 6, one directory over. ~/.claude/hooks is a
+# REAL, writable directory rendered from ~/.claude-env/hooks by `sync pull`, which is itself a
+# SessionStart hook. An edit there is accepted, runs, passes its tests, and is gone next
+# session. On 2026-08-28 three shipped hook fixes vanished exactly this way. Both directions
+# matter: a differing file is an edit about to be reverted; a file only in the derived copy is
+# unversioned and invisible to every other machine.
+if [ -d "$ENV_DIR/hooks" ] && [ -d "$HOME/.claude/hooks" ]; then
+  hd=$(diff -rq "$ENV_DIR/hooks" "$HOME/.claude/hooks" 2>/dev/null \
+       | grep -vE '\.(bak|log|stamp|sha256)( |$)|\.selftest-stamp|\.rtk-hook' | head -20)
+  ndiff=$(printf '%s' "$hd" | grep -c '^Files .* differ$')
+  nonly=$(printf '%s' "$hd" | grep -c "^Only in $HOME/.claude/hooks")
+  [ "${ndiff:-0}" -gt 0 ] && warns+=("hooks DRIFT: $ndiff file(s) differ from ~/.claude-env/hooks — the next 'sync pull' REVERTS the derived copy; port the edit to the canonical tree and commit")
+  [ "${nonly:-0}" -gt 0 ] && warns+=("hooks UNVERSIONED: $nonly file(s) exist only in ~/.claude/hooks — copy to ~/.claude-env/hooks and commit, or they reach no other machine")
+fi
+
 # 7. stale active handoff (> 14d) — a forgotten resume packet
 # -L on both ls and stat: latest.md is a symlink whose own mtime never changes
 # after creation (2026-08-02 — was reporting "41d old" forever regardless of how
@@ -158,6 +177,20 @@ except Exception: pass' 2>/dev/null)
 done
 done
 
+# 8b. Kali lane — `kali-docker-pentesting` documented `docker exec kali-pentest <tool>` while
+# no such container and no such image existed on this machine, and DOCKER_HOST pointed at a
+# socket path with a literal $HOME so every call failed silently (2026-08-29). One cheap probe,
+# and only when the socket is actually there: colima being off is a choice, not a defect.
+KALI_SOCK="$HOME/.colima/default/docker.sock"
+if [ -S "$KALI_SOCK" ] && command -v docker >/dev/null 2>&1; then
+  kstate=$(timeout 5 env DOCKER_HOST="unix://$KALI_SOCK" docker inspect -f '{{.State.Status}}' kali-pentest 2>/dev/null || true)
+  case "$kstate" in
+    running) ;;
+    "")      warns+=("kali lane: container 'kali-pentest' does not exist, but kali-docker-pentesting documents docker exec against it — recreate it or the skill is fiction (skills/kali-docker-pentesting/scripts/kali-health.sh)") ;;
+    *)       warns+=("kali lane: container 'kali-pentest' is $kstate — docker start kali-pentest") ;;
+  esac
+fi
+
 # 9. scheduled-job heartbeats — jobs that exit 0 while doing nothing (nightly rebuild
 # logged "skipping" + exit 0 for weeks via a PATH bug) only surface via freshness.
 hb_dir="$HOME/.claude/heartbeats"
@@ -169,6 +202,11 @@ check_hb() { # $1 label, $2 max-age-hours
 }
 check_hb rag-nightly-rebuild 36
 check_hb memory-weekly-sync 200
+# gdrive-backup runs every 4h; it logged FAIL on every target for 43 days undetected.
+check_hb gdrive-backup 8
+# sync-dev-assets runs every 3 days; its last line was `[ test ] && log || log`, so it
+# exited 0 while the git push had been failing since 2026-08-16.
+check_hb sync-dev-assets 96
 
 # 10. ADR-0039 guard — project auto-memory copies must never re-enter the RAG index
 # (they are ~84% vault duplicates that filled both retrieval slots; enforced in
@@ -186,8 +224,11 @@ if [ -d "$ASK_ROOT" ]; then
   nb=$(find "$ASK_ROOT" -maxdepth 1 -type l ! -exec test -e {} \; -print 2>/dev/null | wc -l | tr -d ' ')
   [ "${nb:-0}" -gt 0 ] && warns+=("skills catalog: $nb broken symlinks in ~/.agents/skills — delete: find ~/.agents/skills -maxdepth 1 -type l ! -exec test -e {} \; -delete")
   if [ -d "$ASK_ROOT/.archive" ]; then
-    coll=$(comm -12 <(ls "$ASK_ROOT" 2>/dev/null | grep -v '^\.' | sort) <(ls "$ASK_ROOT/.archive" 2>/dev/null | sort) 2>/dev/null | wc -l | tr -d ' ')
-    [ "${coll:-0}" -gt 0 ] && warns+=("skills catalog: $coll names exist BOTH live and archived — move .archive/ out of the skills root")
+    # Only a LOADABLE archived copy can shadow a live skill. Archived entries carry
+    # SKILL.md.archived (not SKILL.md) and sit inside a dotdir, so a bare name
+    # collision is inert — counting names produced an unresolvable warning.
+    coll=$(find "$ASK_ROOT/.archive" -maxdepth 2 -name 'SKILL.md' 2>/dev/null | wc -l | tr -d ' ')
+    [ "${coll:-0}" -gt 0 ] && warns+=("skills catalog: $coll archived skills still carry a loadable SKILL.md — rename to SKILL.md.archived")
   fi
 fi
 

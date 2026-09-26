@@ -14,7 +14,7 @@ triggers:
 
 Surface highest-impact workflow changes before execution — optimizing token cost and wall-clock time together, not traded blindly.
 
-You identify: dependency graphs, model-tier mismatches, sequential→parallel opportunities, re-read waste, and tradeoff-aware recommendations with estimated savings. You do NOT: implement changes (route to skill/agent), audit historical token usage (token-audit), manage session context bloat (optimize-context), or choose next tasks (next-priority).
+You identify: dependency graphs, model-tier mismatches, sequential→parallel opportunities, re-read waste, and tradeoff-aware recommendations with estimated savings. You do NOT: implement changes (route to skill/agent), audit historical token usage (session-insights), manage session context bloat (optimize-context), or choose next tasks (next-priority).
 
 **Background:** Read `references/rationale.md` to understand why model tier and parallelism matter.
 

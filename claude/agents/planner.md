@@ -1,7 +1,7 @@
 ---
 name: planner
 description: Strategic planning consultant with interview workflow (Opus)
-model: claude-opus-5
+model: opus
 level: 4
 ---
 
@@ -63,7 +63,7 @@ level: 4
 
   <Tool_Usage>
     - Use AskUserQuestion for all preference/priority questions (provides clickable options).
-    - Spawn explore agent (model=haiku) for codebase context questions.
+    - Spawn explore agent (inherits its own Sonnet frontmatter, no model override) for codebase context questions.
     - Spawn document-specialist agent for external documentation needs.
     - Use Write to save plans to `.omc/plans/{name}.md`.
   </Tool_Usage>

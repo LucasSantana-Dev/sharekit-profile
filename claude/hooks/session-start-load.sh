@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # session-start-load.sh — SessionStart hook.
-# Two responsibilities from docs/hook-firing-order position 1:
+# One responsibility from docs/hook-firing-order position 1:
 #   1. Run the harness drift check (live ~/.claude vs tracked ~/.claude-env).
-#   2. Load CORE memory into the session as additional context.
+# (CORE.md load removed 2026-09-26: memory/CORE.md never existed, silent no-op.)
 # Fails open: missing files / missing mirror are non-blocking warnings.
 set -uo pipefail
 
@@ -18,18 +18,6 @@ if [[ -x "$ROOT/hooks/check-harness-drift.sh" ]]; then
     sed 's/^/  /' /tmp/sk-drift.$$ >&2
   fi
   rm -f /tmp/sk-drift.$$
-fi
-
-# 2. Load CORE memory.
-mem_root="${LEDGER_ROOT:-$HOME/.claude/memory}"
-core_file=""
-for cand in "$mem_root/CORE.md" "$ROOT/claude/memory-structure/examples/CORE.md"; do
-  [[ -f "$cand" ]] && core_file="$cand" && break
-done
-if [[ -n "$core_file" ]]; then
-  printf '# CORE memory (SessionStart load)\n\n'
-  cat "$core_file"
-  printf '\n\n---\n^ Loaded by hooks/session-start-load.sh.\n'
 fi
 
 # Boundary marker so SessionEnd can scope its summary.

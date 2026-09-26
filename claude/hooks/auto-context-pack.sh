@@ -80,6 +80,18 @@ if [ -f "$CWD/graphify-out/graph.json" ] && command -v graphify &>/dev/null; the
   echo "graph-miss $TS prompt-len=${#PROMPT} graph-bytes=${#GRAPH_OUT}" >> "$LOG"
 fi
 
+# Length gate (added 2026-09-26, log-justified: auto-context-pack.log, 3712 fires).
+# Every successful inject (49 "green" fires) had prompt-len <= 679; zero exceeded it.
+# Prompts over 2000 chars never once produced a green fire, but account for 152/251
+# timeouts (each up to a 20s stall) and 86/120 oversize discards. Skip the pack.py
+# call entirely past this length: cuts most wasted timeout latency and oversize
+# compute with zero effect on the ~10% inject rate (graph/graph-miss path above is
+# unaffected — graph queries succeed at prompt-len up to ~24K).
+if [ ${#PROMPT} -gt 2000 ]; then
+  echo "too-long $TS prompt-len=${#PROMPT}" >> "$LOG"
+  exit 0
+fi
+
 PACK_TOOL="${DEV_ROOT}/rag-index/venv/bin/python"
 PACK_SCRIPT="${DEV_ROOT}/rag-index/pack.py"
 if [ ! -x "$PACK_TOOL" ] || [ ! -f "$PACK_SCRIPT" ]; then

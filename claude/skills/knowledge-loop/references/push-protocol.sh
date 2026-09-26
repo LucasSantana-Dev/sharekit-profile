@@ -20,12 +20,33 @@ if [ ! -d "$BRAIN/.git" ]; then
   exit 1
 fi
 
-# Check for changes
-git -C "$BRAIN" add memory/ graphs/ 2>/dev/null
-if git -C "$BRAIN" diff --cached --quiet 2>/dev/null; then
+# Stage one pathspec at a time, and only the ones that exist.
+#
+# `git add memory/ graphs/` is all-or-nothing: if ANY pathspec is missing, git
+# fails with "did not match any files" and stages NOTHING. With `2>/dev/null` on
+# top, the error is invisible and the script goes on to report "nothing to push":
+# uma captura real perdida em silencio, com cara de sucesso (medido 2026-09-16, a
+# mesma linha copiada em session-close/SKILL.md). Never swallow git's stderr here.
+staged_algo=0
+for alvo in memory graphs; do
+  [ -e "$BRAIN/$alvo" ] || continue
+  git -C "$BRAIN" add "$alvo" || {
+    echo "BLOCKED: git add falhou em $alvo, nada foi enviado." >&2
+    exit 1
+  }
+  staged_algo=1
+done
+
+if [ "$staged_algo" -eq 0 ]; then
+  echo "BLOCKED: nem memory/ nem graphs/ existem em $BRAIN, nada a enviar." >&2
+  exit 1
+fi
+
+if git -C "$BRAIN" diff --cached --quiet; then
   echo "knowledge-brain: nothing to push"
 else
-  git -C "$BRAIN" commit -q -m "chore: knowledge-brain sync from session" && \
-  git -C "$BRAIN" push -q && \
-  echo "knowledge-brain pushed"
+  n=$(git -C "$BRAIN" diff --cached --name-only | wc -l | tr -d ' ')
+  git -C "$BRAIN" commit -q -m "chore: knowledge-brain sync from session"
+  git -C "$BRAIN" push -q
+  echo "knowledge-brain pushed: $n arquivo(s), commit $(git -C "$BRAIN" rev-parse --short HEAD)"
 fi

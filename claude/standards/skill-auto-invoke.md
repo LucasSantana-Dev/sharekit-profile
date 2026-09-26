@@ -41,7 +41,7 @@ Example: when the user says "the test suite is bad" — invoke `fix-the-suite` (
 | `ship-it` | "deploy to prod", "release this", "deploy to production" — post-merge deployment workflow. Pair with `/release-cut` Phase 10 for batched flow |
 | `debug-deep` | bug user already tried to fix once, "intermittent", "sometimes fails", "in production but not local", recurring CI pattern |
 | `research-and-decide` | "should we use X or Y", "is X worth adopting", "evaluate Z", library/framework/SaaS choice |
-| `knowledge-loop` | "remember this", "save this", "what did we decide about X", end-of-task checkpoint |
+| `knowledge-loop` | "remember this", "save this", "what did we decide about X", end-of-task checkpoint, **and the `STOP checkpoint` line from `knowledge-loop-nudge.sh`** — that hook is the deterministic half of this row: it fires on ≥1 commit/push/PR or ≥8 file mutations with nothing written to `memory/` or `handoffs/`, so treat its line as an invocation, not a suggestion |
 | `incident-response` | "prod is down", "users reporting X", "Sentry firing", post-deploy new errors, intermittent in prod (Phases 1–2: triage + mitigate); OR "postmortem", "incident review", "what did we learn", "write up the incident" (Phase 3) — Phase 3 auto-queued by `/hotfix` Phase 10 and after any production rollback |
 | `branch-hygiene` | "branch hygiene", "clean up branches", "prune branches", "stale worktrees", "git is a mess"; auto-suggest when local branch count > 30 at session start; queued weekly per active repo |
 | `backlog` | "build a backlog", "generate a backlog", "find gaps", "find opportunities", "what should I work on", "what's missing in this repo", "refactoring opportunities", "audit and plan", "comprehensive backlog", "project audit and plan"; auto-suggest after `/onboard-new-repo` Phase N as the "ok, now populate the work queue" follow-up; produces ranked GitHub issues + Project board cards in one chained workflow |
@@ -52,6 +52,8 @@ Example: when the user says "the test suite is bad" — invoke `fix-the-suite` (
 | Composite | Trigger |
 |---|---|
 | `audit-deep` | "is this project healthy", "audit the repo", weekly per active repo, pre-release |
+| `kali-docker-pentesting` | exploitation, password cracking, AD/SMB, wireless, reverse engineering — the Linux-only lane. NOT for recon: all 16 recon tools (subfinder, httpx, nuclei, ffuf, nmap, sqlmap...) are installed natively on the host, so `bugbounty-recon` and `hack` stay on the host lane |
+| `silent-failure-hunt` | "investiga o harness", "audit the harness", a job/hook/gate suspected of not firing, an artifact staler than its job's declared frequency, any harness-vitals warning, post-incident on something broken for weeks unnoticed |
 
 ### Maintenance composites
 

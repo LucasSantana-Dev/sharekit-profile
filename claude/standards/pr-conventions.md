@@ -117,6 +117,8 @@ that stops existing, so it needs a reason here, not just an entry in the hook.
 |---|---|---|
 | `<github-user>/knowledge-brain` | Private, single-author memory vault. `skills/knowledge-loop/references/push-protocol.sh` pushes it from the session Stop hook every session; routing memory sync through a PR per session is friction with no reviewer on the other side. | **None** (`protected: false`, verified 2026-08-20) |
 
+| `<github-user>/claude-env` | Private, single-author config mirror for `~/.claude`. 125 commits in 30 days, so a PR per config edit is ceremony. Requiring it bought nothing measurable: `harness-ci.yml` runs `on: push: [main]` as well as `on: pull_request`, so the structural gate, gitleaks, Socket and GitGuardian all run on a direct push too. Revisit if a second author joins, or if any required check becomes `pull_request`-only. | **None** (`protected: false`, verified 2026-08-21) |
+
 Two things that make this honest rather than a loophole:
 
 - **Matched on `owner/name`, from the git remote.** Not on the directory name,

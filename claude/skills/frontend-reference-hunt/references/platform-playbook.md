@@ -7,10 +7,17 @@ SKILL.md; do not nest further.
 
 ### Mobbin — real shipped product UI (strongest anti-slop signal)
 
-- URL patterns: `https://mobbin.com/search/{web|ios|android}?q=<query>` · browse by app:
-  `https://mobbin.com/apps` · by pattern: `https://mobbin.com/patterns`
+- URL patterns: **checked 2026-08-25 — both `?q=` and `?query=` now return "Page not
+  found"**. The live route is
+  `https://mobbin.com/search/apps/{web|ios|android}?content_type=flows&sort=popularity&filter=flowActions.<Pattern>`
+  (e.g. `flowActions.Filtering+%26+Sorting`). The reliable way in is to type the pattern
+  into the header search box and pick the item from the dropdown — the app builds the URL
+  for you. Kept as history only: `https://mobbin.com/search/{web|ios|android}?q=<query>` ·
+  browse by app: `https://mobbin.com/apps` · by pattern: `https://mobbin.com/patterns`
 - Auth: most content behind login; drive the user's Chrome session. Free tier caps results;
-  if walled mid-hunt, mark `coverage: partial`.
+  if walled mid-hunt, mark `coverage: partial`. What the wall looks like: the flow grid
+  renders as grey placeholders with "Access all N screens. Get Pro" — Mobbin's own chrome
+  stays visible and is sometimes the usable reference.
 - Query recipes: search by PATTERN not adjective — "onboarding", "empty state", "pricing",
   "data table", "settings", app-name of a register anchor ("Linear", "Notion", "Arc").
 - Quality heuristic: everything here shipped, so the gate is fit, not credibility. Prefer
@@ -91,3 +98,19 @@ Name motion observations using the archetype vocabulary in `repaint`'s reference
 (scroll-driven narrative, magnetic cursor, reveal/masking, kinetic type, parallax depth,
 orchestrated load — absorbed from the retired `premium-frontend-ui` skill, 2026-07-16).
 Shared vocabulary is what lets build skills consume the board without re-watching the sites.
+
+## Anti-generic hunting (added 2026-08-21)
+
+When the brief rejects the generic/AI look, add these sources and queries:
+
+| Purpose | Source | Notes |
+| --- | --- | --- |
+| Typeface-in-production evidence | fontsinuse.com | search by typeface or industry; proves a face ships, not just trends |
+| Typeface pairing authority | typewolf.com | site-of-the-day + face profiles with real pairings |
+| Free characterful faces | fontshare.com | Cabinet Grotesk, General Sans, Satoshi — ITF, free for commercial |
+| Design-system teardowns | oh-my-design.kr, shadcn.io/design | token tables for Wise/Toss/Headspace/Cash App etc.; hexes are secondary evidence — confirm on the live product |
+
+Query recipes: "<produto> design system teardown" · "rebrand 2024 <setor>" · site-specific
+("Wise lime green tokens", "Perplexity parchment"). Characterful anchor pool + live
+movements (warm paper, terminal chic, disciplined neo-brutalism) live in `repaint`
+`references/context-anchors.md` §M — check it BEFORE hunting; only hunt what §M lacks.

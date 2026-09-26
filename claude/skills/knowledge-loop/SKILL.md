@@ -65,8 +65,36 @@ next action + file paths — confirm the path exists; or `(skipped: work continu
 
 When memory or the graph changed this session, push to the knowledge-brain after Phase 4 —
 routing and stop conditions in [references/phase5-routing.md](references/phase5-routing.md),
-executed by [references/push-protocol.sh](references/push-protocol.sh). (The Stop hook runs
-this automatically; invoke manually only if pushing mid-session.)
+executed by [references/push-protocol.sh](references/push-protocol.sh).
+
+**Run `push-protocol.sh` yourself.** This line used to say a Stop hook ran it automatically;
+verified 2026-08-29, no hook references that script on any event, so nothing was pushing and
+the sentence was a phantom guardrail. `knowledge-loop-nudge.sh` (below) reminds you to run
+the loop; it does not push for you.
+
+## Checkpoint mode — what a mid-session stopping point runs
+
+`knowledge-loop-nudge.sh` (Stop hook, `~/.claude-env/hooks/`) fires when a considerable
+stopping point passes with nothing captured. It defines "considerable" mechanically from the
+transcript, so it is auditable and does not depend on the model noticing:
+
+| signal | threshold |
+|---|---|
+| commits / pushes / `gh pr create\|merge` | ≥ 1 |
+| `Edit`/`Write`/`MultiEdit`/`NotebookEdit` calls | ≥ 8 |
+| a write under `memory/` or `handoffs/` | **suppresses** the nudge and resets the window |
+
+Work accumulates across Stops, so four edits now and four later still trip it. One nudge per
+20 min per session (`NUDGE_COOLDOWN_S`), so it never nags.
+
+**It is a hook, not a skill, on purpose.** A discipline skill whose triggers are
+meta-questions tops out near 50% autonomous invocation however the description is written
+(measured; memory `session_2026-06-26_adt_auto_invoke_refresh`). Detection has to be
+deterministic; this skill stays the procedure.
+
+At a **checkpoint** run Phases 1–3 and treat Phase 4 as `(skipped: work continues)` unless
+context is >80%. At **session end** run all four. A checkpoint that produced no durable
+output exits clean at Phase 1 — recall, confirm nothing new, say so, move on.
 
 ## Reconciliation
 
