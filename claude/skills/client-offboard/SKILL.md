@@ -68,10 +68,12 @@ Order matters. Stop at the first failure.
 7. **Verify.**
    - The purge printed `verified`.
    - The recall gate on the general layer shows no regression against step 2. On a regression, stop and find which general lesson depended on client context.
-   - Grep the lexicon across the general vault: 0 hits, no exceptions. A hit in a promoted lesson means the lesson still carries client business: rewrite it before closing.
+   - Grep the lexicon across the general vault, recursively (archive subfolders included): 0 hits, no exceptions. A hit in a promoted lesson means the lesson still carries client business: rewrite it before closing.
+   - Run that grep again after the next session start. A sync that copies a mirror into the general vault without deleting (rsync `--update` with no `--delete`, a dotfiles repo, a cloud folder) brings every removed note back at the next pull, and an auto-commit hook then commits it as if it were intentional. A note has only left once it is gone from every mirror too, and the sync skips names that live in a client vault.
 8. **Surfaces the purge does not own.** List these for the operator to decide:
    - the client vault repo (it belongs to the client, archive or hand back). Its `.client/` dir holds the manifest, the review queue and the origin id, and leaves with it
    - session transcripts under the client's project dir
+   - memory mirrors that sync into the general vault (a dotfiles repo, rsync targets, cloud folders): remove the client's notes there as well, or the next pull restores them
    - off-machine copies (remote index exports, backups on other hosts)
    - graph snapshots
    - file-system snapshots
