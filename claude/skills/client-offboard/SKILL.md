@@ -59,11 +59,25 @@ Scaffold a new client before any session works inside its root. Ask for the clie
    openssl rand -hex 4 > "<root>/.client/origin-id"
    ```
 3. **Vault.** Create the client's own memory directory inside its own repo, e.g. `mkdir -p "<root>/memory"`. Any directory name works (see "Client vault" above); this is where ordinary session memory writes for this client are meant to land.
-4. **Symlink into Claude Code's per-project memory.** Claude Code keys a project's local state by its absolute path with every character that is not a letter or digit replaced by `-` (each separator becomes its own hyphen, so a path segment like `/.git` produces a double hyphen, not one). Verify this against a real entry before relying on it: `ls ~/.claude/projects/`. Then symlink that project's `memory/` to the vault you just created:
+4. **Symlink into Claude Code's per-project memory.** Claude Code keys a project's local state by its absolute path with every character that is not a letter or digit replaced by `-` (each separator becomes its own hyphen, so a path segment like `/.git` produces a double hyphen, not one). Verify this against a real entry before relying on it: `ls ~/.claude/projects/`. Then symlink that project's `memory/` to the vault you just created, guarded: on macOS, `ln -s` against an existing `memory/` directory exits 0 and silently nests the link inside it instead of replacing it, so nothing is lost but the redirect never happens and the step looks like it worked when it did not.
    ```bash
    ENCODED="$(printf '%s' "<root>" | sed -E 's/[^A-Za-z0-9]/-/g')"
    mkdir -p ~/.claude/projects/"$ENCODED"
-   ln -s "<root>/memory" ~/.claude/projects/"$ENCODED"/memory
+   LINK=~/.claude/projects/"$ENCODED"/memory
+   TARGET="<root>/memory"
+   if [ -L "$LINK" ] && [ "$(readlink "$LINK")" = "$TARGET" ]; then
+     echo "already done - skipping"
+   elif [ -e "$LINK" ]; then
+     echo "REFUSED: $LINK already exists and is not this vault's symlink."
+     echo "Move its notes into $TARGET by hand, remove $LINK, then retry."
+     exit 1
+   else
+     ln -s "$TARGET" "$LINK"
+   fi
+   ```
+   Verify the link actually points where it should:
+   ```bash
+   readlink ~/.claude/projects/"$ENCODED"/memory   # expect: <root>/memory
    ```
    This symlink is the whole mechanism keeping a session opened in `<root>` writing its ordinary memory into the client's own vault instead of the operator's general one.
 5. **Tooling check.** The registry and the gate need nothing beyond `jq`. Purging later needs the `shelfmark-rag` CLI (>= 1.1.0, the first release with client layers and `shelfmark-purge`) on `PATH`:
