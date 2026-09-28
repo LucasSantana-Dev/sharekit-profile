@@ -118,6 +118,14 @@ is_mcp=true; case "$tool" in Write|Edit|MultiEdit) is_mcp=false ;; esac
 abs_target=""; [[ -n "$path" ]] && abs_target="$(abspath "$path")"
 is_note=$is_mcp
 case "$(printf '%s' "$abs_target" | fold)" in */memory/*.md|*/org-memory/*.md) is_note=true ;; esac
+# A client vault need not live under a directory literally named memory/:
+# abspath resolves symlinks via pwd -P, so a vault reached through a symlinked
+# memory/ dir (client-offboard's init mode makes exactly this) can resolve to
+# a real path with no "/memory/" segment at all. Any .md file under a
+# registered client root is a note too, regardless of its directory's name.
+if ! $is_note && [[ "$abs_target" == *.md ]] && [[ -e "$CLIENTS_FILE" ]] && [[ -n "$(client_of "$abs_target")" ]]; then
+  is_note=true
+fi
 
 if $is_note && [[ -e "$CLIENTS_FILE" ]]; then
   if ! jq -e 'type == "object" and all(.[]; type == "object" and ((.roots // []) | type == "array" and all(.[]; type == "string")))' \

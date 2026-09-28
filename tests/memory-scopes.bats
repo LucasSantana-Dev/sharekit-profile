@@ -147,6 +147,21 @@ gate_json() {  # gate_json <payload json>
   [[ "$output" == *"client 'beta'"* ]]
 }
 
+@test "client: another client's vault is protected even when its directory is not named memory" {
+  # A vault need not be named memory/ (client-offboard init mode lets an
+  # operator pick any directory name). Before the fix, is_note only matched
+  # a literal "/memory/" path segment, so a note under a vault named
+  # something else was never recognized as a client note at all: the whole
+  # client-isolation block was skipped and the write silently went through.
+  client_setup; mkdir -p "$TEST_TMP/beta/vault"
+  jq -n --arg a "$(cd "$TEST_TMP/acme" && pwd -P)" --arg b "$(cd "$TEST_TMP/beta" && pwd -P)" \
+    '{acme: {db: "x", roots: [$a]}, beta: {db: "y", roots: [$b]}}' > "$SHELFMARK_CLIENTS"
+  cd "$TEST_TMP/acme"
+  run gate Write "$TEST_TMP/beta/vault/rule.md" "acme pricing notes"
+  [ "$status" -eq 2 ]
+  [[ "$output" == *"client 'beta'"* ]]
+}
+
 @test "client: general vault outside ~/.claude still needs the tag" {
   client_setup; mkdir -p "$TEST_TMP/kb/memory"; cd "$TEST_TMP/acme"
   run gate Write "$TEST_TMP/kb/memory/note.md" "acme bills on the fifth"
