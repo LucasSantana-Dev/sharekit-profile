@@ -99,6 +99,18 @@ sync_pair curated-hooks.txt      ./claude/hooks
 sync_pair curated-standards.txt  ./claude/standards
 sync_pair curated-agents.txt     ./claude/agents
 
+# Reverse check for claude/hooks: every file on disk must also be curated, not
+# just every curated entry present on disk. A hook missing from the list gets
+# deleted by sync-sharekit-profile's unpublish step even while something else
+# (claude/settings.json) still wires it in - this is how memory-scope-gate.sh
+# went missing from curated-hooks.txt while settings.json still called it.
+if [ -f "$ROOT/curated-hooks.txt" ]; then
+  while IFS= read -r f; do
+    n="$(basename "$f")"
+    grep -qxF "$n" "$ROOT/curated-hooks.txt" || err "claude/hooks/$n exists but is not listed in curated-hooks.txt"
+  done < <(find "$ROOT/claude/hooks" -maxdepth 1 -type f)
+fi
+
 # Channel gate: the marketplace metadata version must track the canonical
 # release stream (.release-please-manifest.json). Version drift between the
 # two silently breaks the stable/latest channel contract (teams pinning

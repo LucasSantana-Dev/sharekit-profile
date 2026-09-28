@@ -34,6 +34,7 @@ hotfix-followup-tracker.sh
 main-release-drift-nudge.sh
 memory-consolidate.sh
 memory-index-size-alert.sh
+memory-scope-gate.sh
 message-counter.sh
 mode-reminder.sh
 model-cache-guard.sh
