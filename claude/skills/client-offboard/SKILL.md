@@ -1,7 +1,7 @@
 ---
 name: client-offboard
-description: Keep the technical and behavioral lessons from a client engagement and remove that client's business knowledge from memory and the RAG index. Modes - harvest (batch-promote pending lessons to general memory), promote-now NOTE (one lesson), offboard SLUG (final harvest, purge, verification). Use for "offboard client", "trocar de cliente", "encerrar cliente", "harvest lessons", "purge client", or at session close in a client repo.
-argument-hint: "harvest | promote-now <note> | offboard <slug>"
+description: Scaffold, maintain, and retire a client engagement's memory boundary. Modes - init SLUG (scaffold a new client's registry entry, vault and gate wiring), harvest (batch-promote pending lessons to general memory), promote-now NOTE (one lesson), offboard SLUG (final harvest, purge, verification). Use for "new client", "onboard client", "offboard client", "trocar de cliente", "encerrar cliente", "harvest lessons", "purge client", or at session close in a client repo.
+argument-hint: "init <slug> | harvest | promote-now <note> | offboard <slug>"
 triggers:
   - offboard client
   - trocar de cliente
@@ -9,6 +9,10 @@ triggers:
   - harvest lessons
   - promote-now
   - purge client
+  - init client
+  - onboard client
+  - new client
+  - scaffold client
 ---
 
 # client-offboard
@@ -22,15 +26,62 @@ Two invariants, in this order:
 
 | What | Where |
 |---|---|
-| Clients | shelfmark registry: `$SHELFMARK_CLIENTS` or `$RAG_HOME/clients.json`, as `{slug: {db, roots}}` |
-| Client vault | any `memory/` dir under the client's roots (the client's own repo) |
+| Clients | shelfmark registry, lookup order: `$SHELFMARK_CLIENTS` env var first, else `${RAG_HOME:-~/.shelfmark}/clients.json`, as `{slug: {db, roots}}`. Example: [`examples/clients.json.example`](examples/clients.json.example) |
+| Active client | the client whose `roots` contain the session's cwd, detected automatically; no env var needed for work done inside a client root. `RAG_CLIENT=<slug>` is only for work done from outside every root (a generic parent folder, a tools repo); `RAG_CLIENT=none` turns client rules off |
+| Client vault | any `.md` note under the client's roots. It does not need to live in a directory literally named `memory/` (a registry `roots` entry is what makes it the vault, not the folder name) |
 | General vault | the operator's cross-project memory dir (ask once if unclear) |
 | Lexicon | `<root>/.client/lexicon.txt`: names, people, acronyms, IDs, one per line |
 | Origin id | `<root>/.client/origin-id`: 8 random hex chars, made once (`openssl rand -hex 4`). General notes carry this, never the slug |
 | Manifest | `<root>/.client/harvest-manifest.jsonl`: one line per promoted lesson. It lives in the client vault, so the link from a lesson back to the client leaves with the client |
 | Review queue | `<root>/.client/review-queue.jsonl` (or `$MEMORY_REVIEW_QUEUE`): the memory gate's lexicon hits |
+| Purge tooling | the `shelfmark` CLI (`shelfmark-purge`, `shelfmark build`), separate from the gate. The gate only reads `clients.json`; only `offboard` needs the CLI installed |
 
 **Candidates are derived, never flagged.** A candidate is a client-vault note of type `feedback`, `gotcha` or `finding` whose path is not in the manifest yet, plus every review-queue entry for that client.
+
+## Mode: init <slug>
+
+Scaffold a new client before any session works inside its root. Ask for the client's absolute repo root if it was not given.
+
+1. **Registry.** Add the client to `clients.json`, creating the file first if it does not exist yet:
+   ```bash
+   RAG_HOME="${RAG_HOME:-$HOME/.shelfmark}"
+   CLIENTS="${SHELFMARK_CLIENTS:-$RAG_HOME/clients.json}"
+   mkdir -p "$(dirname "$CLIENTS")"
+   [ -f "$CLIENTS" ] || echo '{}' > "$CLIENTS"
+   jq --arg s "<slug>" --arg r "<absolute-root>" --arg db "$RAG_HOME/<slug>.db" \
+     '.[$s] = {db: $db, roots: [$r]}' "$CLIENTS" > "$CLIENTS.tmp" && mv "$CLIENTS.tmp" "$CLIENTS"
+   ```
+   For more than one root, add the extra absolute paths to the `roots` array by hand. See [`examples/clients.json.example`](examples/clients.json.example) for the shape. `clients.json` is private: it never ships with this profile, is never synced or published, and stays out of any repo it happens to sit in (see `.gitignore`).
+2. **Client dir.** Create `<root>/.client/`:
+   ```bash
+   mkdir -p "<root>/.client"
+   : > "<root>/.client/lexicon.txt"   # fill with 10-30 names/acronyms/IDs before offboard, one per line
+   openssl rand -hex 4 > "<root>/.client/origin-id"
+   ```
+3. **Vault.** Create the client's own memory directory inside its own repo, e.g. `mkdir -p "<root>/memory"`. Any directory name works (see "Client vault" above); this is where ordinary session memory writes for this client are meant to land.
+4. **Symlink into Claude Code's per-project memory.** Claude Code keys a project's local state by its absolute path with every character that is not a letter or digit replaced by `-` (each separator becomes its own hyphen, so a path segment like `/.git` produces a double hyphen, not one). Verify this against a real entry before relying on it: `ls ~/.claude/projects/`. Then symlink that project's `memory/` to the vault you just created:
+   ```bash
+   ENCODED="$(printf '%s' "<root>" | sed -E 's/[^A-Za-z0-9]/-/g')"
+   mkdir -p ~/.claude/projects/"$ENCODED"
+   ln -s "<root>/memory" ~/.claude/projects/"$ENCODED"/memory
+   ```
+   This symlink is the whole mechanism keeping a session opened in `<root>` writing its ordinary memory into the client's own vault instead of the operator's general one.
+5. **Tooling check.** The registry and the gate need nothing beyond `jq`. Purging later needs the `shelfmark` CLI on `PATH`:
+   ```bash
+   command -v shelfmark-purge >/dev/null 2>&1 || {
+     echo "shelfmark not installed. The published PyPI package predates client support; install from git instead:"
+     echo '  pipx install "git+https://github.com/LucasSantana-Dev/shelfmark.git"'
+   }
+   ```
+6. **Verify with a gate dry-run.** From inside `<root>`, confirm the gate now recognizes the client without writing anything real:
+   ```bash
+   cd "<root>"
+   printf '{"tool_name":"Write","tool_input":{"file_path":"%s/memory/smoke-test.md","content":"smoke test"}}' "<root>" \
+     | bash ~/.claude/hooks/memory-scope-gate.sh; echo "exit=$?"
+   rm -f "<root>/memory/smoke-test.md"
+   ```
+   Exit 0 with an `allow scope=` line on stderr means the vault write is recognized; the smoke-test file above is never meant to persist.
+7. **Report.** Slug, root, vault path, and whether `shelfmark-purge` is installed.
 
 ## Mode: harvest (continuous; run at session close in a client repo)
 
