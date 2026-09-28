@@ -99,6 +99,36 @@ sync_pair curated-hooks.txt      ./claude/hooks
 sync_pair curated-standards.txt  ./claude/standards
 sync_pair curated-agents.txt     ./claude/agents
 
+# Reverse check: every file (or, for skills, every top-level directory) on
+# disk must also be curated, not just every curated entry present on disk.
+# An entry missing from a list gets deleted by sync-sharekit-profile's
+# unpublish step even while something else still wires it in - this is how
+# memory-scope-gate.sh went missing from curated-hooks.txt while
+# claude/settings.json still called it. Runs over every sync_pair target, not
+# only hooks (the one caught by hand).
+reverse_check_files() { # curated file, source dir - recursive, one entry per file
+  local list="$ROOT/$1" dir="$2"
+  [ -f "$list" ] || return 0
+  local f n
+  while IFS= read -r f; do
+    n="${f#"$ROOT/$dir/"}"
+    grep -qxF "$n" "$list" || err "$dir/$n exists but is not listed in $1"
+  done < <(find "$ROOT/$dir" -type f)
+}
+reverse_check_dirs() { # curated file, source dir - top-level dirs only, one entry per dir
+  local list="$ROOT/$1" dir="$2"
+  [ -f "$list" ] || return 0
+  local d n
+  while IFS= read -r d; do
+    n="$(basename "$d")"
+    grep -qxF "$n" "$list" || err "$dir/$n exists but is not listed in $1"
+  done < <(find "$ROOT/$dir" -mindepth 1 -maxdepth 1 -type d)
+}
+reverse_check_dirs  curated-skills.txt     ./claude/skills
+reverse_check_files curated-hooks.txt      ./claude/hooks
+reverse_check_files curated-standards.txt  ./claude/standards
+reverse_check_files curated-agents.txt     ./claude/agents
+
 # Channel gate: the marketplace metadata version must track the canonical
 # release stream (.release-please-manifest.json). Version drift between the
 # two silently breaks the stable/latest channel contract (teams pinning

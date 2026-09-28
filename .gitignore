@@ -43,3 +43,12 @@ claude/.harness/
 # Local git worktrees created for parallel-agent work (mandatory-parallel-execution
 # pattern): machine-local, never meant to be committed
 .claude/worktrees/
+
+# Client registry and per-client scratch state (client-offboard skill, ADR-0062
+# gap fix): clients.json holds real client slugs and absolute repo paths, and
+# .client/ holds a client's lexicon, origin id and manifest. Neither ships with
+# this profile or belongs in any repo's history; the registry itself lives
+# under $RAG_HOME (default ~/.shelfmark), this rule is a backstop for anyone
+# who points SHELFMARK_CLIENTS at a path inside a tracked repo.
+clients.json
+.client/

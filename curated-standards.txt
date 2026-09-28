@@ -5,6 +5,7 @@ agent-routing.md
 artifact-schema.md
 async-patterns.md
 autonomy-tiers.md
+client-vault-scope.md
 code-standards.md
 commenting-policy.md
 composite-contract.md
