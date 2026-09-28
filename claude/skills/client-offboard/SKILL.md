@@ -66,11 +66,12 @@ Scaffold a new client before any session works inside its root. Ask for the clie
    ln -s "<root>/memory" ~/.claude/projects/"$ENCODED"/memory
    ```
    This symlink is the whole mechanism keeping a session opened in `<root>` writing its ordinary memory into the client's own vault instead of the operator's general one.
-5. **Tooling check.** The registry and the gate need nothing beyond `jq`. Purging later needs the `shelfmark` CLI on `PATH`:
+5. **Tooling check.** The registry and the gate need nothing beyond `jq`. Purging later needs the `shelfmark-rag` CLI (>= 1.1.0, the first release with client layers and `shelfmark-purge`) on `PATH`:
    ```bash
    command -v shelfmark-purge >/dev/null 2>&1 || {
-     echo "shelfmark not installed. The published PyPI package predates client support; install from git instead:"
-     echo '  pipx install "git+https://github.com/LucasSantana-Dev/shelfmark.git"'
+     echo "shelfmark-purge not found. Install or upgrade shelfmark-rag (needs >= 1.1.0 for client support):"
+     echo "  pipx install shelfmark-rag"
+     echo "  pipx upgrade shelfmark-rag   # if already installed on an older version"
    }
    ```
 6. **Verify with a gate dry-run.** From inside `<root>`, confirm the gate now recognizes the client without writing anything real:
