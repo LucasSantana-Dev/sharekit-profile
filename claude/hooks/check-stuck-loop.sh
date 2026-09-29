@@ -9,12 +9,19 @@
 # It maintains a per-session counter in .harness/runtime/stuck-state.json and
 # blocks (exit 2) on the 3rd identical attempt, surfacing the Stuck banner.
 set -uo pipefail
+command -v jq >/dev/null 2>&1 || exit 0
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-STATE="$ROOT/.harness/runtime/stuck-state.jsonl"
-mkdir -p "$(dirname "$STATE")"
+RUNTIME="$ROOT/.harness/runtime"
+mkdir -p "$RUNTIME"
 
 input="$(cat)"
+# State is keyed by session_id so one session (or project) never inherits another's tally.
+sid="$(printf '%s' "$input" | jq -r '.session_id // empty' 2>/dev/null || true)"
+sid="$(printf '%s' "${sid:-nosession}" | tr -c 'A-Za-z0-9_-' '_' | cut -c1-64)"
+STATE="$RUNTIME/stuck-state-${sid}.jsonl"
+# Drop per-session state files untouched for over 7 days.
+find "$RUNTIME" -name 'stuck-state-*.jsonl' -mtime +7 -delete 2>/dev/null || true
 tool_name="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2>/dev/null || true)"
 [[ "$tool_name" == "Bash" || "$tool_name" == "bash" ]] || exit 0
 
@@ -27,7 +34,11 @@ key="$(printf '%s' "$command" | tr -s '[:space:]' ' ' | sed 's/^ //;s/ $//')"
 case "$key" in
   ls|pwd|clear|"") exit 0 ;;
 esac
-if printf '%s' "$key" | grep -Eq '^(git\s+(status|log|diff|branch|show)|rg\s|fd\s|cat\s|bat\s|head\s|tail\s|wc\s)\b'; then
+if printf '%s' "$key" | grep -Eq '^(git[[:space:]]+(status|log|diff|branch|show)|rg[[:space:]]|fd[[:space:]]|cat[[:space:]]|bat[[:space:]]|head[[:space:]]|tail[[:space:]]|wc[[:space:]])'; then
+  exit 0
+fi
+# VCS sync and test runners repeat legitimately (retry after a fix, re-run until green).
+if printf '%s' "$key" | grep -Eq '^(git[[:space:]]+(add|commit|push|pull|fetch)([[:space:]]|$)|npm[[:space:]]+(run[[:space:]]+)?test|pytest|python3?[[:space:]]+-m[[:space:]]+pytest|bats([[:space:]]|$)|go[[:space:]]+test|cargo[[:space:]]+test)'; then
   exit 0
 fi
 
