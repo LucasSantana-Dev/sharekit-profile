@@ -39,7 +39,7 @@
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/check-pr-automation-halt.sh\"",
-            "timeout": 3
+            "timeout": 15
           },
           {
             "type": "command",
