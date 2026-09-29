@@ -34,6 +34,19 @@
 # .harness/eval/<name>/runs.jsonl via eval-baseline.sh record.
 set -uo pipefail
 
+# BSD/macOS `date +%s%N` exits 0 and prints a literal "N", so validate the digits
+# before trusting it; else fall back to python3, else whole seconds.
+now_ns() {
+  local v
+  v="$(date +%s%N 2>/dev/null)"
+  case "$v" in
+    ''|*[!0-9]*)
+      v="$(python3 -c 'import time;print(int(time.time()*1e9))' 2>/dev/null)"
+      case "$v" in ''|*[!0-9]*) v="$(( $(date +%s) * 1000000000 ))" ;; esac ;;
+  esac
+  printf '%s' "$v"
+}
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HOOKS="$ROOT/hooks"
 EVAL_BASELINE="$HOOKS/eval-baseline.sh"
@@ -89,10 +102,10 @@ while IFS= read -r task; do
     ms=0
   else
     # Harness present: invoke the hook on the input, measure exit code + latency.
-    start_ns="$(date +%s%N 2>/dev/null || python3 -c 'import time;print(int(time.time()*1e9))')"
+    start_ns="$(now_ns)"
     printf '%s' "$input" | bash "$HOOKS/$hook" >/dev/null 2>&1
     rc=$?
-    end_ns="$(date +%s%N 2>/dev/null || python3 -c 'import time;print(int(time.time()*1e9))')"
+    end_ns="$(now_ns)"
     ms=$(( (end_ns - start_ns) / 1000000 ))
     # exit 2 = block, exit 0 = allow, anything else = unexpected -> treat as allow
     if [[ "$rc" -eq 2 ]]; then actual="block"; else actual="allow"; fi

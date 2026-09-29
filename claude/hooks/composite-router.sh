@@ -19,6 +19,25 @@
 set -uo pipefail
 command -v jq &>/dev/null || exit 0
 
+# `timeout` is absent on stock macOS: use gtimeout, else a python3 stdlib shim, else no limit.
+if ! command -v timeout >/dev/null 2>&1; then
+  if command -v gtimeout >/dev/null 2>&1; then
+    timeout() { gtimeout "$@"; }
+  elif command -v python3 >/dev/null 2>&1; then
+    timeout() {
+      python3 -c 'import subprocess, sys
+try:
+    sys.exit(subprocess.run(sys.argv[2:], timeout=float(sys.argv[1])).returncode)
+except subprocess.TimeoutExpired:
+    sys.exit(124)
+except OSError:
+    sys.exit(127)' "$@"
+    }
+  else
+    timeout() { shift; "$@"; }
+  fi
+fi
+
 INPUT=$(cat 2>/dev/null || true)
 PROMPT=$(printf '%s' "$INPUT" | python3 -c '
 import json, sys

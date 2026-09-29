@@ -1,6 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # SessionStart hook: remind agent to use codebase-memory-mcp tools.
 # Installed by codebase-memory-mcp. Fires on startup/resume/clear/compact.
+# Silent when the binary is not installed (the reminder would point at absent tools).
+command -v codebase-memory-mcp >/dev/null 2>&1 || exit 0
 cat << 'REMINDER'
 Code Discovery Protocol (scoped per ADR-0036 — cmm for structure, not a blanket "first"):
 1. codebase-memory-mcp FIRST for STRUCTURAL code navigation (its verified edge over grep/graphify):
