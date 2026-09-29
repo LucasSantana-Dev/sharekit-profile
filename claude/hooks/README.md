@@ -4,7 +4,7 @@ Last updated: 2026-05-03
 
 ## Source of truth
 
-Hook bindings live in `~/.claude-env/settings/shared.json` (deep-merged with `settings/machines/<host>.json`, applied to `~/.claude/settings.json` on every `SessionStart` via `~/.claude-env/bin/sync pull`). Editing `~/.claude/settings.json` directly works for the current session but **gets overwritten on next session start** — always update `shared.json` and push.
+Hook bindings live in `~/.claude/settings.json` (shipped from `claude/settings.json` in this profile, installed with `--include-hooks`). Edit that file to add, remove or re-time a hook. `timeout` values are in seconds. With sharekit 0.6.4 or later, re-installing merges only the profile's hooks into your file and keeps every other setting; older versions overwrite it, so keep a copy there.
 
 ## Bash hook chain
 
@@ -67,10 +67,8 @@ Moved to `archive/` 2026-05-03:
 ## Adding a new hook
 
 1. Create `~/.claude/hooks/<name>.sh` with the conventions above.
-2. Add binding to `~/.claude-env/settings/shared.json` under `hooks.<event>`.
-3. `cd ~/.claude-env && git add settings/shared.json hooks/<name>.sh && git commit && git push`.
-4. `~/.claude-env/bin/sync pull` to apply locally.
-5. Smoke test by triggering the event.
+2. Add a binding to `~/.claude/settings.json` under `hooks.<event>` (timeout in seconds).
+3. Smoke test by triggering the event, or pipe a sample JSON payload into the script with `/bin/bash`.
 
 ## Known issues
 

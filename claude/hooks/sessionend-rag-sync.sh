@@ -6,7 +6,9 @@
 # fresh baseline. Skips if the index doesn't exist or Python is missing.
 set -u
 
+[ -n "${DEV_ROOT:-}" ] || exit 0
 ROOT="${DEV_ROOT}/rag-index"
+[ -d "$ROOT" ] || exit 0
 PY="$ROOT/venv/bin/python3"
 LOG="$ROOT/drift-reindex.log"
 LOOP="$ROOT/fix-drift-loop.sh"

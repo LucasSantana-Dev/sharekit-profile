@@ -12,11 +12,12 @@
 # subagent that carries write tools — which is the structural precondition for
 # independence.
 set -uo pipefail
+command -v jq >/dev/null 2>&1 || exit 0  # jq absent (stock macOS <= 14): gate inactive, fail open
 
 input="$(cat)"
 
 # SubagentStart payload varies by host; try common shapes.
-name="$(printf '%s' "$input" | jq -r '.subagent_name // .name // .agent // .subagent.type // empty' 2>/dev/null || true)"
+name="$(printf '%s' "$input" | jq -r '.tool_input.subagent_type // .agent_type // .subagent_name // .name // .agent // .subagent.type // empty' 2>/dev/null || true)"
 prompt="$(printf '%s' "$input" | jq -r '.subagent_prompt // .prompt // .description // empty' 2>/dev/null || true)"
 perms="$(printf '%s' "$input" | jq -r '.subagent_permissions // .permissions // .allowed_tools // empty' 2>/dev/null || true)"
 

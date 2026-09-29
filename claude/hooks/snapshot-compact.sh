@@ -5,6 +5,7 @@
 # Mirrors the PreCompact contract in docs/hooks.md and the Wave-4 pattern
 # (lumos L8 memory layer, gearbox context-compact.mjs, Totalum). Does not block.
 set -uo pipefail
+command -v jq >/dev/null 2>&1 || exit 0  # jq absent (stock macOS <= 14): gate inactive, fail open
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SNAP_DIR="$ROOT/.harness/runtime/compact"

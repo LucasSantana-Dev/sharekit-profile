@@ -16,11 +16,12 @@ count=$(cat "$HOME/.claude/.session-msg-count" 2>/dev/null || echo 0)
 project=$(basename "${CLAUDE_PROJECT_DIR:-$PWD}")
 
 CACHE="$HOME/.claude/.rtk-savings.cache"
+mtime() { stat -c %Y "$@" 2>/dev/null || stat -f %m "$@" 2>/dev/null; }  # GNU first: BSD-style `stat -f` on GNU prints fs info and pollutes stdout
 NOW=$(date +%s)
 saved=""
 
 if [ -f "$CACHE" ]; then
-  CACHED_AT=$(stat -f %m "$CACHE" 2>/dev/null || stat -c %Y "$CACHE" 2>/dev/null || echo 0)
+  CACHED_AT=$(mtime "$CACHE" || echo 0); CACHED_AT=${CACHED_AT:-0}
   if [ $((NOW - CACHED_AT)) -lt 60 ]; then
     saved=$(cat "$CACHE")
   fi

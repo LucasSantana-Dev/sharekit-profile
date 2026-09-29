@@ -227,3 +227,18 @@ PostCompact additionally runs `model-cache-guard.sh` (with `OBSERVE_HOOK_EVENT=P
 *This contract is version-controlled. Changes to firing order require updating this document and the hook configuration in `settings.json`.*
 
 **Last updated:** 2026-06-29
+
+---
+
+## Registration notes (moved out of `claude/settings.json`)
+
+`claude/settings.json` holds only keys Claude Code understands, so the notes that used to sit in it as extra keys live here.
+
+- Registers the sharekit-profile hook scripts to Claude Code lifecycle events. Without it the `claude/hooks/` scripts are orphan artifacts and most `RULES.md` "Must Always" rules are advisory-only. Hosts that do not implement a given event ignore its entry.
+- `timeout` values are in seconds (Claude Code semantics).
+- Exit code 2 is the only blocking code; every other exit is advisory or log-only.
+- Runtime dir: `.harness/runtime` holds the append-only trajectory, session records, compaction snapshots, incident stubs, and the distill pending queue. Gitignored.
+- Only hooks listed in `curated-hooks.txt` and present in `claude/hooks/` may be registered (enforced by `scripts/check-settings-hooks.py`). Dev-governance hooks under the repo-root `hooks/` (constitution-injection-guard, check-dangerous-patterns, check-session-lock) are not shipped to installers.
+- `memory-scope-gate.sh` is inert without a shelfmark client registry: general notes need a knowledge tag while a client is active.
+- `policy-gate.sh` gives deterministic ALLOW/DENY/REQUIRE_APPROVAL verdicts from `mcp-policy.json`, outside the model. Exit 2 on DENY.
+- `compaction-guard.sh` audits tool-call/result adjacency, budget warnings and cache-prefix stability. Advisory.

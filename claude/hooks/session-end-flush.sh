@@ -9,6 +9,7 @@
 # rationale) — never unattended. This hook only stages; it never mutates
 # semantic memory directly. No rubber-stamping.
 set -uo pipefail
+command -v jq >/dev/null 2>&1 || exit 0  # jq absent (stock macOS <= 14): gate inactive, fail open
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TRAJ="$ROOT/.harness/runtime/trajectory.jsonl"
@@ -27,7 +28,7 @@ recent="$(tail -n 500 "$TRAJ" 2>/dev/null || true)"
 total="$(printf '%s' "$recent" | jq -r 'select(.event=="tool-call") | .ts' 2>/dev/null | wc -l | tr -d ' ')"
 errors="$(printf '%s' "$recent" | jq -r 'select(.event=="tool-call" and .outcome=="error") | .ts' 2>/dev/null | wc -l | tr -d ' ')"
 blocked="$(printf '%s' "$recent" | jq -r 'select(.event=="tool-call" and .outcome=="blocked") | .ts' 2>/dev/null | wc -l | tr -d ' ')"
-top_tools="$(printf '%s' "$recent" | jq -r 'select(.event=="tool-call") | .tool' 2>/dev/null | sort | uniq -c | sort -rn | head -5 | jq -R -s 'split("\n") | map(select(length>0)) | map(split(" ")) | map({count: (.[0]|tonumber), tool: .[1]})' 2>/dev/null || echo '[]')"
+top_tools="$(printf '%s' "$recent" | jq -r 'select(.event=="tool-call") | .tool' 2>/dev/null | sort | uniq -c | sort -rn | head -5 | awk '{print $1" "$2}' | jq -R -s 'split("\n") | map(select(length>0)) | map(split(" ")) | map({count: (.[0]|tonumber), tool: .[1]})' 2>/dev/null || echo '[]')"
 
 record="$(jq -nc \
   --arg sid "$sid" \
@@ -49,6 +50,12 @@ printf '%s\n' "$record" >> "$PENDING"
 # Boundary marker in the trajectory so the next session's summary is scoped.
 jq -nc --arg ts "$ts" --arg sid "$sid" \
   '{ts: $ts, event: "session-boundary", sid: $sid, direction: "end"}' >> "$TRAJ"
+
+# Rotation: keep trajectory.jsonl to its last 2000 lines; drop stale digests and shortlists (7d).
+if [[ -f "$TRAJ" ]] && [[ "$(wc -l < "$TRAJ" | tr -d ' ')" -gt 2000 ]]; then
+  tail -n 2000 "$TRAJ" > "$TRAJ.tmp.$$" 2>/dev/null && mv "$TRAJ.tmp.$$" "$TRAJ" || rm -f "$TRAJ.tmp.$$"
+fi
+find "$RUNTIME" -type f \( -name 'shortlist-*.md' -o -path '*/tool-digests/*' \) -mtime +7 -delete 2>/dev/null || true
 
 echo "SessionEnd: session record written to $SESSIONS/${sid}.json; queued for distill." >&2
 exit 0

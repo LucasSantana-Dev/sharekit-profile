@@ -1,7 +1,7 @@
 {
   "schema": "https://json-schema.org/draft/2020-12/schema",
   "manifest_version": "1.0",
-  "generated_at": "2026-09-29T17:56:18.793831+00:00",
+  "generated_at": "2026-09-29T18:06:50.150107+00:00",
   "hosts": [
     "claude-code",
     "opencode",
@@ -11,11 +11,11 @@
     ".harness/mcp-policy.json": "9a5fa1da78129b6ac5bbee27dbc5918d06be6c702a8671c71cfe5e675d6e14ba",
     "AGENTS.md": "56f4729128f81d2d1427c9c5c44b3ce6e5e65374a2f41cb8d95c41522f66d6bb",
     "CLAUDE.md": "e8f653e48a1409478bfb9df2fa639c9c51708cc95115c8cc0b985218875df3cb",
-    "claude/settings.json": "187136980a45c0719a354b8ea992d479071a61f517064ef195f00d66b3ef04b3",
+    "claude/settings.json": "7e33de1388c78db5206af5da40f3ca22fd75d87897a6499ab5e6e1823216904d",
     "hooks/skill-index.sh": "932f9b15fe7c04f344e5570b52ff65bf082e818995c68991f67df3e5449d51ac",
     "hooks/skill-validate.sh": "d9ec7efe42808d2d9c465281cd3d3206824e7fd47f3caa396b6736eda3a94766",
     "hooks/skill-prune.sh": "5fff4e1c779225d9e129d5aa8051ef5f90a5925a8e550158d3f7ac7ebf3f5929",
-    "README.md": "715ec5a0496cddc5a646476a51b7d02b1955a7d6bad6217a3b059804d25f3322",
+    "README.md": "f76737b7e7ebda45c0a5cff61ab57d6115ca59b6a07ee6cbcd27f9d3ab3aa66c",
     "docs/skill-catalog-efficiency.md": "48fbc68073fc3e65e1ae9a175e5957b67f4c05596e96dc240e3bd795cb12a8c4",
     "evals/routing/router_eval.py": "6fcb6b1bca024b20249d27445c1b1ded9d773a669205adc5b3c201f9b82f9182",
     "evals/routing/dataset/routing_v0.jsonl": "bbe9e5fa0b046c8506f592003d3f5d227896bda2250dd1a12f46c5173f881616",
