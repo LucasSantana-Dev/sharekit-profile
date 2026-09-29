@@ -11,6 +11,7 @@
 # result is that non-Markovian full-history search (reading WHY things failed)
 # beats best-of-N — but it requires the trace to exist. This hook creates it.
 set -uo pipefail
+command -v jq >/dev/null 2>&1 || exit 0  # jq absent (stock macOS <= 14): gate inactive, fail open
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG="$ROOT/.harness/runtime/trajectory.jsonl"
