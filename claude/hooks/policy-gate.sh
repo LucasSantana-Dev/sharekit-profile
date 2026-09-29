@@ -3,8 +3,9 @@
 #
 # The Wave-5 safety/governance track converged on one principle: authorization
 # must be enforced OUTSIDE the model, in deterministic code, bound to immutable
-# context, and written to a tamper-evident ledger. The existing
-# check-dangerous-patterns.sh blocks known-bad Bash regexes; this hook adds the
+# context, and written to a tamper-evident ledger. In the author's own setup a
+# separate check-dangerous-patterns.sh (not shipped here) blocks known-bad Bash
+# regexes; this hook adds the
 # missing pieces from microsoft/agent-governance-toolkit, cordum, Janus,
 # provenex, and agence:
 #
@@ -132,8 +133,8 @@ fi
 
 # Note: native file-mutating tools (Write/Edit/MultiEdit) are intentionally NOT
 # gated here. Per mcp-policy.json, allowFileWrite governs MCP servers; native
-# tools are governed at the tool layer by check-idempotency.sh and
-# check-dangerous-patterns.sh. policy-gate focuses on MCP least-privilege scope.
+# tools are governed at the tool layer by check-idempotency.sh (and, where
+# installed, check-dangerous-patterns.sh). policy-gate focuses on MCP least-privilege scope.
 
 # --- Append to the hash-chained ledger --------------------------------------
 prev_hash="GENESIS"
