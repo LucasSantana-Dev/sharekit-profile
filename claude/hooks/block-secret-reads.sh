@@ -19,7 +19,9 @@ try:
 except Exception:
     pass" 2>/dev/null; }
 
-mapfile -t f < <(field)
+# bash 3.2 has no mapfile: it exited 127 under set -e, which fails open. Use a read loop.
+f=()
+while IFS= read -r _line; do f+=("$_line"); done < <(field)
 tool="${f[0]:-}"; haystack="${f[1]:-} ${f[2]:-} ${f[3]:-} ${f[4]:-}"
 
 # Secret-bearing path patterns (extended regex). Covers shell rc/profile, .env,
