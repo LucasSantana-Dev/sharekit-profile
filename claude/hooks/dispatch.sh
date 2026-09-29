@@ -82,7 +82,7 @@ while [[ $# -gt 0 ]]; do
       command -v jq >/dev/null 2>&1 || { echo "dispatch: --list needs jq" >&2; exit 0; }
       # bash 3.2 has no mapfile: read lines in a loop.
       lines=()
-      while IFS= read -r _l; do lines+=("$_l"); done < <(jq -r '[.task_id,.state,.ts,.summary] | @tsv' "$LEDGER" 2>/dev/null)
+      while IFS= read -r _l || [ -n "$_l" ]; do lines+=("$_l"); done < <(jq -r '[.task_id,.state,.ts,.summary] | @tsv' "$LEDGER" 2>/dev/null)
       latest_ids=()
       latest_lines=()
       for l in ${lines[@]+"${lines[@]}"}; do

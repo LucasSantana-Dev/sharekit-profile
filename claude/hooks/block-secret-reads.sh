@@ -6,6 +6,7 @@
 set -euo pipefail
 
 payload="$(cat)"
+command -v python3 >/dev/null 2>&1 || { echo "block-secret-reads: python3 missing, gate inactive" >&2; exit 0; }
 
 # Extract the fields we care about without requiring jq.
 field() { printf '%s' "$payload" | python3 -c "import sys,json
