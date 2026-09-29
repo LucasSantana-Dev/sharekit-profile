@@ -41,15 +41,24 @@
 # nobody was watching. Verify, never assume:
 #     gh api repos/<owner>/<repo>/branches/main --jq .protected
 #
+# PUSH EXEMPTIONS (trunk-based repos): to let a repo take direct pushes to main, put its GitHub
+# `owner/name` (one per line, `#` comments allowed) in ~/.claude/push-exemptions.txt, or point
+# PUSH_EXEMPTIONS_FILE elsewhere. Absent file = no exemptions. Requires python3; without it this
+# gate is inactive (exit 0 with a stderr note).
+#
 # PUSH_EXEMPTIONS below is the response: a repo that legitimately takes direct pushes gets named
 # in a local file, resolved by remote identity, instead of being exempt by accident of command
 # shape. See standards/pr-conventions.md "Exempt repos".
 set -uo pipefail
 
+command -v python3 >/dev/null 2>&1 || { echo "check-pr-automation-halt: python3 missing, gate inactive" >&2; exit 0; }
+
 input="$(cat)"
 [[ -n "$input" ]] || exit 0
 
-verdict="$(HOOK_INPUT="$input" python3 - <<'PY' 2>/dev/null
+# The python body lives in a variable filled by a heredoc OUTSIDE any $( ). macOS /bin/bash 3.2
+# mis-parses apostrophes inside a heredoc nested in command substitution, so never nest it.
+IFS= read -r -d '' PY <<'PYEOF' || true
 import json, os, re, shlex, subprocess, sys
 
 try:
@@ -135,7 +144,7 @@ if cur:
 
 PROTECTED = {"main", "master"}
 FORCE = {"--force", "-f", "--force-with-lease"}
-ATTRIB = re.compile(r"co-authored-by:.*(claude|bot)|generated (with|by) .*claude|\U0001F916", re.I)
+ATTRIB = re.compile(r"co-authored-by:.*(claude|anthropic|\[bot\])|generated (with|by) .*claude|\U0001F916", re.I)
 
 
 def protected_ref(arg: str) -> bool:
@@ -389,8 +398,9 @@ for argv in simple:
         if num:
             print("CHECKPR\t" + num + "\t" + cwd_hint)
             break
-PY
-)"
+PYEOF
+
+verdict="$(HOOK_INPUT="$input" python3 -c "$PY" 2>/dev/null)"
 
 kind="${verdict%%$'\t'*}"
 rest="${verdict#*$'\t'}"
