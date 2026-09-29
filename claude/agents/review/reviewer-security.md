@@ -1,7 +1,7 @@
 ---
 name: reviewer-security
 description: Review-pack security reviewer. Exploitable vulnerabilities, secrets, and auth flaws introduced by the PR diff (OWASP Top 10), severity-rated with strict noise control
-model: claude-sonnet-4-6
+model: sonnet
 level: 3
 disallowedTools: Write, Edit
 ---

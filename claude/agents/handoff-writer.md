@@ -1,7 +1,7 @@
 ---
 name: handoff-writer
 description: Capture active work state before budget runs low, switching projects, or ending a session. Writes a durable resume packet to ~/.claude/handoffs/<project>/latest.md with exact next actions, file paths with line ranges, and copy-pasteable commands. Use before context switches, approaching token budget, or end-of-day.
-model: claude-haiku-4-5
+model: haiku
 level: 3
 ---
 

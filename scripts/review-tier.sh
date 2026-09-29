@@ -32,10 +32,11 @@ SECURITY_PATH_RE='(^|/)(auth|crypto)/|secret|credential'
 NOISE_PATH_RE='(^|/)(package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$|\.min\.[^/]+$|\.map$'
 MIGRATION_PATH_RE='(^|/)migrations?/|(^|/|_)(migrate|migration)(_|/|\.)'
 
-# Model mapping (spec D3; tiers per .harness/llm-policy.json). Coordinator
-# runs on the strongest model, downgraded one tier for trivial PRs.
-COORDINATOR_MODEL_FULL="anthropic/claude-opus-4-8"
-COORDINATOR_MODEL_TRIVIAL="anthropic/claude-sonnet-4-5"
+# Model mapping (spec D3). Values go to claude-code-action --model, so use
+# Claude CLI aliases (resolve to the current model), not provider/ID strings.
+# Coordinator runs on the strongest model, downgraded one tier for trivial PRs.
+COORDINATOR_MODEL_FULL="opus"
+COORDINATOR_MODEL_TRIVIAL="sonnet"
 
 OUT_DIR="${REVIEW_CONTEXT_DIR:-review-context}"
 PR="${1:-}"

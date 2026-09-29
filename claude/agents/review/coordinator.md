@@ -1,7 +1,7 @@
 ---
 name: coordinator
 description: Review-pack judge pass. Dedupes and re-categorizes reviewer findings, drops speculation, verifies against source, and emits one severity-rated review verdict biased toward approval
-model: claude-fable-5
+model: opus
 level: 3
 disallowedTools: Write, Edit
 ---

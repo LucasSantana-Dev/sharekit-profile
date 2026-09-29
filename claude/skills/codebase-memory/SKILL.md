@@ -7,6 +7,7 @@ triggers:
   - explore codebase
   - code structure
   - graph query
+disable-model-invocation: true
 ---
 
 # Codebase Memory — Knowledge Graph Tools

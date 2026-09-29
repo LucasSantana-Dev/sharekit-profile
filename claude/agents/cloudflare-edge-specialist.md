@@ -1,7 +1,7 @@
 ---
 name: cloudflare-edge-specialist
 description: Cloudflare edge platform specialist for Workers, Pages, D1 (SQLite), KV, R2, Durable Objects, Hyperdrive, Wrangler, and OpenNext (Next-on-Cloudflare). Audits architecture, bundle size, secret/binding strategy, database migrations, storage quotas, and edge runtime constraints. Use for CF infra decisions, deployment planning, bundle-size optimization, D1 schema/migration design, KV/R2 quota budgeting, and prod-deployment verification. NEVER deploys to production or modifies secrets without explicit operator approval.
-model: claude-sonnet-5
+model: sonnet
 level: 3
 ---
 
