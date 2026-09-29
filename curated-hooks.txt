@@ -62,6 +62,7 @@ rtk-rewrite.sh
 session-budget-guard.sh
 session-cost-telemetry.sh
 session-end-flush.sh
+session-length-guard.sh
 session-start-load.sh
 session-token-stop.sh
 sessionend-memory-writer.sh
