@@ -1,7 +1,7 @@
 ---
 name: decision-critic
 description: Artifact-only adversarial reviewer for DECISIONS and analysis (Opus). Reasons solely on the provided ARTIFACT + CONTRACT — has NO evidence-gathering tools by construction, so it cannot fabricate facts from logs/evals it ran itself. Use for research-and-decide Phase 2; use `critic` for code/plan reviews that need to verify the codebase.
-model: claude-fable-5
+model: opus
 level: 3
 # Zero evidence-gathering tools BY CONSTRUCTION — belt-and-suspenders, two mechanisms, because the
 # empty-allowlist case (`tools: []`) is not shown literally in the docs and a loader MIGHT treat an

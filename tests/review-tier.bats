@@ -37,7 +37,7 @@ mk_lite_patch() { # $1 = output file
   [ "$status" -eq 0 ]
   [[ "$output" == *"tier=trivial"* ]]
   [[ "$output" == *"coordinator_downgraded=true"* ]]
-  [[ "$output" == *"coordinator_model=anthropic/claude-sonnet-4-5"* ]]
+  [[ "$output" == *"coordinator_model=sonnet"* ]]
   [[ "$output" == *"reviewers=general"$'\n'* || "$output" == *"reviewers=general" ]]
   [[ "$output" == *"lines=10"* ]]
 }
@@ -49,7 +49,7 @@ mk_lite_patch() { # $1 = output file
   [[ "$output" == *"tier=lite"* ]]
   [[ "$output" == *"lines=100"* ]]
   [[ "$output" == *"coordinator_downgraded=false"* ]]
-  [[ "$output" == *"coordinator_model=anthropic/claude-opus-4-8"* ]]
+  [[ "$output" == *"coordinator_model=opus"* ]]
   [[ "$output" == *"reviewers=general,security,docs"* ]]
 }
 

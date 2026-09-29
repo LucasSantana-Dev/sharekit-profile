@@ -400,10 +400,26 @@ Key policy documents in `~/.agents/skills/standards/`:
 ## Configuration
 
 ### Model Tiering
-- **Main loop:** Sonnet 4.6 (execution default)
-- **Subagents:** Haiku 4.5 (mechanical tasks, fast)
-- **Opus:** Explicitly invoked for complex reasoning, ADR writing
-- **Autocompact:** 85% context threshold
+- **Main loop:** Sonnet (execution default)
+- **Subagents:** whatever `CLAUDE_CODE_SUBAGENT_MODEL` says; agent frontmatter overrides it. Without the env var, subagents inherit the session model, so an Opus session spawns Opus agents.
+- **Opus / Fable:** explicitly invoked for complex reasoning, ADR writing
+
+### Recommended settings (token cost)
+`--include-hooks` merges only `hooks`, so set these by hand in `~/.claude/settings.json`:
+
+```json
+{
+  "model": "sonnet",
+  "autoCompactWindow": 200000,
+  "skillListingBudgetFraction": 0.015,
+  "skillListingMaxDescChars": 160,
+  "env": { "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet" }
+}
+```
+
+- `autoCompactWindow` caps the context before compaction. Every request re-reads the whole context from cache, so a 1M window compacting at 65% means 300-450k tokens per turn.
+- The two `skillListing*` keys shrink the skill list sent on every request (it was ~28k tokens with 200+ skills).
+- Drop `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` if you set it before; `autoCompactWindow` replaces it.
 
 ### Hard Rules (Non-Negotiable)
 1. Never automate on PRs with human reviewer comments
