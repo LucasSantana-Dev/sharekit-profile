@@ -59,17 +59,28 @@ report="$FORGE/${datestamp}-skill-index.md"
 # the harness (trajectory-log.sh); fall back to grep if absent.
 extract_field() {
   # extract_field <file> <field>  (reads simple "field: value" frontmatter)
-  grep -iE "^${2}:" "$1" 2>/dev/null | head -1 | sed -E "s/^${2}:[[:space:]]*//I" | tr -d '"' | tr -d "'"
+  awk -F: -v f="$2" 'tolower($1)==tolower(f){sub(/^[^:]*:[ \t]*/,""); print; exit}' "$1" 2>/dev/null | tr -d '"' | tr -d "'"
 }
 
-mapfile -t skill_files < <(fd -t f -e md '^SKILL\.md$' "$CATALOG" 2>/dev/null \
-  || find "$CATALOG" -type f -name 'SKILL.md' 2>/dev/null)
+# bash 3.2 has no mapfile; fd is optional, find is the fallback.
+fsize() { stat -c %s "$1" 2>/dev/null || stat -f %z "$1" 2>/dev/null; }  # GNU first (BSD `stat -f` on GNU pollutes stdout)
+if command -v fd >/dev/null 2>&1; then
+  _list="$(fd -t f -e md '^SKILL\.md$' "$CATALOG" 2>/dev/null)"
+else
+  _list="$(find "$CATALOG" -type f -name 'SKILL.md' 2>/dev/null)"
+fi
+skill_files=()
+while IFS= read -r _f; do
+  [[ -n "$_f" ]] && skill_files+=("$_f")
+done <<EOF_LIST
+$_list
+EOF_LIST
 
 total=${#skill_files[@]}
 tiny=0; small=0; medium=0; large=0
 rows=""
 
-for f in "${skill_files[@]}"; do
+for f in ${skill_files[@]+"${skill_files[@]}"}; do
   [[ -f "$f" ]] || continue
   name="$(extract_field "$f" 'name')"
   [[ -z "$name" ]] && name="$(basename "$(dirname "$f")")"
@@ -79,7 +90,7 @@ for f in "${skill_files[@]}"; do
   triggers="$(printf '%s' "$triggers" | tr -d '[]' | tr -s ' ' | head -c 120)"
   [[ -z "$desc" ]] && desc="(no description)"
   # Size class from file bytes.
-  bytes="$(stat -f %z "$f" 2>/dev/null || stat -c %s "$f" 2>/dev/null || echo 0)"
+  bytes="$(fsize "$f" || echo 0)"; bytes="${bytes:-0}"
   if   [[ "$bytes" -lt 2048 ]];  then class="tiny";   tiny=$((tiny+1))
   elif [[ "$bytes" -lt 4096 ]];  then class="small";  small=$((small+1))
   elif [[ "$bytes" -lt 8192 ]];  then class="medium"; medium=$((medium+1))

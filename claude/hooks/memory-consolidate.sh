@@ -63,11 +63,23 @@ fi
 
 report="$FORGE/${datestamp}-consolidation.md"
 now_epoch="$(date -u +%s)"
+mtime() { stat -c %Y "$@" 2>/dev/null || stat -f %m "$@" 2>/dev/null; }  # GNU first: BSD-style `stat -f` on GNU prints fs info and pollutes stdout
 
 # --- Scan memory facts -------------------------------------------------------
 # Each fact file may carry YAML frontmatter: last_verified, confidence,
 # change_frequency, tags, status. We parse leniently (missing fields default).
-mapfile -t fact_files < <(fd -e md . "$MEM_DIR" 2>/dev/null || find "$MEM_DIR" -name '*.md' 2>/dev/null)
+fact_files=()
+# bash 3.2 has no mapfile; fd is optional, find is the fallback.
+if command -v fd >/dev/null 2>&1; then
+  _list="$(fd -e md . "$MEM_DIR" 2>/dev/null)"
+else
+  _list="$(find "$MEM_DIR" -name '*.md' 2>/dev/null)"
+fi
+while IFS= read -r _f; do
+  [[ -n "$_f" ]] && fact_files+=("$_f")
+done <<EOF_LIST
+$_list
+EOF_LIST
 
 decay_candidates=""
 supersede_candidates=""
@@ -90,10 +102,10 @@ scanned=0
 
 extract_field() {
   # extract_field <file> <field>  (reads simple "field: value" frontmatter)
-  grep -iE "^${2}:" "$1" 2>/dev/null | head -1 | sed -E "s/^${2}:[[:space:]]*//I" | tr -d '"'
+  awk -F: -v f="$2" 'tolower($1)==tolower(f){sub(/^[^:]*:[ \t]*/,""); print; exit}' "$1" 2>/dev/null | tr -d '"'
 }
 
-for f in "${fact_files[@]}"; do
+for f in ${fact_files[@]+"${fact_files[@]}"}; do
   [[ -f "$f" ]] || continue
   base="$(basename "$f")"
   # Skip the structural docs (README/CORE/LEDGER/SELF_IMPROVEMENT/TEMPORAL_KG).
@@ -113,7 +125,7 @@ for f in "${fact_files[@]}"; do
     lv_epoch="$(date -u -j -f '%Y-%m-%d' "${last_verified:0:10}" +%s 2>/dev/null \
       || date -u -d "$last_verified" +%s 2>/dev/null || echo "$now_epoch")"
   else
-    lv_epoch="$(stat -f %m "$f" 2>/dev/null || stat -c %Y "$f" 2>/dev/null || echo "$now_epoch")"
+    lv_epoch="$(mtime "$f" || echo "$now_epoch")"; lv_epoch="${lv_epoch:-$now_epoch}"
   fi
   age_days=$(( (now_epoch - lv_epoch) / 86400 ))
 
@@ -149,7 +161,7 @@ stem_index_add() {
   stem_keys+=("$key")
   stem_vals+=("$file")
 }
-for f in "${fact_files[@]}"; do
+for f in ${fact_files[@]+"${fact_files[@]}"}; do
   [[ -f "$f" ]] || continue
   base="$(basename "$f" .md)"
   stem="$(printf '%s' "$base" | cut -d- -f1)"
