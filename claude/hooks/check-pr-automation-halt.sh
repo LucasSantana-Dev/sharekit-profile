@@ -626,6 +626,7 @@ cwd_hint="${tail%%$'\t'*}"
 # literal `$HOME/...` and fails `[ -d ]` exactly like `~` did. It blocked a `gh pr comment` on
 # a clean PR the same afternoon. Anything the shell would have expanded before `cd` saw it has
 # to be expanded here too, because this hook reads the command as TEXT, never as a shell runs it.
+# shellcheck disable=SC2088  # the quoted ~ patterns are intentionally literal
 case "$cwd_hint" in
   "~")   cwd_hint="$HOME" ;;
   "~/"*) cwd_hint="$HOME/${cwd_hint#\~/}" ;;

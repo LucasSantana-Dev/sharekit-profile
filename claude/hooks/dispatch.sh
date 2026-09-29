@@ -56,7 +56,7 @@ next_state() {
     implement) echo review_gate ;;
     review_gate) echo eval ;;
     eval) echo merge_gate ;;
-    merge_gate) echo done ;;
+    merge_gate) echo "done" ;;
     *) echo "" ;;
   esac
 }
