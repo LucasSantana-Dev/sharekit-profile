@@ -108,11 +108,11 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Parse claude/hooks/*.sh with /bin/bash (3.2)
+      - name: Parse claude/hooks/*.sh and hooks/*.sh with /bin/bash (3.2)
         run: |
           /bin/bash --version | head -1
           fail=0
-          for f in claude/hooks/*.sh; do
+          for f in claude/hooks/*.sh hooks/*.sh; do
             /bin/bash -n "$f" || { echo "syntax error under /bin/bash: $f"; fail=1; }
           done
           exit "$fail"
