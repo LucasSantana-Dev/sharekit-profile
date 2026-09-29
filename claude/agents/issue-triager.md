@@ -1,7 +1,7 @@
 ---
 name: issue-triager
 description: Move issues through a triage state machine — needs-triage → needs-info | ready-for-agent | ready-for-human | wontfix. Gathers context, reproduces bugs, grills for spec gaps, posts agent briefs or triage notes. Use when triaging a backlog of issues, evaluating a specific issue, or preparing issues for autonomous agent execution.
-model: claude-haiku-4-5
+model: haiku
 level: 3
 ---
 
