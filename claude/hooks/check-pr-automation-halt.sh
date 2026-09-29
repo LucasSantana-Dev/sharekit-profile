@@ -51,14 +51,14 @@
 # shape. See standards/pr-conventions.md "Exempt repos".
 set -uo pipefail
 
-command -v python3 >/dev/null 2>&1 || { echo "check-pr-automation-halt: python3 missing, gate inactive" >&2; exit 0; }
-
 input="$(cat)"
+command -v python3 >/dev/null 2>&1 || { echo "check-pr-automation-halt: python3 missing, gate inactive" >&2; exit 0; }
 [[ -n "$input" ]] || exit 0
 
-# The python body lives in a variable filled by a heredoc OUTSIDE any $( ). macOS /bin/bash 3.2
-# mis-parses apostrophes inside a heredoc nested in command substitution, so never nest it.
-IFS= read -r -d '' PY <<'PYEOF' || true
+# The python body lives in a variable, not in a heredoc inside $(...): bash 3.2 (stock macOS)
+# cannot parse a quote-bearing heredoc body nested in command substitution, and a parse error
+# exits 2, which blocks every Bash tool call.
+IFS= read -r -d '' PYSRC <<'PY' || true
 import json, os, re, shlex, subprocess, sys
 
 try:
@@ -72,7 +72,18 @@ cmd = ti.get("command") or d.get("command") or ""
 if not cmd.strip():
     sys.exit()
 
-OPS = {";", "&&", "||", "|", "&"}
+# A SENTINEL, NOT A CHARACTER TEST. Two versions of this were wrong for opposite reasons.
+# Enumerating operators (`{";", "&&", "||", "|", "&"}`) missed `|&`, which shlex glues into
+# one token: `false |& git push --force origin main` never split and both invariants went
+# silent. Testing "is this token made only of ;&| characters" fixed that and broke something
+# worse: shlex runs posix=True, which STRIPS QUOTES, so a quoted argument `';&'` is
+# indistinguishable from a bare operator by then. `git push ';&' --force origin main` split
+# one argv in two, and the half carrying `--force` no longer had `git` at argv[0].
+#
+# Quote state only exists BEFORE shlex, so the split has to be decided there. normalize()
+# already walks the text tracking quotes; it now emits SEP for an operator it sees outside
+# quotes, and nothing else can produce that token. (2026-08-29, fourth pass.)
+SEP = "\x01"
 
 
 def normalize(text: str) -> str:
@@ -104,6 +115,9 @@ def normalize(text: str) -> str:
       - backslash line-continuation before the push: the lines join, so `git push ...`
         becomes an argument to the previous command rather than a command.
     """
+    # SEP is produced by this function and by nothing else; a literal one arriving in
+    # the input would be an attacker splitting an argv for free.
+    text = text.replace(SEP, " ")
     # Heredoc bodies (<<EOF, <<'EOF', <<-"EOF") removed wholesale.
     text = re.sub(r"<<-?\s*(['\"]?)(\w+)\1.*?^\s*\2\s*$", " ", text, flags=re.S | re.M)
     out, quote, escaped = [], None, False
@@ -118,7 +132,26 @@ def normalize(text: str) -> str:
             out.append(ch); continue
         if ch in "'\"":
             quote = ch; out.append(ch); continue
-        out.append(";" if ch == "\n" else ch)
+        # `x=$(gh pr merge 5)` is a REAL merge, and it reached exit 0 having consulted
+        # nothing: nothing separated `x=$(` from `gh`, so argv[0] was `x=$(gh` and the
+        # gate never saw a `gh` at all. Substitution and subshell punctuation start a
+        # new command, so they are separators here too (2026-08-29).
+        # SPACES AROUND IT, because shlex(punctuation_chars=True) GLUES adjacent
+        # punctuation into one token: two of these in a row became ";;", which is not
+        # the ";" in OPS, so nothing split and the line stayed one command. A blank
+        # line before `git push --force` was enough to silence the force-push gate
+        # entirely, and `x=$(date)` before it did the same (2026-08-29).
+        if ch in "<>":
+            # A REDIRECTION ENDS THE COMMAND'S OWN ARGUMENTS; its target belongs to the
+            # redirection, not to the command. `gh pr merge 27 --squash 2>&1 | tail` left
+            # `2` and `>` looking like positional words, and the ambiguity rule then refused
+            # a merge it should have judged (2026-08-29). The fd digit glued in front of the
+            # operator goes with it.
+            while out and out[-1].isdigit() and (len(out) < 2 or out[-2] == " "):
+                out.pop()
+            out.append(" " + SEP + " ")
+            continue
+        out.append(" " + SEP + " " if ch in "\n()`;&|" else ch)
     return "".join(out)
 
 
@@ -134,7 +167,7 @@ except Exception:
 
 simple, cur = [], []
 for t in tokens:
-    if t in OPS:
+    if t == SEP:
         if cur:
             simple.append(cur); cur = []
     else:
@@ -312,8 +345,82 @@ def push_is_exempt(cwd_hint: str, rest: list) -> bool:
     return any(remote.endswith("/" + r) or remote.endswith(":" + r) for r in allow)
 
 
+# gh's own top-level commands. Anything else in that slot is a user alias, and an alias is
+# a whole command wearing another name: `gh alias set m 'pr merge'` makes `gh m 5` a merge
+# that spells neither "pr" nor "merge". Verified 2026-08-29: this box already defines one.
+GH_CMDS = {
+    "alias", "api", "attestation", "auth", "browse", "cache", "codespace", "completion",
+    "config", "extension", "gist", "gpg-key", "help", "issue", "label", "org", "pr",
+    "project", "release", "repo", "ruleset", "run", "search", "secret", "ssh-key",
+    "status", "variable", "version", "workflow",
+}
+
+
+def gh_alias(name):
+    """Expand a gh alias to its argv, or [] when there is no such alias.
+
+    Returns ["!"] for a shell alias, whose body is arbitrary shell this gate never sees in
+    the command text. The caller must fail closed on that, not shrug it off.
+    """
+    try:
+        out = subprocess.run(["gh", "alias", "list"], capture_output=True, text=True,
+                             timeout=5).stdout
+    except Exception:
+        return []
+    for line in out.splitlines():
+        k, sep, v = line.partition(":" if ":" in line else "\t")
+        if not sep or k.strip() != name:
+            continue
+        v = v.strip()
+        if v.startswith("!"):
+            return ["!"]
+        try:
+            return shlex.split(v)
+        except ValueError:
+            return []
+    return []
+
+
+# A BASH KEYWORD IS NOT THE COMMAND. The gate only ever recognised a literal `git`/`gh` at
+# argv[0], so `! git push --force origin main`, `{ git push --force origin main; }` and
+# `time git push --force origin main` all reached exit 0 while bash really ran the push
+# (proven with a stub git counting calls, 2026-08-29, fourth pass). Same for a leading
+# assignment (`GIT_DIR=x git push ...`) and for sudo/env wrappers with their own flags.
+WRAPPERS = {"!", "{", "}", "time", "command", "builtin", "exec", "nohup", "sudo", "env",
+            "then", "else", "elif", "do", "done", "fi", "esac"}
+ASSIGN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
+
+
+def real_argv(a):
+    """argv with bash keywords, wrappers and leading assignments peeled off the front."""
+    i, wrapped = 0, False
+    while i < len(a):
+        if a[i] in WRAPPERS or ASSIGN.match(a[i]):
+            i, wrapped = i + 1, True
+            continue
+        break
+    if wrapped:
+        # `sudo -u alice git push ...`: a wrapper carries its own flags AND their values, and
+        # guessing which flags take one is a losing game. Inside a wrapper prefix only, look
+        # ahead for the command this gate actually judges. Finding a `git` that is merely an
+        # argument (`sudo apt install git`) is harmless: it lands with no subcommand and
+        # matches none of the rules below.
+        #
+        # NO CEILING ON THE SCAN. It was capped at 8, counted from where the peel stopped
+        # rather than from `git`, so a wrapper plus a flag plus filler pushed the real
+        # command out of the window: `exe` became `-i`, nothing fired, exit 0 on a live
+        # force-push (2026-08-29, fifth pass). A cap here only ever loses the command.
+        for j in range(i, len(a)):
+            if a[j].rsplit("/", 1)[-1] in ("git", "gh"):
+                return a[j:]
+    return a[i:]
+
+
 cwd_hint = ""
 for argv in simple:
+    if not argv:
+        continue
+    argv = real_argv(argv)
     if not argv:
         continue
     exe, args = argv[0], argv[1:]
@@ -392,20 +499,143 @@ for argv in simple:
                   "no-ai-attribution). Author of record is the human operator.")
             break
 
-    if exe == "gh" and args[:2] and args[0] == "pr" and args[1] in (
-            "comment", "merge", "close", "review", "ready", "edit"):
-        num = next((a for a in args[2:] if a.isdigit()), "")
-        if num:
-            print("CHECKPR\t" + num + "\t" + cwd_hint)
-            break
-PYEOF
+    # `gh` TAKES ITS FLAGS WHEREVER IT LIKES, and matching by argv POSITION missed all of
+    # it: `gh -R acme/repo pr merge 5` left args[0] == "-R", and the first fix for that
+    # still missed `gh pr -R acme/repo merge 5`. Both fell through to the final exit 0
+    # having consulted NOTHING. So: skip flags wherever they sit and read what remains.
+    #
+    # BUT A FLAG'S VALUE IS NOT A POSITIONAL WORD. Dropping only the flag left the value
+    # behind, and the value took the PR's place: `gh pr merge -b 42 5` merges #5 and this
+    # gate cleared it by reading #42 instead - a false-CLEAR that needs no coincidence, just
+    # a body text. Which flags carry a value is PER VERB, not global: `-m` is boolean
+    # `--merge` under `merge` and `--milestone` under `edit`, and `-t` is `--subject` there
+    # and `--title` here. Read off `gh pr <verb> --help`, gh 2.97.0, 2026-08-29.
+    GH_VERB_VALUE_FLAGS = {
+        "merge":   {"-A", "--author-email", "-b", "--body", "-F", "--body-file",
+                    "--match-head-commit", "-t", "--subject"},
+        "comment": {"-b", "--body", "-F", "--body-file"},
+        "close":   {"-c", "--comment"},
+        "review":  {"-b", "--body", "-F", "--body-file"},
+        "ready":   set(),
+        "edit":    {"--add-assignee", "--add-label", "--add-project", "--add-reviewer",
+                    "-B", "--base", "-b", "--body", "-F", "--body-file",
+                    "-m", "--milestone", "-t", "--title",
+                    "--remove-assignee", "--remove-label", "--remove-project",
+                    "--remove-reviewer"},
+    }
+    # `-R`/`--repo` is inherited, so it is the only value-taking flag gh accepts BEFORE the
+    # verb; a non-persistent flag there is an error gh itself refuses.
+    REPO_FLAGS = {"-R", "--repo"}
 
-verdict="$(HOOK_INPUT="$input" python3 -c "$PY" 2>/dev/null)"
+    def positionals(a, value_flags):
+        """(word, index) for every token that is neither a flag nor a flag's value."""
+        out, i = [], 0
+        while i < len(a):
+            t = a[i]
+            if t == "--":                 # end of flags: everything after is positional
+                out.extend((w, i + 1 + k) for k, w in enumerate(a[i + 1:]))
+                break
+            if t.startswith("-") and t != "-":
+                i += 2 if (t in value_flags and i + 1 < len(a)) else 1
+                continue
+            out.append((t, i))
+            i += 1
+        return out
+
+    def expand_aliases(a):
+        """argv with a leading user alias replaced by what it stands for; None to block.
+
+        An alias may expand to another alias, so this settles rather than expanding once.
+        Bounded, and a name seen twice is a cycle.
+        """
+        pos = positionals(a, REPO_FLAGS)
+        if not pos:
+            return a
+        i, seen = pos[0][1], set()
+        while a[i] not in GH_CMDS and a[i] not in seen and len(seen) < 8:
+            seen.add(a[i])
+            expansion = gh_alias(a[i])
+            if expansion == ["!"]:
+                return None
+            if not expansion:
+                break
+            a = a[:i] + expansion + a[i + 1:]
+        return a
+
+    eff = expand_aliases(args) if exe == "gh" else []
+    if exe == "gh" and eff is None:
+        print("BLOCK\tThat `gh` alias is a shell alias, whose body this gate never sees in "
+              "the command text. Run the underlying gh command directly.")
+        break
+    pos = positionals(eff, REPO_FLAGS) if exe == "gh" else []
+    words = [w for w, _ in pos]
+    if exe == "gh" and words[:2] and words[0] == "pr" and words[1] in GH_VERB_VALUE_FLAGS:
+        verb, verb_at = words[1], pos[1][1]
+        # An explicit `--repo owner/name` is what gh itself will target, so it
+        # outranks whatever repo the cwd happens to sit in. Without it the gate
+        # reads PR #N's comments in the WRONG repo: that false-blocks a
+        # cross-repo merge, and worse, it can clear a PR in the target repo
+        # because a same-numbered PR in the cwd repo looked clean.
+        repo_flag = ""
+        for i, a in enumerate(eff):
+            if a in REPO_FLAGS and i + 1 < len(eff):
+                repo_flag = eff[i + 1]
+            elif a.startswith("--repo="):
+                repo_flag = a.split("=", 1)[1]
+        # Re-read the tail with THIS verb's flags, so a body or a title stops looking like
+        # a PR number.
+        rest = [w for w, _ in positionals(eff[verb_at + 1:],
+                                          GH_VERB_VALUE_FLAGS[verb] | REPO_FLAGS)]
+        if len(rest) != 1:
+            # Bare `gh pr merge` is "the PR of the current branch", which this hook cannot
+            # see from outside your shell; two candidates means the flag table is behind
+            # this gh. Neither is a cleared PR.
+            print("BLOCK\t`gh pr " + verb + "`: this gate could not tell which PR that is "
+                  "(candidates: " + repr(rest) + "). Pass the PR number explicitly.")
+            break
+        # gh documents `<number> | <url> | <branch>` for the PR argument. Taking the first
+        # all-digit token read only the first of the three, and `#5` (which gh also accepts)
+        # is not all-digit either: each of those walked out at exit 0. Carry the reference
+        # through as gh wrote it and let gh resolve what gh accepts.
+        ref = rest[0]
+        m = re.search(r"github\.com/([^/\s]+/[^/\s]+)/pull/(\d+)", ref)
+        if m:
+            # The URL names the repo. Trusting the cwd instead is how PR #5 of one repo
+            # gets vouched for by PR #5 of another.
+            repo_flag = repo_flag or m.group(1)
+            ref = m.group(2)
+        elif ref.startswith("#") and ref[1:].isdigit():
+            ref = ref[1:]
+        print("CHECKPR\t" + ref + "\t" + cwd_hint + "\t" + repo_flag)
+        break
+PY
+verdict="$(HOOK_INPUT="$input" python3 -c "$PYSRC" 2>/dev/null)"
 
 kind="${verdict%%$'\t'*}"
 rest="${verdict#*$'\t'}"
 detail="${rest%%$'\t'*}"
-cwd_hint="${rest#*$'\t'}"
+tail="${rest#*$'\t'}"
+cwd_hint="${tail%%$'\t'*}"
+# `cd ~/.claude-env && gh pr merge ...` used to fall through to the session cwd, because the
+# literal `~` is not a directory and the `[ -d "$cwd_hint" ]` test below rejected it. The
+# hook then resolved a DIFFERENT repo, could not read that PR's comments, and failed closed
+# on a clean PR (2026-08-29). Expand a leading ~ the way the shell would.
+#
+# `$HOME` is the SAME BUG and the first fix missed it: the command text is shlex-split, which
+# strips the quotes of `cd "$HOME/.claude-env"` but expands nothing, so the hint arrives as a
+# literal `$HOME/...` and fails `[ -d ]` exactly like `~` did. It blocked a `gh pr comment` on
+# a clean PR the same afternoon. Anything the shell would have expanded before `cd` saw it has
+# to be expanded here too, because this hook reads the command as TEXT, never as a shell runs it.
+case "$cwd_hint" in
+  "~")   cwd_hint="$HOME" ;;
+  "~/"*) cwd_hint="$HOME/${cwd_hint#\~/}" ;;
+  "\$HOME")      cwd_hint="$HOME" ;;
+  "\$HOME/"*)    cwd_hint="$HOME/${cwd_hint#\$HOME/}" ;;
+  "\${HOME}")    cwd_hint="$HOME" ;;
+  "\${HOME}/"*)  cwd_hint="$HOME/${cwd_hint#\$\{HOME\}/}" ;;
+esac
+repo_flag=""
+[[ "$tail" == *$'\t'* ]] && repo_flag="${tail#*$'\t'}"
 
 if [[ "$kind" == "BLOCK" ]]; then
   echo "BLOCKED by harness PR-automation-halt invariant (CLAUDE.md Hard rules; standards/pr-conventions.md):" >&2
@@ -448,9 +678,61 @@ if [[ "$kind" == "CHECKPR" ]] && command -v gh >/dev/null 2>&1; then
   # when the session started outside any repo. If the command itself led with
   # `cd <dir> && gh pr ...` (the common shape), retry resolution from that dir
   # before giving up; still fails closed if that yields nothing either.
-  repo="$(gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>/dev/null || true)"
-  if [[ -z "$repo" && -n "$cwd_hint" && -d "$cwd_hint" ]]; then
+  # Order matters: the command's own `cd` wins over the session cwd. Resolving the
+  # session cwd FIRST made the hook read a DIFFERENT repo than the command targets,
+  # which both blocks legitimate merges and can falsely clear a PR in another repo
+  # (2026-08-28). --repo > command `cd` > session cwd, fail-closed if all empty.
+  # THE PAYLOAD CARRIES THE SESSION cwd, ALREADY EXPANDED BY THE SHELL THAT RAN IT.
+  # That is the authoritative directory. Reading a directory out of the command TEXT is what
+  # produced three separate blocks on clean PRs in one afternoon (2026-08-29): `cd ~/x`, then
+  # `cd "$HOME/x"`, then `--repo $R`. Each is something the shell expands and this hook, which
+  # only ever sees text, cannot. Every one of them was patched with another `case` arm; the
+  # arms are kept below because they still spare a needless block, but they are no longer
+  # what the resolution rests on.
+  session_cwd="$(HOOK_INPUT="$input" python3 -c 'import json, os
+try:
+    print(json.loads(os.environ.get("HOOK_INPUT", "")).get("cwd", "") or "")
+except Exception:
+    pass' 2>/dev/null)"
+
+  # An unexpanded --repo must NEVER fall through to a directory. Falling through reads PR #N
+  # in the WRONG repo, and a same-numbered PR there can look clean: false-CLEAR is the
+  # expensive side of this coin, and it is why --repo wins in the first place.
+  repo="$repo_flag"
+  if [[ -n "$repo" && ! "$repo" =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]]; then
+    echo "BLOCKED by harness PR-automation-halt invariant (CLAUDE.md Hard rules):" >&2
+    echo "  --repo was given as '$repo', which is not a literal <owner>/<name>." >&2
+    echo "  This hook reads the command as text and cannot expand a variable. Pass the literal." >&2
+    exit 2
+  fi
+  # A `cd` target the hook cannot read is the same danger wearing the other hat: the command
+  # aims somewhere else, and answering from the session cwd would vouch for the wrong repo.
+  if [[ -z "$repo" && -n "$cwd_hint" && ! -d "$cwd_hint" ]]; then
+    echo "BLOCKED by harness PR-automation-halt invariant (CLAUDE.md Hard rules):" >&2
+    echo "  The command cd's to '$cwd_hint', which is not a directory I can read (an unexpanded" >&2
+    echo "  variable, most likely). I will not answer for PR #$pr from the session directory." >&2
+    echo "  Pass --repo <owner>/<name> explicitly." >&2
+    exit 2
+  fi
+  if [[ -z "$repo" && -n "$cwd_hint" ]]; then
     repo="$(cd "$cwd_hint" 2>/dev/null && gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>/dev/null || true)"
+  fi
+  if [[ -z "$repo" && -n "$session_cwd" && -d "$session_cwd" ]]; then
+    repo="$(cd "$session_cwd" 2>/dev/null && gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>/dev/null || true)"
+  fi
+  [[ -z "$repo" ]] && repo="$(gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>/dev/null || true)"
+  # A branch name is a PR reference gh accepts, so the gate has to accept it too - but it
+  # can only be turned into a number by asking gh, and only once the repo is known. Fails
+  # closed: an unresolvable reference is not a cleared one.
+  if [[ -n "$repo" && ! "$pr" =~ ^[0-9]+$ ]]; then
+    resolved="$(gh pr view "$pr" --repo "$repo" --json number --jq '.number' 2>/dev/null || true)"
+    if [[ -z "$resolved" ]]; then
+      echo "BLOCKED by harness PR-automation-halt invariant (CLAUDE.md Hard rules):" >&2
+      echo "  Could not resolve '$pr' to a PR number in $repo. Refusing to automate a PR I" >&2
+      echo "  cannot identify. Pass the PR number." >&2
+      exit 2
+    fi
+    pr="$resolved"
   fi
   if [[ -z "$me" || -z "$repo" ]]; then
     echo "BLOCKED by harness PR-automation-halt invariant (CLAUDE.md Hard rules; standards/pr-conventions.md):" >&2
@@ -486,7 +768,11 @@ if [[ "$kind" == "CHECKPR" ]] && command -v gh >/dev/null 2>&1; then
     | grep -vxF "$me" \
     | sort -u || true)"
 
-  pr_author="$(gh pr view "$pr" -R "$repo" --json author --jq '.author.login' 2>/dev/null || true)"
+  # Login AND bot flag in one call. `is_bot` from the API is authoritative for the
+  # author-identity check below, same as `user.type == "Bot"` is for commenters above.
+  pr_author_info="$(gh pr view "$pr" -R "$repo" --json author --jq '[.author.login, (.author.is_bot // false | tostring)] | join(" ")' 2>/dev/null || true)"
+  pr_author="${pr_author_info%% *}"
+  pr_author_is_bot="${pr_author_info##* }"
 
   if [[ -n "$humans" ]]; then
     echo "BLOCKED by harness PR-automation-halt invariant (CLAUDE.md Hard rules; standards/pr-conventions.md):" >&2
@@ -494,9 +780,16 @@ if [[ "$kind" == "CHECKPR" ]] && command -v gh >/dev/null 2>&1; then
     echo "  Halt and ask the human." >&2
     exit 2
   fi
-  if [[ "$pr_author" != "$me" ]]; then
+  # BOT AUTHORS ARE NOT "ANOTHER PERSON" (CLAUDE.md Hard rules; the header of this file
+  # already said so, but this check never implemented it: it blocked `gh pr close 333`
+  # on a dependabot PR whose CI had failed, forcing a manual close). ONLY `is_bot`
+  # from the API decides authorship, deliberately NOT the NAME_BOTS name list used for
+  # commenters: a human who registers a login matching that regex (`sonar`, `codecov`,
+  # `netlify` are plain words) must not have their PR automated. An EMPTY author still
+  # fails closed: "" != "$me" and is_bot never resolves to "true".
+  if [[ "$pr_author" != "$me" && "$pr_author_is_bot" != "true" ]]; then
     echo "BLOCKED by harness PR-automation-halt invariant (CLAUDE.md Hard rules; standards/pr-conventions.md):" >&2
-    echo "  PR #$pr is authored by '${pr_author:-unknown}', not by you ('$me'). Halt and ask the human." >&2
+    echo "  PR #$pr is authored by '${pr_author:-unknown}', not by you ('$me') and not a bot. Halt and ask the human." >&2
     exit 2
   fi
 fi
