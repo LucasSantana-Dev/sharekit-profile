@@ -33,6 +33,7 @@
 # Exit 0 = allow, exit 2 = block (hook convention: deny the tool call).
 
 set -euo pipefail
+command -v jq >/dev/null 2>&1 || exit 0  # jq absent (stock macOS <= 14): gate inactive, fail open
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 POLICY="$ROOT/.harness/memory-scopes.json"
@@ -191,7 +192,13 @@ target_scope="$(scope_of "$path")"
 [[ -z "$target_scope" ]] && allow  # not a memory path
 
 if [[ ! -f "$POLICY" ]]; then
-  echo "memory-scope-gate: no .harness/memory-scopes.json - fail-open (allow)" >&2
+  # Not shipped by the profile (operator-specific); note once, then stay quiet.
+  # ROOT here is the project repo, so keep the marker out of it.
+  _note="${TMPDIR:-/tmp}/.memory-scope-gate-note-$(id -u)"
+  if [[ ! -f "$_note" ]]; then
+    echo "memory-scope-gate: no .harness/memory-scopes.json - fail-open (allow); this note prints once" >&2
+    : > "$_note" 2>/dev/null || true
+  fi
   allow
 fi
 
