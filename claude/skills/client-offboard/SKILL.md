@@ -49,14 +49,14 @@ Scaffold a new client before any session works inside its root. Ask for the clie
    mkdir -p "$(dirname "$CLIENTS")"
    [ -f "$CLIENTS" ] || echo '{}' > "$CLIENTS"
    jq --arg s "<slug>" --arg r "<absolute-root>" --arg db "$RAG_HOME/<slug>.db" \
-     '.[$s] = {db: $db, roots: [$r]}' "$CLIENTS" > "$CLIENTS.tmp" && mv "$CLIENTS.tmp" "$CLIENTS"
+     '.[$s] //= {db: $db, roots: [$r]}' "$CLIENTS" > "$CLIENTS.tmp" && mv "$CLIENTS.tmp" "$CLIENTS"
    ```
-   For more than one root, add the extra absolute paths to the `roots` array by hand. See [`examples/clients.json.example`](examples/clients.json.example) for the shape. `clients.json` is private: it never ships with this profile, is never synced or published, and stays out of any repo it happens to sit in (see `.gitignore`).
-2. **Client dir.** Create `<root>/.client/`:
+   `//=` only adds the entry when the slug is new, so a re-run never drops roots added by hand. For more than one root, add the extra absolute paths to the `roots` array by hand. See [`examples/clients.json.example`](examples/clients.json.example) for the shape. `clients.json` is private: it never ships with this profile, is never synced or published, and stays out of any repo it happens to sit in (see `.gitignore`).
+2. **Client dir.** Create `<root>/.client/`, keeping any file already there: the operator may have written the lexicon before running init, and a new origin id would orphan every lesson already promoted under the old one.
    ```bash
    mkdir -p "<root>/.client"
-   : > "<root>/.client/lexicon.txt"   # fill with 10-30 names/acronyms/IDs before offboard, one per line
-   openssl rand -hex 4 > "<root>/.client/origin-id"
+   [ -e "<root>/.client/lexicon.txt" ] || : > "<root>/.client/lexicon.txt"   # fill with 10-30 names/acronyms/IDs before offboard, one per line
+   [ -s "<root>/.client/origin-id" ] || openssl rand -hex 4 > "<root>/.client/origin-id"
    ```
 3. **Vault.** Create the client's own memory directory inside its own repo, e.g. `mkdir -p "<root>/memory"`. Any directory name works (see "Client vault" above); this is where ordinary session memory writes for this client are meant to land.
 4. **Symlink into Claude Code's per-project memory.** Claude Code keys a project's local state by its absolute path with every character that is not a letter or digit replaced by `-` (each separator becomes its own hyphen, so a path segment like `/.git` produces a double hyphen, not one). Verify this against a real entry before relying on it: `ls ~/.claude/projects/`. Then symlink that project's `memory/` to the vault you just created, guarded: on macOS, `ln -s` against an existing `memory/` directory exits 0 and silently nests the link inside it instead of replacing it, so nothing is lost but the redirect never happens and the step looks like it worked when it did not.
