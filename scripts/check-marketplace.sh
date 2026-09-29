@@ -129,6 +129,10 @@ reverse_check_files curated-hooks.txt      ./claude/hooks
 reverse_check_files curated-standards.txt  ./claude/standards
 reverse_check_files curated-agents.txt     ./claude/agents
 
+# claude/settings.json must only register hooks that ship (exist + curated), with
+# timeouts in seconds and no bash-3.2-incompatible constructs.
+python3 "$ROOT/scripts/check-settings-hooks.py" "$ROOT" || fail=1
+
 # Channel gate: the marketplace metadata version must track the canonical
 # release stream (.release-please-manifest.json). Version drift between the
 # two silently breaks the stable/latest channel contract (teams pinning
