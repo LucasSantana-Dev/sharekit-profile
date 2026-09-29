@@ -144,7 +144,7 @@ if cur:
 
 PROTECTED = {"main", "master"}
 FORCE = {"--force", "-f", "--force-with-lease"}
-ATTRIB = re.compile(r"co-authored-by:.*(claude|anthropic|\[bot\])|generated (with|by) .*claude|\U0001F916", re.I)
+ATTRIB = re.compile(r"co-authored-by:.*(claude|anthropic|\[bot\]|noreply[^ ]*bot|-bot\b|\sbot\b)|generated (with|by) .*claude|\U0001F916", re.I)
 
 
 def protected_ref(arg: str) -> bool:

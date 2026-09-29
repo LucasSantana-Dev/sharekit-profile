@@ -37,9 +37,12 @@ esac
 if printf '%s' "$key" | grep -Eq '^(git[[:space:]]+(status|log|diff|branch|show)|rg[[:space:]]|fd[[:space:]]|cat[[:space:]]|bat[[:space:]]|head[[:space:]]|tail[[:space:]]|wc[[:space:]])'; then
   exit 0
 fi
-# VCS sync and test runners repeat legitimately (retry after a fix, re-run until green).
+# VCS sync and test runners repeat legitimately (retry after a fix, re-run until green),
+# so they get a higher threshold instead of an exemption: a truly stuck push or test
+# loop still stops.
+limit=3
 if printf '%s' "$key" | grep -Eq '^(git[[:space:]]+(add|commit|push|pull|fetch)([[:space:]]|$)|npm[[:space:]]+(run[[:space:]]+)?test|pytest|python3?[[:space:]]+-m[[:space:]]+pytest|bats([[:space:]]|$)|go[[:space:]]+test|cargo[[:space:]]+test)'; then
-  exit 0
+  limit=8
 fi
 
 # Tally identical attempts in this session window (last 20 entries).
@@ -51,7 +54,7 @@ jq -nc --arg h "$hash" --arg ts "$ts" --arg cmd "$key" \
 # Count occurrences of this hash in the trailing window.
 count="$(tail -n 20 "$STATE" 2>/dev/null | jq -r --arg h "$hash" 'select(.hash==$h) | .hash' | wc -l | tr -d ' ')"
 
-if [[ "$count" -ge 3 ]]; then
+if [[ "$count" -ge "$limit" ]]; then
   echo "BLOCKED — Stuck protocol (RULES.md):" >&2
   echo "  attempt:   #${count} of an identical command in this session" >&2
   echo "  command:   $key" >&2

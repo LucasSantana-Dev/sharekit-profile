@@ -4,7 +4,7 @@ Last updated: 2026-05-03
 
 ## Source of truth
 
-Hook bindings live in `~/.claude/settings.json` (shipped from `claude/settings.json` in this profile, installed with `--include-hooks`). Edit that file to add, remove or re-time a hook. `timeout` values are in seconds. Re-installing the profile overwrites it, so keep local changes in a copy or re-apply them after an update.
+Hook bindings live in `~/.claude/settings.json` (shipped from `claude/settings.json` in this profile, installed with `--include-hooks`). Edit that file to add, remove or re-time a hook. `timeout` values are in seconds. With sharekit 0.6.4 or later, re-installing merges only the profile's hooks into your file and keeps every other setting; older versions overwrite it, so keep a copy there.
 
 ## Bash hook chain
 
