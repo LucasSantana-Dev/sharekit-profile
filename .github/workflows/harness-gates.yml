@@ -100,3 +100,21 @@ jobs:
         # coverage" gap for real breakage (syntax errors, etc.), not a guarantee against that
         # specific bug class.
         run: shellcheck -S error claude/hooks/*.sh
+
+  hooks-bash32:
+    # Stock macOS ships /bin/bash 3.2.57, which parses differently from the bash on
+    # ubuntu runners (for example apostrophes in a heredoc nested in $( ) are a syntax
+    # error there). Parse every shipped hook with the interpreter installers actually get.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Parse claude/hooks/*.sh and hooks/*.sh with /bin/bash (3.2)
+        run: |
+          /bin/bash --version | head -1
+          fail=0
+          for f in claude/hooks/*.sh hooks/*.sh; do
+            /bin/bash -n "$f" || { echo "syntax error under /bin/bash: $f"; fail=1; }
+          done
+          exit "$fail"
+      - name: Registered hooks exist, are curated, and avoid bash 4 features
+        run: python3 scripts/check-settings-hooks.py

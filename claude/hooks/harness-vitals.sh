@@ -16,9 +16,41 @@ ENV_DIR="$HOME/.claude-env"
 SKILLS="$CLAUDE_DIR/skills"
 # Overridable so a sandbox (harness-selftest.sh) can simulate "mounted" without a real
 # external volume — real machine default is unchanged.
-EXTERNAL_HD="${EXTERNAL_HD_DIR:-${DEV_ROOT}}"
-RAG_ROOT="$EXTERNAL_HD/Desenvolvimento/rag-index"
+# Personal-machine layout, all optional: EXTERNAL_HD_DIR is a volume root (holds
+# Desenvolvimento/), DEV_ROOT is the Desenvolvimento dir itself. Both unset (a stock
+# machine) leaves RAG_ROOT empty and every RAG/HD check below skips silently.
+if [ -n "${EXTERNAL_HD_DIR:-}" ]; then
+  EXTERNAL_HD="$EXTERNAL_HD_DIR"
+  RAG_ROOT="$EXTERNAL_HD/Desenvolvimento/rag-index"
+elif [ -n "${DEV_ROOT:-}" ]; then
+  EXTERNAL_HD="$DEV_ROOT"
+  RAG_ROOT="$DEV_ROOT/rag-index"
+else
+  EXTERNAL_HD=""
+  RAG_ROOT=""
+fi
 warns=()
+
+# GNU stat first: BSD-style `stat -f` on GNU prints filesystem info to stdout and exits 1.
+mtime() { stat -c %Y "$@" 2>/dev/null || stat -f %m "$@" 2>/dev/null; }
+# `timeout` is absent on stock macOS: use gtimeout, else a python3 stdlib shim, else no limit.
+if ! command -v timeout >/dev/null 2>&1; then
+  if command -v gtimeout >/dev/null 2>&1; then
+    timeout() { gtimeout "$@"; }
+  elif command -v python3 >/dev/null 2>&1; then
+    timeout() {
+      python3 -c 'import subprocess, sys
+try:
+    sys.exit(subprocess.run(sys.argv[2:], timeout=float(sys.argv[1])).returncode)
+except subprocess.TimeoutExpired:
+    sys.exit(124)
+except OSError:
+    sys.exit(127)' "$@"
+    }
+  else
+    timeout() { shift; "$@"; }
+  fi
+fi
 
 now=$(date +%s)
 age_h() { echo $(( (now - $1) / 3600 )); }   # epoch -> hours ago
@@ -47,9 +79,10 @@ done
 # 4. RAG index freshness (stale retrieval => recall returns old context silently)
 # 2026-07-23: the index lives on the External HD now; the old ~/.claude/rag-index glob
 # silently no-opped for weeks (the monitor had the disease it monitors for).
-rag_db=$(ls -t "$RAG_ROOT"/*.sqlite "$RAG_ROOT"/*.db 2>/dev/null | head -1)
+rag_db=""
+[ -n "$RAG_ROOT" ] && [ -d "$RAG_ROOT" ] && rag_db=$(ls -t "$RAG_ROOT"/*.sqlite "$RAG_ROOT"/*.db 2>/dev/null | head -1)
 if [ -n "${rag_db:-}" ]; then
-  m=$(stat -f %m "$rag_db" 2>/dev/null || stat -c %Y "$rag_db" 2>/dev/null || echo "$now")
+  m=$(mtime "$rag_db" || echo "$now"); m=${m:-$now}
   d=$(( (now - m) / 86400 )); [ "$d" -gt 7 ] && warns+=("RAG index ${d}d old ($(basename "$rag_db")) — recall may miss recent work; reindex")
 fi
 
@@ -71,15 +104,17 @@ fi
 # 5a. unread eval regression alerts — REGRESSION-ALERTS.log fired daily 06-22→07-01 unseen (ADR-0052)
 RALOG="$RAG_ROOT/eval/REGRESSION-ALERTS.log"
 RASEEN="$RAG_ROOT/eval/.alerts-seen"
-if [ -f "$RALOG" ]; then
-  lm=$(stat -f %m "$RALOG" 2>/dev/null || stat -c %Y "$RALOG" 2>/dev/null || echo 0)
-  sm=$(stat -f %m "$RASEEN" 2>/dev/null || stat -c %Y "$RASEEN" 2>/dev/null || echo 0)
+if [ -n "$RAG_ROOT" ] && [ -f "$RALOG" ]; then
+  lm=$(mtime "$RALOG" || echo 0); lm=${lm:-0}
+  sm=$(mtime "$RASEEN" || echo 0); sm=${sm:-0}
   [ "$lm" -gt "$sm" ] && warns+=("UNREAD eval regression alert(s): $(tail -1 "$RALOG") — investigate, then: touch $RASEEN")
 fi
 
 # 5b. mount guard — External HD unmounted means RAG/brain/repos silently unreachable
 # (knowledge-brain.md prescribes loud-fail; was only enforced per-skill until 2026-07-09)
-[ -d "$EXTERNAL_HD" ] || warns+=("External HD NOT MOUNTED - RAG index, knowledge-brain, and dev repos unreachable; mount before any memory/graph write")
+# Only when this machine is configured for an external volume (EXTERNAL_HD_DIR/DEV_ROOT set)
+# AND it is a personal setup (~/.claude-env exists); otherwise there is nothing to be missing.
+[ -n "$EXTERNAL_HD" ] && [ -d "$ENV_DIR" ] && [ ! -d "$EXTERNAL_HD" ] && warns+=("External HD NOT MOUNTED - RAG index, knowledge-brain, and dev repos unreachable; mount before any memory/graph write")
 
 # 6. settings drift — a live settings.json value that shared+machine will overwrite on the
 # next `sync pull` (e.g. `/model opus` writes the derived file, but `model` is owned by
@@ -110,7 +145,7 @@ fi
 # fresh the target content actually was, a permanent false positive).
 hand=$(ls -tL "$CLAUDE_DIR"/handoffs/latest.md "$CLAUDE_DIR"/handoffs/*/latest.md 2>/dev/null | head -1)
 if [ -n "${hand:-}" ]; then
-  m=$(stat -f %m -L "$hand" 2>/dev/null || stat -c %Y -L "$hand" 2>/dev/null || echo "$now")
+  m=$(mtime -L "$hand" || echo "$now"); m=${m:-$now}
   d=$(( (now - m) / 86400 )); [ "$d" -gt 14 ] && warns+=("handoff ${d}d old ($hand) — stale resume packet, clear or act on it")
 fi
 
@@ -167,14 +202,17 @@ check_hb() { # $1 label, $2 max-age-hours
   h=$(age_h "$(cat "$f" 2>/dev/null || echo 0)")
   [ "$h" -gt "$2" ] && warns+=("heartbeat STALE: $1 last completed ${h}h ago (expected < ${2}h) — job dead or no-op?")
 }
-check_hb rag-nightly-rebuild 36
-check_hb memory-weekly-sync 200
+# Only where heartbeat instrumentation exists (personal machine); absent dir = silent.
+if [ -d "$hb_dir" ]; then
+  check_hb rag-nightly-rebuild 36
+  check_hb memory-weekly-sync 200
+fi
 
 # 10. ADR-0039 guard — project auto-memory copies must never re-enter the RAG index
 # (they are ~84% vault duplicates that filled both retrieval slots; enforced in
 # build.py 2026-07-23). Alert if any chunk reappears under a .claude/projects path.
 rag_db_main="$RAG_ROOT/index.sqlite"
-if [ -f "$rag_db_main" ]; then
+if [ -n "$RAG_ROOT" ] && [ -f "$rag_db_main" ] && command -v sqlite3 >/dev/null 2>&1; then
   n=$(sqlite3 "$rag_db_main" "SELECT COUNT(*) FROM chunks WHERE path LIKE '%/.claude/projects/%/memory/%';" 2>/dev/null || echo 0)
   [ "${n:-0}" -gt 0 ] && warns+=("ADR-0039 VIOLATION: $n RAG chunks from ~/.claude/projects/*/memory/ — duplicates are back in the index; purge + check build.py SOURCES")
 fi
@@ -194,12 +232,14 @@ fi
 # 12. phantom-guardrail check (multi-person-work-ethics 2.6): every rule that
 # claims MECHANICAL enforcement must name an artifact that provably exists.
 # If one of these goes missing, the rules citing it are instructions, not rails.
+# Personal-machine check: skipped unless ~/.claude-env exists.
 for art in \
   "$HOME/.claude/scripts/repo-mode.sh" \
   "$HOME/.kimi-code/hooks/rtk-rewrite.sh" \
   "$ENV_DIR/bin/sync" \
   "$HOME/.agents/skills/standards/cooperative-mode.md" \
   "$HOME/.agents/skills/standards/multi-person-work-ethics.md"; do
+  [ -d "$ENV_DIR" ] || break
   [ -e "$art" ] || warns+=("enforcement artifact MISSING: $art — rules citing it are phantom guardrails")
 done
 

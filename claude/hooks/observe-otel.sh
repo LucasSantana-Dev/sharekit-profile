@@ -26,6 +26,7 @@
 #   hooks/observe-otel.sh feedback +1 "rationale"   # record idempotent score
 #   hooks/observe-otel.sh status                     # print current knobs + last spans
 set -uo pipefail
+command -v jq >/dev/null 2>&1 || exit 0  # jq absent (stock macOS <= 14): gate inactive, fail open
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 RUNTIME="$ROOT/.harness/runtime"
@@ -118,7 +119,7 @@ if [[ "$hook_event" == "PostToolUse" && -f "$TRAJ" ]]; then
   # Rough context estimate: sum of response lengths in the current session.
   # Threshold defaults to 120000 chars (~30k tokens); override via OBSERVE_CTX_LIMIT.
   ctx_limit="${OBSERVE_CTX_LIMIT:-120000}"
-  est_ctx="$(jq -s 'map((.response|length) + (.input|length)) | add // 0' "$TRAJ" 2>/dev/null || echo 0)"
+  est_ctx="$(tail -n 500 "$TRAJ" | jq -s 'map((.response|length) + (.input|length)) | add // 0' 2>/dev/null || echo 0)"
   if [[ "$est_ctx" -gt "$ctx_limit" ]]; then
     printf -v breach '{"ts":"%s","name":"context.breach","session":"%s","est_ctx":%s,"limit":%s}\n' \
       "$ts" "$session_id" "$est_ctx" "$ctx_limit"

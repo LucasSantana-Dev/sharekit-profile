@@ -60,7 +60,7 @@ fi
 # Use hotfix timestamp as the identifier so the flag persists across sessions
 # until post-mortem is actually run
 STATE_DIR="$HOME/.claude/.state"; mkdir -p "$STATE_DIR"
-ACTION_FLAG="$STATE_DIR/hotfix-followup-action-$(echo "$LAST_HOTFIX_DONE" | md5sum | cut -d' ' -f1)"   # private state dir (was predictable /tmp)
+ACTION_FLAG="$STATE_DIR/hotfix-followup-action-$(echo "$LAST_HOTFIX_DONE" | { md5sum 2>/dev/null || md5 -q 2>/dev/null || shasum 2>/dev/null || cksum; } | cut -d' ' -f1)"   # private state dir (was predictable /tmp)
 
 if [ ! -f "$ACTION_FLAG" ]; then
   touch "$ACTION_FLAG"

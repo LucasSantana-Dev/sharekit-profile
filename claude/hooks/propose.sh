@@ -56,6 +56,15 @@ done
 
 die() { echo "propose: $*" >&2; exit 2; }
 
+# fd is optional: fall back to find (top-level *.md only, like fd --max-depth 1).
+list_forge_md() {
+  if command -v fd >/dev/null 2>&1; then
+    fd -e md . "$FORGE" --max-depth 1 2>/dev/null || true
+  else
+    find "$FORGE" -maxdepth 1 -type f -name '*.md' 2>/dev/null || true
+  fi
+}
+
 # --- --auto: scan forge candidates + regressions, propose for each target ---
 if [[ $auto -eq 1 ]]; then
   [[ -d "$FORGE" ]] || { echo "propose: no forge/ candidates to propose from"; exit 0; }
@@ -64,7 +73,7 @@ if [[ $auto -eq 1 ]]; then
   while IFS= read -r f; do
     t="$(jq -r '.target // .source_file // empty' "$f" 2>/dev/null)"
     [[ -n "$t" ]] && targets="$targets"$'\n'"$t"
-  done < <(fd -e md . "$FORGE" --max-depth 1 2>/dev/null || true)
+  done < <(list_forge_md)
   # Targets from regressions in history
   if [[ -f "$HISTORY" ]]; then
     while IFS= read -r t; do
@@ -121,7 +130,7 @@ out="$PROPOSALS/${ts//[:]/-}-$(basename "$target").md"
   if [[ -n "$candidate" ]]; then
     printf 'Anchored on candidate: %s\n\n' "$candidate"
   fi
-  forge_files="$(fd -e md . "$FORGE" --max-depth 1 2>/dev/null | head -5 || true)"
+  forge_files="$(list_forge_md | head -5 || true)"
   if [[ -n "$forge_files" ]]; then
     printf '```\n'
     printf '%s\n' "$forge_files"

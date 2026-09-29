@@ -11,6 +11,7 @@
 # advisory rule is enforceable only if every violation is observable. Logging
 # is the enforcement mechanism — the eval gate reads this log.
 set -uo pipefail
+command -v jq >/dev/null 2>&1 || exit 0  # jq absent (stock macOS <= 14): gate inactive, fail open
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG="$ROOT/.harness/runtime/idempotency.jsonl"
