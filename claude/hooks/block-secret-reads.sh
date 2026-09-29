@@ -6,6 +6,7 @@
 set -euo pipefail
 
 payload="$(cat)"
+command -v python3 >/dev/null 2>&1 || { echo "block-secret-reads: python3 missing, gate inactive" >&2; exit 0; }
 
 # Extract the fields we care about without requiring jq.
 field() { printf '%s' "$payload" | python3 -c "import sys,json
@@ -19,7 +20,9 @@ try:
 except Exception:
     pass" 2>/dev/null; }
 
-mapfile -t f < <(field)
+# bash 3.2 has no mapfile: it exited 127 under set -e, which fails open. Use a read loop.
+f=()
+while IFS= read -r _line; do f+=("$_line"); done < <(field)
 tool="${f[0]:-}"; haystack="${f[1]:-} ${f[2]:-} ${f[3]:-} ${f[4]:-}"
 
 # Secret-bearing path patterns (extended regex). Covers shell rc/profile, .env,

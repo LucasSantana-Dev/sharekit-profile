@@ -56,7 +56,7 @@ next_state() {
     implement) echo review_gate ;;
     review_gate) echo eval ;;
     eval) echo merge_gate ;;
-    merge_gate) echo done ;;
+    merge_gate) echo "done" ;;
     *) echo "" ;;
   esac
 }
@@ -79,10 +79,13 @@ while [[ $# -gt 0 ]]; do
     --list)
       [[ -s "$LEDGER" ]] || { echo "no tasks yet"; exit 0; }
       # Print the LATEST state line per task (last write wins).
-      mapfile -t lines < <(jq -r '[.task_id,.state,.ts,.summary] | @tsv' "$LEDGER" 2>/dev/null)
+      command -v jq >/dev/null 2>&1 || { echo "dispatch: --list needs jq" >&2; exit 0; }
+      # bash 3.2 has no mapfile: read lines in a loop.
+      lines=()
+      while IFS= read -r _l || [ -n "$_l" ]; do lines+=("$_l"); done < <(jq -r '[.task_id,.state,.ts,.summary] | @tsv' "$LEDGER" 2>/dev/null)
       latest_ids=()
       latest_lines=()
-      for l in "${lines[@]}"; do
+      for l in ${lines[@]+"${lines[@]}"}; do
         id="$(printf '%s' "$l" | cut -f1)"
         found=0
         for i in "${!latest_ids[@]}"; do
@@ -94,7 +97,7 @@ while [[ $# -gt 0 ]]; do
         done
         [[ "$found" -eq 0 ]] && { latest_ids+=("$id"); latest_lines+=("$l"); }
       done
-      for l in "${latest_lines[@]}"; do
+      for l in ${latest_lines[@]+"${latest_lines[@]}"}; do
         printf '%s\n' "$l"
       done | sort
       exit 0 ;;

@@ -56,9 +56,13 @@ unpaired=0
 pairs=""
 if [[ -f "$TRAJ" ]]; then
   # Pull the last 200 tool-call events as compact lines: ts \t tool \t outcome
-  mapfile -t recent < <(tail -n 200 "$TRAJ" 2>/dev/null \
+  # (bash 3.2 has no mapfile, so read line by line; ${recent[@]+...} guards an empty array under set -u)
+  recent=()
+  while IFS= read -r rline || [ -n "$rline" ]; do
+    recent+=("$rline")
+  done < <(tail -n 200 "$TRAJ" 2>/dev/null \
     | jq -r 'select(.event=="tool-call") | "\(.tool // "?")\t\(.outcome // "none")"' 2>/dev/null || true)
-  for line in "${recent[@]}"; do
+  for line in ${recent[@]+"${recent[@]}"}; do
     tool="${line%%$'\t'*}"
     outcome="${line##*$'\t'}"
     if [[ "$outcome" == "none" || -z "$outcome" ]]; then

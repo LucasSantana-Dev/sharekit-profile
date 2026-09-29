@@ -23,11 +23,16 @@ case "$FILE" in */SKILL.md) ;; *) exit 0 ;; esac
 [ -f "$FILE" ] || exit 0
 
 hard=""; warn=""
+# PyYAML is not stdlib: without it the frontmatter check cannot run, so skip it (never block on it).
+HAVE_YAML=0
+python3 -c 'import yaml' 2>/dev/null && HAVE_YAML=1
+[ "$HAVE_YAML" = "1" ] || echo "skill-quality-gate: PyYAML not installed, skipping frontmatter YAML check (pip install pyyaml to enable)" >&2
 hadd(){ hard="${hard}${hard:+; }$1"; }
 add(){ warn="${warn}${warn:+; }$1"; }
 
 # ===== HARD checks (block) =====
 # H1. frontmatter parses as strict YAML (the 19-skill bug class) — invalid YAML => skill won't load
+if [ "$HAVE_YAML" = "1" ]; then
 python3 - "$FILE" <<'PY' 2>/dev/null || hadd "frontmatter not valid YAML (quote colon/list values)"
 import re,sys,yaml
 t=open(sys.argv[1]).read()
@@ -35,13 +40,16 @@ m=re.match(r'^---\n(.*?)\n---\n',t,re.S)
 if not m: sys.exit(1)
 yaml.safe_load(m.group(1))
 PY
+fi
 # H2. backtick fence parity — odd count => unclosed code block, breaks rendering
 [ $(( $(grep -c '^```' "$FILE") % 2 )) -eq 0 ] || hadd "odd code-fence count (unclosed \`\`\`)"
 
 # ===== SOFT checks (warn) =====
 # S1. frontmatter name must match dir (composite-contract; caught the adt-auto-invoke drift 2026-06-26)
 DIR="${FILE%/SKILL.md}"; DIR="${DIR##*/}"
-NM=$(python3 - "$FILE" <<'PY' 2>/dev/null
+NM=""
+if [ "$HAVE_YAML" = "1" ]; then
+NM=$(python3 - "$FILE" <<'PY' 2>/dev/null || true
 import re,sys,yaml
 t=open(sys.argv[1]).read()
 m=re.match(r'^---\n(.*?)\n---\n',t,re.S)
@@ -52,6 +60,7 @@ except Exception:
     print('')
 PY
 )
+fi
 [ -n "$NM" ] && [ "$NM" != "$DIR" ] && add "frontmatter name '$NM' != dir '$DIR' (name should match dir)"
 # S2. mcp_servers declared-vs-available (delegate to checker if present)
 if [ -x "$HOME/.claude/scripts/skill-mcp-check.py" ]; then

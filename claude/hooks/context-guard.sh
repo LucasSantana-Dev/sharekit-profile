@@ -28,6 +28,7 @@
 #
 # Wire in claude/settings.json PostToolUse alongside trajectory-log.sh.
 set -uo pipefail
+command -v jq >/dev/null 2>&1 || exit 0  # jq absent (stock macOS <= 14): gate inactive, fail open
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 RUNTIME="$ROOT/.harness/runtime"
@@ -53,7 +54,7 @@ if [[ "$resp_len" -gt "$BUDGET" ]]; then
   # One-line digest: first 160 chars of meaningful content, stripped of noise.
   digest="$(printf '%s' "$tool_response" \
     | tr '\n' ' ' \
-    | sed -E 's/\s+/ /g' \
+    | sed -E 's/[[:space:]]+/ /g' \
     | head -c 160)"
   safe_tool="$(printf '%s' "$tool_name" | tr -c '[:alnum:]-' '_')"
   : > "$DIGESTS/${ts//[:]/-}_${safe_tool}.digest"

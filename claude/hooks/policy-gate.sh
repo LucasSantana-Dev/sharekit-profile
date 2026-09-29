@@ -3,8 +3,9 @@
 #
 # The Wave-5 safety/governance track converged on one principle: authorization
 # must be enforced OUTSIDE the model, in deterministic code, bound to immutable
-# context, and written to a tamper-evident ledger. The existing
-# check-dangerous-patterns.sh blocks known-bad Bash regexes; this hook adds the
+# context, and written to a tamper-evident ledger. In the author's own setup a
+# separate check-dangerous-patterns.sh (not shipped here) blocks known-bad Bash
+# regexes; this hook adds the
 # missing pieces from microsoft/agent-governance-toolkit, cordum, Janus,
 # provenex, and agence:
 #
@@ -33,6 +34,7 @@
 #   hooks/policy-gate.sh --verify     # walk the ledger, report chain integrity
 #   hooks/policy-gate.sh --status     # decision counts by verdict
 set -uo pipefail
+command -v jq >/dev/null 2>&1 || exit 0  # jq absent (stock macOS <= 14): gate inactive, fail open
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 POLICY="$ROOT/.harness/mcp-policy.json"
@@ -87,7 +89,12 @@ fi
 
 # --- Hook mode --------------------------------------------------------------
 if [[ ! -f "$POLICY" ]]; then
-  echo "policy-gate: .harness/mcp-policy.json not found - fail-open (allow)" >&2
+  # The profile does not ship an MCP policy (it is operator-specific and default-deny), so this
+  # is the normal state on an installed machine. Say so once, then stay quiet.
+  if [[ ! -f "$RUNTIME/.note-no-mcp-policy" ]]; then
+    echo "policy-gate: .harness/mcp-policy.json not found - fail-open (allow); this note prints once" >&2
+    : > "$RUNTIME/.note-no-mcp-policy" 2>/dev/null || true
+  fi
   exit 0
 fi
 
@@ -126,8 +133,8 @@ fi
 
 # Note: native file-mutating tools (Write/Edit/MultiEdit) are intentionally NOT
 # gated here. Per mcp-policy.json, allowFileWrite governs MCP servers; native
-# tools are governed at the tool layer by check-idempotency.sh and
-# check-dangerous-patterns.sh. policy-gate focuses on MCP least-privilege scope.
+# tools are governed at the tool layer by check-idempotency.sh (and, where
+# installed, check-dangerous-patterns.sh). policy-gate focuses on MCP least-privilege scope.
 
 # --- Append to the hash-chained ledger --------------------------------------
 prev_hash="GENESIS"

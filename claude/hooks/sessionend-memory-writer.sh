@@ -62,7 +62,7 @@ CWD=$(echo "$INPUT" | jq -r '.cwd // empty' 2>/dev/null)
 if [ -n "$CWD" ] && [ "$("$HOME/.claude/scripts/repo-mode.sh" "$CWD" 2>/dev/null || echo solo)" = "cooperative" ]; then
   RESOLVED=$(cd "$MEMORY_DIR" 2>/dev/null && pwd -P || echo "$MEMORY_DIR")
   case "$RESOLVED" in
-    "${DEV_ROOT}/knowledge-brain"*) MEMORY_DIR="$PROJECT_DIR/memory-coop"; mkdir -p "$MEMORY_DIR" 2>/dev/null || exit 0 ;;
+    "${DEV_ROOT:-/nonexistent-dev-root}/knowledge-brain"*) MEMORY_DIR="$PROJECT_DIR/memory-coop"; mkdir -p "$MEMORY_DIR" 2>/dev/null || exit 0 ;;
   esac
 fi
 
@@ -133,7 +133,9 @@ with open(out, "w") as f:
 PY
 
 # Write-path guard: redact any secrets captured from the session JSONL, stamp provenance.
-python3 "${DEV_ROOT}/rag-index/memory_guard.py" guard "$NOTE_FILE" \
-  --provenance hook-auto --trust trusted 2>/dev/null || true
+if [ -n "${DEV_ROOT:-}" ] && [ -f "$DEV_ROOT/rag-index/memory_guard.py" ]; then
+  python3 "$DEV_ROOT/rag-index/memory_guard.py" guard "$NOTE_FILE" \
+    --provenance hook-auto --trust trusted 2>/dev/null || true
+fi
 
 exit 0
