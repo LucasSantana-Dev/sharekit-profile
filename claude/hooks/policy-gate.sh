@@ -33,6 +33,7 @@
 #   hooks/policy-gate.sh --verify     # walk the ledger, report chain integrity
 #   hooks/policy-gate.sh --status     # decision counts by verdict
 set -uo pipefail
+command -v jq >/dev/null 2>&1 || exit 0  # jq absent (stock macOS <= 14): gate inactive, fail open
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 POLICY="$ROOT/.harness/mcp-policy.json"
@@ -87,7 +88,12 @@ fi
 
 # --- Hook mode --------------------------------------------------------------
 if [[ ! -f "$POLICY" ]]; then
-  echo "policy-gate: .harness/mcp-policy.json not found - fail-open (allow)" >&2
+  # The profile does not ship an MCP policy (it is operator-specific and default-deny), so this
+  # is the normal state on an installed machine. Say so once, then stay quiet.
+  if [[ ! -f "$RUNTIME/.note-no-mcp-policy" ]]; then
+    echo "policy-gate: .harness/mcp-policy.json not found - fail-open (allow); this note prints once" >&2
+    : > "$RUNTIME/.note-no-mcp-policy" 2>/dev/null || true
+  fi
   exit 0
 fi
 
