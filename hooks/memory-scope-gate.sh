@@ -193,11 +193,13 @@ target_scope="$(scope_of "$path")"
 
 if [[ ! -f "$POLICY" ]]; then
   # Not shipped by the profile (operator-specific); note once, then stay quiet.
-  # ROOT here is the project repo, so keep the marker out of it.
-  _note="${TMPDIR:-/tmp}/.memory-scope-gate-note-$(id -u)"
+  # ROOT here is the project repo, so keep the marker in the hook runtime dir under the config dir
+  # (not a predictable name in shared /tmp).
+  _rt="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.harness/runtime"
+  _note="$_rt/.note-no-memory-scopes"
   if [[ ! -f "$_note" ]]; then
     echo "memory-scope-gate: no .harness/memory-scopes.json - fail-open (allow); this note prints once" >&2
-    : > "$_note" 2>/dev/null || true
+    { mkdir -p "$_rt" && : > "$_note"; } 2>/dev/null || true
   fi
   allow
 fi
