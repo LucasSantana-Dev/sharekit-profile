@@ -15,6 +15,7 @@ metadata:
   owner: global-agents
   tier: personal
   canonical_source: ~/.claude/skills/sync-sharekit-profile
+disable-model-invocation: true
 ---
 
 # sync-sharekit-profile

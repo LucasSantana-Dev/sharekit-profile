@@ -11,6 +11,7 @@ triggers:
   - do all these
   - audit in parallel
   - independent tasks
+disable-model-invocation: true
 ---
 
 # Parallel Work Coordinator
