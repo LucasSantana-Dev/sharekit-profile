@@ -9,7 +9,7 @@ triggers:
   - transfer context
 ---
 
-Write a handoff document summarising the current conversation so a fresh agent can continue the work. Save to `$(~/.claude/bin/handoffs dir)/<YYYY-MM-DD>-<slug>-<HHMM>.md` (one file per session topic; several open handoffs per repo is normal). First line: `# <repo>, <dd/mm/yyyy>: <the topic in one line>`; the list shown to the next session uses it. Never write `latest.md` (single slot, clobbered by concurrent sessions). When a topic is finished, `~/.claude/bin/handoffs done <part-of-name>` (never by number) archives its handoff.
+Write a handoff document summarising the current conversation so a fresh agent can continue the work. Save to `$(~/.claude/skills/handoff/bin/handoffs dir)/<YYYY-MM-DD>-<slug>-<HHMM>.md` (one file per session topic; several open handoffs per repo is normal). First line: `# <repo>, <dd/mm/yyyy>: <the topic in one line>`; the list shown to the next session uses it. Never write `latest.md` (single slot, clobbered by concurrent sessions). When a topic is finished, `~/.claude/skills/handoff/bin/handoffs done <part-of-name>` (never by number) archives its handoff.
 
 Include a "suggested skills" section in the document, which suggests skills that the agent should invoke.
 

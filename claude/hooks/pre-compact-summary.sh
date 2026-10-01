@@ -15,7 +15,7 @@ JSONL=$(find "$HOME/.claude/projects" -name "${SESSION_ID}.jsonl" 2>/dev/null | 
 [[ -z "$JSONL" || ! -f "$JSONL" ]] && exit 0
 
 CWD=$(echo "$INPUT" | jq -r '.cwd // empty' 2>/dev/null)
-PROJ=$(cd "${CWD:-$PWD}" 2>/dev/null && "$HOME/.claude/bin/handoffs" dir 2>/dev/null)
+PROJ=$(cd "${CWD:-$PWD}" 2>/dev/null && "$HOME/.claude/skills/handoff/bin/handoffs" dir 2>/dev/null)
 HANDOFF_DIR="${PROJ:-$HOME/.claude/handoffs/_sem-projeto}/auto"
 mkdir -p "$HANDOFF_DIR"
 HANDOFF_FILE="$HANDOFF_DIR/${SESSION_ID}.md"
