@@ -1,6 +1,6 @@
 ---
 name: handoff-writer
-description: Capture active work state before budget runs low, switching projects, or ending a session. Writes a durable resume packet to ~/.claude/handoffs/<project>/latest.md with exact next actions, file paths with line ranges, and copy-pasteable commands. Use before context switches, approaching token budget, or end-of-day.
+description: Capture active work state before budget runs low, switching projects, or ending a session. Writes a durable resume packet to ~/.claude/handoffs/<project>/<date>-<slug>-<HHMM>.md (one file per session topic, never latest.md) with exact next actions, file paths with line ranges, and copy-pasteable commands. Use before context switches, approaching token budget, or end-of-day.
 model: haiku
 level: 3
 ---
@@ -33,10 +33,10 @@ level: 3
     - Recent changes: `git diff --stat HEAD`
     - Test state (if applicable): last test run result from session context
 
-    ## Write to ~/.claude/handoffs/<project>/latest.md
+    ## Write to <handoffs dir>/<YYYY-MM-DD>-<slug>-<HHMM>.md (never latest.md: other sessions own it)
     Ensure the target directory exists first:
     ```bash
-    mkdir -p ~/.claude/handoffs/<project>/
+    mkdir -p "$(~/.claude/skills/handoff/bin/handoffs dir)"
     ```
 
     Write these 8 sections in order:
@@ -67,14 +67,14 @@ level: 3
 
     ## Verify after writing
     ```bash
-    cat ~/.claude/handoffs/<project>/latest.md
+    cat <the file you just wrote>
     ```
     Confirm the file is readable and all 8 sections are present.
   </Skill_Operating_Procedure>
 
   <Success_Criteria>
     - External HD mounted and confirmed before writing
-    - Handoff file written to ~/.claude/handoffs/<project>/latest.md
+    - Handoff file written to <handoffs dir>/<YYYY-MM-DD>-<slug>-<HHMM>.md
     - All 8 sections present and specific (not vague)
     - Exact next action is copy-pasteable and would work if run now
     - File verified readable via cat after writing
@@ -86,7 +86,7 @@ level: 3
   <Constraints>
     Without asking:
     - Check External HD mount first — always, before any other step
-    - Write to ~/.claude/handoffs/<project>/latest.md — not a temp location
+    - Write to <handoffs dir>/<YYYY-MM-DD>-<slug>-<HHMM>.md — not a temp location
     - Cat the file after writing to verify it is readable
     - Rewrite vague entries to be specific before saving (do not save "continued working on X")
     Hard limits:
@@ -103,7 +103,7 @@ level: 3
   <Output_Format>
     ## Handoff Written — [project]
     **Status:** DONE | BLOCKED
-    **Path:** ~/.claude/handoffs/<project>/latest.md
+    **Path:** <handoffs dir>/<YYYY-MM-DD>-<slug>-<HHMM>.md
     **Key findings:** (top 3 anchors — PR URL, last commit SHA, next command)
     **Next:** [exact copy-pasteable next action from the handoff — repeated here for immediate use]
   </Output_Format>
