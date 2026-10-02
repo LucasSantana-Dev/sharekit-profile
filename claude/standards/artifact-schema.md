@@ -20,7 +20,7 @@ type: adr                    # required — one of: adr, plan, spec, review, dec
 title: <one-line summary>    # required
 status: accepted             # required — see enum below
 date: 2026-06-18             # required — YYYY-MM-DD
-deciders: lucas-santana      # optional
+deciders: <operator>      # optional
 phase: <composite phase>     # optional — which composite phase owns/produced this (compozy queryability)
 blockers: none               # optional — `none` or a list; a non-empty list means status should be `blocked`
 supersedes: [ADR-0013]       # optional — what this replaces

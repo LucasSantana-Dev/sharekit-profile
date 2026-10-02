@@ -160,7 +160,7 @@ Rules:
   URL, ADR path, test path, memory file, etc.). "Implicit context" doesn't
   count.
 - If two composites overlap on intent, the precedence rules in
-  `skill-auto-invoke.md` (Precedence section) decide. Composites must not
+  `skill-authoring.md` (Precedence section) decide. Composites must not
   silently re-invoke each other; if `/hotfix` queues `/incident-response` (Phase 3
   post-mortem), that queue is explicit and visible in the reconciliation block.
 
@@ -170,7 +170,7 @@ If composite A auto-queues skill/composite B at the end (e.g., `/hotfix` →
 `/incident-response` Phase 3), this must be:
 - Declared in A's "When this fires" of B (auto-queued by A)
 - Declared in A's reconciliation block as `Queued: /<B>`
-- Listed in `skill-auto-invoke.md`'s "Auto-chain pairs" section
+- Listed in `skill-authoring.md`'s "Auto-chain pairs" section
 
 Implicit auto-queues are forbidden — they make the chain unobservable.
 
@@ -190,7 +190,7 @@ When a composite reads a config file (e.g., `dep-sweep-config.json`), it must:
 - [ ] Reconciliation block template literal-text matches the format above
 - [ ] Stop conditions cover: precondition-fail, mid-chain-fail, indefinite-defer
 - [ ] Negative rules include at least "do NOT skip the reconciliation block"
-- [ ] Trigger row added to `skill-auto-invoke.md`
+- [ ] Trigger row added to `skill-authoring.md`
 - [ ] Pattern added to `composite-router.sh` (if intent is detectable from a
       free-text prompt)
 - [ ] If composite auto-queues another, both ends declare it

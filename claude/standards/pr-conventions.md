@@ -150,8 +150,8 @@ gh api repos/<owner>/<repo>/branches/main --jq .protected
 This list was created because knowledge-brain was already exempt in practice —
 a bare `git push` (no refspec) was never caught by the hook, and the server had
 no protection either. It was exempt by accident of command shape. Naming it
-here makes the exemption reviewable; see
-[[gotcha_brain_push_lacuna_sem_guarda_2026-08-20]].
+here makes the exemption reviewable. Related memory note (gotcha_brain_push_lacuna_sem_guarda_2026-08-20) is dated
+advice: verify against the hook and server before acting on it.
 
 ## Reviewer behavior
 

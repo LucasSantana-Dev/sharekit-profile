@@ -30,6 +30,8 @@ diversity of *checks*, not head-count, is what works). The critic must be:
 Proceed with the winner. Escalate to human ONLY if the critic flags: irreversibility it cannot
 rule out, or the change touches auth, secrets, or a data-integrity boundary.
 
+Scope forks that would waste >30 minutes if guessed wrong are T2 (the critic resolves them) unless both branches are T3-shaped.
+
 Log every T2 gate: one JSON line to `~/.claude/autonomy-gates.jsonl`
 (`{"ts","action","critic_verdict","proceeded","escalated"}`). Append-only; this is the drift audit trail.
 
@@ -83,6 +85,12 @@ branch_protection_enforced: true  # advisory note: confirm this is actually ON i
 Activation trigger: the first real conflict on an actual team repo, not this document's
 existence. When that happens, wire `require_review_signal` into `pr-merge-readiness`'s SKIP
 logic and downgrade T1/T2 accordingly; until then this is reference material only.
+
+## Compliance
+The T2 gate is observed, not blocked: `t2-gate-detect.sh` detects T2-shaped actions and injects
+advisory context only; nothing is hard-stopped, so the critic pass and the gate log depend on the
+agent following this standard. Team mode and cooperative mode (see `cooperative-mode.md`) turn T2 into T3: those
+actions need explicit human go-ahead instead of critic-then-proceed.
 
 ## Anti-fatigue rule
 T3 asks must stay rare to stay meaningful. If a session generates >3 human escalations, stop and

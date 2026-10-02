@@ -1,313 +1,182 @@
 # Red Flags: Observable Violations
 
-A concise catalogue of anti-actions an agent must never execute or approve. Each entry names the violation, gives the observable signal, and grounds why it matters. Organized by domain. Reference this from skills, standards, and incident-response workflows.
+Anti-actions an agent must never execute or approve. Each entry gives the observed trigger and the required action: halt, surface, and fix before continuing. Referenced from skills, standards, and incident workflows.
 
 ## Git / Release Domain
 
 ### Force-Push to main / Protected Branch
-**Observable signal:**
-- `git push --force origin main` (or `--force-with-lease`)
-- `gh pr merge --admin` on a PR with failing CI or incomplete reviews
-- Rebase/reset on main after commit reaches origin
-- Branch protection enforcement state changed via API mid-session
-
-**Why it matters:** Rewrites history; loses commits, loses audit trail, breaks other operators' branches.
+Trigger: `git push --force` (or `--force-with-lease`) to main; `gh pr merge --admin` on a PR with failing CI or incomplete reviews; rebase/reset of main after it reached origin; branch protection changed via API mid-session.
+Action: never do it. Halt and ask the human (T3).
 
 ---
 
 ### Merging a PR with Failing CI
-**Observable signal:**
-- PR status shows red (failing check)
-- CI job marked as incomplete or skipped
-- Merge button used when `enforce_admins: true` is not in place
-- Green badge faked via skip/bypass (`--no-verify`, removed check from required list, skip decorator in config)
-
-**Why it matters:** Ships unverified code; breaks trunk; increases incident blast radius.
+Trigger: red, incomplete, or skipped check; green faked via `--no-verify`, a check removed from the required list, or a skip decorator.
+Action: never merge. Fix or surface the failing check first.
 
 ---
 
 ### Committing a Secret / .env File
-**Observable signal:**
-- File matches: `.env`, `*.key`, `credentials.json`, `secret*`, `PASSWORD=`, API key, OAuth token, database URI in plain text
-- File staged or committed with PII (email in plaintext outside comments, phone, SSN, account numbers)
-- Git history diff shows `aws_access_key`, `OPENAI_API_KEY`, private SSH key material
-- `.gitignore` missing entry that should block a secret file
-
-**Why it matters:** Exposes credentials; enables account takeover, data breach, unauthorized API usage. Commits cannot be undone; secret must be rotated.
+Trigger: `.env`, `*.key`, `credentials.json`, `secret*`, API keys, tokens, DB URIs, private keys, or PII staged or committed; missing `.gitignore` entry for a secret file.
+Action: halt, unstage, rotate the secret (commits cannot be undone), add the ignore entry.
 
 ---
 
 ### Pushing to main Without PR
-**Observable signal:**
-- Direct push to `main` branch (bypasses code review)
-- Commit message missing from PR body / code review log
-- No corresponding PR link in commit or git log
-- History shows "Merge commit" to main with no PR number
-
-**Why it matters:** Removes peer review; loses change rationale; violates trunk discipline.
+Trigger: direct push to `main`; commit with no PR link; merge commit on main with no PR number.
+Action: never push to main directly, except repos listed in `push-exemptions.txt` (see pr-conventions.md). Open a PR.
 
 ---
 
 ### Auto-Merge or Auto-Deploy Without Clear CI/Review State
-**Observable signal:**
-- Merge or deploy triggered while CI status is pending, unknown, or not queried
-- "Speed" cited as the reason to skip checking review-thread resolution or required-check state
-- Deploy proceeds because a prior deploy succeeded, not because this one was verified
-
-**Why it matters:** This is hidden risk wearing speed's clothes — an unclear CI/review state means the actual risk was never assessed, not that it was low.
+Trigger: merge or deploy while CI is pending, unknown, or not queried; speed cited to skip review-thread or required-check state; deploy justified by a prior deploy.
+Action: halt. Unclear state means risk was never assessed. Verify this change before merging or deploying.
 
 ---
 
 ### Tag / Release Pushed Without Gate
-**Observable signal:**
-- `git tag` created and pushed without version bump commit
-- Release artifact tagged but changelog not updated
-- Semantic versioning violated (e.g., tag v1.2.2 then v1.2.1 added later)
-- Release cut while branch is not `release/*` or `main`
-
-**Why it matters:** Breaks dependency resolution; users cannot pin stable versions; rollback is confusing.
+Trigger: tag pushed without a version bump commit or changelog update; semver violated; release cut from a branch other than `release/*` or `main`.
+Action: do not tag. Run the version-bump and changelog gate first.
 
 ---
 
 ## Security Domain
 
 ### Editing ~/.claude-env in Place Without Committing
-**Observable signal:**
-- `~/.claude-env/standards/*.md` modified but not committed
-- `~/.claude-env/skills/*.md` or `SKILL.yaml` changed without corresponding commit message
-- `~/.claude-env/settings.json` or `settings.local.json` drift detected vs. last committed version
-- Agent skill edits visible in session but not in git log
-
-**Why it matters:** Rules are code; changes must be auditable. Next session gets outdated context; durable decisions are lost.
+Trigger: `~/.claude-env` standards, skills, or settings modified or drifted with no matching commit.
+Action: commit the change before acting on it (rules are code; changes must be auditable).
 
 ---
 
 ### Skipping Hook / Verification
-**Observable signal:**
-- Commit with `--no-verify` flag
-- `HUSKY=0` used for non-trivial changes (allowed only for comment/formatting fixes, not logic)
-- Pre-commit hook bypassed via env var while committing code
-- Git config changed to disable signing (`commit.gpgsign=false`) mid-session
-
-**Why it matters:** Hooks enforce quality gates (lint, test, secret-scan, commit-msg). Bypassing them ships unverified changes.
+Trigger: `--no-verify`, `HUSKY=0` on logic changes (allowed only for comment/formatting fixes), hook bypassed via env var, signing disabled (`commit.gpgsign=false`) mid-session.
+Action: never bypass. Fix the failing gate instead.
 
 ---
 
 ### Writing Passwords or Keys to stdout / Logs
-**Observable signal:**
-- Output contains `password:`, `api_key:`, `token:`, `secret:` followed by a value
-- Echo or print statement reveals credential material
-- Log file captured with credentials visible
-- Test output or error message leaks authentication data
-
-**Why it matters:** Credentials exposed in logs; reviewers, watchers, CI systems see secret material.
+Trigger: output, logs, tests, or errors showing `password:`, `api_key:`, `token:`, `secret:` with a value.
+Action: never print credential material. Redact, and rotate if exposed.
 
 ---
 
 ## Testing Domain
 
 ### Skipping Tests Then Claiming Done
-**Observable signal:**
-- `git commit -m "fix: ..."` with no corresponding test file created or modified
-- Test suite commented out or disabled (`skip()`, `x.test()`, `.skip`, `@pytest.mark.skip`)
-- Coverage report shows decrease after change; claim is "not related"
-- `--no-test` flag used or test invocation omitted before commit
-
-**Why it matters:** Untested code breaks silently; regression not caught; claims honesty is violated.
+Trigger: fix commit with no test added or changed; tests disabled (`skip`, `.skip`, `@pytest.mark.skip`); coverage dropped and called "unrelated"; test run omitted before commit.
+Action: add or run the tests before claiming done.
 
 ---
 
 ### Test Coverage Decrease Without Justification
-**Observable signal:**
-- Coverage drops >5% in diff
-- New files added with 0% coverage
-- Old tests removed without replacement
-- Coverage gate passed via baseline lowering, not code quality
-
-**Why it matters:** Debt accumulates; future changes become riskier.
+Trigger: coverage drops >5% in the diff; new files at 0%; tests removed without replacement; gate passed by lowering the baseline.
+Action: restore coverage or justify explicitly; never lower the baseline to pass.
 
 ---
 
 ### Flaky Test Not Fixed, Marked Skip
-**Observable signal:**
-- Test in CI shows `@skip`, `@flaky`, or `pending` marker
-- Flake history exists but no root-cause investigation or fix committed
-- Same test fails intermittently across runs; agent marks it skip instead of fixing
-- Flake logged as "known issue — skipping for now"
-
-**Why it matters:** Unreliable tests mask real failures; credibility of test suite erodes.
+Trigger: `@skip`, `@flaky`, or `pending` on a flaky test with no root-cause work; "known issue, skipping for now".
+Action: investigate and fix the root cause; do not skip.
 
 ---
 
 ## Harness Integrity Domain
 
 ### Reporting a Metric Without Running the Gate
-**Observable signal:**
-- Claim "coverage is 85%" without running `npm run coverage` or equivalent
-- "All tests pass" claimed without running test suite
-- "No lint errors" stated without running linter
-- Performance metric cited without running benchmark
-
-**Why it matters:** Unverified claims; operator decisions based on false data.
+Trigger: coverage, tests-pass, lint-clean, or performance claimed without running the tool.
+Action: run the gate, then report its output.
 
 ---
 
 ### Composite Skill Bail-Out Without Surfacing Blocker
-**Observable signal:**
-- Skill invoked (e.g., `/refactor-pipeline`) starts a phase but silently switches to a sub-skill
-- Phase output shows "moving to next phase" but prior phase was incomplete
-- Composite completes "successfully" but earlier phases logged as skipped
-- Agent output claims "refactored and tested" but reconciliation block for "test" phase shows incomplete
-
-**Why it matters:** Contract violation; composite guarantees (chaining, gate enforcement) are broken. Next session has no record of where it failed.
+Trigger: a composite silently switches to a sub-skill, moves on from an incomplete phase, or reports success with earlier phases skipped.
+Action: do not bail mid-composite. Surface the blocker as the composite's output.
 
 ---
 
 ### Writing File Without State-Check (Idempotency Violation)
-**Observable signal:**
-- File edited twice in same session with no intervening read
-- Append operation runs on file that may have been modified by parallel agent
-- Git diff shows same line changed twice with different content
-- Timestamp on file shows recent modification but no session record of why
-
-**Why it matters:** Double-mutations; state drift; data loss.
+Trigger: file edited twice with no intervening read; append to a file a parallel agent may have changed; same line changed twice with different content.
+Action: state-check (re-read) before every mutation.
 
 ---
 
 ### Agent Edits Repository Context Without Committing First
-**Observable signal:**
-- CLAUDE.md modified but not committed
-- ADR added but not in git log
-- New standard in `~/.claude-env/standards/` without corresponding commit
-- Agent acts on context that is not yet in repository (violates "repository as single source of truth")
-
-**Why it matters:** Future agents act on outdated rules; decisions are not durable; handoffs are incomplete.
+Trigger: CLAUDE.md, an ADR, or a standard modified but uncommitted; agent acts on context not yet in the repository.
+Action: commit the context first (repository is the source of truth).
 
 ---
 
 ### Runtime Residue Mistaken for Durable Policy
-**Observable signal:**
-- A behavior only exists as a session-scoped temp file, env var, or in-memory state, with no corresponding entry in a committed standard/skill/hook
-- Next session doesn't reproduce a rule that "worked last time" because it never left runtime
-- A fix applied to a rendered/live file (e.g. `~/.claude/settings.json`) but never to its tracked source (`~/.claude-env/settings/shared.json`), so a later render silently reverts it
-
-**Why it matters:** What isn't durable disappears the moment the session or a resync ends — the exact failure mode that let `tool-failures.log`'s broken hook survive four separate "fixes" undetected.
+Trigger: a behavior exists only as a session temp file, env var, or in-memory state; a fix applied to a rendered file (e.g. `~/.claude/settings.json`) but not its tracked source (`~/.claude-env/settings/shared.json`), so a render reverts it.
+Action: land the change in the committed standard, skill, hook, or tracked source.
 
 ---
 
 ### Duplicate Skill/Hook Names Create Routing Ambiguity
-**Observable signal:**
-- Two skills or hooks share a name across `.archive/` and live catalogs, or across `~/.agents/skills` and a project-local `claude/skills/`
-- Auto-invoke or composite-router matches the wrong one, or the model can't tell which is canonical
-- A catalog audit finds N duplicate names (harness-vitals flagged 127 in this harness as of 2026-08-14)
-
-**Why it matters:** Ambiguous routing means the operator can't predict which version fires; silently picking the stale/archived one ships the wrong behavior.
+Trigger: two skills or hooks share a name across `.archive/` and live catalogs, or across `~/.agents/skills` and a project-local `claude/skills/`; routing picks the wrong one.
+Action: surface the duplicate and resolve to one canonical entry; never silently use the stale or archived one.
 
 ---
 
 ### Hook Trying to Do Too Much
-**Observable signal:**
-- A single hook script handles multiple unrelated responsibilities (detection + logging + blocking + notification all in one file)
-- A hook fails silently on one responsibility because an unrelated code path threw first
-- Debugging "why didn't X fire" requires reading past unrelated logic to find the relevant branch
-
-**Why it matters:** Hooks that do too much become silent-failure factories — one broken branch takes the whole hook down instead of just the feature that actually broke, and a validation gap (like a mistyped event name) hides behind logic that looks like it's working.
+Trigger: one hook script handles unrelated responsibilities (detection, logging, blocking, notification); one branch throwing silently disables the rest.
+Action: split into single-purpose hooks.
 
 ---
 
 ## Claims Honesty Domain
 
 ### Claiming Done Because the Git Tree Is Clean
-**Observable signal:**
-- "Task complete" stated with `git status` clean, but no check that the diff actually addressed the request
-- Work verified by absence of uncommitted changes rather than by re-reading the requirement
-- A revert or a no-op commit leaves a clean tree that looks identical to a correct fix
-
-**Why it matters:** A clean tree proves nothing was left uncommitted — it says nothing about whether the right thing was committed.
+Trigger: "complete" asserted from a clean `git status` without re-reading the requirement; a revert or no-op commit looks identical to a fix.
+Action: verify the diff against the request before claiming done.
 
 ---
 
 ### Claiming Feature "Done" Without Integration Test
-**Observable signal:**
-- PR marked as "ready for merge" with no E2E test added
-- Feature claim: "user can log in" but no test that exercises login flow end-to-end
-- Change marked complete but downstream integration point untested
-- "Works in isolation" vs. "works in product" conflated
-
-**Why it matters:** Feature appears done but breaks in real usage; user-facing regression.
+Trigger: PR ready with no E2E test; feature claimed with no test exercising the flow; "works in isolation" conflated with "works in product".
+Action: add or run an integration test before claiming done.
 
 ---
 
 ### Reporting Success When Work Was Partially Done
-**Observable signal:**
-- Handoff marked "done" but follow-up work listed in same task file
-- Skill output says "completed" but next action is evident in code
-- PR claim: "all issues resolved" but 2 of 3 referenced issues still open
-- Session close marks task complete but CLAUDE.md lists continuation steps
-
-**Why it matters:** Operator believes work is done; next session re-discovers same incomplete state.
+Trigger: "done" with follow-up work still listed; "all issues resolved" while referenced issues are open; task closed while continuation steps remain.
+Action: report the remaining work explicitly; never mark partial work done.
 
 ---
 
 ### Claiming No Regressions Without Running Regression Test
-**Observable signal:**
-- "No regressions" stated without running full test suite
-- Change marked "safe" without running integration tests
-- Claim: "backward compatible" but no test covering old API behavior
-- Rollback risk not assessed but claim is "low risk"
-
-**Why it matters:** Unverified safety claim; operator confidence is unjustified.
+Trigger: "no regressions", "safe", or "backward compatible" stated without the full suite, integration tests, or old-API coverage; rollback risk unassessed.
+Action: run the tests before the claim, or state it is unverified.
 
 ---
 
 ### Modifying Acceptance Criteria to Match Incomplete Implementation
-**Observable signal:**
-- PR description task list changed from original issue
-- Test assertions loosened to pass (e.g., `>=` instead of `===`)
-- Edge case requirement removed from spec mid-implementation
-- "Done when" criterion reworded to match what was built instead of what was requested
-
-**Why it matters:** Acceptance criteria are contractual; changing them post-hoc violates trust.
+Trigger: task list changed from the original issue; assertions loosened (`>=` for `===`); edge case dropped mid-implementation; "done when" reworded to match what was built.
+Action: never change criteria post-hoc. Meet them or surface the gap to the owner.
 
 ---
 
 ## Cross-Domain Patterns
 
 ### Observable Violation: Stuck Loop Without Escalation
-**Signal:**
-- Same task attempted >2 times; agent continues attempting without surface escalation
-- Bash command fails; agent retries same command 3+ times without change
-- Blocker surfaced in session but work continues as if blocker doesn't exist
-- Final output claims success despite unsurfaced blockers
-
-**Why it matters:** Wastes session budget; blocks the operator from making a decision; violates "stuck protocol."
+Signal: same task attempted >2 times; same failing command retried 3+ times unchanged; blocker surfaced but work continues; success claimed despite unsurfaced blockers.
+Action: state "Stuck: [task], [attempt N], [blocker]", switch approach; after 2 switches, escalate.
 
 ---
 
 ### Observable Violation: Context Compression Without Commitment
-**Signal:**
-- `/compact` used before completing a task
-- Handoff drafted but not saved to `~/.claude/handoffs/`
-- Intermediate findings discarded instead of logged to memory / ADR / task file
-- Session wraps without durable checkpoint
-
-**Why it matters:** Context is lost; next session restarts from scratch; accumulated decisions are erased.
+Signal: `/compact` before task completion; handoff drafted but not saved to `~/.claude/handoffs/`; findings discarded instead of logged to memory, ADR, or task file.
+Action: write a durable checkpoint before compressing or ending the session.
 
 ---
 
 ## How to Use This Standard
 
-1. **Skill enforcement:** Reference specific red flags in skill YAML `hard-rules` sections (e.g., `/ship` skill lists "Red flag: Merging PR with failing CI").
-2. **Code review checkpoints:** Use red-flag list as a pre-merge checklist — agents reviewing PRs should scan this list.
-3. **Incident post-mortems:** After a failure, check which red flag was crossed; add prevention rule to ADR.
-4. **Session audits:** `/skill-effectiveness-audit` runs monthly and scans session logs for red-flag violations; queues offending agents/skills for review.
-
----
+1. Skills cite specific flags in `hard-rules` (e.g. `/ship`: "Merging PR with failing CI").
+2. Use as a pre-merge checklist in code review.
+3. After a failure, identify the crossed flag and add a prevention rule to the ADR.
+4. `/skill-effectiveness-audit` scans session logs monthly for violations.
 
 ## Related Standards
 
-- `standards/workflow.md` — trunk-based discipline, branch protection
-- `standards/security.md` — secret handling, input validation
-- `standards/testing.md` — test coverage expectations
-- `standards/durable-execution.md` — idempotency, state checkpoints
-- `standards/claims-honesty.md` (if exists) — verification gates for operator claims
+`workflow.md` (includes durable execution), `security.md`, `testing.md`, `claims-honesty.md` (if exists).
