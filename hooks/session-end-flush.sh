@@ -27,7 +27,7 @@ recent="$(tail -n 500 "$TRAJ" 2>/dev/null || true)"
 total="$(printf '%s' "$recent" | jq -r 'select(.event=="tool-call") | .ts' 2>/dev/null | wc -l | tr -d ' ')"
 errors="$(printf '%s' "$recent" | jq -r 'select(.event=="tool-call" and .outcome=="error") | .ts' 2>/dev/null | wc -l | tr -d ' ')"
 blocked="$(printf '%s' "$recent" | jq -r 'select(.event=="tool-call" and .outcome=="blocked") | .ts' 2>/dev/null | wc -l | tr -d ' ')"
-top_tools="$(printf '%s' "$recent" | jq -r 'select(.event=="tool-call") | .tool' 2>/dev/null | sort | uniq -c | sort -rn | head -5 | jq -R -s 'split("\n") | map(select(length>0)) | map(split(" ")) | map({count: (.[0]|tonumber), tool: .[1]})' 2>/dev/null || echo '[]')"
+top_tools="$(printf '%s' "$recent" | jq -r 'select(.event=="tool-call") | .tool' 2>/dev/null | sort | uniq -c | sort -rn | head -5 | jq -R -s 'split("\n") | map(select(length>0)) | map(split(" ") | map(select(length>0))) | map({count: (.[0]|tonumber), tool: .[1]})' 2>/dev/null || echo '[]')"
 
 record="$(jq -nc \
   --arg sid "$sid" \

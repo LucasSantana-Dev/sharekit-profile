@@ -191,14 +191,18 @@ J
   [ "$(tail -n 1 "$RT/trajectory.jsonl" | jq -r '.direction')" = "end" ]
 }
 
-# Known bug (reported in PR): uniq -c pads counts with leading spaces, so the jq
-# split(" ") yields an empty first field, tonumber fails and top_tools falls back to [].
-# Pinned as current behavior; flip to the expected value when the hook is fixed.
-@test "session-end-flush: top_tools is currently always empty (uniq -c padding bug)" {
-  printf '%s\n' '{"ts":"t1","event":"tool-call","tool":"Bash","outcome":"ok"}' > "$RT/trajectory.jsonl"
+@test "session-end-flush: top_tools counts tools ordered by count desc, max 5" {
+  {
+    printf '%s\n' '{"ts":"t1","event":"tool-call","tool":"Bash","outcome":"ok"}'
+    printf '%s\n' '{"ts":"t2","event":"tool-call","tool":"Bash","outcome":"ok"}'
+    printf '%s\n' '{"ts":"t3","event":"tool-call","tool":"Read","outcome":"ok"}'
+    for t in A B C D E; do printf '{"ts":"x","event":"tool-call","tool":"%s","outcome":"ok"}\n' "$t"; done
+  } > "$RT/trajectory.jsonl"
   run hook session-end-flush
   [ "$status" -eq 0 ]
-  [ "$(jq -c '.top_tools' "$RT"/sessions/session-*.json)" = "[]" ]
+  rec="$(ls "$RT"/sessions/session-*.json)"
+  [ "$(jq -c '.top_tools[0]' "$rec")" = '{"count":2,"tool":"Bash"}' ]
+  [ "$(jq -r '.top_tools | length' "$rec")" = "5" ]
 }
 
 @test "session-end-flush: missing trajectory yields a zeroed record and exit 0" {
