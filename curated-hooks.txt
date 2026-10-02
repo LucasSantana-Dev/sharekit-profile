@@ -36,3 +36,6 @@ skill-quality-gate.sh
 statusline.sh
 memory-extract.sh
 tool-logger.sh
+check-stuck-loop.sh
+check-read-only-subagent.sh
+memory-scope-gate.sh

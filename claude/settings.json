@@ -5,34 +5,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/tool-shortlist.sh\"",
-            "timeout": 2
-          },
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/model-cache-guard.sh\"",
-            "timeout": 2
-          },
-          {
-            "type": "command",
             "command": "bash \"$HOME/.claude/hooks/session-length-guard.sh\"",
             "timeout": 5
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/session-start-load.sh\"",
-            "timeout": 10
-          },
-          {
-            "type": "command",
-            "command": "OBSERVE_HOOK_EVENT=SessionStart bash \"$HOME/.claude/hooks/observe-otel.sh\"",
-            "timeout": 2
           }
         ]
       }
@@ -77,36 +51,6 @@
             "timeout": 5
           }
         ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/policy-gate.sh\"",
-            "timeout": 2
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/trajectory-log.sh\"",
-            "timeout": 2
-          },
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/context-guard.sh\"",
-            "timeout": 2
-          },
-          {
-            "type": "command",
-            "command": "OBSERVE_HOOK_EVENT=PostToolUse bash \"$HOME/.claude/hooks/observe-otel.sh\"",
-            "timeout": 2
-          }
-        ]
       }
     ],
     "SubagentStart": [
@@ -120,22 +64,6 @@
         ]
       }
     ],
-    "PreCompact": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/snapshot-compact.sh\"",
-            "timeout": 3
-          },
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/compaction-guard.sh\"",
-            "timeout": 3
-          }
-        ]
-      }
-    ],
     "PostCompact": [
       {
         "hooks": [
@@ -143,38 +71,6 @@
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/reinject-compact.sh\"",
             "timeout": 3
-          },
-          {
-            "type": "command",
-            "command": "OBSERVE_HOOK_EVENT=PostCompact bash \"$HOME/.claude/hooks/model-cache-guard.sh\"",
-            "timeout": 2
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/post-incident-adr.sh\"",
-            "timeout": 3
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/session-end-flush.sh\"",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "OBSERVE_HOOK_EVENT=SessionEnd bash \"$HOME/.claude/hooks/observe-otel.sh\"",
-            "timeout": 2
           }
         ]
       }

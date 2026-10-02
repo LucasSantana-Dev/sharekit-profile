@@ -94,6 +94,13 @@ while IFS= read -r task; do
   expected="$(printf '%s' "$task" | jq -r '.expected')"
   input="$(printf '%s' "$task" | jq -c '.input')"
   note="$(printf '%s' "$task" | jq -r '.note')"
+  # Tasks can target a hook this install does not ship (e.g. check-dangerous-patterns.sh
+  # lives only in the author's tree). Skip them: a missing script exits 127, which would
+  # score as "allow" and fail every block task for a reason unrelated to the gate.
+  if [[ "$variant" != "without" && ! -f "$HOOKS/$hook" ]]; then
+    echo "skip $tid: $hook not installed" >&2
+    continue
+  fi
 
   if [[ "$variant" == "without" ]]; then
     # Harness absent: always allow. Pass only if expected is "allow".
