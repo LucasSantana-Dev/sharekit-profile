@@ -29,22 +29,16 @@
 # Fails OPEN (exit 0) on unparseable input: a blocking hook that wedges on odd quoting is worse
 # than one that misses an edge case, and the operator still has branch protection server-side.
 #
-# KNOWN GAP, stated so this is not mistaken for full coverage: a bare `git push` with no refspec
-# is NOT caught, because the target branch is implicit and the hook cannot know the command's
-# working directory reliably enough to resolve HEAD. So a silent detection log here means "no
-# EXPLICIT protected-ref push", not "no push to main". This hook is a fast local tripwire, not a
-# replacement for server-side branch protection.
+# A bare `git push` with no refspec is resolved against the current HEAD (see the push check
+# below), but that resolution is best-effort: a `cd` chain or `-C` path it cannot follow still
+# slips through. This hook is a fast local tripwire, not a replacement for server-side branch
+# protection.
 #
 # DO NOT READ THAT AS "the server will catch it." This comment used to promise exactly that, and
 # the promise was false for at least one repo: a personal memory vault synced by an automated
 # Stop-hook script had `protected: false` on its main branch, so the documented gap led somewhere
 # nobody was watching. Verify, never assume:
 #     gh api repos/<owner>/<repo>/branches/main --jq .protected
-#
-# PUSH EXEMPTIONS (trunk-based repos): to let a repo take direct pushes to main, put its GitHub
-# `owner/name` (one per line, `#` comments allowed) in ~/.claude/push-exemptions.txt, or point
-# PUSH_EXEMPTIONS_FILE elsewhere. Absent file = no exemptions. Requires python3; without it this
-# gate is inactive (exit 0 with a stderr note).
 #
 # PUSH_EXEMPTIONS below is the response: a repo that legitimately takes direct pushes gets named
 # in a local file, resolved by remote identity, instead of being exempt by accident of command
@@ -506,7 +500,7 @@ for argv in simple:
     #
     # BUT A FLAG'S VALUE IS NOT A POSITIONAL WORD. Dropping only the flag left the value
     # behind, and the value took the PR's place: `gh pr merge -b 42 5` merges #5 and this
-    # gate cleared it by reading #42 instead - a false-CLEAR that needs no coincidence, just
+    # gate cleared it by reading #42 instead — a false-CLEAR that needs no coincidence, just
     # a body text. Which flags carry a value is PER VERB, not global: `-m` is boolean
     # `--merge` under `merge` and `--milestone` under `edit`, and `-t` is `--subject` there
     # and `--title` here. Read off `gh pr <verb> --help`, gh 2.97.0, 2026-08-29.
@@ -569,6 +563,31 @@ for argv in simple:
         break
     pos = positionals(eff, REPO_FLAGS) if exe == "gh" else []
     words = [w for w, _ in pos]
+    # RULESETS ARE THE BRANCH PROTECTION. Writing one through `gh api` switches off every
+    # gate this hook defends, so it blocks. Reads stay allowed (audits list rulesets).
+    # gh api sends POST whenever a field or --input is given, so a write is an explicit
+    # non-GET method OR any body flag. The old settings.json entry for this used the matcher
+    # `Bash(gh api.*rulesets)`, which is matched against the tool NAME and never fired.
+    # Only the endpoint counts (first positional not consumed by a gh api value flag), so
+    # `-f query=...rulesets...` on a graphql read is not mistaken for a ruleset write.
+    api_vals = ("-X", "--method", "-f", "-F", "--field", "--raw-field", "-H", "--header",
+                "--input", "-q", "--jq", "-t", "--template", "--hostname", "--cache", "-p", "--preview")
+    endpoint = next((w for w, i in pos[1:] if i == 0 or eff[i - 1] not in api_vals), "")
+    if exe == "gh" and words[:1] == ["api"] and "rulesets" in endpoint:
+        method = ""
+        for i, a in enumerate(eff):
+            if a in ("-X", "--method") and i + 1 < len(eff):
+                method = eff[i + 1].upper()
+            elif a.startswith("--method="):
+                method = a.split("=", 1)[1].upper()
+            elif a.startswith("-X") and len(a) > 2:
+                method = a[2:].upper()
+        body = any(a in ("-f", "-F", "--field", "--raw-field", "--input")
+                   or a.startswith(("--field=", "--raw-field=", "--input=")) for a in eff)
+        if (method and method != "GET") or (not method and body):
+            print("BLOCK\tWriting GitHub rulesets via `gh api` bypasses branch protection. "
+                  "Change rulesets by hand in the GitHub UI, or ask the operator.")
+            break
     if exe == "gh" and words[:2] and words[0] == "pr" and words[1] in GH_VERB_VALUE_FLAGS:
         verb, verb_at = words[1], pos[1][1]
         # An explicit `--repo owner/name` is what gh itself will target, so it
@@ -626,7 +645,6 @@ cwd_hint="${tail%%$'\t'*}"
 # literal `$HOME/...` and fails `[ -d ]` exactly like `~` did. It blocked a `gh pr comment` on
 # a clean PR the same afternoon. Anything the shell would have expanded before `cd` saw it has
 # to be expanded here too, because this hook reads the command as TEXT, never as a shell runs it.
-# shellcheck disable=SC2088  # the quoted ~ patterns are intentionally literal
 case "$cwd_hint" in
   "~")   cwd_hint="$HOME" ;;
   "~/"*) cwd_hint="$HOME/${cwd_hint#\~/}" ;;
@@ -722,7 +740,7 @@ except Exception:
     repo="$(cd "$session_cwd" 2>/dev/null && gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>/dev/null || true)"
   fi
   [[ -z "$repo" ]] && repo="$(gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>/dev/null || true)"
-  # A branch name is a PR reference gh accepts, so the gate has to accept it too - but it
+  # A branch name is a PR reference gh accepts, so the gate has to accept it too — but it
   # can only be turned into a number by asking gh, and only once the repo is known. Fails
   # closed: an unresolvable reference is not a cleared one.
   if [[ -n "$repo" && ! "$pr" =~ ^[0-9]+$ ]]; then

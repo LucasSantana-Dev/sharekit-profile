@@ -1,76 +1,86 @@
 # `~/.claude/hooks/` — inventory
 
-Last updated: 2026-05-03
+Last updated: 2026-10-02 (after Wave B lean-out: 23 bindings over 23 scripts, 38 scripts on disk)
 
 ## Source of truth
 
-Hook bindings live in `~/.claude/settings.json` (shipped from `claude/settings.json` in this profile, installed with `--include-hooks`). Edit that file to add, remove or re-time a hook. `timeout` values are in seconds. With sharekit 0.6.4 or later, re-installing merges only the profile's hooks into your file and keeps every other setting; older versions overwrite it, so keep a copy there.
+Hook bindings live in `~/.claude-env/settings/shared.json` (deep-merged with `settings/machines/<host>.json`, applied to `~/.claude/settings.json` by `~/.claude-env/bin/sync pull`). Editing `~/.claude/settings.json` directly works for the current session but can be overwritten on the next pull, so update `shared.json` as well.
+
+To list what is really wired, read `~/.claude/settings.json`, not this file. Anything in `hooks/*.sh` that is not bound there is unwired.
+
+## Wired hooks (live)
+
+| Event | Matcher | Script | Purpose |
+|---|---|---|---|
+| PreToolUse | Bash | `bash-prefilter.sh` | Skip trivial commands, otherwise chain to `rtk-rewrite.sh` (rtk-owned, sha256-locked) |
+| PreToolUse | Read, Bash | `block-secret-reads.sh` | Block secret-bearing reads and secret-shaped literals in commands |
+| PreToolUse | Edit, Write, MultiEdit | `protect-files.sh` | Block edits to sensitive files |
+| PreToolUse | Edit, Write, MultiEdit | `memory-write-guard.sh` | Secret redaction on the memory write path |
+| PreToolUse | Bash, Write, Edit, NotebookEdit | `t2-gate-detect.sh` | Make the T2 autonomy gate observable (advisory context) |
+| PreToolUse | Bash | `check-pr-automation-halt.sh` | Halt automation on PRs with comments or other authors |
+| PreToolUse | Agent, Task | `check-analysis-agent-type.sh` | Analysis agents must use write-incapable types |
+| PostToolUse | Write, Edit, MultiEdit | `skill-quality-gate.sh` | Skill quality gate on edits (calls `gate.sh`) |
+| PostToolUse | * (async) | `tool-logger.sh` | Trajectory log, skill invocation log, rtk-miss log (one process) |
+| UserPromptSubmit | * | `mode-reminder.sh` | Caveman, ponytail, agent-econ anchor (ADR-0050) |
+| UserPromptSubmit | * | `model-tier-router.sh` | Suggest a cheaper model for routine prompts |
+| UserPromptSubmit | * | `session-length-guard.sh` | Warn on long sessions |
+| UserPromptSubmit | * | `composite-router.sh` | Match prompts to composite skills |
+| UserPromptSubmit | * | `team-mode-guard.sh` | Team mode and guest-repo detection |
+| SessionStart | * | `harness-vitals.sh` | Surface silent harness failures and MEMORY.md over 180 lines |
+| SessionStart | * | `hook-selftest.sh` | Run the blocking hooks' regression suite |
+| SessionStart | compact | `reinject-compact.sh` | Re-inject session facts, auto-handoff, precompact snapshot pointer and team-mode tag after a compact |
+| PreCompact | * | `pre-compact-summary.sh`, `memory-extract.sh` | Handoff summary and memory snapshot before compaction |
+| Stop | * | `knowledge-loop-nudge.sh` | Nudge `/knowledge-loop` at a considerable stopping point |
+| SessionEnd | * | `session-cost-telemetry.sh`, `memory-extract.sh`, `tool-failures-flush.sh` | Cost telemetry, memory extractor (expensive sessions only), failure flush |
+| SubagentStart, SubagentStop | * | `subagent-checkpoint.sh` | Per-subagent checkpoint record |
+
+Also wired outside `hooks`: `statusline.sh` (statusLine). Memory sleep, roadmap aggregate and the rag report run from launchd, not hooks.
 
 ## Bash hook chain
 
-`PreToolUse` runs in array order. The Bash matcher fires first.
-
 ```
-Claude calls Bash(<cmd>)
-  └─► bash-prefilter.sh        (set -euo pipefail)
-       ├─ trivial cmd? → exit 0   (skip rtk spawn, ~30ms saved)
-       └─ otherwise: exec rtk-rewrite.sh (rtk-owned, hash-locked)
-            ├─ rtk: rewrites cmd → "rtk <subcommand> ..."
-            ├─ EC=0: auto-allow with rewritten command
-            ├─ EC=1: passthrough (no rtk equivalent)
-            ├─ EC=2: deny (Claude Code's native deny handles)
-            └─ EC=3: rewrite + ask (CAUTION: silently dropped in bypassPermissions mode — see rtk-ai/rtk#1233)
+Bash(<cmd>)
+  └─► bash-prefilter.sh
+       ├─ trivial cmd: exit 0
+       └─ otherwise exec rtk-rewrite.sh (EC 0 allow rewritten, 1 passthrough, 2 deny, 3 rewrite+ask;
+          EC 3 is silently dropped in bypassPermissions, see rtk-ai/rtk#1233)
+After the call: tool-logger.sh logs outputs of 5KB or more that were not rtk-wrapped.
 ```
 
-After the Bash call returns:
+## Unwired but kept
 
-```
-Bash output captured
-  └─► PostToolUse Bash → rtk-miss-detector.sh
-       └─ if output ≥5KB AND cmd doesn't start with `rtk` → log to ~/.claude/rtk-misses.log
+Not bound in `settings.json`; each has a live caller or an open decision. Delete only after checking.
 
-  if tool failed:
-  └─► PostToolUseFailure → ~/.claude/tool-failures.log (jsonl)
-```
+| Script | Why kept |
+|---|---|
+| `rtk-rewrite.sh` | Called by `bash-prefilter.sh`, `rtk-miss-detector.sh`, `harness-vitals.sh` |
+| `gate.sh`, `history.sh` | Called by `skill-quality-gate.sh`, the scorecard and the roadmap-aggregate launchd job |
+| `check-harness-drift.sh` | Used by the `sync-sharekit-profile` skill |
+| `session-budget-guard.sh`, `rate-limit-watch.sh` | Pair; calibrated by `scripts/session-budget-guard.calib.py` |
+| `skill-index.sh` | Referenced by `scripts/skill-prune.sh` |
+| `grep-before-rag-nudge.sh` | Has 3 selftest checks; decide re-wire or drop with its tests |
+| `auto-context-pack.sh`, `complexity-classifier.sh` | Conflicting docs (a 2026-05-13 rescue decision, `session-health.md`); owner decision pending |
+| `eval-run.sh`, `eval-tasks.sh`, `eval-baseline.sh`, `check-idempotency.sh` | Eval cluster, possibly in use by another session |
 
-## File inventory
-
-| File | Set on | Purpose | Trigger |
-|---|---|---|---|
-| `bash-prefilter.sh` | `set -euo pipefail` | Fast-path bypass for trivial cmds, then chain to rtk | PreToolUse Bash |
-| `rtk-rewrite.sh` | rtk-owned | Token-saving rewrites via rtk binary | (chained from prefilter) |
-| `rtk-miss-detector.sh` | `set -euo pipefail` | Log >5KB Bash outputs that didn't use rtk | PostToolUse Bash |
-| `statusline.sh` | `set -uo pipefail` | Render `[project] msg:N ↓<rtk_saved>tok` | statusLine |
-| `protect-files.sh` | (rtk pattern) | Block edits to sensitive files | PreToolUse Edit\|Write\|MultiEdit |
-| `pre-compact.sh` | — | Pre-compaction snapshot | PreCompact |
-| `post-compact.sh` | — | Resume context after compact | PostCompact |
-| `auto-context-pack.sh` | — | Inject project context pack | UserPromptSubmit |
-| `message-counter.sh` | — | Track message count for auto-compact triggers | UserPromptSubmit |
-| `validate-command.sh` | — | (currently unwired — review) | — |
-| `validate-handoff.sh` | — | (currently unwired — review) | — |
-| `test-auto-context-pack.sh` | — | Test fixture for auto-context-pack | — |
-
-## Archived
-
-Moved to `archive/` 2026-05-03:
-- `automation-orchestrator.sh` (7.5KB) — never wired in any settings.json since 2026-02-22
-- `context-optimizer.sh` (5.5KB) — same
+Deleted in Wave B (recoverable from `~/.claude-env` git history): `tool-shortlist`, `cycle` and its callees (`deploy-watch`, `diagnose`, `distill`, `propose`, `memory-consolidate`, `dispatch`), `session-token-stop`, `message-counter`, `turn-counter`, `snapshot-compact`, `trajectory-log`, `skill-outcome-logger` and `rtk-miss-detector` (merged into tool-logger), `main-release-drift-nudge` and `memory-index-size-alert` (folded into harness-vitals), `sessionend-rag-sync`, `bash-repeat-cache`, `check-stuck-loop`, `compaction-guard`, `harness-drift-nudge`, `hotfix-followup-tracker`, `multiedit-nudge`, `post-compact-reset`, `rag-usage-tracker`, `release-branch-detector`, `repeat-read-guard`, `session-start-load`, and the inert `updatedToolOutput` hooks.
 
 ## Conventions
 
-- All hook scripts must start with `#!/usr/bin/env bash` + `set -euo pipefail` (or `set -uo pipefail` if they intentionally tolerate command failures, like `statusline.sh`).
-- Hooks called from `shared.json` use `${CLAUDE_DIR}/hooks/<name>.sh` — apply_settings expands the placeholder.
-- Hooks must exit 0 unless they intend to block the tool. PreToolUse exit-code protocol: `0` = allow, `2` = block/deny (stderr shown to the model), other non-zero = non-blocking error. Blocking hooks here use `exit 2` (see `block-secret-reads.sh`, `protect-files.sh`).
-- Hooks must read stdin if they need the tool payload — Claude Code pipes a JSON envelope.
-- For PostToolUse failure-logging, the payload field for stderr varies by tool — fall through `tool_response.error // .stderr // .stdout // "unknown"`.
+- Start with `#!/usr/bin/env bash` and `set -euo pipefail` (or `set -uo pipefail` when the hook tolerates command failures).
+- Stay bash 3.2 safe: no `declare -A` (the selftest gates this).
+- Bind with `${CLAUDE_DIR}/hooks/<name>.sh` in `shared.json`; `apply_settings` expands the placeholder.
+- Exit 0 unless the hook intends to block. PreToolUse: `0` allow, `2` block (stderr shown to the model), other non-zero is a non-blocking error.
+- Read stdin for the tool payload (a JSON envelope).
+- Hook edits take effect live in-session, no restart needed.
 
-## Adding a new hook
+## Adding a hook
 
-1. Create `~/.claude/hooks/<name>.sh` with the conventions above.
-2. Add a binding to `~/.claude/settings.json` under `hooks.<event>` (timeout in seconds).
-3. Smoke test by triggering the event, or pipe a sample JSON payload into the script with `/bin/bash`.
+1. Create `hooks/<name>.sh` following the conventions.
+2. Bind it in `settings/shared.json` under `hooks.<event>`.
+3. Commit in `~/.claude-env`, then `~/.claude-env/bin/sync pull`.
+4. Run `~/.claude/test/harness-selftest.sh` and trigger the event once.
 
 ## Known issues
 
-- `apply_settings` deep-merge replaces, not deep-preserves. Any hook in local `settings.json` but not in `shared.json` gets wiped at SessionStart pull. **Fix is in shared.json, not local.**
-- rtk integrity-checks `rtk-rewrite.sh` (sha256 in `.rtk-hook.sha256`). Modifying it directly fails — wrap behavior in `bash-prefilter.sh` instead.
+- `apply_settings` deep-merge replaces rather than preserves: a hook only in local `settings.json` is wiped on the next pull. Fix it in `shared.json`.
+- rtk integrity-checks `rtk-rewrite.sh` (`.rtk-hook.sha256`). Do not edit it; wrap behavior in `bash-prefilter.sh`.
