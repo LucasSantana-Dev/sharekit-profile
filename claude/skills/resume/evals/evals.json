@@ -1,0 +1,43 @@
+{
+  "skill_name": "resume",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "single-open-handoff",
+      "should_trigger": true,
+      "prompt": "resume. What was I doing?",
+      "expected_output": "Reads the open handoffs list, newest plan, in-progress memory, swarm state and git state, then reports objective, repo/branch, done, remaining and exact next action.",
+      "files": [],
+      "assertions": [
+        "Reads state in order: handoffs list, then plan, then in-progress memory, then subagent checkpoints, then git branch/status/open PRs",
+        "Output has: active objective, repo/branch/worktree, done, remaining, exact next action",
+        "Surfaces any open incident flags before anything else"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "several-open-handoffs",
+      "should_trigger": true,
+      "prompt": "continue where I left off",
+      "expected_output": "With several open handoffs and no argument, shows the list and asks which one: never guesses, since other sessions own the others.",
+      "files": [],
+      "assertions": [
+        "Shows the list of open handoffs",
+        "Asks which one to resume instead of picking one",
+        "Does not invent an objective"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-resume-empty-context",
+      "should_trigger": false,
+      "prompt": "Resume my CV and format it as a two-page PDF.",
+      "expected_output": "Ambiguous word 'resume' but a document request, not session rehydration.",
+      "files": [],
+      "assertions": [
+        "Does not read handoffs or git state",
+        "Handles the CV document request"
+      ]
+    }
+  ]
+}

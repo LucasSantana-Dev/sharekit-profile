@@ -1,0 +1,45 @@
+{
+  "skill_name": "handoff",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "write-handoff",
+      "should_trigger": true,
+      "prompt": "Write a handoff for the next session. It will continue the Stripe webhook work.",
+      "expected_output": "Writes a dated handoff file named <YYYY-MM-DD>-<slug>-<HHMM>.md with first line '# <repo>, <dd/mm/yyyy>: <topic>', a suggested skills section, references instead of duplicates, and redacted secrets.",
+      "files": [],
+      "assertions": [
+        "File is saved as <YYYY-MM-DD>-<slug>-<HHMM>.md under the handoffs dir (not latest.md)",
+        "First line follows '# <repo>, <dd/mm/yyyy>: <topic in one line>'",
+        "Includes a 'suggested skills' section",
+        "References PRs, plans, ADRs, commits by path or URL instead of duplicating their content",
+        "Redacts API keys, passwords and personal data"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "incident-capture-gate",
+      "should_trigger": true,
+      "prompt": "Hand off this session. CI on main broke production deploys earlier and I patched it, no postmortem written yet.",
+      "expected_output": "Post-incident gate: a P0/P1 with no committed root-cause artifact is flagged as an OPEN action in the handoff.",
+      "files": [],
+      "assertions": [
+        "Flags 'OPEN: incident capture required before next task' with root cause, fix applied, preventive action",
+        "Treats the production deploy break as P0/P1 needing a committed ADR or incident-log entry",
+        "If the same root cause happened 2 or more times in 14 days, requires an ADR plus prevention rule"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-handoff-resume",
+      "should_trigger": false,
+      "prompt": "What was I working on yesterday? Pick it back up.",
+      "expected_output": "That is resume, not creating a handoff.",
+      "files": [],
+      "assertions": [
+        "Does not write a new handoff file",
+        "Rehydrates context from existing handoffs/plans/git state"
+      ]
+    }
+  ]
+}

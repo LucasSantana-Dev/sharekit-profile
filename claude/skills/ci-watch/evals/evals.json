@@ -1,0 +1,45 @@
+{
+  "skill_name": "ci-watch",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "diagnose-red-pr",
+      "should_trigger": true,
+      "prompt": "PR #88 has failing checks. Check the pipeline and tell me what the first real blocker is.",
+      "expected_output": "Lists non-passing checks, separates required failures from advisory noise, inspects the first failing job, and reports failing job, first bad signal, likely cause, owner surface, smallest viable fix, and whether it blocks shipping.",
+      "files": [],
+      "assertions": [
+        "Reads PR state via gh pr view with mergeable, mergeStateStatus, reviewDecision",
+        "Separates required failures from advisory noise",
+        "Output names: failing job, first bad signal, likely cause, smallest viable fix, and whether it blocks shipping now",
+        "Inspects the first failing job rather than guessing from the check name"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "blocked-no-failing-checks",
+      "should_trigger": true,
+      "prompt": "ci watch: PR #91 shows mergeStateStatus BLOCKED but every check is green. What is going on?",
+      "expected_output": "BLOCKED with no failing checks points at review or branch protection (requiredStatusChecks, requiredApprovingReviewCount), or unresolved bot review threads, which are not 'another person'.",
+      "files": [],
+      "assertions": [
+        "Identifies BLOCKED with no failing checks as a review or branch-protection cause",
+        "Mentions checking reviewDecision and required approving review count / required status checks",
+        "Notes bot review threads (CodeQL, CodeRabbit, Greptile) can be auto-resolved because bots are not another person",
+        "Does not suggest force-merging"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-ci-write-readme",
+      "should_trigger": false,
+      "prompt": "Write a README for this project.",
+      "expected_output": "No CI diagnosis. Unrelated to checks or pipelines.",
+      "files": [],
+      "assertions": [
+        "Does not inspect CI checks or run gh pr view",
+        "Produces README content instead"
+      ]
+    }
+  ]
+}

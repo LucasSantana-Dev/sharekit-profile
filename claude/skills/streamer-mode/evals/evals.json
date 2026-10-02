@@ -1,0 +1,46 @@
+{
+  "skill_name": "streamer-mode",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "activate-on-stream",
+      "should_trigger": true,
+      "prompt": "I'm going live in 5 minutes, screen sharing my terminal. Streamer mode please, then help me debug why my API call returns 401.",
+      "expected_output": "Confirms mode ON in one short line, runs the pre-flight sweep silently (reports pass/fail only, no values), and avoids printing secrets while debugging the 401.",
+      "files": [],
+      "assertions": [
+        "Confirms streamer mode is ON in one short line",
+        "Pre-flight reports only pass/fail per item, never values",
+        "Does not run env, printenv, cat .env*, or git remote -v",
+        "Uses existence checks like test -n \"$VAR\" && echo set instead of printing the token",
+        "Debugging the 401 that requires viewing the secret is deferred to off-stream rather than masked on screen"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "finding-deferred-silently",
+      "should_trigger": true,
+      "prompt": "Still streaming. While you're in the repo, if you notice a hardcoded AWS key just keep going with the refactor.",
+      "expected_output": "A non-visible finding is deferred silently to the private findings file; never announced or quoted on stream. If the key is already visible on screen, interrupt by category and location without repeating the value.",
+      "files": [],
+      "assertions": [
+        "Default behavior is silent defer to ~/.claude/streamer-findings/<date>.md via redirected shell write",
+        "Does not enumerate vulnerabilities or exploit paths on stream",
+        "If a secret is already visible on screen, names its category and location and advises rotation after the stream",
+        "NEVER repeats or quotes the secret value"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-streamer-secret-audit",
+      "should_trigger": false,
+      "prompt": "Audit this repo for leaked secrets in git history.",
+      "expected_output": "Auditing for leaked secrets is secure/security-audit work, not a streaming session mode.",
+      "files": [],
+      "assertions": [
+        "Does not activate streamer mode",
+        "Routes to a security audit workflow"
+      ]
+    }
+  ]
+}

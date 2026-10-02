@@ -1,0 +1,44 @@
+{
+  "skill_name": "loop",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "break-repeat-failure",
+      "should_trigger": true,
+      "prompt": "You've tried the same fix for this failing test 3 times and it fails the same way. Break the loop.",
+      "expected_output": "Stuck protocol: emit 'Stuck: [task], attempt N, last blocker: [X]', switch approach or tool; after 2 failed switches escalate to the user.",
+      "files": [],
+      "assertions": [
+        "Emits a 'Stuck: <task>, attempt N, last blocker: <X>' line",
+        "Switches to a genuinely different approach or tool, not the same fix again",
+        "States that after 2 approach switches without progress it escalates to the user rather than cycling silently",
+        "Verifies with narrow checks first"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "drain-queue-context-budget",
+      "should_trigger": true,
+      "prompt": "Work through these 12 small refactors one by one, keep cycling until done. Context is already at 80%.",
+      "expected_output": "Runs the cycle (inspect, act, verify narrowly, checkpoint) but context over 75% forces a handoff and stop.",
+      "files": [],
+      "assertions": [
+        "Context budget over 75% triggers emitting a handoff and stopping the loop",
+        "Per-step output is one line (verdict plus artifact), only what changed or failed",
+        "Does not busy-wait on running monitors"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-loop-new-design",
+      "should_trigger": false,
+      "prompt": "Design the architecture for a new notification service from scratch.",
+      "expected_output": "Design work routes to plan or brainstorming, not an execution loop.",
+      "files": [],
+      "assertions": [
+        "Does not enter an inspect/act/verify cycle",
+        "Treats it as planning or design"
+      ]
+    }
+  ]
+}

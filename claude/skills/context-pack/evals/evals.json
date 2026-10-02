@@ -1,0 +1,44 @@
+{
+  "skill_name": "context-pack",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "bootstrap-unfamiliar-area",
+      "should_trigger": true,
+      "prompt": "Bootstrap me on this before the refactor: gather the relevant context for the payments module, I know nothing about it.",
+      "expected_output": "Builds a compact task-scoped bundle in priority order (repo state, handoff, plan, memory, standards, RAG hits), stopping when the next read would not change the action.",
+      "files": [],
+      "assertions": [
+        "Follows context load order: repo state, handoff, plan, memory, standards",
+        "Pulls only task-relevant files, docs and notes rather than reading broadly",
+        "Stops accumulating once the next read would not change the action",
+        "Checks the External HD mount guard and falls back to grep if RAG is unreachable"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "rag-empty-fallback",
+      "should_trigger": true,
+      "prompt": "Load context for the retry-queue bug. RAG returned nothing and there are no plans or handoffs for it.",
+      "expected_output": "Falls back to reading the 2 or 3 most relevant files directly without speculative expansion.",
+      "files": [],
+      "assertions": [
+        "Reads only the 2-3 most relevant files directly",
+        "Does not expand the read set speculatively",
+        "Delivers a compact bundle"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-context-pack-one-file",
+      "should_trigger": false,
+      "prompt": "Change the timeout constant in the config module from 30 to 60.",
+      "expected_output": "Single known file: direct read, no context pack.",
+      "files": [],
+      "assertions": [
+        "Reads the one file directly",
+        "Does not run a multi-source context bundle"
+      ]
+    }
+  ]
+}
