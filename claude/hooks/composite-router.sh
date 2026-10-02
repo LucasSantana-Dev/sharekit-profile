@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# shellcheck source=py-resolve.sh
+. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
+[ -n "$PY" ] || exit 0
 # UserPromptSubmit hook: pattern-match user prompt against composite skill triggers
 # and inject a one-line "consider this composite" hint when a strong match is found.
 #
@@ -22,9 +25,9 @@ set -uo pipefail
 if ! command -v timeout >/dev/null 2>&1; then
   if command -v gtimeout >/dev/null 2>&1; then
     timeout() { gtimeout "$@"; }
-  elif command -v python3 >/dev/null 2>&1; then
+  elif [ -n "$PY" ]; then
     timeout() {
-      python3 -c 'import subprocess, sys
+      "$PY" -c 'import subprocess, sys
 try:
     sys.exit(subprocess.run(sys.argv[2:], timeout=float(sys.argv[1])).returncode)
 except subprocess.TimeoutExpired:
@@ -39,7 +42,7 @@ fi
 command -v jq &>/dev/null || exit 0
 
 INPUT=$(cat 2>/dev/null || true)
-PROMPT=$(printf '%s' "$INPUT" | python3 -c '
+PROMPT=$(printf '%s' "$INPUT" | "$PY" -c '
 import json, sys
 try:
   d = json.loads(sys.stdin.read() or "{}")

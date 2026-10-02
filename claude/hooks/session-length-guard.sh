@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# shellcheck source=py-resolve.sh
+. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
 # session-length-guard.sh - UserPromptSubmit hook. Warns when a session got
 # expensive to keep: every request re-reads the whole context, and after an
 # idle gap longer than the prompt-cache TTL (1h) the next request re-WRITES it.
@@ -15,9 +17,9 @@
 #   SESSION_GUARD_AGE_CTX   (100000)  min context tokens for the age warning
 #   SESSION_GUARD_EVERY_MIN (120)     re-warn interval for the age warning
 set -uo pipefail
-command -v python3 >/dev/null 2>&1 || exit 0
+[ -n "$PY" ] || exit 0
 
-IFS= read -r -d '' PY <<'PY' || true
+IFS= read -r -d '' PYCODE <<'PY' || true
 import json, os, sys, time
 from datetime import datetime
 
@@ -121,5 +123,5 @@ print(json.dumps({
     },
 }, ensure_ascii=False))
 PY
-python3 -c "$PY"
+"$PY" -c "$PYCODE"
 exit 0

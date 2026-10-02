@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# shellcheck source=py-resolve.sh
+. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
+[ -n "$PY" ] || exit 0
 # model-tier-router.sh — suggest /model sonnet for routine prompts and
 # /model fable for depth-requiring prompts, per ADR-0049
 # (fable-apex-tiering-inversion — Fable is apex, Opus is fallback).
@@ -22,7 +25,7 @@ SID="${CLAUDE_CODE_SESSION_ID:-}"
 [ -z "$SID" ] && exit 0
 
 INPUT=$(cat 2>/dev/null || true)
-PROMPT=$(python3 -c 'import json,sys
+PROMPT=$("$PY" -c 'import json,sys
 try:
  d=json.loads(sys.stdin.read() or "{}")
  print(d.get("prompt") or d.get("user_prompt") or "")
@@ -47,7 +50,7 @@ JSONL=$(find "$HOME/.claude/projects" -maxdepth 2 -name "${SID}.jsonl" -type f 2
 
 # Detect current model from last assistant turn — read file in Python (portable,
 # no SIGPIPE from tac|head). Tails last 400 lines to keep it fast on long sessions.
-CURRENT_MODEL=$(python3 - "$JSONL" <<'PY' 2>/dev/null || true
+CURRENT_MODEL=$("$PY" - "$JSONL" <<'PY' 2>/dev/null || true
 import json, sys
 path = sys.argv[1]
 try:
@@ -96,4 +99,4 @@ fi
 echo "$FIRED" > "$STATE_FILE"
 
 jq -n --arg m "$ADVICE" '{"systemMessage": $m}' 2>/dev/null || \
-  python3 -c "import json,sys; print(json.dumps({'systemMessage': sys.argv[1]}))" "$ADVICE"
+  "$PY" -c "import json,sys; print(json.dumps({'systemMessage': sys.argv[1]}))" "$ADVICE"

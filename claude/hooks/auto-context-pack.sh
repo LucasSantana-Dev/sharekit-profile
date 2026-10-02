@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# shellcheck source=py-resolve.sh
+. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
+[ -n "$PY" ] || exit 0
 # auto-context-pack.sh — injects RAG-packed context into UserPromptSubmit
 #
 # Exit paths (all logged for kill-gate measurement):
@@ -18,9 +21,9 @@ set -euo pipefail
 if ! command -v timeout >/dev/null 2>&1; then
   if command -v gtimeout >/dev/null 2>&1; then
     timeout() { gtimeout "$@"; }
-  elif command -v python3 >/dev/null 2>&1; then
+  elif [ -n "$PY" ]; then
     timeout() {
-      python3 -c 'import subprocess, sys
+      "$PY" -c 'import subprocess, sys
 try:
     sys.exit(subprocess.run(sys.argv[2:], timeout=float(sys.argv[1])).returncode)
 except subprocess.TimeoutExpired:
@@ -43,7 +46,7 @@ if [ "${CLAUDE_AUTO_CONTEXT_PACK:-on}" = "off" ]; then
 fi
 
 INPUT=$(cat 2>/dev/null || true)
-PROMPT=$(python3 -c 'import json,sys
+PROMPT=$("$PY" -c 'import json,sys
 try:
  d=json.loads(sys.stdin.read() or "{}")
  print(d.get("prompt") or d.get("user_prompt") or "")
@@ -74,7 +77,7 @@ fi
 # Graph-first: if the project has a graphify knowledge graph, answer from it.
 # A BFS graph query is budget-capped and structural — cheaper and more precise
 # than the RAG pack for codebase questions. Falls through to RAG on any miss.
-CWD=$(python3 -c 'import json,sys
+CWD=$("$PY" -c 'import json,sys
 try:
  d=json.loads(sys.stdin.read() or "{}")
  print(d.get("cwd") or "")
@@ -112,8 +115,8 @@ if [ ${#PROMPT} -gt 2000 ]; then
   exit 0
 fi
 
-PACK_TOOL="${DEV_ROOT}/rag-index/venv/bin/python"
-PACK_SCRIPT="${DEV_ROOT}/rag-index/pack.py"
+PACK_TOOL="${DEV_ROOT:-$HOME/dev}/rag-index/venv/bin/python"
+PACK_SCRIPT="${DEV_ROOT:-$HOME/dev}/rag-index/pack.py"
 if [ ! -x "$PACK_TOOL" ] || [ ! -f "$PACK_SCRIPT" ]; then
   echo "no-tool $TS" >> "$LOG"
   exit 0

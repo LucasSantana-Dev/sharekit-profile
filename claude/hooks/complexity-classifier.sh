@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# shellcheck source=py-resolve.sh
+. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
+[ -n "$PY" ] || exit 0
 # complexity-classifier.sh — UserPromptSubmit hook
 # Zero-cost prompt complexity classifier. Pure bash heuristics, no external API calls.
 #
@@ -11,7 +14,7 @@
 
 set -uo pipefail
 
-PROMPT=$(python3 -c "
+PROMPT=$("$PY" -c "
 import sys, json
 try:
     d = json.load(sys.stdin)
@@ -118,7 +121,7 @@ MSG
 	;;
 esac
 
-python3 -c "
+"$PY" -c "
 import json, sys
 msg = sys.stdin.read().strip()
 print(json.dumps({'systemMessage': msg}))

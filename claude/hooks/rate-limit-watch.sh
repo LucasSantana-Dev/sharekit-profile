@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# shellcheck source=py-resolve.sh
+. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
+[ -n "$PY" ] || exit 0
 # Stop hook: capture Anthropic rate-limit headers from the last turn's API call,
 # write state file, emit systemMessage on band crossings.
 # Standalone passive monitor — the manual companion skill /rate-limit-watch was
@@ -20,7 +23,7 @@ HEADERS_LINE=$(grep -h '"anthropic-ratelimit' "$JSONL" 2>/dev/null | tail -1 || 
 STATE="/tmp/claude-rate-limit-${SESSION_ID}.json"
 LAST_BAND="/tmp/claude-rate-limit-band-${SESSION_ID}.txt"
 
-remaining=$(printf '%s' "$HEADERS_LINE" | python3 -c '
+remaining=$(printf '%s' "$HEADERS_LINE" | "$PY" -c '
 import json, sys, time, re
 line = sys.stdin.read()
 try:

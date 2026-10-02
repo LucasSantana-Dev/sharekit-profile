@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# shellcheck source=py-resolve.sh
+. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
 # eval-run.sh — A/B task runner for the eval gate.
 #
 # Runs the eval-tasks.sh catalog against the target hooks and records results
@@ -41,7 +43,7 @@ now_ns() {
   v="$(date +%s%N 2>/dev/null)"
   case "$v" in
     ''|*[!0-9]*)
-      v="$(python3 -c 'import time;print(int(time.time()*1e9))' 2>/dev/null)"
+      v="$("$PY" -c 'import time;print(int(time.time()*1e9))' 2>/dev/null)"
       case "$v" in ''|*[!0-9]*) v="$(( $(date +%s) * 1000000000 ))" ;; esac ;;
   esac
   printf '%s' "$v"
