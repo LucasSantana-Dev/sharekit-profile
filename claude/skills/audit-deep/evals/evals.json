@@ -1,0 +1,46 @@
+{
+  "skill_name": "audit-deep",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "pre-release-health",
+      "should_trigger": true,
+      "prompt": "We are about to cut a release. Is this project healthy? Run a full audit.",
+      "expected_output": "Dispatches the audit skills in parallel and reconciles into one severity-ranked report with a remediation plan.",
+      "files": [],
+      "assertions": [
+        "Dispatches the audit skills (test-health, config-drift-detect, hook-effectiveness, security-audit, mcp-audit, plugin-audit) in parallel, not one by one",
+        "Reconciles findings into CRITICAL / HIGH / MEDIUM / INFO",
+        "A HIGH that explains another HIGH is reported once as a single root cause",
+        "Runs recall against historical exceptions before drafting fixes and tags matches NEEDS_REVIEW instead of AUTO_FIX",
+        "Ends with a prioritized remediation plan and a reconciliation line"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "tech-debt-review",
+      "should_trigger": true,
+      "prompt": "Quarterly tech debt review for this repo. Audit it and rank what to fix first.",
+      "expected_output": "Full multi-audit run with severity-ranked output and memory/handoff phase.",
+      "files": [],
+      "assertions": [
+        "Runs the audit skills against the single repo",
+        "Findings are ranked by severity, with CRITICAL meaning it blocks merge, release or production safety",
+        "Remediation plan lists the highest severity first",
+        "Writes a memory note or handoff for the next session"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-audit-single-test",
+      "should_trigger": false,
+      "prompt": "Why does the checkout test fail on CI only? Debug it.",
+      "expected_output": "A specific failure investigation, not a whole-project health audit.",
+      "files": [],
+      "assertions": [
+        "Does not dispatch the multi-audit fan-out",
+        "Investigates the specific failing test"
+      ]
+    }
+  ]
+}

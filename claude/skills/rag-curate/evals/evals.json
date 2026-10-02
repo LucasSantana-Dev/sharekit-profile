@@ -1,0 +1,43 @@
+{
+  "skill_name": "rag-curate",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "missing-doc",
+      "should_trigger": true,
+      "prompt": "Searching for our deploy runbook returns junk. Add what's missing to the index.",
+      "expected_output": "Applies Pattern A: write the missing doc then incrementally reindex, validating retrieval.",
+      "files": [],
+      "assertions": [
+        "Chooses among three curation patterns: missing doc, weak retrieval (cosine under 0.40), undercovered repo",
+        "For a missing doc writes it into a corpus directory and does an incremental reindex",
+        "Validates by re-querying and checking the hit improved"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "when-to-rebuild",
+      "should_trigger": true,
+      "prompt": "The diagnostic says 150 chunks are missing from the index. Curate the corpus.",
+      "expected_output": "Stops patching and recommends a full rebuild past the thresholds.",
+      "files": [],
+      "assertions": [
+        "Recommends a full rebuild via build.py when more than 100 chunks are missing",
+        "Also recommends full rebuild for over 20 stale chunks or many chunks under 100 chars",
+        "Does not patch chunks one at a time past the threshold"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-curate-code-feature",
+      "should_trigger": false,
+      "prompt": "Add a search box to the settings page.",
+      "expected_output": "UI feature work unrelated to RAG corpus quality.",
+      "files": [],
+      "assertions": [
+        "Does not touch the RAG index or build.py",
+        "Implements the search box"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "skill_name": "refactor",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "god-function",
+      "should_trigger": true,
+      "prompt": "This handleAuth function is 300 lines of nested conditionals. Refactor it without changing behavior.",
+      "expected_output": "Discovery pass first, tests green baseline, atomic extractions each tested and committed.",
+      "files": [],
+      "assertions": [
+        "Runs a discovery pass cataloguing smells before touching anything",
+        "Checks that tests exist and are green; writes characterization tests first if missing",
+        "Captures a baseline SHA as the rollback point",
+        "Works in atomic steps: name, change, run tests, commit one extraction at a time (e.g. refactor: extract validateToken() from handleAuth())",
+        "If a step fails, reverts and retries with a smaller cut"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "clean-up-messy",
+      "should_trigger": true,
+      "prompt": "This module is messy with magic numbers and duplicate logic. Clean it up.",
+      "expected_output": "Surgical, gradual refactor without behavior change.",
+      "files": [],
+      "assertions": [
+        "Does not change behavior",
+        "Replaces magic numbers with named constants and removes duplicates in separate small steps",
+        "Shows the refactored code, not just a description"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-refactor-new-feature",
+      "should_trigger": false,
+      "prompt": "Add dark mode support to the app.",
+      "expected_output": "New feature, which changes behavior.",
+      "files": [],
+      "assertions": [
+        "Does not frame the work as a behavior-preserving refactor",
+        "Implements the new feature"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "skill_name": "app-teardown",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "teardown-live-saas",
+      "should_trigger": true,
+      "prompt": "Faz um teardown do app Linear: o que dá pra aproveitar no nosso produto?",
+      "expected_output": "Walks the real flows in the browser and emits a teardown report with evidence and a verdict per finding.",
+      "files": [],
+      "assertions": [
+        "Captures target URL and whether login is needed before starting",
+        "Walks real flows in a browser rather than guessing from marketing pages",
+        "Each finding carries evidence and one verdict: adopt, adapt, already-have or reject",
+        "Each finding includes a constraint rationale explaining why it works for them versus our context",
+        "Does a state-check on whether we already have the idea before verdicting"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "what-can-we-steal",
+      "should_trigger": true,
+      "prompt": "What can we steal from Notion's onboarding flow? Reverse-engineer it and map the ideas.",
+      "expected_output": "Competitive teardown of a live product with an adopt/adapt/reject decision artifact, not a tour.",
+      "files": [],
+      "assertions": [
+        "Output is a decision artifact with verdicts, not a feature tour",
+        "Findings are grouped by dimension such as UX patterns, copy, growth mechanics",
+        "Stops and asks if login or paywall blocks a flow instead of inventing details"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-app-teardown-repo",
+      "should_trigger": false,
+      "prompt": "Evaluate this open-source GitHub repo for patterns we could adopt in our codebase.",
+      "expected_output": "Target is a codebase, which belongs to code-teardown, not a live-app teardown.",
+      "files": [],
+      "assertions": [
+        "Does not open a browser to walk app flows",
+        "Routes to or treats the task as a code/repository teardown"
+      ]
+    }
+  ]
+}

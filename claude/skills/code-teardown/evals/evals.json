@@ -1,0 +1,46 @@
+{
+  "skill_name": "code-teardown",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "teardown-oss-repo",
+      "should_trigger": true,
+      "prompt": "Faz um teardown desse repo open source e mapeia o que dá pra aproveitar: github.com/example/agent-kit",
+      "expected_output": "Shallow clone, intake sweep, per-dimension mapping, state-check, verdicts, report with file:line evidence.",
+      "files": [],
+      "assertions": [
+        "Captures the constraint rationale (why the design works FOR THEM) before judging",
+        "Uses a shallow clone (git clone --depth 1)",
+        "Every finding cites file:line evidence",
+        "Each finding gets adopt / adapt / already-have / reject plus a constraint rationale for our context",
+        "Checks whether we already have the idea before recommending it",
+        "Writes the report to docs/reference/<target>-teardown-<date>.md"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "evaluate-reference-impl",
+      "should_trigger": true,
+      "prompt": "Evaluate this competitor codebase for insights on architecture and testing conventions.",
+      "expected_output": "Maps ideas by dimension (architecture, patterns, DX, tooling, testing, docs) with verdicts.",
+      "files": [],
+      "assertions": [
+        "Maps findings by dimension such as architecture, code patterns, DX, tooling, testing, docs",
+        "Produces a decision artifact, not a code tour",
+        "Rejects ideas that depend on scale or team size we do not have, with the reason"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-code-teardown-live-app",
+      "should_trigger": false,
+      "prompt": "Analyze the live Stripe dashboard and tell me what UX ideas we can take.",
+      "expected_output": "Target is a live application, which belongs to app-teardown.",
+      "files": [],
+      "assertions": [
+        "Does not clone a repository",
+        "Treats the work as walking live app flows"
+      ]
+    }
+  ]
+}

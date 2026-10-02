@@ -1,0 +1,43 @@
+{
+  "skill_name": "three-man-team",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "large-multi-phase",
+      "should_trigger": true,
+      "prompt": "This is a 3-phase feature touching about 12 files across modules. Run it with an architect, builder and reviewer.",
+      "expected_output": "Dispatches Architect (Opus), Builder (Sonnet), Reviewer (Sonnet) with the plan file as the handoff.",
+      "files": [],
+      "assertions": [
+        "Architect (opus) reads the codebase and writes a phased plan to ~/.claude/plans/<task>.md with boundaries and acceptance criteria",
+        "Builder (sonnet) implements from the plan and stages changes",
+        "Reviewer (sonnet) validates the diff and runs tests, reporting pass/fail per phase",
+        "Stops with BLOCKED if the Architect plan is missing or unparseable instead of dispatching Builder and Reviewer"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "critical-flag",
+      "should_trigger": true,
+      "prompt": "This task was flagged CRITICAL and will take several hours. Use the three-man team.",
+      "expected_output": "Uses the pattern because the task meets the when-to-use criteria.",
+      "files": [],
+      "assertions": [
+        "Recognizes CRITICAL, over 2 hours, 3+ phases or over 5 files as qualifying",
+        "Dispatches all three roles rather than one agent"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-three-man-small",
+      "should_trigger": false,
+      "prompt": "Fix a typo in the error message in one file.",
+      "expected_output": "Tiny change; the 3-agent overhead is unjustified.",
+      "files": [],
+      "assertions": [
+        "Does not dispatch Architect, Builder and Reviewer",
+        "Fixes the typo directly"
+      ]
+    }
+  ]
+}

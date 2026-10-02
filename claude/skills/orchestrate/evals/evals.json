@@ -1,0 +1,43 @@
+{
+  "skill_name": "orchestrate",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "multi-repo-orchestration",
+      "should_trigger": true,
+      "prompt": "Coordinate an upgrade of the logger library across our three services with separate workstreams and one owner for synthesis.",
+      "expected_output": "Decomposes into independent workstreams, dispatches them, and the lead keeps synthesis without implementing.",
+      "files": [],
+      "assertions": [
+        "Decomposes the work into independent workstreams with a single lead owning synthesis",
+        "Respects the dispatcher is not executor boundary and does not implement logic-bearing changes itself",
+        "Uses worktrees for write-capable agents touching the same repo",
+        "Surfaces blockers as output instead of bailing silently"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "large-parallel-investigation",
+      "should_trigger": true,
+      "prompt": "Run parallel investigations across the auth, billing and search modules and give me one consolidated plan.",
+      "expected_output": "Fans out independent investigations and consolidates.",
+      "files": [],
+      "assertions": [
+        "Dispatches investigations in parallel",
+        "Consolidates into one plan, flagging contradictions"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-orchestrate-small-edit",
+      "should_trigger": false,
+      "prompt": "Add a missing semicolon on line 12 of app.js.",
+      "expected_output": "Trivial edit; orchestration overhead is unjustified.",
+      "files": [],
+      "assertions": [
+        "Does not spawn a team",
+        "Makes the edit directly"
+      ]
+    }
+  ]
+}

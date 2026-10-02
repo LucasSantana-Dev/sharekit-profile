@@ -1,0 +1,46 @@
+{
+  "skill_name": "adt-rag-drift",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "detect-stale-chunks",
+      "should_trigger": true,
+      "prompt": "My RAG answers keep quoting a skill file I deleted last week. Check whether the index has drifted and tell me what to do.",
+      "expected_output": "Runs the drift report, reads the stale chunk count, and recommends an action using the count thresholds.",
+      "files": [],
+      "assertions": [
+        "Runs report.py from the rag-index directory and reads the stale-chunks summary",
+        "Maps the stale count to an action: under 5 wait, 5 to 20 fix incrementally, over 20 full rebuild",
+        "Deleted-file chunks are removed by path (DELETE FROM chunks WHERE path ...) after previewing the count",
+        "Re-runs the report and confirms stale count returned to baseline"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "modified-file-reindex",
+      "should_trigger": true,
+      "prompt": "I rewrote old-auth.md in my standards folder but retrieval still returns the old text. Fix the stale chunks.",
+      "expected_output": "Treats this as modified-file drift and does an incremental reindex of just that file.",
+      "files": [],
+      "assertions": [
+        "Identifies the case as a modified file, not a deleted one",
+        "Uses build.py --incremental on that single file path",
+        "Explains the reindex deletes old chunks then re-embeds, leaving other chunks untouched",
+        "Verifies by re-running the drift report"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-drift-write-new-doc",
+      "should_trigger": false,
+      "prompt": "The index has no document about our deploy runbook at all. Write one so queries find it.",
+      "expected_output": "This is a coverage gap (missing doc), not drift of stale chunks; belongs to rag-curate.",
+      "files": [],
+      "assertions": [
+        "Does not run the drift report or delete chunks",
+        "Treats the task as authoring a missing document",
+        "Does not claim stale chunks are the cause"
+      ]
+    }
+  ]
+}

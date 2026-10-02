@@ -1,0 +1,44 @@
+{
+  "skill_name": "graphify",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "build-graph",
+      "should_trigger": true,
+      "prompt": "/graphify this repo and give me the architecture map.",
+      "expected_output": "Detects files, extracts entities, builds and clusters the graph and reports god nodes and communities.",
+      "files": [],
+      "assertions": [
+        "Ensures graphify is installed first",
+        "Detects files before extraction",
+        "Builds the graph with clustering and generates GRAPH_REPORT.md and graph outputs",
+        "Runs the read-only graph health check before labeling communities",
+        "Follows the honesty rules and reports what was actually extracted"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "query-existing-graph",
+      "should_trigger": true,
+      "prompt": "graphify-out/ already exists. How does the auth module connect to billing?",
+      "expected_output": "Treats the question as a graphify query first instead of a wide grep sweep.",
+      "files": [],
+      "assertions": [
+        "Uses graphify query / path / explain rather than Grep sweeps",
+        "Answers from the existing graph without rebuilding it"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-graph-single-file-edit",
+      "should_trigger": false,
+      "prompt": "Change the default timeout in config.yaml from 30 to 60.",
+      "expected_output": "A one-line config edit; no graph needed.",
+      "files": [],
+      "assertions": [
+        "Does not build or query a knowledge graph",
+        "Edits the single value"
+      ]
+    }
+  ]
+}
