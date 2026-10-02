@@ -13,6 +13,30 @@ This is a **profile, not a framework**: an installable, forkable, opinionated ba
 
 ---
 
+## Prerequisites
+
+Hooks are plain bash plus a few CLIs. Install these first; the installer is `npx`, so Node comes first.
+
+| Tool | Used for | macOS (brew) | Windows (winget) |
+|---|---|---|---|
+| node / npx | running the installer | `brew install node` | `winget install OpenJS.NodeJS.LTS` |
+| jq | hook JSON parsing | `brew install jq` | `winget install jqlang.jq` |
+| gh | PR and issue hooks | `brew install gh` | `winget install GitHub.cli` |
+| sqlite3 | memory and index state | `brew install sqlite` | `winget install SQLite.SQLite` |
+| python3 | gates and evals | `brew install python` | `winget install Python.Python.3.12` |
+| rtk, graphify (optional) | output compression, graph queries | see each project | see each project |
+
+Check what is missing before wiring hooks (non-fatal, lists tools and install hints):
+
+```bash
+bash scripts/doctor.sh          # warn only
+bash scripts/doctor.sh --strict # exit 1 if a required tool is missing
+```
+
+Windows notes (see [`docs/troubleshooting.md`](docs/troubleshooting.md#windows-hooks-shell-and-path)): install Git for Windows (provides Git Bash), clone with the bundled `.gitattributes` so scripts keep LF line endings, and read the hook shell and PATH caveats there.
+
+---
+
 ## Install on a fresh machine
 
 ```bash
