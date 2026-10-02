@@ -37,7 +37,8 @@ if [ -z "$saved" ] && command -v rtk &>/dev/null; then
     else
       saved="$raw"
     fi
-    echo -n "$saved" > "$CACHE"
+    mkdir -p "$(dirname "$CACHE")" 2>/dev/null
+    echo -n "$saved" > "$CACHE" 2>/dev/null
   fi
 fi
 
