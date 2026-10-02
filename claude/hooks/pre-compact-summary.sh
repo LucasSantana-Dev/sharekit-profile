@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
+# shellcheck source=py-resolve.sh
+. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
 # PreCompact hook: auto-write a handoff summary before context is compacted.
 # Reads the session JSONL, extracts recent tool calls + user messages,
 # writes <project>/auto/<session_id>.md (one per session, never a shared slot) so the next session resumes in 1 turn.
 
 set -uo pipefail
 command -v jq &>/dev/null || exit 0
-command -v python3 &>/dev/null || exit 0
+[ -n "$PY" ] || exit 0
 
 INPUT=$(cat)
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // empty' 2>/dev/null)
@@ -20,7 +22,7 @@ HANDOFF_DIR="${PROJ:-$HOME/.claude/handoffs/_sem-projeto}/auto"
 mkdir -p "$HANDOFF_DIR"
 HANDOFF_FILE="$HANDOFF_DIR/${SESSION_ID}.md"
 
-python3 - "$JSONL" "$HANDOFF_FILE" <<'EOF'
+"$PY" - "$JSONL" "$HANDOFF_FILE" <<'EOF'
 import json, sys, os
 from datetime import datetime, timezone
 

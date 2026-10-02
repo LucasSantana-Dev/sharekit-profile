@@ -87,3 +87,47 @@ Co-Authored-By: Jane Talbot <jane@example.com>"')"
   run hook check-read-only-subagent.sh '{"agent_type":"code-reviewer","allowed_tools":"Read,Grep"}'
   [ "$status" -eq 0 ]
 }
+
+# --- #193: DEV_ROOT unset (env -i in hook()) must not crash under set -u or build "/rag-index" paths ---
+
+@test "DEV_ROOT unset: harness-vitals, auto-context-pack, memory-extract, tool-logger, block-secret-reads exit 0 with no unbound variable" {
+  for h in harness-vitals auto-context-pack memory-extract tool-logger block-secret-reads; do
+    "$SH" -n "$H/$h.sh"
+    run hook "$h.sh" "$(bash_payload 'git status')"
+    [ "$status" -eq 0 ] || { echo "$h exited $status: $output"; false; }
+    [[ "$output" != *"unbound variable"* ]] || { echo "$h: $output"; false; }
+  done
+}
+
+@test "DEV_ROOT unset: no hook references a bare \${DEV_ROOT} outside comments" {
+  run grep -nE '\$\{DEV_ROOT\}' "$REPO_ROOT"/claude/hooks/auto-context-pack.sh "$REPO_ROOT"/claude/hooks/memory-extract.sh "$REPO_ROOT"/claude/hooks/harness-vitals.sh "$REPO_ROOT"/claude/hooks/tool-logger.sh
+  [ "$status" -ne 0 ]
+}
+
+@test "tool-logger: Skill call lands under \$HOME/dev when DEV_ROOT is unset" {
+  payload='{"tool_name":"Skill","tool_input":{"skill":"demo"},"session_id":"s","cwd":"/x"}'
+  printf '%s' "$payload" | env -i HOME="$TMP_HOME" PATH="$GH_PATH" "$SH" "$H/tool-logger.sh"
+  [ -s "$TMP_HOME/dev/harness-evals/metrics/skill_invocations.jsonl" ]
+}
+
+# --- #192: python3 may be a broken Windows Store stub; resolve a working interpreter ---
+
+@test "py-resolve: skips a python3 that exits 49 and falls back to python" {
+  stubs="$BATS_TEST_TMPDIR/stubs"; mkdir -p "$stubs"
+  printf '#!/bin/sh\necho "Python was not found" >&2\nexit 49\n' > "$stubs/python3"
+  real="$(command -v python3)"
+  printf '#!/bin/sh\nexec "%s" "$@"\n' "$real" > "$stubs/python"
+  chmod +x "$stubs/python3" "$stubs/python"
+  run env -i HOME="$TMP_HOME" PATH="$stubs:/usr/bin:/bin" "$SH" -c ". '$H/py-resolve.sh'; printf %s \"\$PY\""
+  [ "$output" = "python" ]
+}
+
+@test "py-resolve: no interpreter leaves PY empty and hooks degrade silently" {
+  stubs="$BATS_TEST_TMPDIR/stubs"; mkdir -p "$stubs"
+  printf '#!/bin/sh\nexit 49\n' > "$stubs/python3"; cp "$stubs/python3" "$stubs/python"; chmod +x "$stubs/python3" "$stubs/python"
+  for h in session-length-guard tool-logger memory-extract model-tier-router session-cost-telemetry; do
+    run bash -c "printf '{}' | env -i HOME='$TMP_HOME' PATH='$stubs:/usr/bin:/bin' '$SH' '$H/$h.sh'"
+    [ "$status" -eq 0 ] || { echo "$h exited $status: $output"; false; }
+    [ -z "$output" ] || { echo "$h noisy: $output"; false; }
+  done
+}

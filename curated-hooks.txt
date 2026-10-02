@@ -21,6 +21,7 @@ harness-vitals.sh
 history.sh
 mode-reminder.sh
 model-tier-router.sh
+py-resolve.sh
 pre-compact-summary.sh
 protect-files.sh
 rate-limit-watch.sh

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# shellcheck source=py-resolve.sh
+. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
 # check-pr-automation-halt.sh: PreToolUse hook.
 # Enforces the "PR automation halt" + "No AI attribution" invariants
 # against git push / gh CLI operations. Blocks (exit 2) on:
@@ -46,7 +48,7 @@
 set -uo pipefail
 
 input="$(cat)"
-command -v python3 >/dev/null 2>&1 || { echo "check-pr-automation-halt: python3 missing, gate inactive" >&2; exit 0; }
+[ -n "$PY" ] || { echo "check-pr-automation-halt: python3 missing, gate inactive" >&2; exit 0; }
 [[ -n "$input" ]] || exit 0
 
 # The python body lives in a variable, not in a heredoc inside $(...): bash 3.2 (stock macOS)
@@ -628,7 +630,7 @@ for argv in simple:
         print("CHECKPR\t" + ref + "\t" + cwd_hint + "\t" + repo_flag)
         break
 PY
-verdict="$(HOOK_INPUT="$input" python3 -c "$PYSRC" 2>/dev/null)"
+verdict="$(HOOK_INPUT="$input" "$PY" -c "$PYSRC" 2>/dev/null)"
 
 kind="${verdict%%$'\t'*}"
 rest="${verdict#*$'\t'}"
@@ -708,7 +710,7 @@ if [[ "$kind" == "CHECKPR" ]] && command -v gh >/dev/null 2>&1; then
   # only ever sees text, cannot. Every one of them was patched with another `case` arm; the
   # arms are kept below because they still spare a needless block, but they are no longer
   # what the resolution rests on.
-  session_cwd="$(HOOK_INPUT="$input" python3 -c 'import json, os
+  session_cwd="$(HOOK_INPUT="$input" "$PY" -c 'import json, os
 try:
     print(json.loads(os.environ.get("HOOK_INPUT", "")).get("cwd", "") or "")
 except Exception:

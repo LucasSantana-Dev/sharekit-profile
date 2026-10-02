@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# shellcheck source=py-resolve.sh
+. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
+[ -n "$PY" ] || exit 0
 set -uo pipefail
 
 # PostToolUse hook: session context-health nudge (USAGE-PLAN aware).
@@ -58,7 +61,7 @@ JSONL=$(find ~/.claude/projects -name "${SESSION_ID}.jsonl" 2>/dev/null | head -
 #     subagent-heavy sessions peak markedly higher (1M 64% vs 32%) -> SUB_HEAVY=20 adds reserve so
 #     warnings fire before a sudden return-jump.
 # Bands: ~79%/88% soft/hard on a typical 1M session; earlier when floor is heavy or subagents many.
-READOUT=$(JSONL="$JSONL" python3 -c "
+READOUT=$(JSONL="$JSONL" "$PY" -c "
 import json, os
 ctx=0; floor=0; model='sonnet'; subagents=0
 _SUB={'task','agent','workflow'}

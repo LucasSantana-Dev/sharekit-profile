@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# shellcheck source=py-resolve.sh
+. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
 # PreToolUse hook: block reads of secret-bearing files (<project-a>, local-only).
 # Rationale: 2026-05-31 a secret file was read into the transcript, leaking keys.
 # Blocks Read/Grep/Bash access to ~/.zshrc, secrets.zsh, .env*, *.pem, id_*.
@@ -23,7 +25,7 @@
 set -euo pipefail
 
 payload="$(cat)"
-command -v python3 >/dev/null 2>&1 || { echo "block-secret-reads: python3 missing, gate inactive" >&2; exit 0; }
+[ -n "$PY" ] || { echo "block-secret-reads: python3 missing, gate inactive" >&2; exit 0; }
 
 # Extract the fields we care about without requiring jq.
 #
@@ -173,7 +175,7 @@ try:
 except Exception:
     pass
 PYEOF
-field() { printf '%s' "$payload" | python3 -c "$PYSRC" 2>/dev/null; }
+field() { printf '%s' "$payload" | "$PY" -c "$PYSRC" 2>/dev/null; }
 
 f=()
 while IFS= read -r _line || [ -n "$_line" ]; do f+=("$_line"); done < <(field)

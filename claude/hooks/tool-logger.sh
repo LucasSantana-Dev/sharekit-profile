@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# shellcheck source=py-resolve.sh
+. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
 # tool-logger.sh: PostToolUse hook, async. One logger for three logs (replaces
 # trajectory-log.sh, skill-outcome-logger.sh, rtk-miss-detector.sh):
 #   every tool call  -> ~/.claude/.harness/runtime/trajectory.jsonl (read by skill-prune.sh)
@@ -6,9 +8,9 @@
 #   Bash, >=5KB out, not rtk-wrapped -> ~/.claude/rtk-misses.log
 # Pure observation: never blocks, never prints, always exit 0. Schemas unchanged.
 set -uo pipefail
-command -v python3 >/dev/null 2>&1 || exit 0
+[ -n "$PY" ] || exit 0
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-python3 -c '
+"$PY" -c '
 import json, os, re, sys, time
 root = sys.argv[1]
 try:
@@ -40,7 +42,7 @@ append(os.path.join(root, ".harness/runtime/trajectory.jsonl"),
 
 ti = ti if isinstance(ti, dict) else {}
 if tool == "Skill" and ti.get("skill"):
-    append("${DEV_ROOT}/harness-evals/metrics/skill_invocations.jsonl",
+    append(os.path.join(os.environ.get("DEV_ROOT") or os.path.expanduser("~/dev"), "harness-evals/metrics/skill_invocations.jsonl"),
            {"ts": ts, "skill": ti["skill"], "args": (ti.get("args") or "")[:200],
             "session_id": d.get("session_id", ""), "cwd": d.get("cwd", "")})
 
