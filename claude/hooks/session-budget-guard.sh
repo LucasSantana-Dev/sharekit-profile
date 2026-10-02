@@ -94,13 +94,14 @@ sub_bump     = (0.05*usable if subagents >= 20 else 0.0)  # top-quartile orchest
 hard = 0.13*usable + 0.50*floor_excess + sub_bump          # -> ~88% on a typical 1M session
 soft = hard + 0.10*usable                                  # gentle heads-up ~9pp earlier
 hard = min(hard, 0.85*usable); soft = min(soft, 0.92*usable)  # never pin to always-fire
-band = 'hard' if remaining <= hard else ('soft' if remaining <= soft else '')
+band = 'hard' if remaining <= hard else ('soft' if remaining <= soft else 'none')
 pct = int(100*ctx/window) if window else 0
 print(f'{band} {pct} {round(ctx/1000)} {round(floor/1000)} {subagents}')
 " 2>/dev/null) || exit 0
 
 read -r band PCT CTX_K FLOOR_K SUBN <<<"$READOUT"
-[[ -z "${band:-}" || ! "${PCT:-x}" =~ ^[0-9]+$ ]] && exit 0
+# band is "none" (not empty) below thresholds: an empty first field would shift `read` columns.
+[[ -z "${band:-}" || "$band" == "none" || ! "${PCT:-x}" =~ ^[0-9]+$ ]] && exit 0
 FLAG="/tmp/claude-ctxnudge-${SESSION_ID}-${band}"
 [[ -f "$FLAG" ]] && exit 0
 touch "$FLAG"
