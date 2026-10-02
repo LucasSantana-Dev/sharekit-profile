@@ -29,7 +29,6 @@ Session runs (any harness: OpenCode / Claude Code / Codex / Warp)
   ↓ PostCompact         — re-inject CORE memory (reinject-compact.sh)
 SessionEnd
   ↓ flush trajectory + write session record + queue for distill (session-end-flush.sh)
-  ↓ Stop                — post-incident ADR reminder if errors spiked (post-incident-adr.sh)
 Nightly distill (auto_dream)
   ↓ cluster + heuristic prefilter + decay
   ↓ stage candidate learnings (confidence-scored)
@@ -92,10 +91,6 @@ failures; the context-guard defends the context window.
   firewall (compact digest sidecars for >2KB responses), lost-in-the-middle
   audit (constraint recap surfaced at window start), cache-boundary marker
   (contextweaver 92.2% route-prompt reduction, agentforge).
-- **two-knob observability** — `hooks/observe-otel.sh` global default +
-  per-project override (pdhoolia); GenAI semantic span names; context-breach
-  scanning; idempotent ±1 feedback scores. Local JSONL by default; wire an
-  OTEL exporter via `OTEL_EXPORTER_OTLP_ENDPOINT` when ready.
 - **evaluator ≠ agent** — the judge never ships in the harness; the reviewer is
   not the implementer (lumos, gearbox, auto-harness).
 
@@ -121,9 +116,6 @@ harness-evolver / hermes-evolution — NOT a dependency. No DSPy/GEPA/LangSmith.
 - **auto-rollback + deploy-watch** — `hooks/deploy-watch.sh` monitors post-deploy
   metrics; auto-backs-up before any revert; reverts to git HEAD on regression;
   records the regression in history so the proposer learns from it next time.
-- **repo map** — `hooks/repo-map.sh` produces a bounded, cache-stable structural
-  map (file tree + symbol index, ≤8KB budget) so the proposer targets edits
-  correctly without flooding context (lost-in-the-middle defense).
 - **all edits human-reviewed via PR** — evolved variants never commit directly
   (hermes-evolution guardrail #5). The proposer proposes; the gate validates; the
   host agent reviews and opens the PR.
@@ -148,11 +140,6 @@ measurement.
   catalog, cutting system-prompt context (contextweaver 92.2% route-prompt
   reduction, agentforge deferred-tools 60-70% system-prompt cut). Advisory;
   never blocks.
-- **cache-aware model routing** — `hooks/model-cache-guard.sh` (UserPromptSubmit
-  + PostCompact): flags mid-conversation model switches as cache-unsafe, since
-  switching mid-stream discards the cached prompt prefix. The only cache-safe
-  switch boundaries are first-turn and post-compaction (Copilot pattern).
-  Advisory; never blocks.
 
 - **eval task catalog** — `hooks/eval-tasks.sh`: a deterministic catalog of 20
   harness-behavior tasks (each = synthetic tool-call event + expected verdict +
