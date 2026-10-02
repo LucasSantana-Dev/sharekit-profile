@@ -12,7 +12,33 @@
 #   scripts/install-scheduler.sh run                       # trigger one cycle now
 set -euo pipefail
 
-[ "$(uname)" = "Darwin" ] || { echo "install-scheduler.sh: macOS only (requires launchd)" >&2; exit 1; }
+OS="$(uname)"
+CRON_TAG="# dev.sharekit.flywheel"
+if [ "$OS" = "Linux" ]; then
+  command -v crontab >/dev/null 2>&1 || { echo "install-scheduler.sh: crontab not found" >&2; exit 1; }
+  cmd="${1:-status}"; shift || true
+  case "$cmd" in
+    install)
+      root="${1:-$(pwd)}"
+      [ -d "$root" ] || { echo "install: project root not found: $root" >&2; exit 1; }
+      line="0 2 * * * cd '$root' && bash '$HOME/.claude/hooks/cycle.sh' --no-maintain --eval harness $CRON_TAG"
+      { crontab -l 2>/dev/null | grep -vF "$CRON_TAG" || true; echo "$line"; } | crontab -
+      echo "installed cron entry (nightly 02:00) for $root" ;;
+    uninstall)
+      { crontab -l 2>/dev/null | grep -vF "$CRON_TAG" || true; } | crontab -
+      echo "uninstalled cron entry" ;;
+    status)
+      if crontab -l 2>/dev/null | grep -qF "$CRON_TAG"; then echo "status: installed (cron)"; crontab -l | grep -F "$CRON_TAG"; else echo "status: not installed (cron)"; fi ;;
+    run)
+      line="$(crontab -l 2>/dev/null | grep -F "$CRON_TAG" || true)"
+      [ -n "$line" ] || { echo "run: not installed; run install first" >&2; exit 1; }
+      cmdline="$(printf '%s' "$line" | sed -e 's/^[^ ]* [^ ]* [^ ]* [^ ]* [^ ]* //' -e "s/ $CRON_TAG\$//")"
+      bash -c "$cmdline" ;;
+    *) echo "usage: install-scheduler.sh install [project-root] | uninstall | status | run" >&2; exit 1 ;;
+  esac
+  exit 0
+fi
+[ "$OS" = "Darwin" ] || { echo "install-scheduler.sh: unsupported OS $OS (macOS launchd, Linux cron only). Windows: see docs/operations.md (schtasks)" >&2; exit 1; }
 
 LABEL="dev.sharekit.flywheel"
 PLIST_DEST="$HOME/Library/LaunchAgents/${LABEL}.plist"

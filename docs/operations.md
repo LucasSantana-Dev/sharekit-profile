@@ -32,7 +32,7 @@ to a warm start is:
 
 ## Scheduling the nightly cycle
 
-The cycle runs on demand by default. To schedule it nightly (macOS launchd):
+The cycle runs on demand by default. To schedule it nightly on macOS (launchd). Linux and Windows paths are below:
 
 ```bash
 # Install for the current project (opt-in; per-project, not global)
@@ -55,6 +55,20 @@ manually when you want the full sweep. The plist is a template
 `__HOME__` and `__ROOT__` and loads it. **The cycle writes to
 `.harness/runtime/` which is per-project, so install once per project you want
 the flywheel to improve — do not install globally.**
+
+### Linux and Windows
+
+`scripts/install-scheduler.sh` supports macOS (launchd) and Linux (cron). On Linux
+`install`, `uninstall` and `status` manage one crontab line tagged `# dev.sharekit.flywheel`
+(nightly 02:00).
+
+Windows has no installer script. Create the task by hand with Task Scheduler, running
+the cycle from Git Bash or WSL:
+
+```bat
+schtasks /Create /SC DAILY /ST 02:00 /TN "sharekit-flywheel" /TR "bash -lc \"cd /c/path/to/project && ~/.claude/hooks/cycle.sh --no-maintain --eval harness\""
+schtasks /Delete /TN "sharekit-flywheel" /F
+```
 
 ## Reading a cycle report
 
