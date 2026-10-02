@@ -63,10 +63,25 @@ the flywheel to improve — do not install globally.**
 (nightly 02:00).
 
 Windows has no installer script. Create the task by hand with Task Scheduler, running
-the cycle from Git Bash or WSL:
+the cycle from Git Bash or WSL. Do not use a bare `bash`: Task Scheduler resolves it
+through the Windows PATH to `WindowsApps\bash.exe` (the WSL launcher), which fails with
+"Windows Subsystem for Linux has no installed distributions" when no distro is installed.
+
+Git Bash (use the absolute path):
 
 ```bat
-schtasks /Create /SC DAILY /ST 02:00 /TN "sharekit-flywheel" /TR "bash -lc \"cd /c/path/to/project && ~/.claude/hooks/cycle.sh --no-maintain --eval harness\""
+schtasks /Create /SC DAILY /ST 02:00 /TN "sharekit-flywheel" /TR "\"C:\Program Files\Git\bin\bash.exe\" -lc \"cd /c/path/to/project && ~/.claude/hooks/cycle.sh --no-maintain --eval harness\""
+```
+
+WSL (only if the profile is installed inside the WSL distro):
+
+```bat
+schtasks /Create /SC DAILY /ST 02:00 /TN "sharekit-flywheel" /TR "wsl.exe -e bash -lc \"cd /mnt/c/path/to/project && ~/.claude/hooks/cycle.sh --no-maintain --eval harness\""
+```
+
+Remove either task:
+
+```bat
 schtasks /Delete /TN "sharekit-flywheel" /F
 ```
 
