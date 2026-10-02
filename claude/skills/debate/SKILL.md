@@ -79,8 +79,23 @@ sprint-level undo cost, post-incident — and say the escalation reason out loud
   default.
 - `opus` — a specific lens doing real creative-judgment or devil's-advocate work, when
   that judgment call itself is high-stakes.
-- `haiku` — a narrow, checklist-style lens (compliance/licensing fact-check) where cost
+- `sonnet` — a narrow, checklist-style lens (compliance/licensing fact-check) where cost
   matters more than depth.
+
+**Every lens and the synthesis are analysis, so every `agent()` call here carries a
+write-incapable `agentType`** (`standards/agent-routing.md` § Read-only enforcement for
+analysis phases): `critic`, `code-reviewer`, `security-reviewer`, `Explore` or `Plan`. A
+lens argues about a change, it never applies one. "READ-ONLY, return findings" in the
+prompt is belt-and-suspenders on top of that, not a substitute: agents have written to
+disk anyway despite it. If the synthesis implies edits, the orchestrator applies them or a
+separate write-capable implementer does.
+
+**A debate is not the T2 gate.** `standards/autonomy-tiers.md` (ADR-0051) requires ONE
+adversarial critic on a different tier, prompted to refute, with mechanical checks first,
+because same-model panels rubber-stamp (85.5% sycophancy) and add roughly zero safety:
+head-count is not diversity of checks. Running this skill is T0 no matter how many lenses
+it fields; whatever the decision then does carries its own tier. Never report a debate as
+having satisfied a T2 or T3 gate.
 
 Only add **OpenRouter** models when the user explicitly asked for other providers. See
 `scripts/openrouter_call.py` — do not hand-roll the curl calls, it already handles the

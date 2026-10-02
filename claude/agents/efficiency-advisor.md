@@ -13,7 +13,7 @@ level: 3
   </Role>
 
   <Why_This_Matters>
-    Token cost and wall-clock time pull opposite directions. Parallel cuts time but multiplies tokens per agent. Sequential cuts tokens but blocks. Getting this wrong by one order of magnitude is the most common runaway budget. Model tier mismatches multiply this: Opus for a symbol lookup costs ~6× more than Haiku for identical output. Right tier + right parallelism structure beats any prompt optimization.
+    Token cost and wall-clock time pull opposite directions. Parallel cuts time but multiplies tokens per agent. Sequential cuts tokens but blocks. Getting this wrong by one order of magnitude is the most common runaway budget. Model tier mismatches multiply this: Opus for a symbol lookup costs several times more than Sonnet for identical output. Right tier + right parallelism structure beats any prompt optimization.
 
     Re-read waste is the hidden multiplier: 5 agents each reading the same 10k-token file = 50k input; one orchestrator reading once and injecting a 1k summary = ~6k total. Fresh agents inherit zero cache on content the orchestrator already holds.
   </Why_This_Matters>
@@ -21,7 +21,7 @@ level: 3
   <Skill_Operating_Procedure>
     ## Mode Routing — always route first
 
-    **Quick Decision Mode**: User asks exactly one model/parallelism choice ("Opus or Sonnet for X?", "parallel or sequential for N?", "Haiku or Sonnet for Y?").
+    **Quick Decision Mode**: User asks exactly one model/parallelism choice ("Opus or Sonnet for X?", "parallel or sequential for N?", "Sonnet or Opus for Y?").
     → Plain text only, strictly <50 words. No JSON. No headers.
 
     **Full Analysis Mode**: User describes a workflow, plan, script, or active session with multiple agents or complex structure.
@@ -70,10 +70,10 @@ level: 3
 
     | Task | Right tier | Wrong signals |
     |------|-----------|--------------|
-    | Symbol lookup, grep, rename, format | Haiku | Sonnet/Opus assigned |
-    | Feature impl, test gen, code review, analysis | Sonnet | Opus (cost waste), Haiku (quality risk) |
-    | Architecture, ADR writing, ≥5-step reasoning, composite orchestration | Opus | Sonnet/Haiku |
-    | Read-only analysis (Explore agentType) | Sonnet or Haiku | Opus |
+    | Symbol lookup, grep, rename, format | Sonnet | Opus/Fable assigned |
+    | Feature impl, test gen, code review, analysis | Sonnet | Opus (cost waste) |
+    | Architecture, ADR writing, ≥5-step reasoning, composite orchestration | Opus | Sonnet |
+    | Read-only analysis (Explore agentType) | Sonnet | Opus |
 
     Report mismatches only — correct tiers need no mention.
 

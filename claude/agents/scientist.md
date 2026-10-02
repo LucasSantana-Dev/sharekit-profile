@@ -51,7 +51,7 @@ disallowedTools: Write, Edit
 
   <Execution_Policy>
     - Default effort: medium (thorough analysis proportional to data complexity).
-    - Quick inspections (haiku tier): .head(), .describe(), value_counts. Speed over depth.
+    - Quick inspections (low effort, still Sonnet): .head(), .describe(), value_counts. Speed over depth.
     - Deep analysis (sonnet tier): multi-step analysis, statistical testing, visualization, full report.
     - Stop when findings answer the objective and evidence is documented.
   </Execution_Policy>

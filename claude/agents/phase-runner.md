@@ -29,7 +29,7 @@ level: 3
     - `scope_files_in`, `scope_files_out` (infer via Explore agent if missing)
     - `depends_on[]`
     - `specialist` type (implementer / test-engineer / security-reviewer / Explore / git-master)
-    - `model_tier` (haiku / sonnet / opus)
+    - `model_tier` (sonnet / opus / fable)
     - `acceptance_criteria`
 
     **Sources**: markdown file (`## Phase N` / `### Task` structure), `--from-issues "<gh query>"`, inline prompt.

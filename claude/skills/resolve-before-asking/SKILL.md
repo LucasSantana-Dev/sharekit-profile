@@ -9,7 +9,7 @@ triggers:
 metadata:
   owner: global-agents
   tier: contextual
-  canonical_source: /Users/lucassantana/.agents/skills/resolve-before-asking
+  canonical_source: ~/.agents/skills/resolve-before-asking
 ---
 
 # Resolve Before Asking
