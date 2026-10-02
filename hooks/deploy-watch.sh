@@ -52,7 +52,7 @@ case "$cmd" in
     pid="${1:-}"; current="${2:-}"
     [[ -n "$pid" && -n "$current" ]] || die "check requires <proposal-id> <current-value>"
     [[ -f "$WATCHES" ]] || die "no active watches"
-    watch="$(jq -c --arg p "$pid" 'select(.proposal_id==$p) | last' <(jq -s '.' "$WATCHES") 2>/dev/null)"
+    watch="$(jq -c --arg p "$pid" 'map(select(.proposal_id==$p)) | last' <(jq -s '.' "$WATCHES") 2>/dev/null)"
     [[ -n "$watch" && "$watch" != "null" ]] || die "no watch for $pid"
     baseline="$(printf '%s' "$watch" | jq -r '.baseline')"
     metric="$(printf '%s' "$watch" | jq -r '.metric')"
