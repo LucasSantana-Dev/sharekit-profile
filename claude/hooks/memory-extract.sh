@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+# memory-extract.sh: PreCompact + SessionEnd hook. One extractor for both events.
+# Scans the session JSONL for decision/learning markers and writes a memory note that
+# reindex-hook picks up. Replaces pre-compact-memory-snapshot.sh and sessionend-memory-writer.sh.
+#   PreCompact: always (needs >=2 markers). Note: precompact_snapshot_<ts>.md, surfaced by
+#               reinject-compact.sh after the compact.
+#   SessionEnd: only for expensive sessions (>$50 estimated OR >500 turns).
+#               Note: session_end_<ts>.md.
+set -uo pipefail
+command -v python3 >/dev/null 2>&1 || exit 0
+command -v jq >/dev/null 2>&1 || exit 0
+
+INPUT=$(cat 2>/dev/null || true)
+SID=$(jq -r '.session_id // empty' <<<"$INPUT" 2>/dev/null)
+[ -z "$SID" ] && SID="${CLAUDE_CODE_SESSION_ID:-}"
+[ -z "$SID" ] && exit 0
+EVENT=$(jq -r '.hook_event_name // empty' <<<"$INPUT" 2>/dev/null)
+case "$EVENT" in PreCompact) MODE=precompact ;; SessionEnd) MODE=sessionend ;; *) exit 0 ;; esac
+
+JSONL=$(find "$HOME/.claude/projects" -maxdepth 2 -name "${SID}.jsonl" -type f 2>/dev/null | head -1)
+[ -n "$JSONL" ] && [ -f "$JSONL" ] || exit 0
+
+PROJECT_DIR=$(dirname "$JSONL")
+MEMORY_DIR="$PROJECT_DIR/memory"
+mkdir -p "$MEMORY_DIR" 2>/dev/null || exit 0
+
+# Cooperative-mode guard (standards/cooperative-mode.md): never write work-session
+# knowledge into the personal vault. The vault SYMLINK is the only bleed channel;
+# plain project dirs are already out of RAG (ADR-0039, 2026-07-23).
+CWD=$(jq -r '.cwd // empty' <<<"$INPUT" 2>/dev/null)
+if [ -n "$CWD" ] && [ "$("$HOME/.claude/scripts/repo-mode.sh" "$CWD" 2>/dev/null || echo solo)" = "cooperative" ]; then
+  RESOLVED=$(cd "$MEMORY_DIR" 2>/dev/null && pwd -P || echo "$MEMORY_DIR")
+  case "$RESOLVED" in
+    "${DEV_ROOT}/knowledge-brain"*) MEMORY_DIR="$PROJECT_DIR/memory-coop"; mkdir -p "$MEMORY_DIR" 2>/dev/null || exit 0 ;;
+  esac
+fi
+
+TS=$(date -u +%Y-%m-%dT%H-%M-%SZ)
+OUT=$(python3 - "$MODE" "$JSONL" "$SID" "$MEMORY_DIR" "$TS" <<'PY' 2>/dev/null || true
+import json, os, re, sys
+mode, path, sid, mdir, ts = sys.argv[1:6]
+
+PRICING = {
+    "sonnet": (3.00, 3.75, 0.30, 15.00),
+    "haiku": (0.80, 1.00, 0.08, 4.00),
+    "opus": (15.0, 18.75, 1.50, 75.00),
+}
+markers = re.compile(
+    r'(we (decided|chose|picked)|decision:|key finding:|the issue was|'
+    r'root cause|discovered that|captured in ADR|adr [\d-]+|'
+    r'kill[- ]gate|projected (savings|impact)|the meta[- ]?bug)',
+    re.IGNORECASE,
+)
+turns, cost, hits = 0, 0.0, []
+try:
+    with open(path) as f:
+        for line in f:
+            try: d = json.loads(line)
+            except Exception: continue
+            t = d.get("type")
+            msg = d.get("message", {}) if isinstance(d.get("message"), dict) else {}
+            if t == "assistant":
+                u = msg.get("usage") or {}
+                if u:
+                    turns += 1
+                    m = (msg.get("model") or "").lower()
+                    p = PRICING["haiku" if "haiku" in m else "opus" if "opus" in m else "sonnet"]
+                    cost += (u.get("input_tokens", 0) * p[0] + u.get("cache_creation_input_tokens", 0) * p[1]
+                             + u.get("cache_read_input_tokens", 0) * p[2] + u.get("output_tokens", 0) * p[3]) / 1e6
+            if t not in ("assistant", "human"): continue
+            c = msg.get("content", [])
+            if not isinstance(c, list): continue
+            for b in c:
+                text = b.get("text", "") if isinstance(b, dict) and b.get("type") == "text" else (b if isinstance(b, str) else "")
+                for s in re.split(r'(?<=[.!?])\s+', text):
+                    if markers.search(s) and 30 < len(s) < 400:
+                        hits.append((t, s.strip()))
+except Exception:
+    sys.exit(0)
+
+if mode == "sessionend" and not (turns > 500 or cost >= 50):
+    sys.exit(0)
+seen, uniq = set(), []
+for t, s in hits:
+    k = s[:80].lower()
+    if k in seen: continue
+    seen.add(k); uniq.append((t, s))
+if len(uniq) < 2:
+    sys.exit(0)
+uniq = uniq[:15 if mode == "precompact" else 20]
+
+if mode == "precompact":
+    fname, slug, kind = f"precompact_snapshot_{ts}.md", f"precompact-{ts}", "snapshot"
+    desc = f"Pre-compact snapshot of decisions/findings from session {sid[:8]}"
+    intro = f"Auto-extracted at compact time from session `{sid}`."
+else:
+    fname, slug, kind = f"session_end_{ts}.md", f"sessionend-{ts}", "session"
+    desc = f"Session-end snapshot ({turns} turns, ~${cost:.2f}) - {len(uniq)} decision/finding markers extracted"
+    intro = f"Auto-extracted at session close. Session `{sid}` had {turns} turns and ~${cost:.2f} estimated cost."
+out = os.path.join(mdir, fname)
+lines = ["---", f"name: {slug}", "tags:", f"  - type/{kind}", "  - status/active", "  - meta/auto",
+         f"description: {desc}", "metadata:", "  type: project", "---", "", intro, "",
+         "## Decisions / findings captured", ""]
+lines += [f"- **[{r}]** {s}" for r, s in uniq]
+lines += ["", "_Auto-generated by memory-extract.sh. Review and prune if not durable knowledge._"]
+with open(out, "w") as f:
+    f.write("\n".join(lines) + "\n")
+print(out)
+PY
+)
+[ -n "$OUT" ] || exit 0
+
+# Write-path guard: redact any secrets captured from the session JSONL, stamp provenance.
+python3 "${DEV_ROOT}/rag-index/memory_guard.py" guard "$OUT" \
+  --provenance hook-auto --trust trusted 2>/dev/null || true
+exit 0

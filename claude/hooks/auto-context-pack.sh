@@ -13,9 +13,6 @@
 #   graph-miss   — graph exists but query empty/oversize; fell through to RAG
 #   green        — context pack injected
 set -euo pipefail
-LOG=~/.claude/hooks/auto-context-pack.log
-mkdir -p "$(dirname "$LOG")" 2>/dev/null || LOG=/dev/null
-TS=$(date -u +%FT%TZ)
 
 # `timeout` is absent on stock macOS: use gtimeout, else a python3 stdlib shim, else no limit.
 if ! command -v timeout >/dev/null 2>&1; then
@@ -35,6 +32,9 @@ except OSError:
     timeout() { shift; "$@"; }
   fi
 fi
+LOG=~/.claude/hooks/auto-context-pack.log
+mkdir -p "$(dirname "$LOG")" 2>/dev/null || LOG=/dev/null
+TS=$(date -u +%FT%TZ)
 
 # Env-var kill switch (per-shell disable)
 if [ "${CLAUDE_AUTO_CONTEXT_PACK:-on}" = "off" ]; then
@@ -100,9 +100,21 @@ if [ -f "$CWD/graphify-out/graph.json" ] && command -v graphify &>/dev/null; the
   echo "graph-miss $TS prompt-len=${#PROMPT} graph-bytes=${#GRAPH_OUT}" >> "$LOG"
 fi
 
-PACK_TOOL="${DEV_ROOT:-}/rag-index/venv/bin/python"
-PACK_SCRIPT="${DEV_ROOT:-}/rag-index/pack.py"
-if [ -z "${DEV_ROOT:-}" ] || [ ! -x "$PACK_TOOL" ] || [ ! -f "$PACK_SCRIPT" ]; then
+# Length gate (added 2026-09-26, log-justified: auto-context-pack.log, 3712 fires).
+# Every successful inject (49 "green" fires) had prompt-len <= 679; zero exceeded it.
+# Prompts over 2000 chars never once produced a green fire, but account for 152/251
+# timeouts (each up to a 20s stall) and 86/120 oversize discards. Skip the pack.py
+# call entirely past this length: cuts most wasted timeout latency and oversize
+# compute with zero effect on the ~10% inject rate (graph/graph-miss path above is
+# unaffected — graph queries succeed at prompt-len up to ~24K).
+if [ ${#PROMPT} -gt 2000 ]; then
+  echo "too-long $TS prompt-len=${#PROMPT}" >> "$LOG"
+  exit 0
+fi
+
+PACK_TOOL="${DEV_ROOT}/rag-index/venv/bin/python"
+PACK_SCRIPT="${DEV_ROOT}/rag-index/pack.py"
+if [ ! -x "$PACK_TOOL" ] || [ ! -f "$PACK_SCRIPT" ]; then
   echo "no-tool $TS" >> "$LOG"
   exit 0
 fi

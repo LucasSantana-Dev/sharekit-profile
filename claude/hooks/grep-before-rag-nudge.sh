@@ -7,7 +7,6 @@
 set -uo pipefail
 HOOK_JSON=$(cat); [ -n "$HOOK_JSON" ] || exit 0   # robust to no-trailing-newline stdin
 MARK="$HOME/.claude/.rag-recent"
-mtime() { stat -c %Y "$@" 2>/dev/null || stat -f %m "$@" 2>/dev/null; }  # GNU first: BSD-style `stat -f` on GNU prints fs info and pollutes stdout
 
 read TOOL CMD < <(printf '%s' "$HOOK_JSON" | python3 -c "
 import sys,json
@@ -32,7 +31,7 @@ esac
 
 # RAG/graph consulted in the last 10 min? then stay quiet.
 if [ -f "$MARK" ]; then
-  now=$(date +%s); m=$(mtime "$MARK" || echo 0); m=${m:-0}
+  now=$(date +%s); m=$(stat -c %Y "$MARK" 2>/dev/null || stat -f %m "$MARK" 2>/dev/null || echo 0)
   [ $(( now - m )) -lt 600 ] && exit 0
 fi
 

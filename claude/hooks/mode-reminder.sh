@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# UserPromptSubmit hook — combined caveman+ponytail reminder (ADR-0050).
+# UserPromptSubmit hook - combined caveman+ponytail reminder (ADR-0050).
 # Replaces caveman-mode.sh + ponytail-mode.sh: one ~110-token directive instead of
-# ~600 tokens/turn. Full mode definitions live in CLAUDE.md (cached once); this is
-# the per-turn drift anchor. Toggle semantics preserved per CLAUDE.md:
+# ~600 tokens/turn. Full mode definitions: skills/caveman/SKILL.md and ADR-0050; this is
+# the per-turn drift anchor. Toggle semantics:
 #   "stop caveman" / "stop ponytail"  -> that mode off, THIS session only
 #   "normal mode"                     -> both off, this session
 #   "caveman on|/caveman" / "ponytail on|/ponytail" -> back on
@@ -41,14 +41,14 @@ case "$LP" in
 esac
 
 D=""
-[ ! -f "$CAVE_OFF" ] && D="CAVEMAN ON (per CLAUDE.md): terse; drop filler/articles/hedging; keep ALL technical substance, exact terms, code + quoted errors verbatim; normal prose for security warnings, destructive-action confirmations, order-sensitive sequences."
+[ ! -f "$CAVE_OFF" ] && D="Caveman: terse; code, errors, exact terms verbatim; plain prose for security, destructive, order-sensitive steps."
 if [ ! -f "$PONY_OFF" ]; then
   [ -n "$D" ] && D="$D "
-  D="${D}PONYTAIL FULL (per CLAUDE.md): ladder — YAGNI > reuse-what's-here > stdlib > native > installed dep > one line > minimal code; no unrequested abstractions; root-cause fix at shared fn; never trim trust-boundary validation/error handling/security; mark shortcuts 'ponytail:'."
+  D="${D}Ponytail: YAGNI, reuse, stdlib, minimal code; never trim validation, error handling or security."
 fi
 if [ ! -f "$ECON_OFF" ]; then
   [ -n "$D" ] && D="$D "
-  D="${D}AGENT-ECON (standards/agent-routing.md): before any Agent()/swarm — recall/ctx_search first; cap reports ≤200 lines; grep-first briefs naming the ≤5 files worth full reads; thoroughness=medium default; index outputs >50KB via ctx_index then ctx_search, never Read-page them; resume failed agents, never respawn a swarm on quota 403."
+  D="${D}Agent-econ: recall first, grep-first briefs, reports <=200 lines."
 fi
 
 [ -z "$D" ] && exit 0

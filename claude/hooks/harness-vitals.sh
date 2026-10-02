@@ -11,28 +11,6 @@
 # ~/.claude-env — ~/.claude is derived via `sync pull`; derived edits get reverted.
 set -uo pipefail
 
-CLAUDE_DIR="$HOME/.claude"
-ENV_DIR="$HOME/.claude-env"
-SKILLS="$CLAUDE_DIR/skills"
-# Overridable so a sandbox (harness-selftest.sh) can simulate "mounted" without a real
-# external volume — real machine default is unchanged.
-# Personal-machine layout, all optional: EXTERNAL_HD_DIR is a volume root (holds
-# Desenvolvimento/), DEV_ROOT is the Desenvolvimento dir itself. Both unset (a stock
-# machine) leaves RAG_ROOT empty and every RAG/HD check below skips silently.
-if [ -n "${EXTERNAL_HD_DIR:-}" ]; then
-  EXTERNAL_HD="$EXTERNAL_HD_DIR"
-  RAG_ROOT="$EXTERNAL_HD/Desenvolvimento/rag-index"
-elif [ -n "${DEV_ROOT:-}" ]; then
-  EXTERNAL_HD="$DEV_ROOT"
-  RAG_ROOT="$DEV_ROOT/rag-index"
-else
-  EXTERNAL_HD=""
-  RAG_ROOT=""
-fi
-warns=()
-
-# GNU stat first: BSD-style `stat -f` on GNU prints filesystem info to stdout and exits 1.
-mtime() { stat -c %Y "$@" 2>/dev/null || stat -f %m "$@" 2>/dev/null; }
 # `timeout` is absent on stock macOS: use gtimeout, else a python3 stdlib shim, else no limit.
 if ! command -v timeout >/dev/null 2>&1; then
   if command -v gtimeout >/dev/null 2>&1; then
@@ -52,12 +30,25 @@ except OSError:
   fi
 fi
 
+CLAUDE_DIR="$HOME/.claude"
+ENV_DIR="$HOME/.claude-env"
+SKILLS="$CLAUDE_DIR/skills"
+# Overridable so a sandbox (harness-selftest.sh) can simulate "mounted" without a real
+# external volume — real machine default is unchanged.
+EXTERNAL_HD="${EXTERNAL_HD_DIR:-${DEV_ROOT}}"
+RAG_ROOT="$EXTERNAL_HD/Desenvolvimento/rag-index"
+warns=()
+
 now=$(date +%s)
 age_h() { echo $(( (now - $1) / 3600 )); }   # epoch -> hours ago
 
 # 1. claude-env mirror: unpushed commits OR last push stale (> 36h) => mirror may be silently behind
 if [ -d "$ENV_DIR/.git" ]; then
-  ahead=$(git -C "$ENV_DIR" rev-list --count origin/main..HEAD 2>/dev/null || echo 0)
+  # Compare against the CURRENT branch's upstream, not origin/main: on a feature branch
+  # with an open PR the origin/main baseline calls pushed work "UNPUSHED" and suggests a
+  # push that the PR-required hook refuses — a warning with no resolution (2026-08-28).
+  ahead_ref=$(git -C "$ENV_DIR" rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null || echo origin/main)
+  ahead=$(git -C "$ENV_DIR" rev-list --count "$ahead_ref..HEAD" 2>/dev/null || echo 0)
   [ "${ahead:-0}" -gt 0 ] && warns+=("claude-env: $ahead commit(s) UNPUSHED — run: git -C ~/.claude-env push (or 'sync push')")
   last=$(git -C "$ENV_DIR" log -1 --format=%ct 2>/dev/null || echo "$now")
   h=$(age_h "$last"); [ "$h" -gt 36 ] && warns+=("claude-env: last commit ${h}h ago — mirror may be stale (SessionEnd 'sync push' not firing?)")
@@ -79,10 +70,9 @@ done
 # 4. RAG index freshness (stale retrieval => recall returns old context silently)
 # 2026-07-23: the index lives on the External HD now; the old ~/.claude/rag-index glob
 # silently no-opped for weeks (the monitor had the disease it monitors for).
-rag_db=""
-[ -n "$RAG_ROOT" ] && [ -d "$RAG_ROOT" ] && rag_db=$(ls -t "$RAG_ROOT"/*.sqlite "$RAG_ROOT"/*.db 2>/dev/null | head -1)
+rag_db=$(ls -t "$RAG_ROOT"/*.sqlite "$RAG_ROOT"/*.db 2>/dev/null | head -1)
 if [ -n "${rag_db:-}" ]; then
-  m=$(mtime "$rag_db" || echo "$now"); m=${m:-$now}
+  m=$(stat -c %Y "$rag_db" 2>/dev/null || stat -f %m "$rag_db" 2>/dev/null || echo "$now")
   d=$(( (now - m) / 86400 )); [ "$d" -gt 7 ] && warns+=("RAG index ${d}d old ($(basename "$rag_db")) — recall may miss recent work; reindex")
 fi
 
@@ -104,17 +94,15 @@ fi
 # 5a. unread eval regression alerts — REGRESSION-ALERTS.log fired daily 06-22→07-01 unseen (ADR-0052)
 RALOG="$RAG_ROOT/eval/REGRESSION-ALERTS.log"
 RASEEN="$RAG_ROOT/eval/.alerts-seen"
-if [ -n "$RAG_ROOT" ] && [ -f "$RALOG" ]; then
-  lm=$(mtime "$RALOG" || echo 0); lm=${lm:-0}
-  sm=$(mtime "$RASEEN" || echo 0); sm=${sm:-0}
+if [ -f "$RALOG" ]; then
+  lm=$(stat -c %Y "$RALOG" 2>/dev/null || stat -f %m "$RALOG" 2>/dev/null || echo 0)
+  sm=$(stat -c %Y "$RASEEN" 2>/dev/null || stat -f %m "$RASEEN" 2>/dev/null || echo 0)
   [ "$lm" -gt "$sm" ] && warns+=("UNREAD eval regression alert(s): $(tail -1 "$RALOG") — investigate, then: touch $RASEEN")
 fi
 
 # 5b. mount guard — External HD unmounted means RAG/brain/repos silently unreachable
 # (knowledge-brain.md prescribes loud-fail; was only enforced per-skill until 2026-07-09)
-# Only when this machine is configured for an external volume (EXTERNAL_HD_DIR/DEV_ROOT set)
-# AND it is a personal setup (~/.claude-env exists); otherwise there is nothing to be missing.
-[ -n "$EXTERNAL_HD" ] && [ -d "$ENV_DIR" ] && [ ! -d "$EXTERNAL_HD" ] && warns+=("External HD NOT MOUNTED - RAG index, knowledge-brain, and dev repos unreachable; mount before any memory/graph write")
+[ -d "$EXTERNAL_HD" ] || warns+=("External HD NOT MOUNTED - RAG index, knowledge-brain, and dev repos unreachable; mount before any memory/graph write")
 
 # 6. settings drift — a live settings.json value that shared+machine will overwrite on the
 # next `sync pull` (e.g. `/model opus` writes the derived file, but `model` is owned by
@@ -139,13 +127,28 @@ if [ -f "$PUSH_EXIT_FILE" ]; then
   [ -n "$pe" ] && [ "$pe" -ne 0 ] && warns+=("last SessionEnd sync push FAILED (exit $pe) — env changes not on remote; run: ~/.claude-env/bin/sync push (log: ~/.claude-env/.last-push.log)")
 fi
 
+# 6c. hooks-tree drift — the same trap as check 6, one directory over. ~/.claude/hooks is a
+# REAL, writable directory rendered from ~/.claude-env/hooks by `sync pull`, which is itself a
+# SessionStart hook. An edit there is accepted, runs, passes its tests, and is gone next
+# session. On 2026-08-28 three shipped hook fixes vanished exactly this way. Both directions
+# matter: a differing file is an edit about to be reverted; a file only in the derived copy is
+# unversioned and invisible to every other machine.
+if [ -d "$ENV_DIR/hooks" ] && [ -d "$HOME/.claude/hooks" ]; then
+  hd=$(diff -rq "$ENV_DIR/hooks" "$HOME/.claude/hooks" 2>/dev/null \
+       | grep -vE '\.(bak|log|stamp|sha256)( |$)|\.selftest-stamp|\.rtk-hook' | head -20)
+  ndiff=$(printf '%s' "$hd" | grep -c '^Files .* differ$')
+  nonly=$(printf '%s' "$hd" | grep -c "^Only in $HOME/.claude/hooks")
+  [ "${ndiff:-0}" -gt 0 ] && warns+=("hooks DRIFT: $ndiff file(s) differ from ~/.claude-env/hooks — the next 'sync pull' REVERTS the derived copy; port the edit to the canonical tree and commit")
+  [ "${nonly:-0}" -gt 0 ] && warns+=("hooks UNVERSIONED: $nonly file(s) exist only in ~/.claude/hooks — copy to ~/.claude-env/hooks and commit, or they reach no other machine")
+fi
+
 # 7. stale active handoff (> 14d) — a forgotten resume packet
 # -L on both ls and stat: latest.md is a symlink whose own mtime never changes
 # after creation (2026-08-02 — was reporting "41d old" forever regardless of how
 # fresh the target content actually was, a permanent false positive).
 hand=$(ls -tL "$CLAUDE_DIR"/handoffs/latest.md "$CLAUDE_DIR"/handoffs/*/latest.md 2>/dev/null | head -1)
 if [ -n "${hand:-}" ]; then
-  m=$(mtime -L "$hand" || echo "$now"); m=${m:-$now}
+  m=$(stat -c %Y -L "$hand" 2>/dev/null || stat -f %m -L "$hand" 2>/dev/null || echo "$now")
   d=$(( (now - m) / 86400 )); [ "$d" -gt 14 ] && warns+=("handoff ${d}d old ($hand) — stale resume packet, clear or act on it")
 fi
 
@@ -193,6 +196,20 @@ except Exception: pass' 2>/dev/null)
 done
 done
 
+# 8b. Kali lane — `kali-docker-pentesting` documented `docker exec kali-pentest <tool>` while
+# no such container and no such image existed on this machine, and DOCKER_HOST pointed at a
+# socket path with a literal $HOME so every call failed silently (2026-08-29). One cheap probe,
+# and only when the socket is actually there: colima being off is a choice, not a defect.
+KALI_SOCK="$HOME/.colima/default/docker.sock"
+if [ -S "$KALI_SOCK" ] && command -v docker >/dev/null 2>&1; then
+  kstate=$(timeout 5 env DOCKER_HOST="unix://$KALI_SOCK" docker inspect -f '{{.State.Status}}' kali-pentest 2>/dev/null || true)
+  case "$kstate" in
+    running) ;;
+    "")      warns+=("kali lane: container 'kali-pentest' does not exist, but kali-docker-pentesting documents docker exec against it — recreate it or the skill is fiction (skills/kali-docker-pentesting/scripts/kali-health.sh)") ;;
+    *)       warns+=("kali lane: container 'kali-pentest' is $kstate — docker start kali-pentest") ;;
+  esac
+fi
+
 # 9. scheduled-job heartbeats — jobs that exit 0 while doing nothing (nightly rebuild
 # logged "skipping" + exit 0 for weeks via a PATH bug) only surface via freshness.
 hb_dir="$HOME/.claude/heartbeats"
@@ -202,17 +219,49 @@ check_hb() { # $1 label, $2 max-age-hours
   h=$(age_h "$(cat "$f" 2>/dev/null || echo 0)")
   [ "$h" -gt "$2" ] && warns+=("heartbeat STALE: $1 last completed ${h}h ago (expected < ${2}h) — job dead or no-op?")
 }
-# Only where heartbeat instrumentation exists (personal machine); absent dir = silent.
-if [ -d "$hb_dir" ]; then
-  check_hb rag-nightly-rebuild 36
-  check_hb memory-weekly-sync 200
+check_hb rag-nightly-rebuild 36
+check_hb memory-weekly-sync 200
+# gdrive-backup runs every 4h; it logged FAIL on every target for 43 days undetected.
+check_hb gdrive-backup 8
+# sync-dev-assets runs every 3 days; its last line was `[ test ] && log || log`, so it
+# exited 0 while the git push had been failing since 2026-08-16.
+check_hb sync-dev-assets 96
+
+# 9a. rag-jobs status files - launchd's own exit code stays 0 even when a scheduled
+# job degraded (mount absent, remote sync failed) or never ran at all; each run of
+# fix-drift-loop.sh / rag-nightly-rebuild.sh writes ~/.claude/state/rag-jobs/<job>.json
+# with status ok|degraded|failed|skipped-no-disk. Surface anything not ok, or ok but
+# stale (job stopped running silently).
+RAG_JOBS_DIR="$HOME/.claude/state/rag-jobs"
+if [ -d "$RAG_JOBS_DIR" ]; then
+  for jf in "$RAG_JOBS_DIR"/*.json; do
+    [ -f "$jf" ] || continue
+    jname=$(basename "$jf" .json)
+    IFS='|' read -r jstatus jfinished jdetail < <(python3 -c '
+import json, sys
+try:
+    d = json.load(open(sys.argv[1]))
+    print(d.get("status", "?") + "|" + d.get("finished", "?") + "|" + d.get("detail", "?"))
+except Exception:
+    print("?|?|unreadable status file")
+' "$jf" 2>/dev/null)
+    if [ "$jstatus" != "ok" ]; then
+      warns+=("rag-job $jname: status=$jstatus - $jdetail")
+      continue
+    fi
+    fe=$(date -u -j -f "%Y-%m-%dT%H:%M:%SZ" "$jfinished" +%s 2>/dev/null || date -u -d "$jfinished" +%s 2>/dev/null || echo "")
+    if [ -n "$fe" ]; then
+      h=$(age_h "$fe")
+      [ "$h" -gt 36 ] && warns+=("rag-job $jname: status=ok but finished ${h}h ago (stale, expected < 36h)")
+    fi
+  done
 fi
 
 # 10. ADR-0039 guard — project auto-memory copies must never re-enter the RAG index
 # (they are ~84% vault duplicates that filled both retrieval slots; enforced in
 # build.py 2026-07-23). Alert if any chunk reappears under a .claude/projects path.
 rag_db_main="$RAG_ROOT/index.sqlite"
-if [ -n "$RAG_ROOT" ] && [ -f "$rag_db_main" ] && command -v sqlite3 >/dev/null 2>&1; then
+if [ -f "$rag_db_main" ]; then
   n=$(sqlite3 "$rag_db_main" "SELECT COUNT(*) FROM chunks WHERE path LIKE '%/.claude/projects/%/memory/%';" 2>/dev/null || echo 0)
   [ "${n:-0}" -gt 0 ] && warns+=("ADR-0039 VIOLATION: $n RAG chunks from ~/.claude/projects/*/memory/ — duplicates are back in the index; purge + check build.py SOURCES")
 fi
@@ -224,22 +273,23 @@ if [ -d "$ASK_ROOT" ]; then
   nb=$(find "$ASK_ROOT" -maxdepth 1 -type l ! -exec test -e {} \; -print 2>/dev/null | wc -l | tr -d ' ')
   [ "${nb:-0}" -gt 0 ] && warns+=("skills catalog: $nb broken symlinks in ~/.agents/skills — delete: find ~/.agents/skills -maxdepth 1 -type l ! -exec test -e {} \; -delete")
   if [ -d "$ASK_ROOT/.archive" ]; then
-    coll=$(comm -12 <(ls "$ASK_ROOT" 2>/dev/null | grep -v '^\.' | sort) <(ls "$ASK_ROOT/.archive" 2>/dev/null | sort) 2>/dev/null | wc -l | tr -d ' ')
-    [ "${coll:-0}" -gt 0 ] && warns+=("skills catalog: $coll names exist BOTH live and archived — move .archive/ out of the skills root")
+    # Only a LOADABLE archived copy can shadow a live skill. Archived entries carry
+    # SKILL.md.archived (not SKILL.md) and sit inside a dotdir, so a bare name
+    # collision is inert — counting names produced an unresolvable warning.
+    coll=$(find "$ASK_ROOT/.archive" -maxdepth 2 -name 'SKILL.md' 2>/dev/null | wc -l | tr -d ' ')
+    [ "${coll:-0}" -gt 0 ] && warns+=("skills catalog: $coll archived skills still carry a loadable SKILL.md — rename to SKILL.md.archived")
   fi
 fi
 
 # 12. phantom-guardrail check (multi-person-work-ethics 2.6): every rule that
 # claims MECHANICAL enforcement must name an artifact that provably exists.
 # If one of these goes missing, the rules citing it are instructions, not rails.
-# Personal-machine check: skipped unless ~/.claude-env exists.
 for art in \
   "$HOME/.claude/scripts/repo-mode.sh" \
   "$HOME/.kimi-code/hooks/rtk-rewrite.sh" \
   "$ENV_DIR/bin/sync" \
   "$HOME/.agents/skills/standards/cooperative-mode.md" \
   "$HOME/.agents/skills/standards/multi-person-work-ethics.md"; do
-  [ -d "$ENV_DIR" ] || break
   [ -e "$art" ] || warns+=("enforcement artifact MISSING: $art — rules citing it are phantom guardrails")
 done
 
@@ -252,6 +302,19 @@ for repo in "$HOME/.agents/skills" "$ENV_DIR"; do
   [ -d "$repo/.git" ] || continue
   dels=$(git -C "$repo" status --porcelain 2>/dev/null | grep -c '^ *D' || true)
   [ "${dels:-0}" -gt 20 ] && warns+=("resurrection risk: $dels UNCOMMITTED deletions in $repo — commit now (CLAUDE_SYNC_MAX_DEL=500 ~/.claude-env/bin/sync push) or the WIP-sync will restore them")
+done
+
+# 14. MEMORY.md over 180 lines (folded from memory-index-size-alert.sh; the release-drift nudge was dropped, release-cadence.md retires that flow); once per day per project
+MS_STATE="$CLAUDE_DIR/state/memory-size-alert"
+for MD in "$CLAUDE_DIR"/projects/*/memory/MEMORY.md; do
+  [ -f "$MD" ] || continue
+  ml=$(wc -l < "$MD" 2>/dev/null | tr -d ' ')
+  [ "${ml:-0}" -gt 180 ] || continue
+  mp=$(basename "$(dirname "$(dirname "$MD")")")
+  mf="$MS_STATE/$mp-$(date -u +%Y-%m-%d)"
+  [ -f "$mf" ] && continue
+  mkdir -p "$MS_STATE" 2>/dev/null && touch "$mf"
+  warns+=("MEMORY.md of $mp has $ml lines (over 180): run /memory-prune")
 done
 
 # Emit ONLY if something is off (silent-when-healthy).

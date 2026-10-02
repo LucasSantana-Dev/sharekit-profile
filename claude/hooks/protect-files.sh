@@ -14,4 +14,10 @@ esac
 case "$FILE_PATH" in
   *"/.env"|*"/.env."*|*"/.credentials.json"|*"/credentials.json"|*"/.git/"*|*"/.ssh/"*|*"/.aws/"*|*"/.gcloud/"*|*"/.npmrc"|*"/id_rsa"|*"/id_ed25519"|*.pem|*.key|*.p12|*.pfx) block "$FILE_PATH is protected or secret-bearing" ;;
 esac
+# Session transcripts and agent memory live in sqlite (claude-mem.db and friends).
+# A write there is either corruption or exfiltration, and the -wal/-shm siblings
+# carry the same content (2026-08-28).
+case "$FILE_PATH" in
+  *.db|*.db-wal|*.db-shm|*.sqlite|*.sqlite3|*.sqlite-wal|*.sqlite-shm) block "$FILE_PATH is a database store (session transcripts / secrets at rest)" ;;
+esac
 exit 0
