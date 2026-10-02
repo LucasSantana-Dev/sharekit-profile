@@ -77,7 +77,7 @@ offer with an announcement — never silently skip.
 
 ## Retroactive vs proactive — open question (validated 2026-05-20, gate checked 2026-08-14)
 
-Of 9 documented past gotchas in MEMORY.md (Dexie no-op, Wrangler env inheritance,
+Of 9 past gotchas recorded in memory (dated advice, verify before relying on them) (Dexie no-op, Wrangler env inheritance,
 Vercel bare URL, Docker port collision, Jest resetMocks, BSD xargs, GitHub
 app_id pin, Wrangler route syntax, protect-files over-match), 7 would have been
 CAUGHT by this 5-step IF the reviewer looked up the relevant docs (1 MAYBE,

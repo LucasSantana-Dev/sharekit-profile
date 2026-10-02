@@ -6,11 +6,11 @@ Use specialized skills or agents intentionally.
 - Use the normal implementation path for scoped coding work.
 - Use deeper reasoning only for architecture, security, migration, or hard debugging.
 - Route before you sprawl the main context.
-- Prefer one primary workflow at a time UNLESS the work decomposes into ≥2 independent units — then parallel is mandatory (see below).
+- Prefer one primary workflow at a time UNLESS the work has 2+ independent units, then parallel dispatch is mandatory (see below).
 
 ## Mandatory subagent dispatch
 
-This section governs WHEN you must dispatch subagents instead of working in the main context. The detailed criteria live in [workflow.md § Parallel execution](workflow.md#parallel-execution-mandatory); this is the routing-side enforcement.
+This section governs WHEN you must dispatch subagents instead of working in the main context. The one parallel rule lives in [workflow.md § Parallel execution](workflow.md#parallel-execution-mandatory): dispatch when the work has 2+ independent units; the only exemption is the inline exemption below. This section adds routing only.
 
 ### Hard triggers — dispatch one `Agent()` per unit, in a single tool-use block
 
@@ -21,16 +21,13 @@ This section governs WHEN you must dispatch subagents instead of working in the 
 | Apply same fix to N files in same repo | `general-purpose` × N | **Yes** — one per agent |
 | Review N PRs or N independent changes | `code-reviewer` × N | No (read-only) |
 | Multi-perspective review of one change | `critic` + `security-reviewer` + `code-reviewer` in parallel | No |
-| Investigate N hypotheses for one bug | `tracer` × N or `debugger` × N | No (read-only) |
+| Investigate N hypotheses for one bug | `tracer` × N (read-only); `debugger` × N is write-capable | No for `tracer`, **Yes** for `debugger` |
 | Run N independent diagnostics | matching specialist × N | No (read-only) |
-| Composite phase with ≥3 independent tasks | via `/parallel-phases` | Yes if writing |
 | Generate N independent components / files | `general-purpose` × N | **Yes** — one per agent |
 
-### Worktree rule (when 2+ parallel agents touch the same repo)
+### Worktree rule
 
-EVERY parallel agent that reads or writes the same repo gets its own worktree at `${DEV_ROOT}/.worktrees/<task>-<n>/`. No exceptions for "small" edits — git index contention is silent and corrupting.
-
-Read-only agents (`Explore`, search-only `general-purpose`) can share a checkout because they don't touch the index. Anything that runs `git`, edits files, or invokes test/build commands gets its own worktree.
+A worktree is required only for write-capable agents when 2+ agents touch the same repo: one each, at `${DEV_ROOT}/.worktrees/<task>-<n>/`. Read-only agents (`Explore`, `Plan`, `critic`, `code-reviewer`, `security-reviewer`, `document-specialist`, `explore`) share the checkout, unless they run builds, tests or index-locking git commands, in which case they get a worktree too. In the table above, "Worktree? Yes" means this rule applies to write-capable agents.
 
 ### Read-only enforcement for analysis phases
 
@@ -41,15 +38,9 @@ Analysis-class subagents — research, triage, spec, audit, review, investigatio
 - Belt-and-suspenders, not a substitute: still write "READ-ONLY: do not edit/write/create any file; return findings only" in the prompt.
 - If an analysis agent's output must drive edits, the ORCHESTRATOR applies them — or a separate write-capable implementer stage does — never the analysis agent itself.
 
-### Inline-execution exceptions
+### Inline-execution exemption
 
-Stay in the main context (don't dispatch) when:
-
-- Single unit of work.
-- Total scope is <3 file reads AND <2 edits.
-- Strict data dependency (unit B's input is unit A's output).
-- Conversational / decision-making turns (no tool work).
-- User explicitly says "just do it inline" or "no subagents".
+Stay in the main context only when the whole task is under 3 reads and under 2 edits, or the combined expected output is under ~5k tokens. Also inline: single-unit work, strict data dependency (B needs A's output), conversational turns with no tool work, or the user says "just do it inline" / "no subagents".
 
 ### Refusal pattern
 
@@ -77,7 +68,7 @@ Anti-pattern registry (do not repeat): 8 thorough agents told to read a 5017-lin
 
 ## Model tier enforcement (ADR-0049)
 
-Every agent definition in `~/.claude/agents/*.md` frontmatter MUST set an explicit `model:` field, as an alias (`fable`, `opus`, `sonnet`) rather than a full model ID so it tracks new releases (full-ID pins went stale at the 2026-09 launches) — no agent inherits a model implicitly. This is the primary lever for model-tier cost control (subagent dispatch is the one place a model choice can be set programmatically; the main-session model can only be changed via `/model`, never by a hook). Tier per CLAUDE.md's Model tiering section: Fable (apex — architecture/critic-of-critical/consequential ADRs), Opus (fallback — composite orchestration entrypoints, standard critic, routine ADR writing), Sonnet (execution — default), Haiku (retired 2026-09-17, do not route new work here). When dispatching `Agent()`/`Workflow() agent()` calls, prefer omitting the `model` override so the call inherits the agent definition's frontmatter tier; only pass an explicit override for a genuine one-off exception, and note why.
+Every agent definition in `~/.claude/agents/*.md` frontmatter MUST set an explicit `model:` field, no agent inherits a model implicitly. This is the primary lever for model-tier cost control (subagent dispatch is the one place a model choice can be set programmatically; the main-session model can only be changed via `/model`, never by a hook). Tier per standards/model-tiering.md: Fable (apex, architecture/critic-of-critical/consequential ADRs), Opus (fallback, composite orchestration entrypoints, standard critic, routine ADR writing), Sonnet (execution and mechanical work, default); Haiku is retired (2026-09-17). When dispatching `Agent()`/`Workflow() agent()` calls, prefer omitting the `model` override so the call inherits the agent definition's frontmatter tier; only pass an explicit override for a genuine one-off exception, and note why.
 
 ### Downgrade-by-default (2026-08-04, from the router's background-task downgrade pattern)
 

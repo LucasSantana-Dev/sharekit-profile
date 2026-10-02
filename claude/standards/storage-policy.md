@@ -16,8 +16,8 @@ snapshots. The operator moved three I/O-hot repos to the internal SSD for speed
 (measured 652 MB/s external vs 4.543 MB/s internal on the same 2.1GB sqlite;
 external runs stalled 2+ min in I/O wait under corespotlightd contention):
 
-- Those repos (a knowledge vault and two project repos) are now REAL directories
-  on internal disk, under `~/Desenvolvimento/`.
+- `~/Desenvolvimento/observatorio-rcc`, `~/Desenvolvimento/rcc-brain`,
+  `~/Desenvolvimento/knowledge-brain` are now REAL directories on internal disk.
 - Their old paths under `${DEV_ROOT}/` are symlinks
   pointing back at them (the REVERSE of the rule above). Do not "fix" these
   symlinks or move the repos back without operator direction.
@@ -26,5 +26,5 @@ external runs stalled 2+ min in I/O wait under corespotlightd contention):
   operator explicitly designates as I/O-hot, and only while internal capacity
   stays comfortably above ~40G free.
 - launchd note: `StandardOutPath` on External HD fails with EX_CONFIG (78)
-  (measured on a graph-refresh job that silently found zero repos). Internal-real +
+  (memory note gotcha_graph_refresh_achava_zero_repos_2026-08-28: dated advice, verify before acting). Internal-real +
   external-symlink is the launchd-safe direction.
