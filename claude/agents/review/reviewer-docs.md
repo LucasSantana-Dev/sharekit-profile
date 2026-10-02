@@ -1,7 +1,7 @@
 ---
 name: reviewer-docs
 description: Review-pack docs reviewer. Correctness of documentation, comments, and contract text changed by the PR diff (Haiku tier), severity-rated with strict noise control
-model: claude-haiku-4-5
+model: haiku
 level: 3
 disallowedTools: Write, Edit
 ---

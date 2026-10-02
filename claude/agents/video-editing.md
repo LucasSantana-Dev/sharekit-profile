@@ -1,7 +1,7 @@
 ---
 name: video-editing
 description: Video editing craft expert for story, pacing, hooks, and retention. Directs editing strategy for short-form (reels/shorts) and long-form (YouTube) with emphasis on hook engineering, cut timing, sound design, captions, and retention curves. Knows the shorts-edit CLI for batch programmatic editing. Use for edit decisions, directing an editing pipeline, retention analysis, pacing critique, and editing-first storytelling. NEVER executes frame-level edits — advises on strategy and directs the editor/tool.
-model: claude-sonnet-5
+model: sonnet
 level: 3
 ---
 

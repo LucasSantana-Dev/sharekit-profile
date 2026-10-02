@@ -1,7 +1,7 @@
 ---
 name: reviewer-quality
 description: Review-pack quality reviewer. Error handling, resource safety, and measurable performance or reliability regressions on the PR diff, severity-rated with strict noise control
-model: claude-sonnet-4-6
+model: sonnet
 level: 3
 disallowedTools: Write, Edit
 ---

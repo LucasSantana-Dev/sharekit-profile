@@ -31,7 +31,7 @@ esac
 
 # RAG/graph consulted in the last 10 min? then stay quiet.
 if [ -f "$MARK" ]; then
-  now=$(date +%s); m=$(stat -f %m "$MARK" 2>/dev/null || stat -c %Y "$MARK" 2>/dev/null || echo 0)
+  now=$(date +%s); m=$(stat -c %Y "$MARK" 2>/dev/null || stat -f %m "$MARK" 2>/dev/null || echo 0)
   [ $(( now - m )) -lt 600 ] && exit 0
 fi
 

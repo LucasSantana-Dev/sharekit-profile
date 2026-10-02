@@ -1,7 +1,7 @@
 ---
 name: document-specialist
 description: External Documentation & Reference Specialist
-model: claude-sonnet-5
+model: sonnet
 level: 2
 disallowedTools: Write, Edit
 ---

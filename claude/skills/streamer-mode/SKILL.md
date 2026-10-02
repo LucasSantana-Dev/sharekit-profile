@@ -15,6 +15,7 @@ metadata:
   tier: contextual
   canonical_source: ~/.agents/skills/streamer-mode/SKILL.md
 security_exempt: true
+disable-model-invocation: true
 ---
 
 # Streamer Mode

@@ -33,6 +33,7 @@
 # Exit 0 = allow, exit 2 = block (hook convention: deny the tool call).
 
 set -euo pipefail
+command -v jq >/dev/null 2>&1 || exit 0  # jq absent (stock macOS <= 14): gate inactive, fail open
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 POLICY="$ROOT/.harness/memory-scopes.json"
@@ -118,6 +119,14 @@ is_mcp=true; case "$tool" in Write|Edit|MultiEdit) is_mcp=false ;; esac
 abs_target=""; [[ -n "$path" ]] && abs_target="$(abspath "$path")"
 is_note=$is_mcp
 case "$(printf '%s' "$abs_target" | fold)" in */memory/*.md|*/org-memory/*.md) is_note=true ;; esac
+# A client vault need not live under a directory literally named memory/:
+# abspath resolves symlinks via pwd -P, so a vault reached through a symlinked
+# memory/ dir (client-offboard's init mode makes exactly this) can resolve to
+# a real path with no "/memory/" segment at all. Any .md file under a
+# registered client root is a note too, regardless of its directory's name.
+if ! $is_note && [[ "$abs_target" == *.md ]] && [[ -e "$CLIENTS_FILE" ]] && [[ -n "$(client_of "$abs_target")" ]]; then
+  is_note=true
+fi
 
 if $is_note && [[ -e "$CLIENTS_FILE" ]]; then
   if ! jq -e 'type == "object" and all(.[]; type == "object" and ((.roots // []) | type == "array" and all(.[]; type == "string")))' \
@@ -183,7 +192,15 @@ target_scope="$(scope_of "$path")"
 [[ -z "$target_scope" ]] && allow  # not a memory path
 
 if [[ ! -f "$POLICY" ]]; then
-  echo "memory-scope-gate: no .harness/memory-scopes.json - fail-open (allow)" >&2
+  # Not shipped by the profile (operator-specific); note once, then stay quiet.
+  # ROOT here is the project repo, so keep the marker in the hook runtime dir under the config dir
+  # (not a predictable name in shared /tmp).
+  _rt="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.harness/runtime"
+  _note="$_rt/.note-no-memory-scopes"
+  if [[ ! -f "$_note" ]]; then
+    echo "memory-scope-gate: no .harness/memory-scopes.json - fail-open (allow); this note prints once" >&2
+    { mkdir -p "$_rt" && : > "$_note"; } 2>/dev/null || true
+  fi
   allow
 fi
 

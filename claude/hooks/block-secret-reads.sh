@@ -23,6 +23,7 @@
 set -euo pipefail
 
 payload="$(cat)"
+command -v python3 >/dev/null 2>&1 || { echo "block-secret-reads: python3 missing, gate inactive" >&2; exit 0; }
 
 # Extract the fields we care about without requiring jq.
 #
@@ -52,7 +53,7 @@ payload="$(cat)"
 # Silent, unconditional, input-independent (sixth adversarial pass). A comment inside a
 # double-quoted string is not inert. <<'PYEOF' quotes the whole body, so nothing expands and
 # no future edit to this block can execute anything.
-PYSRC="$(cat <<'PYEOF'
+IFS= read -r -d '' PYSRC <<'PYEOF' || true
 import sys,json,re,os,unicodedata
 CTRL=re.compile(r'[\x00-\x1f\x7f]')
 # The spliced copy drops separators BY UNICODE CATEGORY, a closed set, instead of by a list
@@ -86,8 +87,8 @@ def d_(v):
 def s(v): return CTRL.sub(' ', v if isinstance(v,str) else '')
 
 # TOKENISE RESPECTING QUOTES, NOT BY SPLITTING ON SPACES. Splitting on spaces cut
-#   cat "/Volumes/My Drive/x/<long name>"
-# into `/Volumes/My` and `Drive/x/<long name>`; the second fragment does not start with a
+#   cat "${DEV_ROOT}/x/<long name>"
+# into `/Volumes/External` and `HD/x/<long name>`; the second fragment does not start with a
 # slash, does not exist relative to the cwd, so the existence exemption never applied and an
 # ordinary read of this machine's own working directory was refused as a credential. On this
 # machine nearly every path carries that space.
@@ -172,10 +173,10 @@ try:
 except Exception:
     pass
 PYEOF
-)"
 field() { printf '%s' "$payload" | python3 -c "$PYSRC" 2>/dev/null; }
 
-mapfile -t f < <(field)
+f=()
+while IFS= read -r _line || [ -n "$_line" ]; do f+=("$_line"); done < <(field)
 tool="${f[0]:-}"; haystack="${f[1]:-} ${f[2]:-} ${f[3]:-} ${f[4]:-}"
 hook_cwd="${f[5]:-}"
 
@@ -204,7 +205,7 @@ mask_script="$HOME/.claude/scripts/omniroute-mask-secrets.mjs"
 # maskSecret's LONG_TOKEN rule is /\b[A-Za-z0-9_-]{40,}\b/, which also matches a long
 # FILENAME or path component. A memory note named
 # gotcha_rag_nightly_regression_false_positive_launchd_fda_2026-08-15.md and a session dir
-# named -Volumes-My-Drive-Projects-client-knowledge-vault were each refused as a pasted
+# named -Volumes-External-HD-Desenvolvimento-rcc-brain were each refused as a pasted
 # credential. Only that ONE rule misfires on paths; sk-/ak-/pk-/Bearer/header shapes never
 # do. So the exemption below neutralises long runs inside a path and leaves everything else
 # in the word scannable. The secret-bearing PATH rules above are untouched.

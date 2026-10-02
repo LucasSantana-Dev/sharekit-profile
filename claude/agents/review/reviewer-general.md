@@ -1,7 +1,7 @@
 ---
 name: reviewer-general
 description: Review-pack general reviewer. Logic correctness, edge cases, and behavioral regressions on the PR diff, with severity-rated findings and strict noise control
-model: claude-sonnet-4-6
+model: sonnet
 level: 3
 disallowedTools: Write, Edit
 ---

@@ -8,6 +8,7 @@ triggers:
   - token waste
   - workflow analysis
   - bottleneck
+disable-model-invocation: true
 ---
 
 # Efficiency Advisor

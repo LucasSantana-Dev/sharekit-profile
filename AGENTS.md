@@ -2,7 +2,7 @@
 
 > See `SOUL.md` for identity and philosophy. See `RULES.md` for constraints and hard rules.
 
-This repo is the **sharekit operator harness profile**. It ships a portable, harness-agnostic workflow — skills, agents, hooks, standards, and a memory system that works with Claude Code, OpenCode, or any Claude-compatible CLI/provider. Claude Code is the primary distribution channel (npm package, marketplace listing) for discoverability; it is not the only supported way to run this profile.
+This repo is the **sharekit operator harness profile**. It ships a portable, harness-agnostic workflow — skills, agents, hooks, standards, and a memory system for Claude Code. Claude Code is the primary distribution channel (npm package, marketplace listing). OpenCode support is archived under `archive/opencode/`.
 
 ## Governance
 
@@ -12,13 +12,12 @@ This repo is the **sharekit operator harness profile**. It ships a portable, har
 - `docs/THREAT_MODEL.md` — committed threat model artifact
 - `docs/hook-firing-order.md` — hook/skill firing order contract
 
-## Harness support: any provider, any way of using
+## Harness support: Claude Code
 
-The skill/agent/hook library is the source of truth and is harness-agnostic — it installs into `~/.claude/` (Claude Code) and `~/.config/opencode/` (OpenCode) from the same tracked source, with drift detection keeping runtime copies identical. Neither harness is required over the other:
+The skill/agent/hook library is the source of truth and is harness-agnostic — it installs into `~/.claude/` (Claude Code) from the tracked source, with drift detection keeping runtime copies identical:
 
 - **Claude Code** — supported natively, and the primary tag/discoverability surface (`npx @lucassantana/sharekit install`, marketplace listing).
-- **OpenCode** — supported natively via `opencode/opencode.jsonc`, useful where its multi-provider routing matters. Default model: `anthropic/claude-sonnet-4-5` (Sonnet tier — implementation); small/planning model: `anthropic/claude-haiku-4-5` (Haiku tier). **Fallback provider: OpenRouter** when the primary provider is rate-limited or unavailable — configure via `opencode auth login openrouter` (set `OPENROUTER_API_KEY`).
-- **Any other Claude-compatible CLI/provider** — the skills/hooks/standards are plain files (Markdown + shell + JSON); nothing in the profile hard-requires OpenCode's or Claude Code's runtime beyond how each harness loads skills.
+- **Any other Claude-compatible CLI/provider** — the skills/hooks/standards are plain files (Markdown + shell + JSON); nothing in the profile hard-requires more than how a harness loads skills.
 
 ## Model efficiency policy
 
@@ -37,9 +36,6 @@ Do not override tier for speculative speed. When ambiguous, choose the lightest 
 | **Low** | Single-file edit, grep, config change | Haiku |
 | **Medium** | Multi-file feature, bug fix, test writing | Sonnet |
 | **High** | Architecture, cross-repo, security audit | Opus |
-
-### OpenCode Go tier (`opencode-go/*` namespace)
-The `opencode-go/*` namespace exposes 13 models via the OpenCode Go subscription gateway. Route by capability: `glm-5.2`/`deepseek-v4-pro`/`qwen3.7-max` for implementation, `deepseek-v4-flash`/`mimo-v2.5` for mechanical work, `kimi-k2.7-code` for code-tuned tasks.
 
 ### Role agents (subagents in `agent/roles/`)
 - `critic` — adversarial multi-perspective review of plans/code (read-only)
@@ -76,11 +72,10 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
   the repo dogfoods its own product for self-governance — expect small, intentional
   portability-driven diffs between same-named files in each tree, not drift to fix.
 - `claude/CLAUDE.md` — operator config for Claude Code.
-- `opencode.json` — OpenCode config.
 - `docs/` — reference docs (overview, configuration, hooks, agents, composites).
 - `scripts/check-catalog.sh` — validate the showcase skill catalog; also enforces a skill-count guardrail (warn >50, fail >75).
 - `evals/routing/` — LLM-behavioral skill-routing eval gate (ported from harness-evals Phase 0, 2026-07-30): 40 frozen tasks, OpenRouter-pinned model, gate = accuracy drop >5pp vs fingerprinted baseline. `--validate-only` runs offline in CI; full gate needs `OPENROUTER_API_KEY`. Tasks expecting skills outside the listing under test are SKIPped, not scored.
-- `~/.claude/settings.json` sets `skillListingBudgetFraction: 0.05` to keep Claude Code's skill listing from truncating at 200+ skills. If count grows past 75, run `skill-maintainer` to prune duplicates.
+- `~/.claude/settings.json` sets `skillListingBudgetFraction: 0.015` and `skillListingMaxDescChars: 160` to keep the per-request skill listing small; rarely used skills carry `disable-model-invocation: true` (still usable as `/name`). If count grows past 75, run `skill-maintainer` to prune duplicates.
 
 ## Current state (2026-08-04)
 

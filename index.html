@@ -815,7 +815,7 @@
       Guide
     </button>
     <button class="nav-tab" data-panel="skills">
-      Skills <span class="tab-count" id="tc-skills">50</span>
+      Skills <span class="tab-count" id="tc-skills">48</span>
     </button>
     <button class="nav-tab" data-panel="agents">
       Agents <span class="tab-count" id="tc-agents">39</span>
@@ -880,7 +880,7 @@
           </p>
 
           <div class="g-stats">
-            <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">50</div><div class="g-stat-label">Skills ativas</div></div>
+            <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">48</div><div class="g-stat-label">Skills ativas</div></div>
             <div class="g-stat"><div class="g-stat-num" style="color:var(--violet)" id="st-composites">9</div><div class="g-stat-label">Composites</div></div>
             <div class="g-stat"><div class="g-stat-num" style="color:var(--blue)" id="st-agents">39</div><div class="g-stat-label">Agents</div></div>
             <div class="g-stat"><div class="g-stat-num" style="color:var(--amber)">9</div><div class="g-stat-label">Hook events</div></div>
@@ -1201,7 +1201,7 @@
       <div class="grid-header">
         <div>
           <div class="grid-header-title" id="grid-title">All Skills</div>
-          <div class="grid-header-sub" id="grid-sub">50 skills across 12 categories — invoke autonomously or with /<i>name</i></div>
+          <div class="grid-header-sub" id="grid-sub">48 skills across 11 categories — invoke autonomously or with /<i>name</i></div>
         </div>
         <div class="result-count" id="result-count"></div>
       </div>
@@ -1301,7 +1301,6 @@ const CATEGORIES = [
   { id: 'planning',     label: 'Planning & Execution',        color: '#6366f1', guide: 'Use plan for non-trivial work, scope-it to bound blast radius, loop for iterative execution, and dispatch/orchestrate/three-man-team when work decomposes cleanly.' },
   { id: 'quality',      label: 'Code Quality & Review',       color: '#a78bfa', guide: 'Use review for two-axis diff review, verify for the narrow pre-ship gate, refactor for behavior-preserving cleanup, and quality-gates for repo-native checks.' },
   { id: 'testing',      label: 'Testing',                     color: '#22d3ee', guide: 'Use tdd or test-driven-development when building behavior test-first.' },
-  { id: 'debugging',    label: 'Debugging',                   color: '#f87171', guide: 'Start with debug for most bugs. Pair with ci-watch or pr-merge-readiness when the issue spans CI or release gates.' },
   { id: 'security',     label: 'Security',                    color: '#fb923c', guide: 'Use secure before work touching credentials, auth, dependencies, infra, or deployment shortcuts.' },
   { id: 'git',          label: 'Git & PR',                    color: '#4ade80', guide: 'Use pr-merge-readiness before merge to combine CI, review, coverage, Sonar, and conflict signals.' },
   { id: 'release',      label: 'Release & Deployment',        color: '#34d399', guide: 'Use ship for validated release/deploy flow, changelog-update for release notes, version-bump for versioning, and ci-watch when checks block release.' },
@@ -1323,7 +1322,6 @@ const TRANSLATIONS = {
   "codebase-memory": "Usa grafo de conhecimento da codebase para consultas estruturais sobre arquitetura, callers e dependências.",
   "context-pack": "Monta um bundle de contexto sensível à tarefa com código, padrões e decisões relevantes.",
   "context-save": "Captura o estado atual para retomar depois sem redescoberta.",
-  "debug": "Análise sistemática de causa raiz para bugs, erros e comportamento inesperado.",
   "decide": "Decisão estruturada: pesquisa, crítica, plano e ADR quando a escolha cria dívida ou lock-in.",
   "decide-now": "Toma decisões rápidas baseadas em contexto atual: git, PRs, planos, docs e memória.",
   "dep-sweep": "Processa PRs de dependências em lote: agrupa por risco, auto-merge seguro e destaca casos arriscados.",
@@ -1334,7 +1332,6 @@ const TRANSLATIONS = {
   "handoff": "Compacta a conversa atual em handoff para outro agente continuar.",
   "knowledge-loop": "Consulta, captura, melhora e persiste conhecimento: recall, memórias, RAG e handoff.",
   "loop": "Ritmo padrão: inspecionar, agir, verificar e checkpoint até ficar pronto.",
-  "loop-engineer": "Redesenha loops de agente para reduzir turnos, desperdício de tokens e retries cegos.",
   "memory-prune": "Audita memórias de projeto para entradas obsoletas e referências que não existem mais.",
   "next-priority": "Escolhe a próxima ação mais valiosa e segura no repo ou workspace ativo.",
   "orchestrate": "Coordena equipes multi-agente, trabalho multi-etapa ou multi-repo com planos e worktrees.",
@@ -1376,7 +1373,6 @@ const SKILLS = [
   { name: 'code-teardown', cat: 'architecture', composite: false, desc: 'Reverse-engineer an external repository or codebase and map every adoptable idea into a teardown report, each finding with file:line evidence and an adopt/adapt/already-have/reject verdict. Read-only toward the target. Use for "teardown desse repo" or "what can we learn from this codebase".' },
   { name: 'codebase-memory', cat: 'rag', composite: false, desc: 'Maintains a persistent knowledge-base of codebase patterns, conventions, and historical decisions for cross-session reference. Use the codebase knowledge graph for structural code queries. Triggers on: explore the codebase, understand the architecture, what functions exist, show me the structure, who calls this function, what does X call, trace the call chain, find callers of, show dependencies, impact analysis, dead code, unused functions, high fan-out, refactor candidates, code quality audit, graph query syntax, Cypher query examples, edge types, how to use search_graph.' },
   { name: 'context-pack', cat: 'session', composite: false, desc: 'Packs the most relevant context (files, docs, prior decisions) into a compact payload for injection into the next agent turn. Build a task-aware context bundle before large changes, reviews, or unfamiliar work. Pul l only the code, standards, plans, RAG hits, and notes that matter instead of reading wi de. Use before refactors, cross-file fixes, unfamiliar repos, or when starting a session where you will spend more than five reads exploring. Backed by the local RAG index via the rag_query MCP tool. Skip when the task touches one known file or the answer fits in a single grep.' },
-  { name: 'debug', cat: 'debugging', composite: false, desc: 'Systematic root-cause analysis for bugs, errors, and unexpected behavior' },
   { name: 'decide', cat: 'architecture', composite: true, desc: 'Makes an explicit decision with documented alternatives, criteria, and a rationale so future sessions can reconstruct the why. Composite skill — two-phase decision pipeline. Chains research-and-decide (research options + recommendation) → adr-write (document the decision). Stops after Phase 1 if research is inconclusive and needs human input. Use when making an architectural or tooling decision that needs both a recommendation and a durable record. Triggers: "decide", "research and decide", "make a decision with ADR", "evaluate options and document", "pick between X and Y and record it".' },
   { name: 'decide-now', cat: 'architecture', composite: false, desc: 'Make fast, context-aware decisions using project memory, current git state, open PRs, plans, and docs — NOT for architectural choices requiring formal research (use /decide for those). Trigger when the user asks "should I X or Y?", "which approach fits best?", "is this worth doing?", "merge now or wait?", "fix this or defer?", "approach A or B?", or any choice where the right answer depends on understanding what\'s currently in flight. Reads available context before recommending. Outputs a clear verdict with evidence — no ADR, no research phase.' },
   { name: 'dep-sweep', cat: 'cicd', composite: true, desc: 'Audits dependencies for known vulnerabilities, stale versions, and license compliance, then proposes a remediation plan. Composite skill — batch-process the queue of open Dependabot / Renovate / npm-bot PRs by grouping them by risk, auto-merging the safe ones into `release`, and surfacing only the risky ones for human review. Chains gh PR enumeration → risk classification (devDeps / patch / minor / major / lockfile-only) → pr-merge-readiness per group → auto-merge safe group → flag risky group → optional /pr-to-release for batch entry on release. Use when bot-PR noise has piled up; reduces a 20-PR queue to "merged 14, 6 need eyes".' },
@@ -1388,7 +1384,6 @@ const SKILLS = [
   { name: 'handoff', cat: 'session', composite: false, desc: 'Compact the current conversation into a handoff document for another agent to pick up.' },
   { name: 'knowledge-loop', cat: 'rag', composite: true, desc: 'Composite skill — query, capture, improve, and persist knowledge in one workflow. Chains recall (RAG query) → sync-memories (write durable note) → rag-curate (improve weak retrievals) → handoff (durable snapshot if session-ending). Use when the work involves "what did we decide", "remember this", "save where we are", or any closing checkpoint.' },
   { name: 'loop', cat: 'planning', composite: false, desc: 'Default execution rhythm — inspect → act → verify → checkpoint — applied iteratively until the task is done or a clear blocker emerges. Use when working through a known plan, draining a queue (PRs, issues, dependency bumps), or executing a multi-step recipe where each step\'s output informs the next. Each iteration must produce a concrete artifact (commit, comment, decision) and a one-line state update. Stop on first unrecoverable error rather than retrying blindly. Pair with `ship` for merge-bound work and `handoff` if budget runs out mid-loop.' },
-  { name: 'loop-engineer', cat: 'planning', composite: false, desc: 'Designs and implements autonomous agent loops for any task. Trigger when the user wants to stop manually prompting agents and build a self-running feedback cycle — coding automation, research pipelines, content workflows, CI loops, or any repeating AI-driven process. Also trigger for "design a loop", "build an agent loop", "I want this to run automatically", or when describing a workflow currently driven manually. Output: complete loop spec plus working implementation.' },
   { name: 'memory-prune', cat: 'rag', composite: false, desc: 'Audit project memory files for stale entries — items where the cited PR is merged, the cited bug is fixed, the cited file/function no longer exists, or the gotcha was patched out of the codebase. Proposes archival or deletion per entry. Read-only by default; prompts before any change. Use periodically (monthly) or when memory recall starts surfacing entries that contradict current code. Pair with `sync-memories` (write fresh notes) and `adt-rag-drift` (which handles the RAG index, not the memory files themselves).' },
   { name: 'next-priority', cat: 'planning', composite: false, desc: 'Decide the highest-value safe thing to do right now in the active repo or workspace.' },
   { name: 'orchestrate', cat: 'planning', composite: false, desc: 'Coordinate multi-agent teams, multi-step or multi-repo work across plans, skills, worktrees, and parallel investigations. Use when the task is large enough to benefit from parallel work, independent workstreams, and one lead agent owning synthesis.' },
@@ -2004,13 +1999,13 @@ const GUIDE_PT = {
     <div class="g-hero-badge"><span class="dot"></span> Harness operador · referência viva</div>
     <h1>Seu operador autônomo de engenharia.</h1>
     <p class="g-hero-sub">
-      Um ambiente operador de agentes totalmente conectado: 50 <strong>skills</strong> ativas repo-tracked que você invoca,
+      Um ambiente operador de agentes totalmente conectado: 48 <strong>skills</strong> ativas repo-tracked que você invoca,
       <strong>composites</strong> que as encadeiam com gates, <strong>sub-agentes</strong> que fazem trabalho
       isolado em paralelo e <strong>hooks</strong> que disparam automaticamente a cada prompt.
       Esta página é o mapa — comece aqui e depois mergulhe no catálogo.
     </p>
     <div class="g-stats">
-      <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">50</div><div class="g-stat-label">Skills ativas</div></div>
+      <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">48</div><div class="g-stat-label">Skills ativas</div></div>
       <div class="g-stat"><div class="g-stat-num" style="color:var(--violet)" id="st-composites">9</div><div class="g-stat-label">Composites</div></div>
       <div class="g-stat"><div class="g-stat-num" style="color:var(--blue)" id="st-agents">39</div><div class="g-stat-label">Agentes</div></div>
       <div class="g-stat"><div class="g-stat-num" style="color:var(--amber)">9</div><div class="g-stat-label">Eventos de hook</div></div>

@@ -13,8 +13,8 @@ Recover state before doing new work.
 
 ## Read order
 
-1. `~/.claude/handoffs/<project>/latest.md`
-2. `~/.claude/handoffs/latest.md`
+1. `~/.claude/skills/handoff/bin/handoffs list` (open handoffs of this repo). With an argument (`/resume 2` or `/resume capturas`) read `~/.claude/skills/handoff/bin/handoffs path <arg>`. With several open and no argument, show the list and ask which one: never guess, other sessions own the others.
+2. (legacy) `~/.claude/handoffs/<project>/latest.md`, only when the list is empty
 3. newest plan in `.claude/plans/` or `.agents/plans/`
 4. `.agents/memory/in-progress.md`
 5. subagent checkpoints: `python3 "${DEV_ROOT}/harness-evals/swarm_state.py"` — any LOST in-flight agents from a crashed swarm get re-dispatched or explicitly abandoned before new work

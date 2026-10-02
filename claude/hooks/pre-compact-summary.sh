@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # PreCompact hook: auto-write a handoff summary before context is compacted.
 # Reads the session JSONL, extracts recent tool calls + user messages,
-# writes ~/.claude/handoffs/latest.md so the next session resumes in 1 turn.
+# writes <project>/auto/<session_id>.md (one per session, never a shared slot) so the next session resumes in 1 turn.
 
 set -uo pipefail
 command -v jq &>/dev/null || exit 0
@@ -14,9 +14,11 @@ SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // empty' 2>/dev/null)
 JSONL=$(find "$HOME/.claude/projects" -name "${SESSION_ID}.jsonl" 2>/dev/null | head -1)
 [[ -z "$JSONL" || ! -f "$JSONL" ]] && exit 0
 
-HANDOFF_DIR="$HOME/.claude/handoffs"
+CWD=$(echo "$INPUT" | jq -r '.cwd // empty' 2>/dev/null)
+PROJ=$(cd "${CWD:-$PWD}" 2>/dev/null && "$HOME/.claude/skills/handoff/bin/handoffs" dir 2>/dev/null)
+HANDOFF_DIR="${PROJ:-$HOME/.claude/handoffs/_sem-projeto}/auto"
 mkdir -p "$HANDOFF_DIR"
-HANDOFF_FILE="$HANDOFF_DIR/latest.md"
+HANDOFF_FILE="$HANDOFF_DIR/${SESSION_ID}.md"
 
 python3 - "$JSONL" "$HANDOFF_FILE" <<'EOF'
 import json, sys, os
@@ -43,21 +45,28 @@ try:
 
             ts = d.get("timestamp", "")
 
-            # Collect user messages
-            if d.get("type") == "human":
+            # Collect user messages. Transcripts tag them "user" (this read "human" until
+            # 2026-10-01, so every auto-handoff said "0 user messages"). "user" entries also
+            # carry tool_result blocks and harness-injected text (<system-reminder>, command
+            # tags); only the operator's own prose is a fact worth keeping.
+            if d.get("type") == "user" and not d.get("isMeta") and not d.get("isCompactSummary"):
+                content = d.get("message", {}).get("content", [])
+                if isinstance(content, str):
+                    content = [{"type": "text", "text": content}]
+                for block in content:
+                    if isinstance(block, dict) and block.get("type") == "text":
+                        text = block.get("text", "").strip()
+                        if text and not text.startswith("<"):
+                            user_messages.append((ts, text[:300]))
+
+            # Collect tool calls and the assistant's own prose (decisions, findings)
+            if d.get("type") == "assistant":
                 msg = d.get("message", {})
                 for block in msg.get("content", []):
                     if isinstance(block, dict) and block.get("type") == "text":
                         text = block.get("text", "").strip()
                         if text:
-                            user_messages.append((ts, text[:200]))
-                    elif isinstance(block, str):
-                        user_messages.append((ts, block[:200]))
-
-            # Collect tool calls from assistant turns
-            if d.get("type") == "assistant":
-                msg = d.get("message", {})
-                for block in msg.get("content", []):
+                            turns.append((ts, text[:400]))
                     if isinstance(block, dict) and block.get("type") == "tool_use":
                         name = block.get("name", "")
                         inp = block.get("input", {})
@@ -93,6 +102,11 @@ for ts, text in recent_user:
     # Escape any markdown formatting issues
     text_clean = text.replace("\n", " ").strip()
     lines.append(f"- `{short_ts}` — {text_clean}")
+
+if turns:
+    lines += [f"", f"## Last Assistant Notes (last 5)", f""]
+    for ts, text in turns[-5:]:
+        lines.append(f"- `{ts[:16] if ts else 'unknown'}` " + text.replace("\n", " "))
 
 lines += [
     f"",

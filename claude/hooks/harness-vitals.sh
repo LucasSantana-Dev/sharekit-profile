@@ -11,6 +11,25 @@
 # ~/.claude-env — ~/.claude is derived via `sync pull`; derived edits get reverted.
 set -uo pipefail
 
+# `timeout` is absent on stock macOS: use gtimeout, else a python3 stdlib shim, else no limit.
+if ! command -v timeout >/dev/null 2>&1; then
+  if command -v gtimeout >/dev/null 2>&1; then
+    timeout() { gtimeout "$@"; }
+  elif command -v python3 >/dev/null 2>&1; then
+    timeout() {
+      python3 -c 'import subprocess, sys
+try:
+    sys.exit(subprocess.run(sys.argv[2:], timeout=float(sys.argv[1])).returncode)
+except subprocess.TimeoutExpired:
+    sys.exit(124)
+except OSError:
+    sys.exit(127)' "$@"
+    }
+  else
+    timeout() { shift; "$@"; }
+  fi
+fi
+
 CLAUDE_DIR="$HOME/.claude"
 ENV_DIR="$HOME/.claude-env"
 SKILLS="$CLAUDE_DIR/skills"
@@ -53,7 +72,7 @@ done
 # silently no-opped for weeks (the monitor had the disease it monitors for).
 rag_db=$(ls -t "$RAG_ROOT"/*.sqlite "$RAG_ROOT"/*.db 2>/dev/null | head -1)
 if [ -n "${rag_db:-}" ]; then
-  m=$(stat -f %m "$rag_db" 2>/dev/null || stat -c %Y "$rag_db" 2>/dev/null || echo "$now")
+  m=$(stat -c %Y "$rag_db" 2>/dev/null || stat -f %m "$rag_db" 2>/dev/null || echo "$now")
   d=$(( (now - m) / 86400 )); [ "$d" -gt 7 ] && warns+=("RAG index ${d}d old ($(basename "$rag_db")) — recall may miss recent work; reindex")
 fi
 
@@ -76,8 +95,8 @@ fi
 RALOG="$RAG_ROOT/eval/REGRESSION-ALERTS.log"
 RASEEN="$RAG_ROOT/eval/.alerts-seen"
 if [ -f "$RALOG" ]; then
-  lm=$(stat -f %m "$RALOG" 2>/dev/null || stat -c %Y "$RALOG" 2>/dev/null || echo 0)
-  sm=$(stat -f %m "$RASEEN" 2>/dev/null || stat -c %Y "$RASEEN" 2>/dev/null || echo 0)
+  lm=$(stat -c %Y "$RALOG" 2>/dev/null || stat -f %m "$RALOG" 2>/dev/null || echo 0)
+  sm=$(stat -c %Y "$RASEEN" 2>/dev/null || stat -f %m "$RASEEN" 2>/dev/null || echo 0)
   [ "$lm" -gt "$sm" ] && warns+=("UNREAD eval regression alert(s): $(tail -1 "$RALOG") — investigate, then: touch $RASEEN")
 fi
 
@@ -129,7 +148,7 @@ fi
 # fresh the target content actually was, a permanent false positive).
 hand=$(ls -tL "$CLAUDE_DIR"/handoffs/latest.md "$CLAUDE_DIR"/handoffs/*/latest.md 2>/dev/null | head -1)
 if [ -n "${hand:-}" ]; then
-  m=$(stat -f %m -L "$hand" 2>/dev/null || stat -c %Y -L "$hand" 2>/dev/null || echo "$now")
+  m=$(stat -c %Y -L "$hand" 2>/dev/null || stat -f %m -L "$hand" 2>/dev/null || echo "$now")
   d=$(( (now - m) / 86400 )); [ "$d" -gt 14 ] && warns+=("handoff ${d}d old ($hand) — stale resume packet, clear or act on it")
 fi
 
@@ -208,6 +227,36 @@ check_hb gdrive-backup 8
 # exited 0 while the git push had been failing since 2026-08-16.
 check_hb sync-dev-assets 96
 
+# 9a. rag-jobs status files - launchd's own exit code stays 0 even when a scheduled
+# job degraded (mount absent, remote sync failed) or never ran at all; each run of
+# fix-drift-loop.sh / rag-nightly-rebuild.sh writes ~/.claude/state/rag-jobs/<job>.json
+# with status ok|degraded|failed|skipped-no-disk. Surface anything not ok, or ok but
+# stale (job stopped running silently).
+RAG_JOBS_DIR="$HOME/.claude/state/rag-jobs"
+if [ -d "$RAG_JOBS_DIR" ]; then
+  for jf in "$RAG_JOBS_DIR"/*.json; do
+    [ -f "$jf" ] || continue
+    jname=$(basename "$jf" .json)
+    IFS='|' read -r jstatus jfinished jdetail < <(python3 -c '
+import json, sys
+try:
+    d = json.load(open(sys.argv[1]))
+    print(d.get("status", "?") + "|" + d.get("finished", "?") + "|" + d.get("detail", "?"))
+except Exception:
+    print("?|?|unreadable status file")
+' "$jf" 2>/dev/null)
+    if [ "$jstatus" != "ok" ]; then
+      warns+=("rag-job $jname: status=$jstatus - $jdetail")
+      continue
+    fi
+    fe=$(date -u -j -f "%Y-%m-%dT%H:%M:%SZ" "$jfinished" +%s 2>/dev/null || date -u -d "$jfinished" +%s 2>/dev/null || echo "")
+    if [ -n "$fe" ]; then
+      h=$(age_h "$fe")
+      [ "$h" -gt 36 ] && warns+=("rag-job $jname: status=ok but finished ${h}h ago (stale, expected < 36h)")
+    fi
+  done
+fi
+
 # 10. ADR-0039 guard — project auto-memory copies must never re-enter the RAG index
 # (they are ~84% vault duplicates that filled both retrieval slots; enforced in
 # build.py 2026-07-23). Alert if any chunk reappears under a .claude/projects path.
@@ -253,6 +302,19 @@ for repo in "$HOME/.agents/skills" "$ENV_DIR"; do
   [ -d "$repo/.git" ] || continue
   dels=$(git -C "$repo" status --porcelain 2>/dev/null | grep -c '^ *D' || true)
   [ "${dels:-0}" -gt 20 ] && warns+=("resurrection risk: $dels UNCOMMITTED deletions in $repo — commit now (CLAUDE_SYNC_MAX_DEL=500 ~/.claude-env/bin/sync push) or the WIP-sync will restore them")
+done
+
+# 14. MEMORY.md over 180 lines (folded from memory-index-size-alert.sh; the release-drift nudge was dropped, release-cadence.md retires that flow); once per day per project
+MS_STATE="$CLAUDE_DIR/state/memory-size-alert"
+for MD in "$CLAUDE_DIR"/projects/*/memory/MEMORY.md; do
+  [ -f "$MD" ] || continue
+  ml=$(wc -l < "$MD" 2>/dev/null | tr -d ' ')
+  [ "${ml:-0}" -gt 180 ] || continue
+  mp=$(basename "$(dirname "$(dirname "$MD")")")
+  mf="$MS_STATE/$mp-$(date -u +%Y-%m-%d)"
+  [ -f "$mf" ] && continue
+  mkdir -p "$MS_STATE" 2>/dev/null && touch "$mf"
+  warns+=("MEMORY.md of $mp has $ml lines (over 180): run /memory-prune")
 done
 
 # Emit ONLY if something is off (silent-when-healthy).

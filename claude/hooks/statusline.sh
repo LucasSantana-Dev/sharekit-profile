@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Claude Code statusline:
-#   [project] msg:N  ↓<rtk_saved>tok
+#   [project] ctx:N%  ↓<rtk_saved>tok
 #
 # rtk savings cached for 60s to avoid spawning rtk on every render.
 
@@ -12,7 +12,8 @@ MODEL=$(printf '%s' "$INPUT" | jq -r '.model.id // .model.display_name // ""' 2>
 APEX=""
 case "$MODEL" in *opus*|*fable*) APEX="  APEX-\$\$ routine?->/model sonnet" ;; esac
 
-count=$(cat "$HOME/.claude/.session-msg-count" 2>/dev/null || echo 0)
+ctx=$(printf '%s' "$INPUT" | jq -r '.context_window.used_percentage // empty' 2>/dev/null)
+count="${ctx:+${ctx%.*}%}"; count="${count:-?}"
 project=$(basename "${CLAUDE_PROJECT_DIR:-$PWD}")
 
 CACHE="$HOME/.claude/.rtk-savings.cache"
@@ -20,7 +21,7 @@ NOW=$(date +%s)
 saved=""
 
 if [ -f "$CACHE" ]; then
-  CACHED_AT=$(stat -f %m "$CACHE" 2>/dev/null || stat -c %Y "$CACHE" 2>/dev/null || echo 0)
+  CACHED_AT=$(stat -c %Y "$CACHE" 2>/dev/null || stat -f %m "$CACHE" 2>/dev/null || echo 0)
   if [ $((NOW - CACHED_AT)) -lt 60 ]; then
     saved=$(cat "$CACHE")
   fi
@@ -41,7 +42,7 @@ if [ -z "$saved" ] && command -v rtk &>/dev/null; then
 fi
 
 if [ -n "$saved" ]; then
-  echo "[$project] msg:$count  ↓${saved}tok$APEX"
+  echo "[$project] ctx:$count  ↓${saved}tok$APEX"
 else
-  echo "[$project] msg:$count$APEX"
+  echo "[$project] ctx:$count$APEX"
 fi

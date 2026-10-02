@@ -3,7 +3,7 @@
 # and inject a one-line "consider this composite" hint when a strong match is found.
 #
 # Cheap (<50ms): pure bash regex against keyword sets. Never blocks. Outputs JSON
-# systemMessage that biases Claude toward invoking the composite.
+# additionalContext (seen by the model; systemMessage is UI-only) that biases Claude toward invoking the composite.
 #
 # Composites take precedence over individual skills (composite-first principle in
 # ~/.claude/standards/skill-auto-invoke.md).
@@ -17,6 +17,25 @@
 # (emergency paths — asymmetric cost of a missed prod-incident route vs 2 branches of
 # token noise). 14-day false-negative watch; restore any branch from git if misses show.
 set -uo pipefail
+
+# `timeout` is absent on stock macOS: use gtimeout, else a python3 stdlib shim, else no limit.
+if ! command -v timeout >/dev/null 2>&1; then
+  if command -v gtimeout >/dev/null 2>&1; then
+    timeout() { gtimeout "$@"; }
+  elif command -v python3 >/dev/null 2>&1; then
+    timeout() {
+      python3 -c 'import subprocess, sys
+try:
+    sys.exit(subprocess.run(sys.argv[2:], timeout=float(sys.argv[1])).returncode)
+except subprocess.TimeoutExpired:
+    sys.exit(124)
+except OSError:
+    sys.exit(127)' "$@"
+    }
+  else
+    timeout() { shift; "$@"; }
+  fi
+fi
 command -v jq &>/dev/null || exit 0
 
 INPUT=$(cat 2>/dev/null || true)
@@ -240,7 +259,7 @@ match_composite() {
 slashref=$(printf '%s' "$P" | grep -oE '(^|[[:space:]])/[a-z][a-z0-9-]{2,40}\b' | head -1 | tr -d ' /')
 if [ -n "$slashref" ] && [ -d "$HOME/.claude/skills/$slashref" ]; then
   jq -n --arg c "$slashref" \
-    '{"systemMessage": (" Skill match: /\($c) — explicitly named in the prompt. Invoke the /\($c) skill.")}'
+    '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": (" Skill match: /\($c) — explicitly named in the prompt. Invoke the /\($c) skill.")}}'
   exit 0
 fi
 
@@ -255,18 +274,18 @@ reason=$(printf '%s' "$result" | cut -d'|' -f2)
 case "$composite" in
   code-review)
     jq -n --arg c "$composite" --arg r "$reason" \
-      '{"systemMessage": (" Skill match: /\($c) — \($r). Invoke the /\($c) skill (senior-QA reviewer). Default = chat report; only post to a PR with an explicit --pr N --comment.")}'
+      '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": (" Skill match: /\($c) — \($r). Invoke the /\($c) skill (senior-QA reviewer). Default = chat report; only post to a PR with an explicit --pr N --comment.")}}'
     exit 0
     ;;
   adr-write|performance-audit|config-drift-detect|handoff|next-priority|ship|repaint|run|plan|backlog)
     jq -n --arg c "$composite" --arg r "$reason" \
-      '{"systemMessage": (" Skill match: /\($c) — \($r). Invoke the /\($c) skill.")}'
+      '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": (" Skill match: /\($c) — \($r). Invoke the /\($c) skill.")}}'
     exit 0
     ;;
 esac
 
-# Emit a systemMessage hint. Claude reads this and is biased toward invoking the composite.
+# Emit the hint as additionalContext so the model sees it. Claude reads this and is biased toward invoking the composite.
 jq -n --arg c "$composite" --arg r "$reason" \
-  '{"systemMessage": ("🎯 Composite match: /\($c) — \($r). Per skill-auto-invoke standard (composite-first principle), invoke /\($c) instead of running its sub-skills individually.")}'
+  '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": ("🎯 Composite match: /\($c) — \($r). Per skill-auto-invoke standard (composite-first principle), invoke /\($c) instead of running its sub-skills individually.")}}'
 
 exit 0

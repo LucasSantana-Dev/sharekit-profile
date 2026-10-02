@@ -1,4 +1,4 @@
-# sharekit-profile — governed agent harness for Claude Code + OpenCode
+# sharekit-profile — governed agent harness for Claude Code
 
 **A portable, governance-first harness profile: enforced constitution, committed threat model, MCP deny-by-default policy, and a behavioral eval gate that fails CI when agent routing regresses. Plus the full operator toolkit — 49 catalog skills (47 tracked skill folders), 55 agents, 78 lifecycle hooks, 61 standards, RAG retrieval, and memory persistence.**
 
@@ -7,9 +7,9 @@ This is a **profile, not a framework**: an installable, forkable, opinionated ba
 - **Governance-as-code** — invariants live in `.harness/constitution.json`, enforced by hooks and CI, auditable by anyone. Agent permissions are artifacts, not vibes.
 - **Behavioral eval gates** — 40 frozen routing tasks; a >5pp accuracy drop vs the fingerprinted baseline blocks the merge. Config changes are tested against measured agent behavior.
 - **Security-first hooks** — gitleaks, dangerous-pattern, injection-tell, and secret-read scanners in the pre-tool-use pipeline.
-- **Harness-portable** — one source of truth compiled to Claude Code and OpenCode, with drift detection between runtime copies.
+- **Harness-portable** — one source of truth installed into `~/.claude/`, with drift detection between runtime copies.
 
-> **Harnesses:** Claude Code (primary tag/discoverability surface) and OpenCode (`opencode.json`, multi-provider routing via OpenRouter fallback) are both supported natively from the same tracked source. The skill/agent/hook library is plain files — Markdown, shell, JSON — and is not locked to either harness.
+> **Harness:** Claude Code is the supported harness (npm package, marketplace listing). The skill/agent/hook library is plain files (Markdown, shell, JSON). OpenCode support is archived under `archive/opencode/`.
 
 ---
 
@@ -19,13 +19,16 @@ This is a **profile, not a framework**: an installable, forkable, opinionated ba
 npx @lucassantana/sharekit install LucasSantana-Dev
 ```
 
-What lands where: `claude/` → `~/.claude/` (47 skill folders, 55 agents, 78 hooks, 61 standards, CLAUDE.md), plus `cursor/`, `opencode/` → `~/.config/opencode/`, `gjc/` → `~/.gjc/`, and `warp/` as portable defaults.
+What lands where: `claude/` → `~/.claude/` (47 skill folders, 55 agents, 78 hooks, 61 standards, CLAUDE.md), plus `cursor/`, `gjc/` → `~/.gjc/`, and `warp/` as portable defaults.
 
 Fresh-machine caveats:
 
-- **Hook wiring is opt-in.** By default `settings.json` is skipped because it registers shell hooks. Re-run with `--include-hooks` to wire the hook pipeline (you get one explicit confirmation prompt). Without it, skills and agents work but nothing fires automatically.
+- **Hook wiring is opt-in.** By default `settings.json` is skipped because it registers shell hooks. Re-run with `--include-hooks` to wire the hook pipeline (you get one explicit confirmation prompt); without it, skills and agents work but nothing fires automatically, including the client-memory gate (`memory-scope-gate.sh`) below. With sharekit 0.6.4 or later the flag merges only the `hooks` key into an existing `settings.json` and leaves your other settings alone; on older versions it overwrites the file, so merge the hook entries by hand instead.
+- **Client work needs one more step.** The install does not scaffold a client for you. Run the `client-offboard` skill's `init <slug>` mode once per client engagement: it registers the client, creates its vault, and wires the Claude Code project symlink so that client's ordinary memory writes land in its own vault instead of your general one. `clients.json` (the client registry) is private: it never ships with this profile, is never published, and lives under `$RAG_HOME` (default `~/.shelfmark`), not in any repo.
 - **External tool dependencies.** Some hooks assume tools that are not part of this profile: `rtk` (output compression), a RAG index + memory vault on an external drive, and `claude-mem`. On a machine without them the affected hooks degrade to no-ops or a one-line warning; nothing breaks, but auto-recall and token compression stay off until those exist.
-- **Provider keys come from env.** `OPENCODE_API_KEY` / `OPENROUTER_API_KEY` for OpenCode, plus your normal Claude Code login. No keys ship in the profile.
+- **Trunk-based repos and the push gate.** `check-pr-automation-halt.sh` blocks direct pushes to protected branches (main, master, release) and halts automation on PRs by other authors. To exempt a repo that legitimately pushes to main, list its GitHub `owner/name`, one per line, in `~/.claude/push-exemptions.txt` (blank lines and `#` comments are ignored; `PUSH_EXEMPTIONS_FILE` overrides the path). The gate needs `python3`; without it the gate logs a note and stays inactive.
+- **Hook requirements.** Hooks run under stock macOS `/bin/bash` 3.2 and need only POSIX tools plus `python3`. `jq` is optional: hooks that need it exit 0 (inactive) when it is missing.
+- **Provider keys come from env.** Your normal Claude Code login (and `OPENROUTER_API_KEY` if you run the routing eval gate). No keys ship in the profile.
 - **Backups are automatic.** Every install snapshots the previous state; `sharekit rollback LucasSantana-Dev` undoes it.
 
 ---
@@ -34,17 +37,10 @@ Fresh-machine caveats:
 
 ### Starting a session
 
-**OpenCode (preferred):**
-```bash
-opencode   # Opens OpenCode — reads opencode.json, routes via primary provider
-```
-
-**Claude Code (supported):**
+**Claude Code:**
 ```bash
 claude   # Opens Claude Code CLI
 ```
-
-**Fallback provider:** when the primary provider is rate-limited or unavailable, OpenCode routes through OpenRouter. Configure once with `opencode auth login openrouter` (set `OPENROUTER_API_KEY`).
 
 The session start hook chain fires automatically:
 - Auto-pulls latest state from `~/.claude-env`
@@ -132,7 +128,8 @@ sharekit-profile/
 │                             #   manifest.json (tracked-file fingerprints)
 ├── .github/workflows/        # CI: harness-gates (bats + eval-gate), release-please
 ├── .husky/pre-commit         # Wire with `git config core.hooksPath .husky`
-├── opencode/, gjc/, warp/, cursor/   # Portable default configs for other harnesses
+├── archive/opencode/         # Archived OpenCode config (restore with git mv)
+├── gjc/, warp/, cursor/      # Portable default configs for other harnesses
 ├── specs/                    # Spec templates (docs/specs/ convention)
 ├── AGENTS.md                 # Governance + harness-file index (start here)
 ├── RULES.md                  # Hard constraints
@@ -154,17 +151,16 @@ repo's own tree:
 ~/.agents/                    # Canonical skill and agent definitions (post-install)
 ├── skills/, standards/, agents/, ...
 
-~/.config/opencode/, ~/.gjc/  # OpenCode / Gajae-Code portable defaults (post-install)
+~/.gjc/                       # Gajae-Code portable defaults (post-install)
 ```
 
-### OpenCode + OpenRouter + Gajae-Code integration
+### Gajae-Code integration
 
-`sharekit install` now mirrors two additional tool roots alongside `claude/` and `cursor/`:
+`sharekit install` mirrors an additional tool root alongside `claude/` and `cursor/`:
 
-- **`opencode/`** → `~/.config/opencode/`. Ships a portable `opencode.jsonc` with OpenCode Go (`opencode` provider) as the primary gateway and OpenRouter as the fallback (`options.provider.allow_fallbacks: true`). API keys are read from env vars (`OPENCODE_API_KEY`, `OPENROUTER_API_KEY`) — never hardcoded. Agent tiering mirrors the CLAUDE.md discipline: Sonnet-class for `build`/`architect`/`planner`/`critic`, Flash-class for `task`, cheapest for `title`. Analysis roles (architect, planner, critic) are read-only by construction (`permission: { edit: deny, bash: deny }`). This is a *portable default* — your personal `~/.config/opencode/opencode.jsonc` is left intact; OpenCode merges project + global configs.
-- **`gjc/`** → `~/.gjc/`. Ships the documented `config.yml` retry budget (the user-facing config surface). gjc is an external runner that sits beside OpenCode/Claude Code and adds the `deep-interview → ralplan → ultragoal` workflow loop (optional `team` for parallel tmux workers). Model/provider selection in gjc uses a separate `models.yml` + `modelBindings` system; this profile intentionally does not override that. The four role-agent markdown files (`executor`, `architect`, `planner`, `critic`) are reference templates aligned with the operator's CLAUDE.md hard rules.
+- **`gjc/`** → `~/.gjc/`. Ships the documented `config.yml` retry budget (the user-facing config surface). gjc is an external runner that sits beside Claude Code and adds the `deep-interview → ralplan → ultragoal` workflow loop (optional `team` for parallel tmux workers). Model/provider selection in gjc uses a separate `models.yml` + `modelBindings` system; this profile intentionally does not override that. The four role-agent markdown files (`executor`, `architect`, `planner`, `critic`) are reference templates aligned with the operator's CLAUDE.md hard rules.
 
-Both ship as **portable defaults**: installing this profile gives sane starting configs without clobbering personal overrides.
+This ships as a **portable default**: installing this profile gives sane starting configs without clobbering personal overrides.
 
 ---
 
@@ -212,7 +208,7 @@ Hooks are shell scripts wired to tool events. They are zero-overhead on success 
 Hooks are registered to lifecycle events in [`claude/settings.json`](claude/settings.json). Before that file existed, the `hooks/` scripts were orphan artifacts and 9 of 15 `RULES.md` "Must Always" rules were advisory-only. The registered events now enforce the protected invariants at runtime:
 
 - `SessionStart` — `session-start-load.sh` runs the harness drift check (live `~/.claude` vs tracked `~/.claude-env`), warns if the self-improvement flywheel has gone silent, and loads CORE memory into the session. Fails open (non-blocking warnings).
-- `PreToolUse` (Bash) — `check-dangerous-patterns.sh` (destructive commands + sensitive paths), `check-pr-automation-halt.sh` (no force-push, no push to main, no AI-attribution in commits, halt on human-commented PRs), `check-stuck-loop.sh` (Stuck protocol), `check-idempotency.sh` (state-check-before-mutation hint). Exit 2 blocks.
+- `PreToolUse` (Bash): `check-pr-automation-halt.sh` (no force-push, no push to main, no AI-attribution in commits, halt on human-commented PRs), `check-stuck-loop.sh` (Stuck protocol), `check-idempotency.sh` (state-check-before-mutation hint). Exit 2 blocks.
 - `PreToolUse` (Write/Edit) — idempotency hint (logged to trajectory).
 - `SubagentStart` — `check-read-only-subagent.sh` blocks analysis subagents spawned with write tools (read-only-by-construction).
 - `PostToolUse` — `trajectory-log.sh` appends every tool call to `.harness/runtime/trajectory.jsonl` (the observe half of the flywheel), then `context-guard.sh` writes compact digests for >2KB responses (tool-result firewall) + surfaces buried constraints (lost-in-the-middle audit), then `observe-otel.sh` emits a GenAI span + scans for context breaches.
@@ -397,10 +393,26 @@ Key policy documents in `~/.agents/skills/standards/`:
 ## Configuration
 
 ### Model Tiering
-- **Main loop:** Sonnet 4.6 (execution default)
-- **Subagents:** Haiku 4.5 (mechanical tasks, fast)
-- **Opus:** Explicitly invoked for complex reasoning, ADR writing
-- **Autocompact:** 85% context threshold
+- **Main loop:** Sonnet (execution default)
+- **Subagents:** whatever `CLAUDE_CODE_SUBAGENT_MODEL` says; agent frontmatter overrides it. Without the env var, subagents inherit the session model, so an Opus session spawns Opus agents.
+- **Opus / Fable:** explicitly invoked for complex reasoning, ADR writing
+
+### Recommended settings (token cost)
+`--include-hooks` merges only `hooks`, so set these by hand in `~/.claude/settings.json`:
+
+```json
+{
+  "model": "sonnet",
+  "autoCompactWindow": 200000,
+  "skillListingBudgetFraction": 0.015,
+  "skillListingMaxDescChars": 160,
+  "env": { "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet" }
+}
+```
+
+- `autoCompactWindow` caps the context before compaction. Every request re-reads the whole context from cache, so a 1M window compacting at 65% means 300-450k tokens per turn.
+- The two `skillListing*` keys shrink the skill list sent on every request (it was ~28k tokens with 200+ skills).
+- Drop `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` if you set it before; `autoCompactWindow` replaces it.
 
 ### Hard Rules (Non-Negotiable)
 1. Never automate on PRs with human reviewer comments

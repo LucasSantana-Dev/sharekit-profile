@@ -1,7 +1,7 @@
 ---
 name: motion-design
 description: Motion graphics and animation direction for social/video content. Designs and critiques animation principles (timing, easing, anticipation, staging), kinetic typography, transitions, brand motion systems, format specs for reels/shorts/TikTok, lower-thirds, caption animation, and logo animation. Use for motion briefs, animation direction, transition specs, brand motion systems, and animation critique. NEVER edits raw footage or performs video cuts (that is video-editing). NEVER dictates still visual identity (that is design).
-model: claude-sonnet-5
+model: sonnet
 level: 3
 ---
 

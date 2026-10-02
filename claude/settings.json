@@ -1,46 +1,12 @@
 {
-  "schema": "harness-settings/v1",
-  "comment": "Registers the sharekit-profile hook scripts to Claude Code lifecycle events. This file is the missing enforcement layer — without it, the hooks/ scripts are orphan artifacts and 9/15 RULES.md 'Must Always' rules are advisory-only. Exit code 2 is the only blocking code; all other exits are advisory/log-only. Hosts that do not implement a given event ignore its entry.",
   "hooks": {
     "UserPromptSubmit": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/tool-shortlist.sh\"",
-            "timeout": 2000
-          },
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/model-cache-guard.sh\"",
-            "timeout": 2000
-          },
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/constitution-injection-guard.sh\"",
-            "timeout": 2000
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/check-session-lock.sh\" --claim",
-            "timeout": 5000,
-            "comment": "Session-lock sentinel: warns if another live session owns this checkout"
-          },
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/session-start-load.sh\"",
-            "timeout": 10000
-          },
-          {
-            "type": "command",
-            "command": "OBSERVE_HOOK_EVENT=SessionStart bash \"$HOME/.claude/hooks/observe-otel.sh\"",
-            "timeout": 2000
+            "command": "bash \"$HOME/.claude/hooks/session-length-guard.sh\"",
+            "timeout": 5
           }
         ]
       }
@@ -51,23 +17,18 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/check-dangerous-patterns.sh\"",
-            "timeout": 2000
-          },
-          {
-            "type": "command",
             "command": "bash \"$HOME/.claude/hooks/check-pr-automation-halt.sh\"",
-            "timeout": 3000
+            "timeout": 15
           },
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/check-stuck-loop.sh\"",
-            "timeout": 2000
+            "timeout": 2
           },
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/check-idempotency.sh\"",
-            "timeout": 2000
+            "timeout": 2
           }
         ]
       },
@@ -76,14 +37,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/check-session-lock.sh\"",
-            "timeout": 5000,
-            "comment": "Session-lock sentinel: warns once per session if another live session owns this checkout"
-          },
-          {
-            "type": "command",
             "command": "bash \"$HOME/.claude/hooks/check-idempotency.sh\"",
-            "timeout": 2000
+            "timeout": 2
           }
         ]
       },
@@ -93,39 +48,7 @@
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/memory-scope-gate.sh\"",
-            "timeout": 5000,
-            "comment": "Client memory gate: general notes need a knowledge tag while a client is active; inert without a shelfmark client registry"
-          }
-        ]
-      },
-      {
-        "comment": "P4 deterministic governance: ALLOW/DENY/REQUIRE_APPROVAL verdicts from mcp-policy.json, outside the model. Exit 2 on DENY.",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/policy-gate.sh\"",
-            "timeout": 2000
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/trajectory-log.sh\"",
-            "timeout": 2000
-          },
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/context-guard.sh\"",
-            "timeout": 2000
-          },
-          {
-            "type": "command",
-            "command": "OBSERVE_HOOK_EVENT=PostToolUse bash \"$HOME/.claude/hooks/observe-otel.sh\"",
-            "timeout": 2000
+            "timeout": 5
           }
         ]
       }
@@ -136,24 +59,7 @@
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/check-read-only-subagent.sh\"",
-            "timeout": 2000
-          }
-        ]
-      }
-    ],
-    "PreCompact": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/snapshot-compact.sh\"",
-            "timeout": 3000
-          },
-          {
-            "type": "command",
-            "comment": "P4 context control: audit tool-call/result adjacency preservation, budget warnings, cache-prefix stability. Advisory.",
-            "command": "bash \"$HOME/.claude/hooks/compaction-guard.sh\"",
-            "timeout": 3000
+            "timeout": 2
           }
         ]
       }
@@ -164,45 +70,10 @@
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/reinject-compact.sh\"",
-            "timeout": 3000
-          },
-          {
-            "type": "command",
-            "command": "OBSERVE_HOOK_EVENT=PostCompact bash \"$HOME/.claude/hooks/model-cache-guard.sh\"",
-            "timeout": 2000
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/post-incident-adr.sh\"",
-            "timeout": 3000
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/session-end-flush.sh\"",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
-            "command": "OBSERVE_HOOK_EVENT=SessionEnd bash \"$HOME/.claude/hooks/observe-otel.sh\"",
-            "timeout": 2000
+            "timeout": 3
           }
         ]
       }
     ]
-  },
-  "hook_firing_order_doc": "docs/hook-firing-order.md",
-  "runtime_dir": ".harness/runtime",
-  "runtime_dir_note": "Append-only trajectory, session records, compaction snapshots, incident stubs, and the distill pending queue. Gitignored — see .gitignore."
+  }
 }

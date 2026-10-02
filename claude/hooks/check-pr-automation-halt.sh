@@ -29,11 +29,10 @@
 # Fails OPEN (exit 0) on unparseable input: a blocking hook that wedges on odd quoting is worse
 # than one that misses an edge case, and the operator still has branch protection server-side.
 #
-# KNOWN GAP, stated so this is not mistaken for full coverage: a bare `git push` with no refspec
-# is NOT caught, because the target branch is implicit and the hook cannot know the command's
-# working directory reliably enough to resolve HEAD. So a silent detection log here means "no
-# EXPLICIT protected-ref push", not "no push to main". This hook is a fast local tripwire, not a
-# replacement for server-side branch protection.
+# A bare `git push` with no refspec is resolved against the current HEAD (see the push check
+# below), but that resolution is best-effort: a `cd` chain or `-C` path it cannot follow still
+# slips through. This hook is a fast local tripwire, not a replacement for server-side branch
+# protection.
 #
 # DO NOT READ THAT AS "the server will catch it." This comment used to promise exactly that, and
 # the promise was false for at least one repo: a personal memory vault synced by an automated
@@ -47,9 +46,13 @@
 set -uo pipefail
 
 input="$(cat)"
+command -v python3 >/dev/null 2>&1 || { echo "check-pr-automation-halt: python3 missing, gate inactive" >&2; exit 0; }
 [[ -n "$input" ]] || exit 0
 
-verdict="$(HOOK_INPUT="$input" python3 - <<'PY' 2>/dev/null
+# The python body lives in a variable, not in a heredoc inside $(...): bash 3.2 (stock macOS)
+# cannot parse a quote-bearing heredoc body nested in command substitution, and a parse error
+# exits 2, which blocks every Bash tool call.
+IFS= read -r -d '' PYSRC <<'PY' || true
 import json, os, re, shlex, subprocess, sys
 
 try:
@@ -168,7 +171,7 @@ if cur:
 
 PROTECTED = {"main", "master"}
 FORCE = {"--force", "-f", "--force-with-lease"}
-ATTRIB = re.compile(r"co-authored-by:.*(claude|bot)|generated (with|by) .*claude|\U0001F916", re.I)
+ATTRIB = re.compile(r"co-authored-by:.*(claude|anthropic|\[bot\]|noreply[^ ]*bot|-bot\b|\sbot\b)|generated (with|by) .*claude|\U0001F916", re.I)
 
 
 def protected_ref(arg: str) -> bool:
@@ -560,6 +563,31 @@ for argv in simple:
         break
     pos = positionals(eff, REPO_FLAGS) if exe == "gh" else []
     words = [w for w, _ in pos]
+    # RULESETS ARE THE BRANCH PROTECTION. Writing one through `gh api` switches off every
+    # gate this hook defends, so it blocks. Reads stay allowed (audits list rulesets).
+    # gh api sends POST whenever a field or --input is given, so a write is an explicit
+    # non-GET method OR any body flag. The old settings.json entry for this used the matcher
+    # `Bash(gh api.*rulesets)`, which is matched against the tool NAME and never fired.
+    # Only the endpoint counts (first positional not consumed by a gh api value flag), so
+    # `-f query=...rulesets...` on a graphql read is not mistaken for a ruleset write.
+    api_vals = ("-X", "--method", "-f", "-F", "--field", "--raw-field", "-H", "--header",
+                "--input", "-q", "--jq", "-t", "--template", "--hostname", "--cache", "-p", "--preview")
+    endpoint = next((w for w, i in pos[1:] if i == 0 or eff[i - 1] not in api_vals), "")
+    if exe == "gh" and words[:1] == ["api"] and "rulesets" in endpoint:
+        method = ""
+        for i, a in enumerate(eff):
+            if a in ("-X", "--method") and i + 1 < len(eff):
+                method = eff[i + 1].upper()
+            elif a.startswith("--method="):
+                method = a.split("=", 1)[1].upper()
+            elif a.startswith("-X") and len(a) > 2:
+                method = a[2:].upper()
+        body = any(a in ("-f", "-F", "--field", "--raw-field", "--input")
+                   or a.startswith(("--field=", "--raw-field=", "--input=")) for a in eff)
+        if (method and method != "GET") or (not method and body):
+            print("BLOCK\tWriting GitHub rulesets via `gh api` bypasses branch protection. "
+                  "Change rulesets by hand in the GitHub UI, or ask the operator.")
+            break
     if exe == "gh" and words[:2] and words[0] == "pr" and words[1] in GH_VERB_VALUE_FLAGS:
         verb, verb_at = words[1], pos[1][1]
         # An explicit `--repo owner/name` is what gh itself will target, so it
@@ -600,7 +628,7 @@ for argv in simple:
         print("CHECKPR\t" + ref + "\t" + cwd_hint + "\t" + repo_flag)
         break
 PY
-)"
+verdict="$(HOOK_INPUT="$input" python3 -c "$PYSRC" 2>/dev/null)"
 
 kind="${verdict%%$'\t'*}"
 rest="${verdict#*$'\t'}"
@@ -680,14 +708,11 @@ if [[ "$kind" == "CHECKPR" ]] && command -v gh >/dev/null 2>&1; then
   # only ever sees text, cannot. Every one of them was patched with another `case` arm; the
   # arms are kept below because they still spare a needless block, but they are no longer
   # what the resolution rests on.
-  session_cwd="$(HOOK_INPUT="$input" python3 - <<'PY' 2>/dev/null
-import json, os
+  session_cwd="$(HOOK_INPUT="$input" python3 -c 'import json, os
 try:
     print(json.loads(os.environ.get("HOOK_INPUT", "")).get("cwd", "") or "")
 except Exception:
-    pass
-PY
-)"
+    pass' 2>/dev/null)"
 
   # An unexpanded --repo must NEVER fall through to a directory. Falling through reads PR #N
   # in the WRONG repo, and a same-numbered PR there can look clean: false-CLEAR is the
