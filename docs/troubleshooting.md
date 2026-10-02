@@ -105,6 +105,30 @@ Common problems and their solutions for the 50-skill consolidated catalog.
 3. Isolate whether the issue is local, global, recent-change, or environment-specific.
 4. Test the smallest reproducible case.
 
+### Windows: hooks shell and PATH
+
+`claude/settings.json` registers hooks as `bash "$HOME/.claude/hooks/x.sh"`, and many hooks call `timeout`, `jq`, `gh` and `sqlite3`. On Windows this only works when the hook runs under Git Bash with its `/usr/bin` first on PATH.
+
+What is known from reports against this profile:
+
+- `bash` on the Windows PATH is often `WindowsApps\bash.exe` (the WSL launcher). Without a WSL distro it prints "Windows Subsystem for Linux has no installed distributions" and fails.
+- `timeout` resolves to `C:\Windows\System32\timeout.exe` when System32 precedes Git's `/usr/bin`, and that binary rejects GNU arguments.
+
+What is not verified here (check the current Claude Code docs before relying on it): which shell Claude Code uses to execute hook commands on Windows. Claude Code is documented to need Git Bash on Windows and to honor the `CLAUDE_CODE_GIT_BASH_PATH` environment variable to locate it; confirm the exact behavior for hook commands for your Claude Code version.
+
+Suggested setup:
+
+1. Install Git for Windows (provides Git Bash).
+2. If Claude Code cannot find it, set `CLAUDE_CODE_GIT_BASH_PATH` to the bash executable, for example `C:\Program Files\Git\bin\bash.exe`.
+3. Put `C:\Program Files\Git\usr\bin` ahead of `C:\Windows\System32` and `WindowsApps` on PATH, or edit the hook entries in `~/.claude/settings.json` to use the absolute path, for example `"C:/Program Files/Git/usr/bin/bash.exe" "$HOME/.claude/hooks/x.sh"`.
+4. Run `bash scripts/doctor.sh` to list missing tools (see README "Prerequisites").
+
+The installer is the external `@lucassantana/sharekit` npm package and is not part of this repo, so an installer option that writes the absolute Git Bash path cannot be added here; the manual edit in step 3 is the supported route for now.
+
+Line endings: this repo ships a `.gitattributes` forcing LF so a Windows clone with `core.autocrlf=true` does not turn shell scripts into CRLF (`$'\r': command not found`).
+
+---
+
 ### Getting Help
 
 - **Policy questions:** Read `docs/configuration.md`.
