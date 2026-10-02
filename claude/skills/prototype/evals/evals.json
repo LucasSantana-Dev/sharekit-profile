@@ -1,0 +1,45 @@
+{
+  "skill_name": "prototype",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "logic-prototype",
+      "should_trigger": true,
+      "prompt": "Prototype this: I want to sanity-check the state machine for order fulfilment before I build it.",
+      "expected_output": "Builds a throwaway runnable terminal app that pushes the state machine through cases.",
+      "files": [],
+      "assertions": [
+        "Picks the logic branch (runnable terminal app) for a state-model question",
+        "Marks the prototype as throwaway and places it near the real module",
+        "Provides one command to run it",
+        "Keeps state in memory with no persistence and prints full state after every action",
+        "No tests, no polish, no abstractions"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "ui-variations",
+      "should_trigger": true,
+      "prompt": "Let me try a few designs for the settings page. Mock up some options.",
+      "expected_output": "Builds several radically different UI variations switchable on a single route.",
+      "files": [],
+      "assertions": [
+        "Picks the UI branch and generates several radically different variations",
+        "Variations are switchable from one route via a URL search param",
+        "Ends by deleting the prototype or absorbing the validated decision into real code"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-prototype-production",
+      "should_trigger": false,
+      "prompt": "Implement the production-ready export endpoint with tests and error handling.",
+      "expected_output": "Production implementation, not a throwaway.",
+      "files": [],
+      "assertions": [
+        "Does not build a throwaway prototype",
+        "Follows production quality conventions"
+      ]
+    }
+  ]
+}

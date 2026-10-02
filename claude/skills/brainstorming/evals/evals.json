@@ -1,0 +1,46 @@
+{
+  "skill_name": "brainstorming",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "shape-rough-idea",
+      "should_trigger": true,
+      "prompt": "I want a feature that lets users share their saved lists, but I am not sure how it should work yet. Help me think it through.",
+      "expected_output": "Collaborative exploration: context check, one question at a time, 2 to 3 approaches, validated design, no code.",
+      "files": [],
+      "assertions": [
+        "Writes NO code or implementation action before a design is presented and approved (hard gate)",
+        "Asks clarifying questions one at a time, preferring multiple choice",
+        "Proposes 2 to 3 approaches with trade-offs and leads with a recommendation",
+        "Presents the design in sections and asks after each whether it looks right",
+        "After approval documents the design in docs/plans/YYYY-MM-DD-<topic>-design.md"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "design-direction",
+      "should_trigger": true,
+      "prompt": "Let's brainstorm how the notification system should work before we build anything.",
+      "expected_output": "Explores purpose, constraints and success criteria first, then proposes approaches.",
+      "files": [],
+      "assertions": [
+        "Checks current project state (files, docs, recent commits) first",
+        "Focuses questions on purpose, constraints and success criteria",
+        "Applies YAGNI by removing unnecessary features",
+        "Transitions to the plan skill only after design approval"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-brainstorm-clear-task",
+      "should_trigger": false,
+      "prompt": "Rename the function getUser to fetchUser across the repo.",
+      "expected_output": "A clear mechanical task with no design exploration needed.",
+      "files": [],
+      "assertions": [
+        "Does not start a design interview",
+        "Performs or plans the rename directly"
+      ]
+    }
+  ]
+}

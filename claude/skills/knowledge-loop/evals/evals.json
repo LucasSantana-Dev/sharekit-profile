@@ -1,0 +1,45 @@
+{
+  "skill_name": "knowledge-loop",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "capture-decision",
+      "should_trigger": true,
+      "prompt": "Remember that we decided to use Postgres advisory locks for the job queue, and check if we already decided something similar.",
+      "expected_output": "Queries recall first, then captures a durable note via sync-memories, improving weak retrievals if needed.",
+      "files": [],
+      "assertions": [
+        "Phase 1 queries recall before writing anything",
+        "Confirms the top hit answers the question at cosine 0.50 or higher, or widens top up to 8",
+        "Phase 2 writes the note via sync-memories only because new knowledge was produced",
+        "Registers the note in the memory index with a MEMORY.md pointer",
+        "Ends with a reconciliation line"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "pure-recall",
+      "should_trigger": true,
+      "prompt": "What did we decide about the retry policy? Save where we are afterwards.",
+      "expected_output": "Answers the recall question immediately and skips capture when nothing new was produced.",
+      "files": [],
+      "assertions": [
+        "Returns the recall answer immediately",
+        "Skips Phase 2 capture and Phase 3 improve when there is no new durable output",
+        "Writes a handoff snapshot only if session-ending or context-pressured"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-loop-end-of-session",
+      "should_trigger": false,
+      "prompt": "Wrap up and sign off for the day.",
+      "expected_output": "The end-of-session close ritual belongs to session-close, not knowledge-loop.",
+      "files": [],
+      "assertions": [
+        "Does not run the mid-session query/capture loop",
+        "Routes to the session close ritual"
+      ]
+    }
+  ]
+}

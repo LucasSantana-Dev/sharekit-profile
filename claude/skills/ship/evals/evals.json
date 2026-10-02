@@ -1,0 +1,46 @@
+{
+  "skill_name": "ship",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "rollback-gate-prod",
+      "should_trigger": true,
+      "prompt": "Prepare release 3.2.0 and ship it: merge the PR to main, tag, and deploy to production on Cloudflare.",
+      "expected_output": "Checks preconditions, runs verify, and surfaces a rollback plan (revert steps, exact commands, estimated recovery time) before merge-and-tag because it is a production deploy.",
+      "files": [],
+      "assertions": [
+        "Checks preconditions: goal clear, diff understood, required checks green or proven unrelated, no unresolved blocking review comments",
+        "Runs or invokes verify as the first step",
+        "Surfaces a rollback plan with revert steps, exact commands and estimated recovery time before merge-and-tag",
+        "Halts and asks the user if no rollback plan can be formulated",
+        "Does not use admin bypass or force options against main"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "red-ci-refusal",
+      "should_trigger": true,
+      "prompt": "Is this PR shippable? Two required checks are red and a reviewer left a blocking comment, but I want to merge with --admin anyway.",
+      "expected_output": "Refuses admin bypass; says preconditions are not met (red required checks, unresolved blocking review) and steps back to the smallest unblock.",
+      "files": [],
+      "assertions": [
+        "Refuses to force or admin-bypass the merge to main",
+        "Names the unmet preconditions: red required checks and unresolved blocking review comment",
+        "Steps back to the smallest unblock instead of shipping",
+        "Does not claim the branch is shippable"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-ship-already-merged",
+      "should_trigger": false,
+      "prompt": "The PR was merged yesterday. Now get it into production and confirm it works after the deploy.",
+      "expected_output": "ship does not apply to an already MERGED PR that needs to reach production; that belongs to ship-it.",
+      "files": [],
+      "assertions": [
+        "Routes to ship-it (or equivalent post-merge production path) rather than running the pre-merge ship flow",
+        "Does not redo the PR merge preconditions for an already merged PR"
+      ]
+    }
+  ]
+}

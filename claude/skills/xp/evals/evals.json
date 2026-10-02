@@ -1,0 +1,45 @@
+{
+  "skill_name": "xp",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "pair-cycle",
+      "should_trigger": true,
+      "prompt": "Let's pair on this using XP: build the discount calculator in small tested increments.",
+      "expected_output": "One small task per cycle: plan, one failing test, minimal code, refactor, commit.",
+      "files": [],
+      "assertions": [
+        "Picks ONE small task with what, why, how (acceptance criteria)",
+        "Writes one failing test, then minimal code to pass",
+        "Refactors while green and commits the increment",
+        "Explains approach and tradeoffs before coding and runs tests and lint after every change",
+        "Splits the task if a cycle exceeds about 30 minutes"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "handoff-contract",
+      "should_trigger": true,
+      "prompt": "We finished two XP cycles. Give me the pairing outcome.",
+      "expected_output": "Emits the handoff contract signal-first.",
+      "files": [],
+      "assertions": [
+        "Starts with a verdict (features working, tests green, ready for review) and top 3 blockers",
+        "States code state (diffs staged or on branch, tests passing)",
+        "Names the next task or hands prioritization to the human"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-xp-quick-script",
+      "should_trigger": false,
+      "prompt": "Write me a quick one-off script to rename these 20 files.",
+      "expected_output": "One-off script with no iteration; XP overhead does not fit.",
+      "files": [],
+      "assertions": [
+        "Does not run the XP test-first cycle",
+        "Writes the script directly"
+      ]
+    }
+  ]
+}

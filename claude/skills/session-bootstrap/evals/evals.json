@@ -1,0 +1,44 @@
+{
+  "skill_name": "session-bootstrap",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "start-of-day",
+      "should_trigger": true,
+      "prompt": "Starting my day. What was I doing and what's next?",
+      "expected_output": "Chains wake-up, next-priority, pr-snapshot and conditionally context-pack, then recommends one first move.",
+      "files": [],
+      "assertions": [
+        "Phase 1 runs wake-up for the compact brief (latest handoff, top RAG hits, git status, recent memory)",
+        "Phase 2 runs next-priority",
+        "Phase 3 runs pr-snapshot with ready / waiting / blocked and ages",
+        "Phase 4 context-pack only fires if next-priority returned a work item and the prompt mentions implement, refactor or fix",
+        "Ends with 'Today's first move' including why, skill to invoke and expected effort"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "fresh-session-load-context",
+      "should_trigger": true,
+      "prompt": "New session. Load context and tell me where we stand before I start fixing the flaky test.",
+      "expected_output": "Includes the conditional context-pack since the intent is to fix.",
+      "files": [],
+      "assertions": [
+        "Invokes context-pack because the prompt carries fix intent",
+        "Synthesizes phases 1 to 4 into one recommendation"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-bootstrap-mid-task",
+      "should_trigger": false,
+      "prompt": "Continue implementing the retry logic we were just writing.",
+      "expected_output": "Mid-task continuation, not a start-of-day routine.",
+      "files": [],
+      "assertions": [
+        "Does not run the full bootstrap chain",
+        "Continues the implementation"
+      ]
+    }
+  ]
+}

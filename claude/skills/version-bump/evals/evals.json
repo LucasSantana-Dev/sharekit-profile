@@ -1,0 +1,46 @@
+{
+  "skill_name": "version-bump",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "bump-monorepo",
+      "should_trigger": true,
+      "prompt": "/version-bump 2.7.0 on this npm workspaces monorepo. Repo has no release-please config.",
+      "expected_output": "Validates semver, checks clean git state and no existing tag, bumps root and packages/*/package.json, promotes [Unreleased] in CHANGELOG with today's date, branches chore/bump-2.7.0, commits, pushes without force, opens a PR with auto-merge.",
+      "files": [],
+      "assertions": [
+        "Validates the argument is semver (X.Y.Z)",
+        "Fails if git status is dirty or the tag already exists",
+        "Updates root package.json and all packages/*/package.json to 2.7.0",
+        "Promotes [Unreleased] to '[2.7.0] - <today>' in CHANGELOG.md",
+        "Uses branch chore/bump-2.7.0 and commit 'chore: bump version to 2.7.0'",
+        "Never force-pushes; opens PR with gh pr create --auto-merge"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "release-please-repo",
+      "should_trigger": true,
+      "prompt": "bump version to 4.1.0 in this repo. It is configured with release-please.",
+      "expected_output": "Scope note: release-please repos own bumping and changelog promotion through the release PR; this skill must not run there.",
+      "files": [],
+      "assertions": [
+        "Does not run the manual bump in a release-please repo",
+        "Points to the release-please release PR as the owner of version and changelog",
+        "Does not edit package.json versions or CHANGELOG by hand"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-bump-dependency",
+      "should_trigger": false,
+      "prompt": "Upgrade lodash to the latest version.",
+      "expected_output": "A dependency upgrade, not a project version bump.",
+      "files": [],
+      "assertions": [
+        "Does not run the version-bump workflow",
+        "Does not promote the CHANGELOG [Unreleased] section"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "skill_name": "spec-driven-develop",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "nontrivial-build",
+      "should_trigger": true,
+      "prompt": "Build a CSV export feature for the reports page. It touches the API, the UI and a new background job.",
+      "expected_output": "Drives phases 0 to 6: constitution check, specify (docs/specs/<date>-<slug>/spec.md), clarify, plan, tasks, implement, converge; ends with the mandatory reconciliation block.",
+      "files": [],
+      "assertions": [
+        "Runs phases in order: constitution, specify, clarify, plan, tasks, implement, converge",
+        "Spec is written under docs/specs/<date>-<slug>/spec.md, not .specify/",
+        "Wide implementation (5 or more files or 2 or more modules) triggers one adversarial critic pass (T2) logged to autonomy-gates.jsonl",
+        "Merge or deploy in phase 6 is T3 and asks the human",
+        "Ends with the SPEC-DRIVEN DEVELOP reconciliation block with per-phase status and Verification and Next lines"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "skipped-phase-marked",
+      "should_trigger": true,
+      "prompt": "Implement dark mode toggle across the app, 12 components.",
+      "expected_output": "Any phase with no work is marked SKIPPED with the unmet precondition, never omitted; analysis phases use write-incapable agent types.",
+      "files": [],
+      "assertions": [
+        "A phase with nothing to do is marked SKIPPED (precondition not met), not omitted",
+        "Analysis phases (0, 2, 6) are dispatched with write-incapable agent types",
+        "Does not substitute /debate for the phase 6 critic pass",
+        "Reconciliation block printed even if a phase bails"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-sdd-trivial-edit",
+      "should_trigger": false,
+      "prompt": "Fix the typo 'recieve' in the README.",
+      "expected_output": "Trivial mechanical edit (under 3 files): skip the pipeline, go straight to a direct edit.",
+      "files": [],
+      "assertions": [
+        "Does not create a spec or plan",
+        "Makes the direct edit",
+        "Does not print a reconciliation block"
+      ]
+    }
+  ]
+}

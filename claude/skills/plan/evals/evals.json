@@ -1,0 +1,46 @@
+{
+  "skill_name": "plan",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "phased-plan",
+      "should_trigger": true,
+      "prompt": "Plan this: migrate the notifications module from polling to websockets across about 8 files.",
+      "expected_output": "Reads local guidance, states goal, in-scope and out-of-scope, breaks into small phases with exact Files Touched and runnable Verify command, writes to .claude/plans/ or .agents/plans/.",
+      "files": [],
+      "assertions": [
+        "States goal, in-scope and out-of-scope explicitly",
+        "Each phase lists exact file paths (Files Touched) and a runnable Verify command",
+        "Notes what would cause replanning",
+        "Plan is written to .claude/plans/ or .agents/plans/",
+        "Scans existing plans first and extends if the same scope plan is 30 days old or newer"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "rewrite-prototype-gate",
+      "should_trigger": true,
+      "prompt": "Create a plan to replace our whole billing service with a new implementation.",
+      "expected_output": "A rewrite adds Phase 0, a prototype gate (1 hour max): implement the first incremental unit, and if more than 3 friction points or more than 2 shims, invoke research-and-decide.",
+      "files": [],
+      "assertions": [
+        "Adds a Phase 0 prototype gate before implementation phases",
+        "Gate is 1 hour max and checks for >3 friction points or >2 temporary shims",
+        "Failing the gate routes to /research-and-decide",
+        "Does not skip Phase 0 for perceived urgency"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-plan-tiny-edit",
+      "should_trigger": false,
+      "prompt": "Rename the variable 'cnt' to 'count' in utils.py, one occurrence.",
+      "expected_output": "Two files or fewer with an obvious edit: just do it, no plan.",
+      "files": [],
+      "assertions": [
+        "Does not write a plan file",
+        "Makes the rename directly"
+      ]
+    }
+  ]
+}

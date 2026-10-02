@@ -1,0 +1,44 @@
+{
+  "skill_name": "next-priority",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "what-now",
+      "should_trigger": true,
+      "prompt": "What should I do next in this repo? Triage it.",
+      "expected_output": "Gathers evidence in order and returns a signal-first single action using the canonical ranking.",
+      "files": [],
+      "assertions": [
+        "Gathers evidence in order: active handoff, overdue date-gated items, plan, branch and open PRs, CI status, review comments, recent commits",
+        "Ranks merge-ready PRs first, then release blockers, failing CI, security fixes with a known fix, overdue date-gated commitments, small fixes, tech debt, refactors",
+        "Output uses the Priority / Why / Blocked by / Next step format with a one-line verdict first",
+        "Does not list every alternative considered, only the top action and the nearest competitor if close"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "ci-still-running",
+      "should_trigger": true,
+      "prompt": "I have one PR whose CI is still running and nothing else. What is the next priority?",
+      "expected_output": "Does not pick waiting on CI as a priority; drops to the next actionable item.",
+      "files": [],
+      "assertions": [
+        "Does not choose 'wait for or poll the PR CI' as the next action",
+        "Treats only PRs with already-passed checks as merge-ready",
+        "Picks real independent work or a diagnostic skill if nothing is actionable"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-next-priority-explicit",
+      "should_trigger": false,
+      "prompt": "Merge PR #42, it is approved and green.",
+      "expected_output": "An explicit instruction, no prioritization decision needed.",
+      "files": [],
+      "assertions": [
+        "Does not run the priority ranking",
+        "Proceeds with the merge subject to autonomy gates"
+      ]
+    }
+  ]
+}

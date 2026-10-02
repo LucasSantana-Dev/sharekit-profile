@@ -1,0 +1,44 @@
+{
+  "skill_name": "test-driven-development",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "new-feature-tdd",
+      "should_trigger": true,
+      "prompt": "Implement a slugify() helper that strips accents and lowercases. Use TDD.",
+      "expected_output": "Red-green-refactor: failing test first, verified failing for the right reason, minimal code, then refactor.",
+      "files": [],
+      "assertions": [
+        "Writes a failing test BEFORE any production code",
+        "Runs the test and verifies it fails correctly (right reason) before writing code",
+        "Writes minimal code to pass, then verifies all tests green",
+        "Refactors only while staying green"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "code-before-test",
+      "should_trigger": true,
+      "prompt": "I already wrote the retry logic. Now add tests for it, keeping my code as reference.",
+      "expected_output": "Applies the iron law: code written before the test is deleted and restarted.",
+      "files": [],
+      "assertions": [
+        "Cites the iron law: no production code without a failing test first",
+        "Says to delete the pre-written code, not keep it as reference or adapt it",
+        "Restarts from a failing test"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-tdd-docs",
+      "should_trigger": false,
+      "prompt": "Update the README install instructions for the new CLI.",
+      "expected_output": "Documentation change with no code behavior.",
+      "files": [],
+      "assertions": [
+        "Does not run a red-green-refactor cycle",
+        "Edits the README"
+      ]
+    }
+  ]
+}

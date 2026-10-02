@@ -1,0 +1,43 @@
+{
+  "skill_name": "parallel-work-coordinator",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "audit-four-repos",
+      "should_trigger": true,
+      "prompt": "Audit these 4 repos for security issues, handle them independently.",
+      "expected_output": "Decomposes into one unit per repo, dispatches in a single turn, collects and reconciles.",
+      "files": [],
+      "assertions": [
+        "Phase 1 decomposes into 4 independent units, one per repo",
+        "Dispatches all units in a single turn (mandatory single-turn dispatch)",
+        "Reconciles results, cross-checks for contradictions and consolidates non-contradictory findings",
+        "Gates: if any unit is blocked, surfaces the blocker before continuing"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "shared-context-not-parallel",
+      "should_trigger": true,
+      "prompt": "Check these 5 error logs for the same root cause.",
+      "expected_output": "Recognizes shared context and runs one sweep instead of 5 independent units.",
+      "files": [],
+      "assertions": [
+        "Treats the logs as one unit because they share context",
+        "Does not force parallelism on dependent work"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-parallel-sequential-chain",
+      "should_trigger": false,
+      "prompt": "First generate the schema, then write the migration based on the generated schema.",
+      "expected_output": "Dependent steps; parallelism is wrong.",
+      "files": [],
+      "assertions": [
+        "Does not dispatch parallel agents",
+        "Recommends or performs sequential execution"
+      ]
+    }
+  ]
+}
