@@ -32,7 +32,7 @@ questions that evidence, not the operator's presence, would answer.
 |---|---|
 | Already deliberated 3+ turns with no new evidence, going in circles | `decide-now` |
 | A named tech/library/architecture adoption choice that should end in a durable record | `research-and-decide` / `decide` |
-| Challenging a plan against domain docs as a standalone step (not part of resolving a blocked question) | `grill-with-docs` directly |
+| Challenging a plan against domain docs as a standalone step (not part of resolving a blocked question) | `grill-with-docs` directly (optional, not shipped; use the `decision-griller` agent if unavailable) |
 | Repeating the same action/fix without progress | `loop` |
 | A preferred tool/path failed | `fallback` |
 | Pure taste/bikeshed with no research surface (naming, tabs vs spaces) | Pick a sensible default silently, no skill needed |
@@ -78,6 +78,9 @@ If the question touches domain terminology, `CONTEXT.md`, or an existing ADR: in
 human is present in full-autonomy mode — do not pause waiting for one). If no doc surface
 is relevant to a purely mechanical/internal question, skip this phase and say so
 explicitly in your output. Never fabricate a self-answer against nothing.
+
+`grill-with-docs` is optional and not shipped by this profile. If it is unavailable, use
+the `decision-griller` agent for this same phase.
 
 **Context checkpoint — before Phase 2 and before Phase 3:** if remaining context is under
 ~25%, invoke `handoff` directly (not `knowledge-loop` — its Phase 4 snapshot self-skips
