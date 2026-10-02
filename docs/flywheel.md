@@ -234,7 +234,7 @@ starts improving the harness.
   Gate held-out lift=0.667 (with=12/12, without=4/12). Every load-bearing
   subsystem fired in sequence against a real edit.
 - **nightly scheduler** — `scripts/launchd/flywheel.plist.template` +
-  `scripts/install-scheduler.sh`: opt-in macOS launchd agent that runs the
+  `scripts/install-scheduler.sh`: opt-in launchd agent (macOS; Linux cron via the same script, Windows see operations.md) that runs the
   cycle nightly at 02:00. Per-project (the cycle writes to `.harness/runtime/`);
   install once per project you want the flywheel to improve. CLI: `install
   [root]`, `uninstall`, `status`, `run`.
