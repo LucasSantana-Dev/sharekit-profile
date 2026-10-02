@@ -1,0 +1,45 @@
+{
+  "skill_name": "grill-me",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "grill-plan-one-question",
+      "should_trigger": true,
+      "prompt": "Grill me on this plan: I want to move our job queue from cron to a message broker next sprint.",
+      "expected_output": "Interviews one question at a time, each with a Q and a GUESS, and waits for the reaction before asking the next.",
+      "files": [],
+      "assertions": [
+        "Asks exactly one question per turn in the Q / GUESS shape, with a falsifiable hypothesis",
+        "Waits for the user's reaction before asking the next question",
+        "Explores the codebase instead of asking anything git log or grep can answer",
+        "Does not stop until it can predict the user's reaction to the next three questions"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "converge-then-restate",
+      "should_trigger": true,
+      "prompt": "Stress-test my design for the export feature. I think we are aligned now, you can wrap up.",
+      "expected_output": "Runs the 95% predictive test, then restates Outcome, User, Why now, Success, Constraint and Out of scope and asks for an explicit yes.",
+      "files": [],
+      "assertions": [
+        "Applies the predictive test (can predict reactions to the next 3 questions) rather than stopping on vibe",
+        "Restates with the fields Outcome, User, Why now, Success, Constraint, Out of scope",
+        "Asks for an explicit yes before moving on",
+        "Treats 'whatever you think is best' or 'sounds good' as non-convergence and follows up"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-grill-mechanical-rename",
+      "should_trigger": false,
+      "prompt": "Rename the function parseCfg to parseConfig across the repo.",
+      "expected_output": "Unambiguous mechanical operation: do it directly, no interview.",
+      "files": [],
+      "assertions": [
+        "Performs the rename without asking interview questions",
+        "Does not manufacture doubt when confidence is already at least 95 percent"
+      ]
+    }
+  ]
+}

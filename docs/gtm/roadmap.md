@@ -50,7 +50,7 @@ Already fully specified in `launch-plan.md`. Not re-planned here, just slotted:
 ## Theme 3 — Trust backfill (background, not urgent)
 
 - #127: ~35/49 hooks with zero bats coverage.
-- #128: eval fixtures cover 50/50 skills.
+- #128: eval fixtures cover 52/52 skills.
 - Deliberately NOT time-boxed against the launch window. Rationale: nobody
   outside this repo can observe untested hooks yet (0 external users pre-Crawl)
   the risk this mitigates only starts mattering once Theme 2 gates pass and

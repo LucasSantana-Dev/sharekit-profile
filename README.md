@@ -43,7 +43,7 @@ Windows notes (see [`docs/troubleshooting.md`](docs/troubleshooting.md#windows-h
 npx @lucassantana/sharekit install LucasSantana-Dev
 ```
 
-What lands where: `claude/` → `~/.claude/` (47 skill folders, 55 agents, 78 hooks, 61 standards, CLAUDE.md), plus `cursor/`, `gjc/` → `~/.gjc/`, and `warp/` as portable defaults.
+What lands where: `claude/` → `~/.claude/` (52 skill folders, 55 agents, 78 hooks, 61 standards, CLAUDE.md), plus `cursor/`, `gjc/` → `~/.gjc/`, and `warp/` as portable defaults.
 
 Fresh-machine caveats:
 

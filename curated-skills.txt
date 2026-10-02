@@ -19,6 +19,8 @@ dispatch
 efficiency-advisor
 frontend-reference-hunt
 graphify
+grill-me
+grill-with-docs
 handoff
 knowledge-loop
 loop

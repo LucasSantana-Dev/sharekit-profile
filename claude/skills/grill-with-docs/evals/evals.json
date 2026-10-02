@@ -1,0 +1,45 @@
+{
+  "skill_name": "grill-with-docs",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "challenge-against-glossary",
+      "should_trigger": true,
+      "prompt": "Grill me with docs on my plan to add partial order cancellation. Check it against our CONTEXT.md and ADRs.",
+      "expected_output": "Reads CONTEXT.md and docs/adr, challenges conflicting terms, cross-checks the code, asks one question at a time with a recommended answer.",
+      "files": [],
+      "assertions": [
+        "Reads CONTEXT.md and docs/adr (or CONTEXT-MAP.md for multi-context repos) while exploring",
+        "Calls out terms that conflict with the glossary immediately and proposes a precise canonical term",
+        "Cross-references the user's claims against the code and surfaces contradictions",
+        "Asks one question at a time and gives a recommended answer for each"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "update-docs-inline",
+      "should_trigger": true,
+      "prompt": "We just settled that 'Customer' and 'User' are different concepts. Keep grilling my billing design and record what we decided.",
+      "expected_output": "Updates CONTEXT.md as the term is resolved, keeps it glossary-only, and offers an ADR only when all three gate conditions hold.",
+      "files": [],
+      "assertions": [
+        "Updates CONTEXT.md right when the term is resolved, not batched at the end",
+        "Keeps CONTEXT.md free of implementation details (glossary only)",
+        "Offers an ADR only if the decision is hard to reverse, surprising without context, and a real trade-off",
+        "Creates CONTEXT.md or docs/adr lazily, only when there is something to write"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "not-grill-docs-question",
+      "should_trigger": false,
+      "prompt": "What does the term 'idempotency key' mean in general?",
+      "expected_output": "Pure information question with no plan to stress-test: answer directly, no grilling session.",
+      "files": [],
+      "assertions": [
+        "Answers the question directly",
+        "Does not start an interview or edit CONTEXT.md or ADRs"
+      ]
+    }
+  ]
+}
