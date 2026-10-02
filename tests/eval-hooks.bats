@@ -463,15 +463,27 @@ tlog() { printf '%s' "$1" | bash "$FAKE/hooks/trajectory-log.sh" 2>&1; }
   [[ "$output" == *"start requires"* ]]
 }
 
-# BUG (hook not fixed here): `check` filters with select(.proposal_id==$p) over `jq -s '.'`
-# (an array), so jq errors and every check dies with "no watch for <id>" (exit 2). The
-# OK / REGRESSION branches are unreachable; this pins the current behavior.
-@test "deploy-watch: check on a started watch currently fails with exit 2 (known bug: jq select over array)" {
-  hook deploy-watch start p1 hooks/x.sh pass_rate 0.9 >/dev/null
+@test "deploy-watch: check with current above baseline prints OK and exits 0" {
+  hook deploy-watch start p1 hooks/x.sh pass_rate 0.8 >/dev/null
+  run hook deploy-watch check p1 0.9
+  [ "$status" -eq 0 ]
+  [[ "$output" == "OK: pass_rate=0.9 (baseline=0.8, no regression)"* ]]
+}
+
+@test "deploy-watch: check with current below baseline prints REGRESSION and exits 1" {
+  hook deploy-watch start p1 hooks/x.sh pass_rate 0.8 >/dev/null
   run hook deploy-watch check p1 0.5
-  [ "$status" -eq 2 ]
-  [[ "$output" == *"no watch for p1"* ]]
-  [ ! -f "$RT/iteration-history.jsonl" ]
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"REGRESSION: pass_rate dropped from 0.8 to 0.5"* ]]
+}
+
+@test "deploy-watch: check uses the LAST watch record for the same proposal id" {
+  hook deploy-watch start p1 hooks/x.sh pass_rate 0.5 >/dev/null
+  hook deploy-watch start p1 hooks/x.sh pass_rate 0.8 >/dev/null
+  # 0.7 is above the first baseline (0.5) but below the last (0.8)
+  run hook deploy-watch check p1 0.7
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"dropped from 0.8 to 0.7"* ]]
 }
 
 @test "deploy-watch: check with no watches file exits 2" {
