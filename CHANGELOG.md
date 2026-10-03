@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.14.0](https://github.com/LucasSantana-Dev/sharekit-profile/compare/v0.13.0...v0.14.0) (2026-10-03)
+
+
+### Features
+
+* **skills:** ship grill-me and grill-with-docs ([#209](https://github.com/LucasSantana-Dev/sharekit-profile/issues/209)) ([#212](https://github.com/LucasSantana-Dev/sharekit-profile/issues/212)) ([7073ccd](https://github.com/LucasSantana-Dev/sharekit-profile/commit/7073ccdcaef494b4681b66d6d940ad93ac549955))
+
+
+### Bug Fixes
+
+* **hooks:** deploy-watch check never matched a watch ([#127](https://github.com/LucasSantana-Dev/sharekit-profile/issues/127)) ([#182](https://github.com/LucasSantana-Dev/sharekit-profile/issues/182)) ([1b69cd5](https://github.com/LucasSantana-Dev/sharekit-profile/commit/1b69cd5711667e2ff95ff6b9118e3365e8f2aee4))
+* **hooks:** resolve a working python and default DEV_ROOT ([#192](https://github.com/LucasSantana-Dev/sharekit-profile/issues/192), [#193](https://github.com/LucasSantana-Dev/sharekit-profile/issues/193)) ([#201](https://github.com/LucasSantana-Dev/sharekit-profile/issues/201)) ([6725467](https://github.com/LucasSantana-Dev/sharekit-profile/commit/6725467b656af144a26eda9a304b7bcca598a332))
+* **hooks:** session-end-flush top_tools always empty ([#127](https://github.com/LucasSantana-Dev/sharekit-profile/issues/127)) ([#178](https://github.com/LucasSantana-Dev/sharekit-profile/issues/178)) ([8190c14](https://github.com/LucasSantana-Dev/sharekit-profile/commit/8190c14036b6541694943e52e3836390b20875aa))
+* **install:** add .gitattributes, Windows hook shell docs, prerequisites and dependency preflight ([#194](https://github.com/LucasSantana-Dev/sharekit-profile/issues/194), [#195](https://github.com/LucasSantana-Dev/sharekit-profile/issues/195), [#196](https://github.com/LucasSantana-Dev/sharekit-profile/issues/196)) ([#200](https://github.com/LucasSantana-Dev/sharekit-profile/issues/200)) ([62b524c](https://github.com/LucasSantana-Dev/sharekit-profile/commit/62b524c31897b74008fbf8ca5912159a7a08feba))
+* **profile:** mark grill skills optional, fall back to decision-griller ([#209](https://github.com/LucasSantana-Dev/sharekit-profile/issues/209)) ([#211](https://github.com/LucasSantana-Dev/sharekit-profile/issues/211)) ([3f644fd](https://github.com/LucasSantana-Dev/sharekit-profile/commit/3f644fde7454146cd1ce9d4a0b257481e238f963))
+* **profile:** mark optional assets, gate scheduler and storage wording by OS ([#197](https://github.com/LucasSantana-Dev/sharekit-profile/issues/197), [#198](https://github.com/LucasSantana-Dev/sharekit-profile/issues/198)) ([#199](https://github.com/LucasSantana-Dev/sharekit-profile/issues/199)) ([6894025](https://github.com/LucasSantana-Dev/sharekit-profile/commit/68940258fef8cc303a68f90fb54d4a93847c2160))
+* **settings:** drop dead trajectory-log PostToolUse entry ([#214](https://github.com/LucasSantana-Dev/sharekit-profile/issues/214)) ([b400c43](https://github.com/LucasSantana-Dev/sharekit-profile/commit/b400c43e9e4b45bb40f03ed860a498ce4a66928d))
+
 ## [0.13.0](https://github.com/LucasSantana-Dev/sharekit-profile/compare/v0.12.0...v0.13.0) (2026-10-02)
 
 
