@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.1](https://github.com/LucasSantana-Dev/sharekit-profile/compare/v0.14.0...v0.14.1) (2026-10-03)
+
+
+### Bug Fixes
+
+* **ci:** guard release-please gate dispatch on prs_created, parse pr output in shell ([#218](https://github.com/LucasSantana-Dev/sharekit-profile/issues/218)) ([4247136](https://github.com/LucasSantana-Dev/sharekit-profile/commit/4247136ddfdb586ce2aaf03653f4b0f979a2cb6c))
+
 ## [0.14.0](https://github.com/LucasSantana-Dev/sharekit-profile/compare/v0.13.0...v0.14.0) (2026-10-03)
 
 
