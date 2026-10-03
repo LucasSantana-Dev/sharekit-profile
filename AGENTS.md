@@ -73,9 +73,9 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
   portability-driven diffs between same-named files in each tree, not drift to fix.
 - `claude/CLAUDE.md` — operator config for Claude Code.
 - `docs/` — reference docs (overview, configuration, hooks, agents, composites).
-- `scripts/check-catalog.sh` — validate the showcase skill catalog; also enforces a skill-count guardrail (warn >50, fail >75).
+- `scripts/check-catalog.sh` — validate the showcase skill catalog; also enforces a skill-count guardrail (warn >250, fail >350).
 - `evals/routing/` — LLM-behavioral skill-routing eval gate (ported from harness-evals Phase 0, 2026-07-30): 40 frozen tasks, OpenRouter-pinned model, gate = accuracy drop >5pp vs fingerprinted baseline. `--validate-only` runs offline in CI; full gate needs `OPENROUTER_API_KEY`. Tasks expecting skills outside the listing under test are SKIPped, not scored.
-- `~/.claude/settings.json` sets `skillListingBudgetFraction: 0.015` and `skillListingMaxDescChars: 160` to keep the per-request skill listing small; rarely used skills carry `disable-model-invocation: true` (still usable as `/name`). If count grows past 75, run `skill-maintainer` to prune duplicates.
+- `~/.claude/settings.json` sets `skillListingBudgetFraction: 0.015` and `skillListingMaxDescChars: 160` to keep the per-request skill listing small; rarely used skills carry `disable-model-invocation: true` (still usable as `/name`). If count grows past 350, run `skill-maintainer` to prune duplicates.
 
 ## Current state (2026-08-04)
 
