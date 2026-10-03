@@ -188,3 +188,21 @@ This is the proof the loop works: the eval bench found a real gap, the cycle
 proposed a fix, the gate validated it on held-out data the proposer never saw,
 and the report instructed the host to pass `merge_gate` and open a PR. Every
 load-bearing subsystem fired in sequence.
+
+## Merging a release PR
+
+`main` requires the eight `Harness Gates` checks (`harness-boundary`, `coauthor-trailers`, `harness-manifest`, `marketplace`, `bats`, `gitleaks`, `shellcheck`, `hooks-bash32`). release-please opens its PR with `GITHUB_TOKEN`, so `release-please.yml` dispatches the gates on the release branch. The dispatched run alone does not unblock the merge: the `pull_request` run of Harness Gates waits at `action_required` and must be approved once per release PR.
+
+```bash
+# 1. Find the waiting run on the release branch
+gh run list --branch release-please--branches--main --workflow harness-gates.yml \
+  --event pull_request --limit 1 --json databaseId,conclusion
+
+# 2. Approve it (only when conclusion is action_required)
+gh api -X POST repos/LucasSantana-Dev/sharekit-profile/actions/runs/<databaseId>/approve
+
+# 3. Merge once the run passes (mergeStateStatus leaves BLOCKED)
+gh pr merge <pr-number> --squash --delete-branch
+```
+
+Do not use `--admin` to skip this. Observed on #219 (release 0.14.1).
