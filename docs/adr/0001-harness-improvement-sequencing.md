@@ -54,3 +54,9 @@ Adopt the critic-amended parallel-wave sequencing:
 - Real telemetry reaches 4 weeks → schedule F review + C2 activation decision.
 - Any new secret-class leak reaches a public branch → reopen D as top priority.
 - The flywheel produces its first autonomous proposal → verify C1's human-review gate actually intercepted it before merge.
+
+## Amendment 2026-10-03: wave 4 reduced to F
+
+- **C2 is dropped.** The flywheel is an experiment, not a default feature (see `CONTEXT.md`). Its observe hook was retired in Wave B and the scheduler was never installed, so the 2-4 weeks of telemetry C2 required will not accrue.
+- **F stays, without the telemetry wait.** F is a one-off go/no-go review of the skill-catalog scope, run from usage logs. The catalog is already down from 103 to 50 skills, with a guardrail that warns above 250 and fails above 350.
+- The "Revisit when" item about 4 weeks of telemetry no longer applies.

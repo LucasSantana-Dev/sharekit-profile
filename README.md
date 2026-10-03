@@ -235,11 +235,13 @@ Hooks are registered to lifecycle events in [`claude/settings.json`](claude/sett
 - `PreToolUse` (Bash): `check-pr-automation-halt.sh` (no force-push, no push to main, no AI-attribution in commits, halt on human-commented PRs), `check-stuck-loop.sh` (Stuck protocol), `check-idempotency.sh` (state-check-before-mutation hint). Exit 2 blocks.
 - `PreToolUse` (Write/Edit) — idempotency hint (logged to trajectory).
 - `SubagentStart` — `check-read-only-subagent.sh` blocks analysis subagents spawned with write tools (read-only-by-construction).
-- `PostToolUse` — `trajectory-log.sh` appends every tool call to `.harness/runtime/trajectory.jsonl` (the observe half of the flywheel), then `context-guard.sh` writes compact digests for >2KB responses (tool-result firewall) + surfaces buried constraints (lost-in-the-middle audit).
+- `PostToolUse` — `context-guard.sh` writes compact digests for >2KB responses (tool-result firewall) + surfaces buried constraints (lost-in-the-middle audit).
 - `PreCompact` / `PostCompact` — snapshot pre-compaction state + re-inject CORE memory so hard rules survive compaction.
 - `SessionEnd` — `session-end-flush.sh` writes a session record and queues it for the nightly distill.
 
 The runtime log directory (`.harness/runtime/`) is gitignored — it is append-only fuel for the self-improvement loop, not source of truth. See [`docs/flywheel.md`](docs/flywheel.md) for the full observe → evaluate → optimize loop and [`claude/memory-structure/SELF_IMPROVEMENT.md`](claude/memory-structure/SELF_IMPROVEMENT.md) for the memory promotion ladder, staleness scoring, and nightly distill protocol.
+
+> **Experimental, opt-in.** The flywheel sections below describe an experiment, not a default feature. `trajectory-log.sh` (the observe hook) is not registered by default: it was retired from the runtime in Wave B, and telemetry now lives in the global `tool-logger`. The scheduler is not installed unless you run `scripts/install-scheduler.sh`. Nothing feeds the loop until you wire it yourself.
 
 ### Self-improvement flywheel (evaluate half — P1)
 
