@@ -235,9 +235,8 @@ Hooks are registered to lifecycle events in [`claude/settings.json`](claude/sett
 - `PreToolUse` (Bash): `check-pr-automation-halt.sh` (no force-push, no push to main, no AI-attribution in commits, halt on human-commented PRs), `check-stuck-loop.sh` (Stuck protocol), `check-idempotency.sh` (state-check-before-mutation hint). Exit 2 blocks.
 - `PreToolUse` (Write/Edit) — idempotency hint (logged to trajectory).
 - `SubagentStart` — `check-read-only-subagent.sh` blocks analysis subagents spawned with write tools (read-only-by-construction).
-- `PostToolUse` — `trajectory-log.sh` appends every tool call to `.harness/runtime/trajectory.jsonl` (the observe half of the flywheel), then `context-guard.sh` writes compact digests for >2KB responses (tool-result firewall) + surfaces buried constraints (lost-in-the-middle audit), then `observe-otel.sh` emits a GenAI span + scans for context breaches.
+- `PostToolUse` — `trajectory-log.sh` appends every tool call to `.harness/runtime/trajectory.jsonl` (the observe half of the flywheel), then `context-guard.sh` writes compact digests for >2KB responses (tool-result firewall) + surfaces buried constraints (lost-in-the-middle audit).
 - `PreCompact` / `PostCompact` — snapshot pre-compaction state + re-inject CORE memory so hard rules survive compaction.
-- `Stop` — `post-incident-adr.sh` reminds on P0/P1 error spikes.
 - `SessionEnd` — `session-end-flush.sh` writes a session record and queues it for the nightly distill.
 
 The runtime log directory (`.harness/runtime/`) is gitignored — it is append-only fuel for the self-improvement loop, not source of truth. See [`docs/flywheel.md`](docs/flywheel.md) for the full observe → evaluate → optimize loop and [`claude/memory-structure/SELF_IMPROVEMENT.md`](claude/memory-structure/SELF_IMPROVEMENT.md) for the memory promotion ladder, staleness scoring, and nightly distill protocol.
@@ -251,7 +250,7 @@ The evaluate/optimize scripts that consume the trajectory log. They are run on-d
 - `hooks/eval-baseline.sh` — with-skill vs no-skill baseline gate: `init`, `record`, `compare`, `gate <name> <threshold>`. Gates on measurable lift (selftune `baseline` pattern).
 - `hooks/diagnose.sh` — self-diagnosis: clusters failures in the trajectory log, detects repeated errors / tool overuse / blind retries / token-waste patterns (SkillForge + AHE Agent Debugger). Writes a digest + machine-readable clusters.
 - `hooks/transcript-scanner.sh` (P8.3) — post-hoc transcript scanners (inspect-ai): scans the trajectory for systemic patterns per-task evals miss — refusals, evaluation-awareness, environment-drift, hallucination signals, excessive-agency, prompt-injection tells. Complements `diagnose.sh` (failure clustering). Stages findings to `.harness/forge/`; never blocks. CLI: `--since <iso>`, `--status`.
-- `hooks/observe-otel.sh` — two-knob observability (pdhoolia): level (off/metrics/trace) + destination (jsonl/stderr/otel). GenAI semantic span names, context-breach scanning, idempotent ±1 feedback scores. Local JSONL by default.
+- `hooks/observe-otel.sh` — two-knob observability (pdhoolia): level (off/metrics/trace) + destination (jsonl/stderr/otel). GenAI semantic span names, context-breach scanning, idempotent ±1 feedback scores. Local JSONL by default. Opt-in: not wired in the shipped settings, add it to a hook event to enable.
 
 ### Self-improvement flywheel (optimize half — P2)
 
@@ -261,7 +260,7 @@ The optimize half closes the loop: a proposer reads the full non-Markovian itera
 - `hooks/propose.sh` — evolutionary proposer: assembles a non-Markovian proposal context (iteration history + diagnosis + distill candidates + current file content + gate checklist) for the proposing model to fill in. NEVER commits directly.
 - `hooks/gate.sh` — constraint gate: tests pass, skill size ≤15KB, cache compatibility, semantic preservation (held-out eval lift ≥ 0), Pareto selection. The gate auto-runs the held-out bench via `eval-run.sh --gate-authority` before reading the lift, so it populates its own results — the proposer never authors the held-out runs (evaluator-not-agent invariant).
 - `hooks/deploy-watch.sh` — auto-rollback: monitors post-deploy metrics, auto-backs-up before any revert, reverts to git HEAD on regression, records the regression in history so the proposer learns from it.
-- `hooks/repo-map.sh` — bounded, cache-stable structural map (file tree + symbol index, ≤8KB) so the proposer targets edits without flooding context.
+- `hooks/repo-map.sh` — bounded, cache-stable structural map (file tree + symbol index, ≤8KB) so the proposer targets edits without flooding context. Opt-in: not wired in the shipped settings, add it to a hook event to enable.
 
 ### Self-improvement flywheel (exercise the loop — P3)
 
@@ -269,7 +268,7 @@ P3 makes the loop runnable as one command, ships the last two context-engineerin
 
 - `hooks/cycle.sh` — end-to-end cycle runner: chains diagnose → distill → propose → gate → report in a single command, skipping steps gracefully from a cold start. NEVER commits — it writes a cycle report the host agent reviews. `--dry-run` previews, `--status` re-reads the last report, `--target <file>` anchors the proposal. This is the command that makes the flywheel exercisable on demand or on a schedule.
 - `hooks/tool-shortlist.sh` (UserPromptSubmit) — surfaces only the tools whose keywords match the prompt instead of the full catalog, cutting system-prompt context (contextweaver 92.2% route-prompt reduction, agentforge deferred-tools 60-70% cut). CLI: `suggest "<prompt>"`, `--status`.
-- `hooks/model-cache-guard.sh` (UserPromptSubmit + PostCompact) — flags mid-conversation model switches as cache-unsafe (switching mid-stream discards the cached prompt prefix). The only cache-safe switch boundaries are first-turn and post-compaction (Copilot pattern). CLI: `--status`, `--reset`.
+- `hooks/model-cache-guard.sh` (UserPromptSubmit + PostCompact) — flags mid-conversation model switches as cache-unsafe (switching mid-stream discards the cached prompt prefix). The only cache-safe switch boundaries are first-turn and post-compaction (Copilot pattern). CLI: `--status`, `--reset`. Opt-in: not wired in the shipped settings, add it to a hook event to enable.
 - `hooks/eval-tasks.sh` — deterministic eval task catalog: 20 harness-behavior tasks (synthetic tool-call event + expected verdict + owning hook) split into **seen** (proposer trains on) and **heldout** (gate evaluates on; proposer never sees the per-task expected verdicts). The split is the overfitting defense — a harness edit that hard-codes the seen cases fails on held-out. CLI: `list [--split seen|heldout|all]`, `show <id>`, `count [--split ...]`.
 - `hooks/eval-run.sh` — A/B task runner: runs each task in with/without variants and records to `eval-baseline.sh`. `with` invokes the target hook and checks the exit code matches the expected verdict; `without` simulates the harness absent. Enforces the held-out split — refuses `--split heldout` unless `--gate-authority` is passed, which only `gate.sh` supplies (evaluator-not-agent invariant). CLI: `--eval <name> --variant with|without [--split seen|heldout|all] [--gate-authority]`.
 
