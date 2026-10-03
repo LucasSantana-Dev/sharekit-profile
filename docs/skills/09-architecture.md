@@ -1,6 +1,6 @@
 # Architecture & Design Decision Skills
 
-`adr-write` after any significant technical decision. `research-and-decide` (composite) when you need to explore options before deciding. `grill-me` (optional, not shipped; use the `decision-griller` agent if unavailable) to stress-test your own plan before committing. `brainstorming` for open-ended exploration.
+`adr-write` after any significant technical decision. `research-and-decide` (composite) when you need to explore options before deciding. `grill-me` to stress-test your own plan before committing. `brainstorming` for open-ended exploration.
 
 ---
 
@@ -45,8 +45,6 @@ Research → critic challenge → plan → ADR. Forces the research-to-decision 
 
 ## /grill-me
 
-> Optional, not shipped by this profile. If the skill is unavailable, use the `decision-griller` agent.
-
 Interview the user relentlessly about a plan or design until reaching shared understanding.
 
 **Questions probe:**
@@ -63,8 +61,6 @@ Interview the user relentlessly about a plan or design until reaching shared und
 ---
 
 ## /grill-with-docs
-
-> Optional, not shipped by this profile. If the skill is unavailable, use the `decision-griller` agent.
 
 Grilling session that challenges your plan against the existing domain model and updates documentation inline.
 
