@@ -5,6 +5,9 @@ on:
     branches: [main, release]
   push:
     branches: [main, release]
+  # Dispatched by release-please.yml: PRs it opens with GITHUB_TOKEN do not
+  # trigger pull_request workflows, so the gates are started explicitly.
+  workflow_dispatch:
 
 jobs:
   harness-boundary:
