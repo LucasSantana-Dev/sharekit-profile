@@ -22,8 +22,10 @@ jobs:
       # workflows, so no required check would ever report on them. workflow_dispatch
       # started with GITHUB_TOKEN does run, and attaches the checks to the branch head.
       - name: Run Harness Gates on the release PR branch
-        if: ${{ steps.rp.outputs.pr != '' }}
+        if: ${{ steps.rp.outputs.prs_created == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
-          RP_BRANCH: ${{ fromJSON(steps.rp.outputs.pr).headBranchName }}
-        run: gh workflow run harness-gates.yml --repo "$GITHUB_REPOSITORY" --ref "$RP_BRANCH"
+          RP_PR: ${{ steps.rp.outputs.pr }}
+        run: |
+          branch=$(printf '%s' "$RP_PR" | jq -r '.headBranchName')
+          gh workflow run harness-gates.yml --repo "$GITHUB_REPOSITORY" --ref "$branch"
