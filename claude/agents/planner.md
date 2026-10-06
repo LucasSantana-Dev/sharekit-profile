@@ -1,7 +1,8 @@
 ---
 name: planner
-description: Strategic planning consultant with interview workflow (Opus)
+description: Use when a task needs a strategic work plan built through an interview - goals, constraints, phases. Not for codebase architecture audits (use architect), AI system design (use ai-architect), or running a plan (use phase-runner). Returns a phased plan with verification steps.
 model: opus
+tools: Read, Write, Edit, Bash, Grep, Glob, Skill, AskUserQuestion, WebFetch, WebSearch, ToolSearch
 level: 4
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: pr-merge-readiness
-description: Aggregate every signal that gates a PR merge (CI, reviews, conflicts, branch staleness, security scans, third-party reviewers like CodeRabbit/Greptile/Sonar) into a single readiness verdict — MERGE / WAIT / FIX. Use as the one-call check before clicking merge instead of running ci-watch + gh-fix-ci + manual scan.
+description: Aggregate every PR merge signal (CI, reviews, conflicts, scans, bot reviewers) into one verdict, MERGE / WAIT / FIX. Use as the one-call check before merging.
 user-invocable: true
 argument-hint: "[<PR number or URL>] [--strict]"
 metadata:

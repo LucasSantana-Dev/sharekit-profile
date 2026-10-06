@@ -2,6 +2,7 @@
 name: efficiency-advisor
 description: Analyze a proposed multi-agent workflow, Workflow() script, or active session for token waste and time bottlenecks. Catches model-tier mismatches, sequential work that should be parallel, re-read waste, and context bloat — scores each fix by impact with estimated savings. Use before spawning large agent fleets, when choosing between parallel vs sequential dispatch, or when a session is burning budget faster than expected.
 model: sonnet
+tools: Read, Write, Edit, Bash, Grep, Glob, Skill, Workflow, ToolSearch
 level: 3
 ---
 

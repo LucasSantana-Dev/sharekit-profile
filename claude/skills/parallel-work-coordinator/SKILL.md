@@ -1,16 +1,20 @@
 ---
 name: parallel-work-coordinator
 description: >
-  Orchestrate 3–5 independent tasks in parallel with auto-dispatch and reconciliation.
-  Use for multiple independent work items (multi-repo audits, translations, investigations,
-  sweeps). Invoke on "do all these", "check all repos", "audit in parallel", or "handle
-  independently". Wraps multi-agent dispatch for lightweight jobs; use Workflow for heavy
-  orchestration (loops, conditionals, >5 units).
+  Governance layer for small (≤5-unit) parallel batches that MIX read-only and write-capable
+  agents — autonomy-tier gating (T0-T3) and worktree/merge discipline for the writes. Thin
+  wrapper over dispatch; use parallel-investigate instead when every unit is read-only.
+  Invoke on "do all these", "audit and fix in parallel", "handle independently".
 triggers:
   - parallel work
   - do all these
   - audit in parallel
   - independent tasks
+metadata:
+  owner: global-agents
+  tier: contextual
+  canonical_source: ~/.claude/skills/parallel-work-coordinator
+  overlay_of: dispatch
 disable-model-invocation: true
 ---
 
@@ -62,9 +66,17 @@ Done when: dispatch plan includes labels, worktree assignments, and prompts for 
 
 ### Phase 3 — Dispatch (Mandatory Single Turn)
 
-Emit all Agent() calls in ONE message using the Bash tool to spawn parallel agents.
+Emit all `Agent()` calls in ONE message, one call per unit, so they run concurrently. Not the Bash tool, not N sequential turns: the entire point is to start every agent at the same time.
 
-**CRITICAL:** This must be one message, not N sequential turns. The entire point is to start all agents at the same time.
+**Read-only enforcement (`standards/agent-routing.md`).** Any unit that returns findings rather than code changes — audit, review, investigation, triage, research — gets a **write-incapable `agentType`** (`Explore`, `explore`, `Plan`, `critic`, `code-reviewer`, `security-reviewer`, `document-specialist`), so editing is structurally impossible. Only write units get `general-purpose`, `debugger`, `test-engineer`. A prompt saying "read-only" is NOT the mechanism: agents have written to disk anyway despite it. Mixed batches are normal (3 audit units read-only, 1 fixer write-capable); the read-only ones can share a checkout, the write ones cannot (worktree rule, Phase 2).
+
+**Brief budget, per unit** (`standards/agent-routing.md` § Subagent token economics):
+
+- Hard output cap in every prompt: "report ≤200 lines, findings with `file:line` refs, no essays". ≤400 only for a genuine deep dissection.
+- Grep-first: locate the load-bearing files yourself, name the ≤5 worth a full read, say "skim everything else". Never "read every file fully" on a repo with god-files.
+- `thoroughness: medium` default. One agent per question-class or per repo, never per file-group.
+- Self-contained prompts: no dumping the parent conversation into the child. When the unit genuinely needs session state, fork instead.
+- Recall first (`recall` / `search_knowledge` / `ctx_search`). If memory or a prior indexed report already answers a unit, that unit is not dispatched at all.
 
 Example structure:
 ```
@@ -77,6 +89,8 @@ Agent 3 prompt: <unit-3-work>
 ### Phase 4 — Collect
 
 As agents complete, collect their outputs. Do NOT wait for all to finish before moving to Phase 5 — collect progressively.
+
+Any single output >50KB gets `ctx_index` immediately, then `ctx_search` for the answers. Never Read-page a >50KB result into the main context just to summarize it. Counts, filters and aggregations over the returned files run in `ctx_execute`; only the printed answer enters context. A failed or timed-out unit is **resumed**, never respawned; a provider quota 403 means stop dispatching, not retry the batch.
 
 Done when: first agent output received and queued for reconciliation.
 
@@ -110,6 +124,17 @@ Contradictions:
 Next phase: <recommendation — "ready to merge", "needs review", "blocked on X", etc.>
 ```
 
+## Autonomy tiers (ADR-0051)
+
+Parallelism does not lower the gate on what the units DO. Tier each unit by its action, per `standards/autonomy-tiers.md`, before dispatching:
+
+- **T0** — read-only units (audits, sweeps, investigations, searches): dispatch silently, no gate. This is the shape most batches take.
+- **T1** — branch commits, narrow edits (<5 files each), memory notes: dispatch, then report what each unit changed.
+- **T2** — a unit whose scope is ≥5 files or ≥2 modules, or that touches architecture, public API, schema, dependencies, or global hook/standard behavior: it needs ONE adversarial critic pass on a different tier, prompted to refute, mechanical checks first, and a line logged to `~/.claude/autonomy-gates.jsonl`. Run the critic AFTER the unit returns and BEFORE merging its worktree. Do not use the parallel fleet itself as the critic: a panel is not a gate.
+- **T3** — force pushes, prod deploys, data deletion, merges to main, outward-facing publishes, or anything touching a PR authored by or commented on by another person: never dispatched as a unit. Surface it, ask, and let the human decide.
+
+A batch that mixes tiers runs at the highest tier present for its merge step, not the average.
+
 ## Stop conditions
 
 - **Work is not independent:** If any unit depends on another's output → surface this immediately. Recommend sequential execution. Do NOT force parallelism on dependent work.
@@ -136,5 +161,5 @@ See `references/examples.md` for detailed walkthrough of multi-repo security aud
 - **Wave sizing:** cap write agents at 2–3 per wave; merge fully between waves. Defect rate and registration-file merge conflicts scale with concurrent writers.
 - **Registration hotspots:** when parallel units all register into shared files (main dispatch, mod.rs, Cargo.toml), either serialize those edits into a scaffold/integration unit first, or use codegen/per-domain registration files. Never resolve conflicting bash heredocs with `git merge-file --union` — it corrupts heredoc terminators; resolve by hand.
 - **Fix-loop resumes:** prefer a fresh agent with a compact state packet (git diff + failing output + file slice, ~5–10k tokens) over resuming a completed agent (re-reads its full transcript, 44–171k tokens observed). Resume only when the agent's context is genuinely load-bearing.
-- **Model tiering:** write/port units → `model: sonnet`; mechanical doc/config units → `model: haiku`; critics/judges keep their agent-type default. Apex tier is for the orchestrator's own reasoning, not routine execution.
+- **Model tiering:** prefer omitting the `model` override so each unit inherits its agent definition's frontmatter tier (ADR-0049); pass an override only for a genuine one-off, and say why. When you do set it: write/port units → `sonnet`; mechanical doc/config units → `haiku`; critics/judges keep their agent-type default. Downgrade by default, subagents are background work: explore/audit/search units default to Haiku-or-local, and anything above Sonnet needs the reason stated in the dispatch. Apex tier (Fable first choice, Opus the fallback since 2026-07-08) is for the orchestrator's own reasoning, never routine execution.
 - **Analysis-blocker refutation:** when an agent claims a library/API blocker ("crate doesn't export X"), scratch-compile a minimal probe BEFORE accepting — one refuted false blocker saved a whole unit from being stubbed.

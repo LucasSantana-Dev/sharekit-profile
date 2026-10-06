@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck source=py-resolve.sh
-. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
-[ -n "$PY" ] || exit 0
 set -uo pipefail
 
 # PostToolUse hook: session context-health nudge (USAGE-PLAN aware).
@@ -61,7 +58,7 @@ JSONL=$(find ~/.claude/projects -name "${SESSION_ID}.jsonl" 2>/dev/null | head -
 #     subagent-heavy sessions peak markedly higher (1M 64% vs 32%) -> SUB_HEAVY=20 adds reserve so
 #     warnings fire before a sudden return-jump.
 # Bands: ~79%/88% soft/hard on a typical 1M session; earlier when floor is heavy or subagents many.
-READOUT=$(JSONL="$JSONL" "$PY" -c "
+READOUT=$(JSONL="$JSONL" python3 -c "
 import json, os
 ctx=0; floor=0; model='sonnet'; subagents=0
 _SUB={'task','agent','workflow'}
@@ -94,14 +91,13 @@ sub_bump     = (0.05*usable if subagents >= 20 else 0.0)  # top-quartile orchest
 hard = 0.13*usable + 0.50*floor_excess + sub_bump          # -> ~88% on a typical 1M session
 soft = hard + 0.10*usable                                  # gentle heads-up ~9pp earlier
 hard = min(hard, 0.85*usable); soft = min(soft, 0.92*usable)  # never pin to always-fire
-band = 'hard' if remaining <= hard else ('soft' if remaining <= soft else 'none')
+band = 'hard' if remaining <= hard else ('soft' if remaining <= soft else '')
 pct = int(100*ctx/window) if window else 0
 print(f'{band} {pct} {round(ctx/1000)} {round(floor/1000)} {subagents}')
 " 2>/dev/null) || exit 0
 
 read -r band PCT CTX_K FLOOR_K SUBN <<<"$READOUT"
-# band is "none" (not empty) below thresholds: an empty first field would shift `read` columns.
-[[ -z "${band:-}" || "$band" == "none" || ! "${PCT:-x}" =~ ^[0-9]+$ ]] && exit 0
+[[ -z "${band:-}" || ! "${PCT:-x}" =~ ^[0-9]+$ ]] && exit 0
 FLAG="/tmp/claude-ctxnudge-${SESSION_ID}-${band}"
 [[ -f "$FLAG" ]] && exit 0
 touch "$FLAG"

@@ -1,6 +1,6 @@
 ---
 name: dep-sweep
-description: "Batch-process Dependabot/Renovate PRs by risk: auto-merge safe ones (devDeps, patches) into the configured base branch (main by default), surface risky ones for human review. Chains PR enumeration, risk classification, merge-readiness checks, and changelog batching. Use when bot PRs pile up; reduces a 20-PR queue to actionable groups."
+description: "Batch-process Dependabot/Renovate PRs by risk: auto-merge safe ones, surface risky ones for review. Use when bot PRs pile up."
 user-invocable: true
 auto-invoke: >-
   "dependabot PRs", "renovate queue", "clean up bot PRs", "update deps", weekly if ≥10 open bot PRs

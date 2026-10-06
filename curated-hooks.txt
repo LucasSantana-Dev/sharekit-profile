@@ -40,3 +40,4 @@ tool-logger.sh
 check-stuck-loop.sh
 check-read-only-subagent.sh
 memory-scope-gate.sh
+computer-use-guard.sh

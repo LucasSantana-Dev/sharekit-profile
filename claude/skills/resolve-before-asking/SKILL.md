@@ -1,6 +1,6 @@
 ---
 name: resolve-before-asking
-description: Answer a would-be clarifying question yourself instead of stopping, when it's researchable, reversible, and not T3 — run deep-research then debate then grill-with-docs, commit to the best option, and park residual doubt in the handoff. Use when about to reach for AskUserQuestion on an ambiguous requirement, scope, or preference under full autonomy. Never for destructive, irreversible, production, money, or other-author-PR actions — always ask, no bypass.
+description: "Answer a would-be clarifying question yourself when researchable, reversible, not T3. Never for destructive, prod, money or other-author-PR actions: ask."
 triggers:
   - resolve before asking
   - don't ask me, just decide
@@ -32,7 +32,7 @@ questions that evidence, not the operator's presence, would answer.
 |---|---|
 | Already deliberated 3+ turns with no new evidence, going in circles | `decide-now` |
 | A named tech/library/architecture adoption choice that should end in a durable record | `research-and-decide` / `decide` |
-| Challenging a plan against domain docs as a standalone step (not part of resolving a blocked question) | `grill-with-docs` directly (or the `decision-griller` agent for bounded-option forks) |
+| Challenging a plan against domain docs as a standalone step (not part of resolving a blocked question) | `grill-with-docs` directly |
 | Repeating the same action/fix without progress | `loop` |
 | A preferred tool/path failed | `fallback` |
 | Pure taste/bikeshed with no research surface (naming, tabs vs spaces) | Pick a sensible default silently, no skill needed |
@@ -78,9 +78,6 @@ If the question touches domain terminology, `CONTEXT.md`, or an existing ADR: in
 human is present in full-autonomy mode — do not pause waiting for one). If no doc surface
 is relevant to a purely mechanical/internal question, skip this phase and say so
 explicitly in your output. Never fabricate a self-answer against nothing.
-
-`grill-with-docs` ships with this profile. For forks with bounded options, the
-`decision-griller` agent is an alternative for this same phase.
 
 **Context checkpoint — before Phase 2 and before Phase 3:** if remaining context is under
 ~25%, invoke `handoff` directly (not `knowledge-loop` — its Phase 4 snapshot self-skips

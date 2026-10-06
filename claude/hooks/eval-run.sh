@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck source=py-resolve.sh
-. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
 # eval-run.sh — A/B task runner for the eval gate.
 #
 # Runs the eval-tasks.sh catalog against the target hooks and records results
@@ -43,7 +41,7 @@ now_ns() {
   v="$(date +%s%N 2>/dev/null)"
   case "$v" in
     ''|*[!0-9]*)
-      v="$("$PY" -c 'import time;print(int(time.time()*1e9))' 2>/dev/null)"
+      v="$(python3 -c 'import time;print(int(time.time()*1e9))' 2>/dev/null)"
       case "$v" in ''|*[!0-9]*) v="$(( $(date +%s) * 1000000000 ))" ;; esac ;;
   esac
   printf '%s' "$v"
@@ -96,13 +94,6 @@ while IFS= read -r task; do
   expected="$(printf '%s' "$task" | jq -r '.expected')"
   input="$(printf '%s' "$task" | jq -c '.input')"
   note="$(printf '%s' "$task" | jq -r '.note')"
-  # Tasks can target a hook this install does not ship (e.g. check-dangerous-patterns.sh
-  # lives only in the author's tree). Skip them: a missing script exits 127, which would
-  # score as "allow" and fail every block task for a reason unrelated to the gate.
-  if [[ "$variant" != "without" && ! -f "$HOOKS/$hook" ]]; then
-    echo "skip $tid: $hook not installed" >&2
-    continue
-  fi
 
   if [[ "$variant" == "without" ]]; then
     # Harness absent: always allow. Pass only if expected is "allow".

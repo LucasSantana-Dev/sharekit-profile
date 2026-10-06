@@ -1,8 +1,0 @@
-{
-  "acme": {
-    "db": "/absolute/path/to/.shelfmark/acme.db",
-    "roots": [
-      "/absolute/path/to/acme-repo"
-    ]
-  }
-}

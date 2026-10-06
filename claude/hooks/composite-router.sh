@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck source=py-resolve.sh
-. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
-[ -n "$PY" ] || exit 0
 # UserPromptSubmit hook: pattern-match user prompt against composite skill triggers
 # and inject a one-line "consider this composite" hint when a strong match is found.
 #
@@ -9,7 +6,7 @@
 # additionalContext (seen by the model; systemMessage is UI-only) that biases Claude toward invoking the composite.
 #
 # Composites take precedence over individual skills (composite-first principle in
-# ~/.claude/standards/skill-auto-invoke.md).
+# ~/.claude/standards/skill-authoring.md (Trigger map)).
 #
 # PRUNED 2026-07-09 (21d usage audit + T2 critic gate): removed 17 zero-use match
 # branches (dep-sweep, repo-bootstrap, feature-from-zero, fix-the-suite, security-sweep,
@@ -25,9 +22,9 @@ set -uo pipefail
 if ! command -v timeout >/dev/null 2>&1; then
   if command -v gtimeout >/dev/null 2>&1; then
     timeout() { gtimeout "$@"; }
-  elif [ -n "$PY" ]; then
+  elif command -v python3 >/dev/null 2>&1; then
     timeout() {
-      "$PY" -c 'import subprocess, sys
+      python3 -c 'import subprocess, sys
 try:
     sys.exit(subprocess.run(sys.argv[2:], timeout=float(sys.argv[1])).returncode)
 except subprocess.TimeoutExpired:
@@ -42,7 +39,7 @@ fi
 command -v jq &>/dev/null || exit 0
 
 INPUT=$(cat 2>/dev/null || true)
-PROMPT=$(printf '%s' "$INPUT" | "$PY" -c '
+PROMPT=$(printf '%s' "$INPUT" | python3 -c '
 import json, sys
 try:
   d = json.loads(sys.stdin.read() or "{}")
@@ -289,6 +286,6 @@ esac
 
 # Emit the hint as additionalContext so the model sees it. Claude reads this and is biased toward invoking the composite.
 jq -n --arg c "$composite" --arg r "$reason" \
-  '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": ("🎯 Composite match: /\($c) — \($r). Per skill-auto-invoke standard (composite-first principle), invoke /\($c) instead of running its sub-skills individually.")}}'
+  '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": ("🎯 Composite match: /\($c) — \($r). Per skill-authoring standard (Trigger map) (composite-first principle), invoke /\($c) instead of running its sub-skills individually.")}}'
 
 exit 0

@@ -17,7 +17,7 @@ One standard for writing, checking, routing and cataloging skills. Sections: Qua
 9. **Exact RAG snippets embedded**: real command syntax (see RAG patterns), not "search for X".
 10. **Metadata complete**: frontmatter name and description; metadata.owner, metadata.tier, metadata.canonical_source for overlays.
 11. **Parallelism signaled**: >=2 independent units, say "in a single message"; parallel git ops note worktrees.
-12. **No stale refs**: no retired tools or broken paths. claude-mem is retired; use rag_query / search_knowledge.
+12. **No stale refs**: no retired tools or broken paths. Use rag_query / search_knowledge for memory lookup.
 13. **Reference naming**: `references/workflow.md`, `output-patterns.md`, `schemas.md`; no duplication with SKILL.md.
 
 Anti-patterns: grep-before-RAG, rules copied from standards, SKILL.md/reference duplication, vague completion, silent fallback on blocked ops, obsolete tool names, sequential dispatch of independent work.

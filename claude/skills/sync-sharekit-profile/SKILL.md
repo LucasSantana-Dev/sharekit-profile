@@ -451,19 +451,6 @@ SYNC-SHAREKIT-PROFILE
   Status:       PR opened (<PR_URL>) | Blocked (<reason>) | Pending confirmation
 
 Install: npx @lucassantana/sharekit install LucasSantana-Dev
-  Add --include-hooks to wire settings.json (opt-in by design: without it the
-  client-memory gate and every other hook stay inert). Already have a
-  settings.json you do not want overwritten? Merge in just the
-  memory-scope-gate.sh entry by hand instead of passing the flag.
-Per-client setup (after install, once per client): run the client-offboard
-  skill's "init <slug>" mode. clients.json is private, never part of this
-  profile and never published: it lives at
-  ${SHELFMARK_CLIENTS:-$RAG_HOME/clients.json}, default ~/.shelfmark/clients.json.
-  RAG_HOME and RAG_CLIENT are both optional: a session opened inside a client
-  root is detected from cwd; RAG_CLIENT=<slug> is only for work done from
-  outside every root. If `command -v shelfmark-purge` is empty, run
-  `pipx install shelfmark-rag` (needs >= 1.1.0 for client support; use
-  `pipx upgrade shelfmark-rag` if an older version is already installed).
 ```
 
 ---

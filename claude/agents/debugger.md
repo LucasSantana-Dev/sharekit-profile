@@ -1,7 +1,8 @@
 ---
 name: debugger
-description: Root-cause analysis, regression isolation, stack trace analysis, build/compilation error resolution
+description: Use when a bug, stack trace, regression, or build/compile error needs a quick root cause and fix. Not for hard failures needing a gated 4-phase process (use systematic-debugger) or competing-hypothesis causal analysis without edits (use tracer). Returns root cause and fix.
 model: sonnet
+tools: Read, Write, Edit, Bash, Grep, Glob, Skill, WebFetch, WebSearch, ToolSearch
 level: 3
 ---
 

@@ -1,9 +1,9 @@
 ---
 name: code-reviewer
-description: Expert code review specialist with severity-rated feedback, logic defect detection, SOLID principle checks, style, performance, and quality strategy
+description: Use when code needs severity-rated review - logic defects, SOLID, style, performance, quality. Not for plan or architecture critique (use critic), standards-plus-spec review of a whole diff (use pr-reviewer), or vulnerability hunting (use security-reviewer). Returns findings ranked by severity.
 model: sonnet
+tools: Read, Grep, Glob, Bash
 level: 3
-disallowedTools: Write, Edit
 ---
 
 <Agent_Prompt>

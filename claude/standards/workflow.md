@@ -46,7 +46,7 @@ Every non-trivial task starts with research and a spec, not code: `landscape-sca
 
 One rule: dispatch parallel agents whenever the work has 2+ independent units. A unit is independent if its inputs do not depend on another unit's output. Typical cases: multi-repo or multi-PR sweeps, fan-out investigations, self-contained batch edits, independent research or lookups, independent diagnostics on one repo, phased-plan tasks (`/parallel-phases`).
 
-One exemption: run inline when the whole task is under 3 reads and under 2 edits, or the combined expected output is under ~5k tokens. Single-unit work and strict sequential dependencies are not parallelizable by definition.
+One exemption: run inline when the whole task is under 3 reads and under 2 edits. Single-unit work and strict sequential dependencies are not parallelizable by definition.
 
 Running independent units sequentially in the main context is a contract violation. If you catch yourself about to run the second of N independent units serially, stop, re-dispatch the rest as parallel `Agent()` calls in one block, and tell the user. Never ask whether to parallelize.
 

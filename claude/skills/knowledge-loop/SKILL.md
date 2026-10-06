@@ -1,6 +1,6 @@
 ---
 name: knowledge-loop
-description: Composite skill — query, capture, improve, and persist knowledge in one workflow. Chains recall (RAG query) → sync-memories (write durable note) → rag-curate (improve weak retrievals) → handoff (durable snapshot if session-ending). Use when the work involves "what did we decide", "remember this", "save where we are", or any closing checkpoint. For the end-of-session close ritual ("wrap up", "sign off"), use session-close — knowledge-loop runs any time knowledge changed, mid-session included.
+description: "Composite (recall, sync-memories, rag-curate, handoff) to persist knowledge mid-session: \"what did we decide\", \"remember this\". Session end: session-close."
 user-invocable: true
 auto-invoke: end-of-task + recall-questions + checkpoint-requests
 metadata:
@@ -16,7 +16,7 @@ triggers:
 
 # Knowledge Loop
 
-Unifies the three knowledge systems (RAG index, claude-mem, handoffs) into one workflow
+Unifies the knowledge systems (RAG index, memory notes, handoffs) into one workflow
 so capture and retrieval stop being separate manual acts.
 
 ## Auto-invocation triggers
@@ -28,7 +28,7 @@ so capture and retrieval stop being separate manual acts.
 
 ## Workflow
 
-**Mount guard (required before any RAG/brain op — `standards/skill-patterns.md §mount-guard`):**
+**Mount guard (required before any RAG/brain op, `standards/skill-authoring.md §mount-guard`):**
 run [references/mount-guard.sh](references/mount-guard.sh) — if External HD is unmounted,
 surface `BLOCKED: External HD unmounted — RAG/vault unreachable` and halt; do not return
 empty recall as if the index were searched.

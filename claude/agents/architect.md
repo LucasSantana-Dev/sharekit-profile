@@ -1,8 +1,8 @@
 ---
 name: architect
-description: Audit and improve codebase architecture in one orchestrated workflow. Chains coupling analysis → orphan hunt → deepening opportunities → domain sharpening → critic gate → ADR recording. Read-only analysis; does not implement changes. Use when planning a refactor, evaluating architectural health, or audit-deep flagged structural debt.
+description: Use when planning a refactor, judging architectural health, or after audit-deep flags structural debt (coupling, orphans, deepening, domain terms, critic gate). Read-only. Not for AI/agent system design (use ai-architect) or task planning (use planner). Returns findings, ADR text, and a docs-sync recommendation for the orchestrator to apply.
 model: opus
-disallowedTools: Write, Edit
+tools: Read, Grep, Glob, Bash, Agent, Skill
 level: 3
 ---
 
@@ -60,13 +60,13 @@ level: 3
     - If critic is unavailable: skip with `(skipped: no subagent capability)`.
 
     ## Phase 5 — Record decisions (conditional)
-    Write ADR only if: Phase 3 surfaced candidates AND Phase 4.5 critic gave high/medium confidence, OR Phase 4 resolved domain terminology that should be permanent.
-    Before writing: cross-check against prior_adrs[] from Phase 0. Do NOT re-propose already-decided changes. If candidate contradicts a prior ADR, flag the conflict in the ADR "Consequences" section.
-    Do NOT commit the ADR — stage files only.
+    Draft ADR text only if: Phase 3 surfaced candidates AND Phase 4.5 critic gave high/medium confidence, OR Phase 4 resolved domain terminology that should be permanent.
+    Before drafting: cross-check against prior_adrs[] from Phase 0. Do NOT re-propose already-decided changes. If candidate contradicts a prior ADR, flag the conflict in the ADR "Consequences" section.
+    Do NOT write, stage, or commit any file: you have no Write/Edit. RETURN the full ADR text (with proposed path under docs/adr/) to the orchestrator, which writes it.
     Skip entirely if: no user-approved candidates, all critic-flagged as low confidence, and no Phase 4 terminology changes. Output: "No decisions to record."
 
     ## Phase 6 — Sync (if Phase 5 ran)
-    Run docs-sync to mirror any modified standards/skills to ~/.claude/ and ~/.agents/ if CONTEXT.md or ADRs were updated.
+    Do not run docs-sync. RECOMMEND it to the orchestrator (name the CONTEXT.md/ADR files that would need mirroring to ~/.claude/ and ~/.agents/).
     Skip if Phase 5 was skipped.
 
     ## Reconciliation (always emit)
@@ -78,8 +78,8 @@ level: 3
       Deepening:   candidates=N → <FINDING>
       Domain:      new-terms=N identified → <FINDING>
       Critic:      confidence applied | (skipped: <reason>)
-      Decisions:   ADR=<path> | (none)
-      Sync:        conflicts=N | (skipped)
+      Decisions:   ADR text returned (proposed path) | (none)
+      Sync:        docs-sync recommended: <files> | (skipped)
       Next move:   /refactor-pipeline for approved candidates | /handoff for checkpoint
     ```
   </Skill_Operating_Procedure>
@@ -98,7 +98,7 @@ level: 3
     - Use Explore agentType for all discovery phases (read-only by construction)
     - Run critic gate (Phase 4.5) before any ADR is written
     - Cross-check against prior_adrs[] before proposing Phase 5 decisions
-    - Stage ADRs only — never commit
+    - Return ADR text only — never write, stage, or commit
     Hard limits:
     - Never modify application code (read + analyze + recommend only)
     - Never re-propose a decision that prior_adrs[] shows as already decided

@@ -1,7 +1,8 @@
 ---
 name: client-offboard
-description: Scaffold, maintain, and retire a client engagement's memory boundary. Modes - init SLUG (scaffold a new client's registry entry, vault and gate wiring), harvest (batch-promote pending lessons to general memory), promote-now NOTE (one lesson), offboard SLUG (final harvest, purge, verification). Use for "new client", "onboard client", "offboard client", "trocar de cliente", "encerrar cliente", "harvest lessons", "purge client", or at session close in a client repo.
-argument-hint: "init <slug> | harvest | promote-now <note> | offboard <slug>"
+description: Keep the technical and behavioral lessons from a client engagement and remove that client's business knowledge from memory and the RAG index. Modes - harvest (batch-promote pending lessons to general memory), promote-now NOTE (one lesson), offboard SLUG (final harvest, purge, verification). Use for "offboard client", "trocar de cliente", "encerrar cliente", "harvest lessons", "purge client", or at session close in a client repo.
+argument-hint: "harvest | promote-now <note> | offboard <slug>"
+disable-model-invocation: true
 triggers:
   - offboard client
   - trocar de cliente
@@ -9,10 +10,6 @@ triggers:
   - harvest lessons
   - promote-now
   - purge client
-  - init client
-  - onboard client
-  - new client
-  - scaffold client
 ---
 
 # client-offboard
@@ -26,77 +23,15 @@ Two invariants, in this order:
 
 | What | Where |
 |---|---|
-| Clients | shelfmark registry, lookup order: `$SHELFMARK_CLIENTS` env var first, else `${RAG_HOME:-~/.shelfmark}/clients.json`, as `{slug: {db, roots}}`. Example: [`examples/clients.json.example`](examples/clients.json.example) |
-| Active client | the client whose `roots` contain the session's cwd, detected automatically; no env var needed for work done inside a client root. `RAG_CLIENT=<slug>` is only for work done from outside every root (a generic parent folder, a tools repo); `RAG_CLIENT=none` turns client rules off |
-| Client vault | any `.md` note under the client's roots. It does not need to live in a directory literally named `memory/` (a registry `roots` entry is what makes it the vault, not the folder name) |
+| Clients | shelfmark registry: `$SHELFMARK_CLIENTS` or `$RAG_HOME/clients.json`, as `{slug: {db, roots}}` |
+| Client vault | any `memory/` dir under the client's roots (the client's own repo) |
 | General vault | the operator's cross-project memory dir (ask once if unclear) |
 | Lexicon | `<root>/.client/lexicon.txt`: names, people, acronyms, IDs, one per line |
 | Origin id | `<root>/.client/origin-id`: 8 random hex chars, made once (`openssl rand -hex 4`). General notes carry this, never the slug |
 | Manifest | `<root>/.client/harvest-manifest.jsonl`: one line per promoted lesson. It lives in the client vault, so the link from a lesson back to the client leaves with the client |
 | Review queue | `<root>/.client/review-queue.jsonl` (or `$MEMORY_REVIEW_QUEUE`): the memory gate's lexicon hits |
-| Purge tooling | the `shelfmark` CLI (`shelfmark-purge`, `shelfmark build`), separate from the gate. The gate only reads `clients.json`; only `offboard` needs the CLI installed |
 
 **Candidates are derived, never flagged.** A candidate is a client-vault note of type `feedback`, `gotcha` or `finding` whose path is not in the manifest yet, plus every review-queue entry for that client.
-
-## Mode: init <slug>
-
-Scaffold a new client before any session works inside its root. Ask for the client's absolute repo root if it was not given.
-
-1. **Registry.** Add the client to `clients.json`, creating the file first if it does not exist yet:
-   ```bash
-   RAG_HOME="${RAG_HOME:-$HOME/.shelfmark}"
-   CLIENTS="${SHELFMARK_CLIENTS:-$RAG_HOME/clients.json}"
-   mkdir -p "$(dirname "$CLIENTS")"
-   [ -f "$CLIENTS" ] || echo '{}' > "$CLIENTS"
-   jq --arg s "<slug>" --arg r "<absolute-root>" --arg db "$RAG_HOME/<slug>.db" \
-     '.[$s] //= {db: $db, roots: [$r]}' "$CLIENTS" > "$CLIENTS.tmp" && mv "$CLIENTS.tmp" "$CLIENTS"
-   ```
-   `//=` only adds the entry when the slug is new, so a re-run never drops roots added by hand. For more than one root, add the extra absolute paths to the `roots` array by hand. See [`examples/clients.json.example`](examples/clients.json.example) for the shape. `clients.json` is private: it never ships with this profile, is never synced or published, and stays out of any repo it happens to sit in (see `.gitignore`).
-2. **Client dir.** Create `<root>/.client/`, keeping any file already there: the operator may have written the lexicon before running init, and a new origin id would orphan every lesson already promoted under the old one.
-   ```bash
-   mkdir -p "<root>/.client"
-   [ -e "<root>/.client/lexicon.txt" ] || : > "<root>/.client/lexicon.txt"   # fill with 10-30 names/acronyms/IDs before offboard, one per line
-   [ -s "<root>/.client/origin-id" ] || openssl rand -hex 4 > "<root>/.client/origin-id"
-   ```
-3. **Vault.** Create the client's own memory directory inside its own repo, e.g. `mkdir -p "<root>/memory"`. Any directory name works (see "Client vault" above); this is where ordinary session memory writes for this client are meant to land.
-4. **Symlink into Claude Code's per-project memory.** Claude Code keys a project's local state by its absolute path with every character that is not a letter or digit replaced by `-` (each separator becomes its own hyphen, so a path segment like `/.git` produces a double hyphen, not one). Verify this against a real entry before relying on it: `ls ~/.claude/projects/`. Then symlink that project's `memory/` to the vault you just created, guarded: on macOS, `ln -s` against an existing `memory/` directory exits 0 and silently nests the link inside it instead of replacing it, so nothing is lost but the redirect never happens and the step looks like it worked when it did not.
-   ```bash
-   ENCODED="$(printf '%s' "<root>" | sed -E 's/[^A-Za-z0-9]/-/g')"
-   mkdir -p ~/.claude/projects/"$ENCODED"
-   LINK=~/.claude/projects/"$ENCODED"/memory
-   TARGET="<root>/memory"
-   if [ -L "$LINK" ] && [ "$(readlink "$LINK")" = "$TARGET" ]; then
-     echo "already done - skipping"
-   elif [ -e "$LINK" ]; then
-     echo "REFUSED: $LINK already exists and is not this vault's symlink."
-     echo "Move its notes into $TARGET by hand, remove $LINK, then retry."
-     exit 1
-   else
-     ln -s "$TARGET" "$LINK"
-   fi
-   ```
-   Verify the link actually points where it should:
-   ```bash
-   readlink ~/.claude/projects/"$ENCODED"/memory   # expect: <root>/memory
-   ```
-   This symlink is the whole mechanism keeping a session opened in `<root>` writing its ordinary memory into the client's own vault instead of the operator's general one.
-5. **Tooling check.** The registry and the gate need nothing beyond `jq`. Purging later needs the `shelfmark-rag` CLI (>= 1.1.0, the first release with client layers and `shelfmark-purge`) on `PATH`:
-   ```bash
-   command -v shelfmark-purge >/dev/null 2>&1 || {
-     echo "shelfmark-purge not found. Install or upgrade shelfmark-rag (needs >= 1.1.0 for client support):"
-     echo "  pipx install shelfmark-rag"
-     echo "  pipx upgrade shelfmark-rag   # if already installed on an older version"
-   }
-   ```
-6. **Verify with a gate dry-run.** From inside `<root>`, confirm the gate now recognizes the client without writing anything real:
-   ```bash
-   cd "<root>"
-   printf '{"tool_name":"Write","tool_input":{"file_path":"%s/memory/smoke-test.md","content":"smoke test"}}' "<root>" \
-     | bash ~/.claude/hooks/memory-scope-gate.sh; echo "exit=$?"
-   rm -f "<root>/memory/smoke-test.md"
-   ```
-   Exit 0 with an `allow scope=` line on stderr means the vault write is recognized; the smoke-test file above is never meant to persist.
-7. **Report.** Slug, root, vault path, and whether `shelfmark-purge` is installed.
 
 ## Mode: harvest (continuous; run at session close in a client repo)
 
@@ -134,12 +69,10 @@ Order matters. Stop at the first failure.
 7. **Verify.**
    - The purge printed `verified`.
    - The recall gate on the general layer shows no regression against step 2. On a regression, stop and find which general lesson depended on client context.
-   - Grep the lexicon across the general vault, recursively (archive subfolders included): 0 hits, no exceptions. A hit in a promoted lesson means the lesson still carries client business: rewrite it before closing.
-   - Run that grep again after the next session start. A sync that copies a mirror into the general vault without deleting (rsync `--update` with no `--delete`, a dotfiles repo, a cloud folder) brings every removed note back at the next pull, and an auto-commit hook then commits it as if it were intentional. A note has only left once it is gone from every mirror too, and the sync skips names that live in a client vault.
+   - Grep the lexicon across the general vault: 0 hits, no exceptions. A hit in a promoted lesson means the lesson still carries client business: rewrite it before closing.
 8. **Surfaces the purge does not own.** List these for the operator to decide:
    - the client vault repo (it belongs to the client, archive or hand back). Its `.client/` dir holds the manifest, the review queue and the origin id, and leaves with it
    - session transcripts under the client's project dir
-   - memory mirrors that sync into the general vault (a dotfiles repo, rsync targets, cloud folders): remove the client's notes there as well, or the next pull restores them
    - off-machine copies (remote index exports, backups on other hosts)
    - graph snapshots
    - file-system snapshots

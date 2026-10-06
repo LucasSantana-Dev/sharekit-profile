@@ -40,7 +40,7 @@ Analysis-class subagents — research, triage, spec, audit, review, investigatio
 
 ### Inline-execution exemption
 
-Stay in the main context only when the whole task is under 3 reads and under 2 edits, or the combined expected output is under ~5k tokens. Also inline: single-unit work, strict data dependency (B needs A's output), conversational turns with no tool work, or the user says "just do it inline" / "no subagents".
+Stay in the main context only when the whole task is under 3 reads and under 2 edits. Also inline: single-unit work, strict data dependency (B needs A's output), conversational turns with no tool work, or the user says "just do it inline" / "no subagents".
 
 ### Refusal pattern
 

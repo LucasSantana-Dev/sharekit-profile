@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck source=py-resolve.sh
-. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
-[ -n "$PY" ] || exit 0
 # complexity-classifier.sh — UserPromptSubmit hook
 # Zero-cost prompt complexity classifier. Pure bash heuristics, no external API calls.
 #
@@ -14,7 +11,7 @@
 
 set -uo pipefail
 
-PROMPT=$("$PY" -c "
+PROMPT=$(python3 -c "
 import sys, json
 try:
     d = json.load(sys.stdin)
@@ -83,7 +80,7 @@ low)
 	MSG=$(
 		cat <<'MSG'
 [AUTO] LOW complexity. Keep response concise.
-- Agent tool calls: pass model="haiku"
+- Agent tool calls: pass model="sonnet"
 - Skip extended reasoning
 - One-paragraph max unless detail is explicitly requested
 MSG
@@ -93,7 +90,7 @@ medium)
 	MSG=$(
 		cat <<'MSG'
 [AUTO] MEDIUM complexity.
-- Agent tool calls: model="haiku" for search/lookup, model="sonnet" for multi-file edits or analysis
+- Agent tool calls: model="sonnet" (lookup, mechanical, multi-file edits, analysis)
 MSG
 	)
 	;;
@@ -121,7 +118,7 @@ MSG
 	;;
 esac
 
-"$PY" -c "
+python3 -c "
 import json, sys
 msg = sys.stdin.read().strip()
 print(json.dumps({'systemMessage': msg}))

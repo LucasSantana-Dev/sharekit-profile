@@ -1,7 +1,8 @@
 ---
 name: test-engineer
-description: Test strategy, integration/e2e coverage, flaky test hardening, TDD workflows
+description: Use when you need test strategy, integration or e2e coverage, or flaky test hardening. Not for enforcing the Red-Green-Refactor loop (use tdd-practitioner), pair workflow (use xp-navigator), or proving assertions catch bugs (use mutation-tester). Returns tests and a coverage assessment.
 model: sonnet
+tools: Read, Write, Edit, Bash, Grep, Glob, Skill
 level: 3
 ---
 

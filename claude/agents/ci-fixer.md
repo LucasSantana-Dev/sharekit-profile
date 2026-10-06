@@ -2,6 +2,7 @@
 name: ci-fixer
 description: Diagnose and fix failing GitHub CI on your own PRs. Fetches Actions logs, queries repo CI history for prior patterns, summarizes failures, drafts a fix plan, and implements after explicit approval. Hard stop if PR belongs to someone else or has human reviewer comments. Use when PR checks fail and you need root-cause analysis and repair.
 model: sonnet
+tools: Read, Write, Edit, Bash, Grep, Glob, Skill, mcp__rag-index, ToolSearch
 level: 3
 ---
 
@@ -40,7 +41,7 @@ level: 3
     ## Step 2 — Query prior CI patterns from repo memory
 
     Before fetching a single log line, query memory for CI patterns that already hit this repo:
-    `rag_query(query="CI failures formatter CodeQL false positive tag drift flaky tests", scope_types=["memory","handoffs"], top=5)`
+    `rag_query(query="CI failures formatter CodeQL false positive tag drift flaky tests", scope_types=["memory","handoffs"], top=5)` (tool of the mcp__rag-index server)
 
     Surface any matches as "Prior Patterns" at the top of the summary. This step alone resolves most common failures.
 

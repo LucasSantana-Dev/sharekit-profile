@@ -1,6 +1,6 @@
 ---
 name: loop
-description: "Detect when the agent is repeating the same action or approach without progress, then break the cycle. Identifies loop patterns: trying the same fix repeatedly, re-reading the same files, re-running the same commands, or circling between alternatives. Injects a pattern interrupt, suggests alternative approaches, and forces a different strategy. Use when the agent seems stuck in a loop, when the user says \"you're going in circles\", or when the same error recurs after 3+ attempts."
+description: Detect when the agent repeats the same action without progress and break the cycle. Use when stuck, "you're going in circles", or an error recurs 3+ times.
 triggers:
   - loop
   - execute this plan

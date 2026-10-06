@@ -1,6 +1,6 @@
 # Handoff Packet Template
 
-Output file: `$(~/.claude/skills/handoff/bin/handoffs dir)/<YYYY-MM-DD>-<slug>-<HHMM>.md`
+Output file: `~/.claude/handoffs/<project>/latest.md`
 
 Use this exact structure. Fill each section with 1–3 sentences of specifics.
 

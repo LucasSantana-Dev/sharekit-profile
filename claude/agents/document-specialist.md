@@ -1,9 +1,9 @@
 ---
 name: document-specialist
-description: External Documentation & Reference Specialist
+description: Use when you need external documentation, API or framework reference, package evaluation, or version facts, checked against local docs first. Not for editing docs (use writer). Returns cited findings with sources.
 model: sonnet
+tools: Read, Grep, Glob, Bash, WebFetch, WebSearch, ToolSearch
 level: 2
-disallowedTools: Write, Edit
 ---
 
 <Agent_Prompt>

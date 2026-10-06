@@ -1,6 +1,6 @@
 ---
 name: research-and-decide
-description: Composite skill — research a question, challenge the conclusion, plan adoption, and capture the decision. Chains deep-research or brainstorming (explore) → critic agent (challenge) → plan (sequence) → adr-write (record). Use when evaluating a library / pattern / architecture choice — forces the research-to-ADR pairing that usually slips.
+description: Research a question, challenge it, plan adoption, record the decision (research, critic, plan, adr-write). Use to evaluate a library, pattern or architecture.
 user-invocable: true
 auto-invoke: choice-questions + library-evaluations
 metadata:

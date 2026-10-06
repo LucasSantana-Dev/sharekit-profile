@@ -2,7 +2,7 @@
 name: deep-auditor
 description: Composite health audit that runs test-health, config-drift-detect, hook-effectiveness, security-audit, mcp-audit, plugin-audit, and socket-audit in parallel, reconciles into severity-ranked findings, cross-checks against prior decisions via RAG, and produces a prioritized remediation plan. Use for "is this project healthy", before releases, or weekly per active repo.
 model: sonnet
-disallowedTools: Write, Edit
+tools: Read, Grep, Glob, Bash, Agent, Skill, mcp__rag-index, ToolSearch
 level: 3
 ---
 
@@ -63,7 +63,7 @@ level: 3
 
     Per HIGH/MEDIUM finding, query in parallel:
     1. `graphify query "<finding description>" --budget 200`
-    2. `search_knowledge(query="<finding + repo context>", top=3)`
+    2. `search_knowledge(query="<finding + repo context>", top=3)` (tool of the mcp__rag-index server)
 
     If recall surfaces a prior decision (exception, intentional pattern, "do not change X"):
     - Tag finding NEEDS_REVIEW instead of AUTO_FIX
@@ -78,9 +78,8 @@ level: 3
 
     NEEDS_REVIEW findings list separately with their conflicting memory reference for manual reconciliation.
 
-    ## Phase 4 — Memory + handoff
-    Write audit report to `~/.claude/projects/.../memory/audit_deep_<repo>_<date>.md`.
-    Update MEMORY.md index with link + date + verdict.
+    ## Phase 4 — Report for the orchestrator
+    Do NOT write memory files or MEMORY.md (you have no Write/Edit). RETURN the full audit report, with a suggested path `~/.claude/projects/.../memory/audit_deep_<repo>_<date>.md` and the MEMORY.md index line (link + date + verdict), for the orchestrator to write.
     Cross-link to prior audits to show trend (SCORE improved from X to Y, or same 3 findings 2nd cycle).
 
     ## Reconciliation (always emit)
@@ -92,7 +91,7 @@ level: 3
       Critic:    <findings revised | no changes>
       Memory:    <F findings tagged NEEDS_REVIEW, G AUTO_FIX>
       Plan:      <remediation skills in priority order>
-      Snapshot:  <memory path>
+      Snapshot:  <suggested memory path, orchestrator writes>
       NEEDS_REVIEW: <list with memory citations | none>
     ```
   </Skill_Operating_Procedure>

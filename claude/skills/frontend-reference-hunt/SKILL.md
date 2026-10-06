@@ -1,6 +1,6 @@
 ---
 name: frontend-reference-hunt
-description: Search and map visual frontend references from Dribbble, Mobbin, Pinterest, and curated galleries (Awwwards, Godly, Land-book, siteinspire) into a structured reference board covering register, typography, palette, spacing, layout, and named motion archetypes, with steal/avoid notes per reference. Use when a UI task needs real-world visual direction before building ("busca referências", "find design references", "reference hunt", "moodboard pra essa página", "procura no Dribbble/Mobbin", "referências de UI/UX/motion") or when repaint or frontend-craft needs its reference-anchor phase fed with live, current references instead of training-data memory. Searches and maps only; does not build UI.
+description: "Search Dribbble, Mobbin, Awwwards for UI references into a board. Use for \"busca referências\", \"find design references\", \"moodboard\". Does not build UI."
 triggers:
   - busca referências visuais
   - find design references
