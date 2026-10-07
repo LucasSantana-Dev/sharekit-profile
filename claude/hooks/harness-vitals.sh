@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# shellcheck source=py-resolve.sh
+. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
+[ -n "$PY" ] || exit 0
 # harness-vitals.sh — SessionStart heartbeat. Surfaces SILENT failures in the harness's own
 # automation (the class of bug that left the memory mirror dead 9 days undetected, 2026-06-26).
 # Design: cheap checks every session, the one slow check (scorecard) only when skills changed.
@@ -15,9 +18,9 @@ set -uo pipefail
 if ! command -v timeout >/dev/null 2>&1; then
   if command -v gtimeout >/dev/null 2>&1; then
     timeout() { gtimeout "$@"; }
-  elif command -v python3 >/dev/null 2>&1; then
+  elif [ -n "$PY" ]; then
     timeout() {
-      python3 -c 'import subprocess, sys
+      "$PY" -c 'import subprocess, sys
 try:
     sys.exit(subprocess.run(sys.argv[2:], timeout=float(sys.argv[1])).returncode)
 except subprocess.TimeoutExpired:
@@ -35,7 +38,7 @@ ENV_DIR="$HOME/.claude-env"
 SKILLS="$CLAUDE_DIR/skills"
 # Overridable so a sandbox (harness-selftest.sh) can simulate "mounted" without a real
 # external volume — real machine default is unchanged.
-EXTERNAL_HD="${EXTERNAL_HD_DIR:-${DEV_ROOT}}"
+EXTERNAL_HD="${EXTERNAL_HD_DIR:-${DEV_ROOT:-$HOME/dev}}"
 RAG_ROOT="$EXTERNAL_HD/Desenvolvimento/rag-index"
 warns=()
 
@@ -82,10 +85,10 @@ base="$CLAUDE_DIR/scripts/scorecard-baseline.json"
 if [ -f "$sc" ] && [ -f "$base" ]; then
   changed=$(find "$SKILLS/" -maxdepth 2 -name SKILL.md -newer "$base" 2>/dev/null | head -1)
   if [ -n "$changed" ]; then
-    cur=$(timeout 15 python3 "$sc" --json 2>/dev/null | python3 -c "import sys,json;print(json.load(sys.stdin)['structural_score_pct'])" 2>/dev/null || echo "")
-    bscore=$(python3 -c "import json;print(json.load(open('$base'))['structural_score_pct'])" 2>/dev/null || echo "")
+    cur=$(timeout 15 "$PY" "$sc" --json 2>/dev/null | "$PY" -c "import sys,json;print(json.load(sys.stdin)['structural_score_pct'])" 2>/dev/null || echo "")
+    bscore=$("$PY" -c "import json;print(json.load(open('$base'))['structural_score_pct'])" 2>/dev/null || echo "")
     if [ -n "$cur" ] && [ -n "$bscore" ]; then
-      lower=$(python3 -c "print(1 if float('$cur')<float('$bscore') else 0)" 2>/dev/null || echo 0)
+      lower=$("$PY" -c "print(1 if float('$cur')<float('$bscore') else 0)" 2>/dev/null || echo 0)
       [ "$lower" = "1" ] && warns+=("scorecard REGRESSION: ${cur}% < baseline ${bscore}% — a skill broke; run: python3 $sc")
     fi
   fi
@@ -160,7 +163,7 @@ settings_json="$CLAUDE_DIR/settings.json"
 if [ -f "$settings_json" ]; then
   while IFS= read -r p; do
     [ -n "$p" ] && [ ! -e "$p" ] && warns+=("hook target MISSING: $p (registered in settings.json) — hook errors every fire")
-  done < <(python3 - "$settings_json" 2>/dev/null <<'PY'
+  done < <("$PY" - "$settings_json" 2>/dev/null <<'PY'
 import json, re, sys
 d = json.load(open(sys.argv[1]))
 for groups in (d.get("hooks") or {}).values():
@@ -189,7 +192,7 @@ for plist in "$HOME/Library/LaunchAgents/$pre"*.plist; do
       case "$first" in *.sh|*.py|*.command|*/bin/*) p="$first";; *) continue;; esac
     fi
     [ -e "$p" ] || warns+=("launchd target MISSING: $raw ($(basename "$plist")) — job errors every fire; unload or repoint")
-  done < <(plutil -extract ProgramArguments json -o - "$plist" 2>/dev/null | python3 -c 'import json,sys
+  done < <(plutil -extract ProgramArguments json -o - "$plist" 2>/dev/null | "$PY" -c 'import json,sys
 try:
   [print(x) for x in json.load(sys.stdin) if isinstance(x, str)]
 except Exception: pass' 2>/dev/null)
@@ -237,7 +240,7 @@ if [ -d "$RAG_JOBS_DIR" ]; then
   for jf in "$RAG_JOBS_DIR"/*.json; do
     [ -f "$jf" ] || continue
     jname=$(basename "$jf" .json)
-    IFS='|' read -r jstatus jfinished jdetail < <(python3 -c '
+    IFS='|' read -r jstatus jfinished jdetail < <("$PY" -c '
 import json, sys
 try:
     d = json.load(open(sys.argv[1]))
