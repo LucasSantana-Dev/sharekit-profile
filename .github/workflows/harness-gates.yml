@@ -12,6 +12,7 @@ on:
 jobs:
   harness-boundary:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - name: Check harness/app boundary
@@ -19,6 +20,7 @@ jobs:
 
   coauthor-trailers:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -28,6 +30,7 @@ jobs:
 
   harness-manifest:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - name: Verify harness manifest fingerprints
@@ -35,6 +38,7 @@ jobs:
 
   marketplace:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - name: Validate marketplace manifest (structural)
@@ -53,14 +57,25 @@ jobs:
 
   bats:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - name: Install bats-core + gate-script dependencies
         # skill-validate.sh hard-requires fd + rg (exits 2 without them).
         # Debian packages fd as fd-find with binary name fdfind — symlink it.
+        # apt is skipped when the tools exist and bounded (timeout + retries)
+        # otherwise, so a hung mirror fails fast instead of hanging the job.
         run: |
-          sudo apt-get update && sudo apt-get install -y bats ripgrep fd-find
-          sudo ln -sf "$(command -v fdfind)" /usr/local/bin/fd
+          pkgs=()
+          command -v bats >/dev/null 2>&1 || pkgs+=(bats)
+          command -v rg >/dev/null 2>&1 || pkgs+=(ripgrep)
+          command -v fd >/dev/null 2>&1 || command -v fdfind >/dev/null 2>&1 || pkgs+=(fd-find)
+          if [ "${#pkgs[@]}" -gt 0 ]; then
+            apt_opts=(-o Acquire::Retries=3 -o Acquire::http::Timeout=30)
+            sudo timeout 300 apt-get "${apt_opts[@]}" update
+            sudo timeout 300 apt-get "${apt_opts[@]}" install -y "${pkgs[@]}"
+          fi
+          command -v fd >/dev/null 2>&1 || sudo ln -sf "$(command -v fdfind)" /usr/local/bin/fd
       - name: Run gate script tests
         run: bats tests/
       - name: Check redirects.yaml / composites.md sync
@@ -70,6 +85,7 @@ jobs:
 
   gitleaks:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -85,6 +101,7 @@ jobs:
 
   shellcheck:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - name: Check shell scripts with shellcheck
@@ -109,6 +126,7 @@ jobs:
     # ubuntu runners (for example apostrophes in a heredoc nested in $( ) are a syntax
     # error there). Parse every shipped hook with the interpreter installers actually get.
     runs-on: macos-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - name: Parse claude/hooks/*.sh and hooks/*.sh with /bin/bash (3.2)
