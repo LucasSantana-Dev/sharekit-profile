@@ -93,8 +93,8 @@ you stopped at.
   — never leave the turn blocked on a question this skill exists to avoid asking. Append
   a `## Parked Questions` section to the active handoff file (create one via `handoff` if
   none exists yet) with: the question, the option chosen and why, the evidence for it,
-  and the reversal cost. This is the resurfacing mechanism — `wake-up`/session-bootstrap
-  already reads the latest handoff at next session start, so nothing further is needed to
+  and the reversal cost. This is the resurfacing mechanism: `resume --brief`/session-bootstrap
+  already reads the most recent open handoff at next session start, so nothing further is needed to
   make it reappear.
 - **Repo mandates issue capture** (e.g. this repo's CLAUDE.md §5, "Map Every Finding to a
   GitHub Issue"): also file a `needs-info`-labeled issue for the parked question, deduped

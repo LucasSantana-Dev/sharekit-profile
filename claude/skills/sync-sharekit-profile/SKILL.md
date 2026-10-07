@@ -246,8 +246,15 @@ lowercase compound occurrences untouched by design — audit those by hand per f
 `check-harness-drift.sh` itself, 2026-07-26: fixed with a literal-prefix-only replacement that
 left the regex metacharacters `[a-z]+\.` intact).
 
+`*.json` is in scope since 2026-10-07: eval fixtures (`skills/*/evals/evals.json`) published the
+capitalized private name unsanitized (sharekit-profile #229; memory-prune and recall evals had to
+be excluded by hand). Audited then: the only JSON reaching `$PROFILE_DIR` is eval fixtures,
+`settings.json` and `agents/review/coordinator-schema.json`, none of which holds these names as
+regex operands. Lowercase compounds (`acme/lucky`, `-work-lucky`) still never match here; the
+Phase 4 eval-fixture check below catches them.
+
 ```bash
-/usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" \) | while read f; do
+/usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" -o -name "*.json" \) | while read f; do
   case "$f" in */sync-sharekit-profile/*) continue ;; esac
   sed -i '' 's|[[:<:]]Lucky[[:>:]]|<project-a>|g' "$f"
   sed -i '' 's|[[:<:]]Criativaria[[:>:]]|<project-b>|g' "$f"
@@ -340,7 +347,10 @@ filtering. After Phase 3/3b:
 
    ```bash
    /usr/bin/find "$PROFILE_DIR" -name "*.sh" -print0 | xargs -0 -n1 bash -n
-   /usr/bin/find "$PROFILE_DIR" -name "*.py" -print0 | xargs -0 -n1 python3 -m py_compile
+   # Builtin compile(), not `python3 -m py_compile`: py_compile always writes bytecode (it ignores
+   # PYTHONDONTWRITEBYTECODE) and the __pycache__/ it leaves under claude/ fails
+   # scripts/check-marketplace.sh as unlisted files (found 2026-10-07, #229).
+   /usr/bin/find "$PROFILE_DIR" -name "*.py" -print0 | xargs -0 -n1 python3 -c 'import sys; compile(open(sys.argv[1], "rb").read(), sys.argv[1], "exec")'
    /usr/bin/find "$PROFILE_DIR" -name "*.json" -print0 | xargs -0 -I{} python3 -c "import json; json.load(open('{}'))"
    # Bare ${DEV_ROOT} (no default) in hook code = blocker: hooks run under `set -u`/`env -i`
    # (tests/hooks-portability.bats). Comments are fine; skill scripts that default DEV_ROOT
@@ -402,6 +412,23 @@ For each file found:
 - If it's a reference/asset within a skill → remove the file, log: `Excluded (personal-ref): <path>`
 
 Report the full exclusion list, even if empty: `Phase 4: 0 files excluded` is a valid and useful result.
+
+**Eval fixtures, case-insensitive.** Phase 3b only rewrites word-bounded proper nouns, so a
+fixture keeps lowercase compounds (`acme/lucky`, `-work-lucky`) and other casings. Any hit
+excludes that skill's whole `evals/` dir (a partial removal leaves `evals.json` pointing at
+missing files). Fix the source fixture with a fictional name, then
+re-sync. `sync-sharekit-profile` is skipped for the same self-reference reason as above.
+
+```bash
+/usr/bin/find "$PROFILE_DIR/skills" -type d -name evals -prune -print | while read -r d; do
+  case "$d" in */sync-sharekit-profile/*) continue ;; esac
+  if grep -rqiE 'lucky|criativaria|cojam|homelab' "$d"; then
+    grep -rniE 'lucky|criativaria|cojam|homelab' "$d" | head -5
+    rm -rf "$d"
+    echo "Excluded (private-name): ${d#"$PROFILE_DIR/"}/"
+  fi
+done
+```
 
 ---
 
@@ -466,10 +493,10 @@ cd "$PROFILE_REPO"
 BRANCH="sync/profile-$(date +%Y%m%d-%H%M%S)"
 git checkout -b "$BRANCH"
 git add claude/
-git commit -m "chore(profile): sync skills, CLAUDE.md — $(date +%Y-%m-%d)"
+git commit -m "chore(profile): sync skills, CLAUDE.md, $(date +%Y-%m-%d)"
 git push -u origin "$BRANCH"
 
-PR_URL=$(gh pr create --title "chore(profile): sync — $(date +%Y-%m-%d)" \
+PR_URL=$(gh pr create --title "chore(profile): sync, $(date +%Y-%m-%d)" \
   --body "Automated sync from sync-sharekit-profile skill." --base main --head "$BRANCH")
 echo "PR: $PR_URL"
 ```

@@ -1,0 +1,6 @@
+$ git status -sb && git log -1 --oneline && gh pr list --author @me
+## feat/pricing-refactor...origin/feat/pricing-refactor [behind 3]
+?? notes/scratch.txt
+c4d5e6f revert: pricing refactor (rollback v2.31.0)
+#212  feat: pricing refactor  feat/pricing-refactor  DRAFT
+#215  chore: bump eslint      chore/eslint-9         OPEN

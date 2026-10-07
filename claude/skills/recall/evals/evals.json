@@ -1,0 +1,66 @@
+{
+  "skill_name": "recall",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Question: why did we choose D1 for the Progress Tracker storage? I ran rag_query and the output is attached. Answer me from it.",
+      "expected_output": "Answers from the 0.89 and 0.78 chunks, cites sources, discards noise below 0.50, flags the 0.58 hit as weak or irrelevant (different repo).",
+      "files": [
+        "evals/files/rag-results.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response answers that D1 was chosen over KV because Progress Tracker needs relational queries or joins and D1 is free at the current volume.",
+        "The response cites the memory note path memory/decision_progress_tracker_d1.md as the primary source.",
+        "The response does not use the atlas SQLite README chunk or the time.ts code chunk as evidence for the decision.",
+        "The response notes that the lower scored hits (0.58 or below) are weak or noise and were ignored.",
+        "The response is short and answers in a few sentences rather than dumping all chunks."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I want two things from the local RAG index: what we shipped lately on the Orbit repo, and whatever notes I wrote down about autoplay. Show me exactly the rag_query calls you would make (tool, arguments). Do not run them.",
+      "expected_output": "Two separate well-scoped rag_query calls with scope_types commit and memory/handoffs, scope_repos Orbit, top within 1 to 8, natural-language specific queries.",
+      "files": [],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response shows two separate rag_query calls, one per question.",
+        "The shipped-lately call uses scope_types containing 'commit'.",
+        "The notes call uses scope_types containing 'memory' (and optionally 'handoffs').",
+        "At least one call passes scope_repos including 'Orbit'.",
+        "Every call uses a top value of 8 or less.",
+        "The queries are specific natural-language questions, not single vague words."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Where is the function parseCursor defined, what calls it, and did anyone change it today? The attached file shows the environment.",
+      "expected_output": "Routes away from rag_query: symbol lookup via find_symbol or grep, recency via git log, notes index lags. Surfaces degraded RAG warning.",
+      "files": [
+        "evals/files/degraded.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response routes 'where is parseCursor defined' and 'what calls it' to Serena find_symbol and find_referencing_symbols or to grep, not to rag_query.",
+        "The response routes 'did anyone change it today' to git log or git diff, saying the index lags by minutes to hours.",
+        "The response surfaces the 'WARNING: RAG degraded' state from the environment output and does not rely on the RAG index.",
+        "The response explains that exact-symbol questions are better answered by Serena or grep than by semantic recall."
+      ]
+    }
+  ]
+}
