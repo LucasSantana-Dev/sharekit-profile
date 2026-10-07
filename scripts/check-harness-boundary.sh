@@ -6,6 +6,9 @@
 # Harness files must be portable and self-contained. They should not depend
 # on src/, app/, or lib/ paths from any specific project.
 #
+# Skill evals/ dirs are skipped: eval fixtures are prompt data that simulate a
+# user's project paths, not harness code that depends on them.
+#
 # Exit 0 if clean, exit 1 with list of violations.
 set -euo pipefail
 
@@ -69,7 +72,7 @@ for dir in "${SCAN_DIRS[@]}"; do
         violations=$((violations + 1))
       fi
     done
-  done < <(fd -t f -0 -e sh -e py -e js -e ts -e json -e yaml -e yml . "$target" 2>/dev/null)
+  done < <(fd -t f -0 -E evals -e sh -e py -e js -e ts -e json -e yaml -e yml . "$target" 2>/dev/null)
 
   # Process markdown files with restricted pattern list (actual dependencies only)
   while IFS= read -r -d '' file; do
@@ -86,7 +89,7 @@ for dir in "${SCAN_DIRS[@]}"; do
         violations=$((violations + 1))
       fi
     done
-  done < <(fd -t f -0 -e md . "$target" 2>/dev/null)
+  done < <(fd -t f -0 -E evals -e md . "$target" 2>/dev/null)
 done
 
 if [[ $violations -eq 0 ]]; then
