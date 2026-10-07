@@ -38,8 +38,11 @@ ENV_DIR="$HOME/.claude-env"
 SKILLS="$CLAUDE_DIR/skills"
 # Overridable so a sandbox (harness-selftest.sh) can simulate "mounted" without a real
 # external volume — real machine default is unchanged.
-EXTERNAL_HD="${EXTERNAL_HD_DIR:-${DEV_ROOT:-$HOME/dev}}"
-RAG_ROOT="$EXTERNAL_HD/Desenvolvimento/rag-index"
+# DEV_ROOT is the repo root (rag-index lives directly under it); EXTERNAL_HD_DIR overrides
+# only the mount check, which defaults to the dev root itself.
+DEV_ROOT_DIR="${DEV_ROOT:-$HOME/dev}"
+EXTERNAL_HD="${EXTERNAL_HD_DIR:-$DEV_ROOT_DIR}"
+RAG_ROOT="$DEV_ROOT_DIR/rag-index"
 warns=()
 
 now=$(date +%s)
