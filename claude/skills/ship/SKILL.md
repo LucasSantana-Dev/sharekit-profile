@@ -38,7 +38,7 @@ If no rollback plan can be formulated, halt and ask the user before proceeding. 
 
 ## Steps
 
-1. run `verify`
+1. run `/verify-before-done quick`
 2. inspect review and CI state
 3. update docs or changelog if needed
 4. prepare commit / push / PR or release step

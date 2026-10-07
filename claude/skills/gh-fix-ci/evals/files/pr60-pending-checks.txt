@@ -1,0 +1,15 @@
+$ gh pr view 60 --json number,author,mergeStateStatus,reviewDecision
+{"number":60,"author":{"login":"lucas-dev"},"mergeStateStatus":"UNSTABLE","reviewDecision":"","comments":[],"reviews":[]}
+
+$ gh pr checks 60 --json name,bucket,state,link,workflow
+[
+  {"name":"ci / lint","bucket":"pass","state":"SUCCESS","workflow":"ci","link":"https://github.com/acme/widgets/actions/runs/9001/job/1"},
+  {"name":"ci / validate","bucket":"pending","state":"IN_PROGRESS","workflow":"ci","link":"https://github.com/acme/widgets/actions/runs/9001/job/2"},
+  {"name":"ci / test","bucket":"pending","state":"QUEUED","workflow":"ci","link":"https://github.com/acme/widgets/actions/runs/9001/job/3"},
+  {"name":"codecov/patch","bucket":"pass","state":"SUCCESS","workflow":"","link":"https://app.codecov.io/gh/acme/widgets/pull/60"}
+]
+
+Branch protection required contexts: ci / lint, ci / validate, ci / test
+
+$ python scripts/inspect_pr_checks.py --repo . --pr 60   (output of an older version of the script)
+PR #60: no failing checks detected.

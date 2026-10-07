@@ -1,0 +1,17 @@
+$ gh auth status
+github.com: Logged in as lucas-dev
+
+$ gh pr view 57 --json number,author,state,mergeable,mergeStateStatus,reviewDecision,headRefName
+{"number":57,"author":{"login":"dana-ortiz"},"state":"OPEN","mergeable":"MERGEABLE","mergeStateStatus":"BLOCKED","reviewDecision":"CHANGES_REQUESTED","headRefName":"dana/retry-queue"}
+
+$ gh pr view 57 --json comments,reviews --jq '.reviews[] | {author:.author.login, state, body}'
+{"author":"sam-whitfield","state":"CHANGES_REQUESTED","body":"Retry backoff has no jitter, please rework before this lands. Dana, ping me when updated."}
+{"author":"github-actions","state":"COMMENTED","body":"Coverage report: 71% (-3%)"}
+
+$ gh pr checks 57
+ci / validate     fail   0m58s
+ci / test         fail   2m10s
+ci / validate log excerpt: FAIL src/queue/retry.test.ts > backoff > caps at max delay  (expected 30000, received 30500)
+
+$ gh api repos/acme/widgets/branches/main/protection --jq '{enforce_admins:.enforce_admins.enabled, required:.required_status_checks.contexts, reviews:.required_pull_request_reviews.required_approving_review_count}'
+{"enforce_admins":true,"required":["ci / validate","ci / test"],"reviews":1}

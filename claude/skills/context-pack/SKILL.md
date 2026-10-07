@@ -1,12 +1,6 @@
 ---
 name: context-pack
-description: Packs the most relevant context (files, docs, prior decisions) into a compact payload for injection into the next agent turn.
-  Build a task-aware context bundle before large changes, reviews, or unfamiliar work. Pul
-  l only the code, standards, plans, RAG hits, and notes that matter instead of reading wi
-  de. Use before refactors, cross-file fixes, unfamiliar repos, or when starting a session
-   where you will spend more than five reads exploring. Backed by the local RAG index via 
-  the rag_query MCP tool. Skip when the task touches one known file or the answer fits in 
-  a single grep.
+description: "Build a compact, task-aware context bundle (code, standards, plans, RAG hits) before large changes, reviews or unfamiliar repos. Skip when the task touches one known file or fits one grep."
 triggers:
   - context pack
   - gather relevant context

@@ -67,7 +67,8 @@ Always verify required-vs-advisory before treating as blocked.
   these show `UNKNOWN` merge state and must be retargeted or recreated.
 - Token or permission failures in CI contract work should be prioritized ahead of feature work.
 - Claimed tasks stay out of recommendations until released back to the queue.
-- Stop for user confirmation before claiming the selected task or creating a plan.
+- Whether to act or ask after picking a task (claiming it, creating a plan) is decided by the
+  autonomy tiers; see "Act or ask" in `SKILL.md`. No blanket confirmation stop.
 - When a squash-merge strategy is in use, rebasing a stale-base branch onto default may
   silently skip commits (patch-id collision). Always verify with `git log origin/<default>..<head>`
   after rebase and use `git cherry-pick <sha>` if commits were dropped.

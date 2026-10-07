@@ -27,7 +27,7 @@ This section governs WHEN you must dispatch subagents instead of working in the 
 
 ### Worktree rule
 
-A worktree is required only for write-capable agents when 2+ agents touch the same repo: one each, at `${DEV_ROOT}/.worktrees/<task>-<n>/`. Read-only agents (`Explore`, `Plan`, `critic`, `code-reviewer`, `security-reviewer`, `document-specialist`, `explore`) share the checkout, unless they run builds, tests or index-locking git commands, in which case they get a worktree too. In the table above, "Worktree? Yes" means this rule applies to write-capable agents.
+A worktree is required only for write-capable agents when 2+ agents touch the same repo: one each, at `${DEV_ROOT:-$HOME/dev}/.worktrees/<task>-<n>/`. Read-only agents (`Explore`, `Plan`, `critic`, `code-reviewer`, `security-reviewer`, `document-specialist`, `explore`) share the checkout, unless they run builds, tests or index-locking git commands, in which case they get a worktree too. In the table above, "Worktree? Yes" means this rule applies to write-capable agents.
 
 ### Read-only enforcement for analysis phases
 
@@ -83,4 +83,4 @@ Subagents are background work — dispatch them ONE TIER BELOW your first instin
 - **Review**: `code-reviewer`, `security-reviewer`, `code-simplifier`.
 - **Specialized**: `git-master`, `designer`, `writer`, `document-specialist`, `mcp-tool-dev`, `scientist`, `general-purpose`.
 
-Archived (`~/.claude/agents-archive/`): `analyst` → use `planner`; `architect` → use `critic`; `executor` → use main agent; `verifier` → use `test-engineer` + `verify` skill.
+Archived (`~/.claude/agents-archive/`): `analyst` → use `planner`; `architect` → use `critic`; `executor` → use main agent; `verifier` → use `test-engineer` + `verify-before-done` skill.

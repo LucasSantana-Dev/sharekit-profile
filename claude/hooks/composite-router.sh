@@ -157,9 +157,10 @@ match_composite() {
     return 0
   fi
 
-  # DECIDE (research question → recommendation → ADR)
-  if echo "$P" | grep -qE '\bdecide\b|research and decide|make a decision with adr|evaluate options and document|pick between|choose between'; then
-    echo "decide|decision-research-and-document intent"
+  # DECISION (research-and-decide: quick | full | now). Must stay AFTER the KNOWLEDGE
+  # branch so "what did we decide about X" still routes to knowledge-loop.
+  if echo "$P" | grep -qE '\bdecide\b|make a decision|evaluate options and document|pick between|choose between|stop deliberating|force (a )?decision'; then
+    echo "research-and-decide|decision intent (state the mode first: quick, full or now)"
     return 0
   fi
 

@@ -1,0 +1,11 @@
+Today: 2026-10-06. Repo: acme/billing (default branch main). All PRs authored by the user, no comments from other people.
+Last commit on main: 2026-10-06 08:12.
+Handoff (latest.md, written 2026-10-03): "in-flight: refund retries; re-check Stripe webhook secret rotation by 2026-09-25"
+Ruleset required status checks (branch protection and rulesets): ["build", "unit-tests"]
+
+Open PRs:
+#301 "feat: invoice PDF export"  checks: build pass, unit-tests pass, SonarCloud Code Analysis FAIL, Test Autogen (Warn) fail. mergeStateStatus UNSTABLE. Approvals: 1 (satisfied). No unresolved review comments.
+#305 "fix: refund retry backoff"  checks: build RUNNING, unit-tests RUNNING. mergeStateStatus BLOCKED(pending).
+#309 "chore: bump eslint"         checks all pass. Review state CHANGES_REQUESTED by a bot.  mergeStateStatus BLOCKED.
+Issues: #280 "flaky test: ledger-rounding" (fails ~1 in 10 on CI). 
+Working tree: clean, branch main.

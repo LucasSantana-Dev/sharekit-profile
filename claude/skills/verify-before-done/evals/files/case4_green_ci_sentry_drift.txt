@@ -1,0 +1,18 @@
+REPO: acme-billing  BRANCH: feat/invoice-currency  HEAD SHA: c7d21fe  PR: #230
+CHANGE: edits src/invoice/currency.ts, prisma/schema.prisma (adds column Invoice.currency), tests/invoice/currency.test.ts (3 files, 88 lines)
+Repo has: package.json (lint, typecheck, build, test), vitest coverage threshold 80% lines, sentry configured, Prisma. No sonar-project.properties, no plan file.
+
+=== latest CI run (GitHub Actions run 9120) ===
+commit: c7d21fe (same as HEAD)
+status: completed, conclusion: success
+required gates: lint success, typecheck success, test success, build success, coverage success
+no commits after this run; working tree clean
+
+=== npx prisma migrate status ===
+WARNING: schema.prisma differs from applied migrations.
+Following change has no migration: add column "currency" to table "Invoice".
+Database schema is NOT in sync with prisma/schema.prisma.
+
+=== sentry (project acme-billing, since push of c7d21fe at 14:02 UTC) ===
+1 new issue level=error: "PrismaClientKnownRequestError: column Invoice.currency does not exist"
+  first seen 14:09 UTC (after the push), release tag matches this branch, 14 events

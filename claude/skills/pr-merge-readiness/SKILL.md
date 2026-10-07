@@ -31,7 +31,7 @@ collects every signal and outputs one verdict.
 ## Do Not Use When
 
 - The PR is still WIP and you know it isn't done — use `ship` later
-- Only one signal matters (e.g., just need CI status) — use `ci-watch` directly
+- Only one signal matters (e.g., just need CI status): use `gh-fix-ci` directly (report-only mode)
 - The work is on a branch with no PR yet — use `pr-flow` to create one first
 
 ## Inputs / Prereqs

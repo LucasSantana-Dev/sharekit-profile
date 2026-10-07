@@ -1,0 +1,14 @@
+$ gh auth status
+github.com: Logged in as lucas-dev (scopes: repo, workflow)
+
+$ gh pr view 41 --json number,author,headRefName,mergeable,mergeStateStatus
+{"number":41,"author":{"login":"lucas-dev"},"headRefName":"feat/registry-sync","mergeable":"MERGEABLE","mergeStateStatus":"BLOCKED"}
+
+$ gh api repos/acme/widgets/branches/main/protection/required_status_checks --jq '.contexts'
+["ci / validate","ci / test"]
+
+$ gh pr checks 41
+ci / validate                       fail   1m12s  https://github.com/acme/widgets/actions/runs/9100231/job/25001
+ci / test                           skipping  0  https://github.com/acme/widgets/actions/runs/9100231/job/25002
+CodeQL / analyze (javascript)       fail   3m40s  https://github.com/acme/widgets/actions/runs/9100240/job/25010
+docs / link-check                   pass   0m31s  https://github.com/acme/widgets/actions/runs/9100233/job/25003

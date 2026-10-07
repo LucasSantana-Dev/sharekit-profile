@@ -1,0 +1,2 @@
+# ARTIFACT (about 2,300 tokens when expanded): Should the Tallyboard migration to managed Postgres ship this sprint?
+Context as in the previous debate: 3 engineers, SQLite on one VM, 2,100 customers, largest customer Brightmoor asks for PITR and RTO under 1 hour. The migration PR touches schema, 14 query modules and the deploy script. Rollback plan: restore SQLite snapshot, 30 minutes. Open question: data type differences in 3 date columns.

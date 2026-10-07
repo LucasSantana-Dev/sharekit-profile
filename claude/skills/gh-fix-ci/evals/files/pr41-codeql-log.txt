@@ -1,0 +1,8 @@
+# CodeQL / analyze (javascript), id 25010. Conclusion: neutral/failure (alerts found)
+Analysis produced 1 new alert (severity: error, rule js/request-forgery)
+scripts/sync-registry.js:27  "Outbound network request depends on file data" 
+   26 |   const manifest = JSON.parse(readFileSync('./server.json', 'utf8'));
+   27 |   const response = await fetch(`https://registry.example.com/v1/${manifest.name}`);
+Flow: server.json (local file in repo, committed) -> manifest.name -> fetch URL
+Note: scripts/sync-registry.js is a maintainer utility run only from CLI; no HTTP request input reaches it.
+Required status check? No (not in branch protection contexts).

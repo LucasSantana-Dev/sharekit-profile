@@ -21,7 +21,7 @@ level: 3
     ## Phase 0 — RAG pre-flight (always first)
     Check External HD mounted:
     ```bash
-    mount | grep -q "${DEV_ROOT}" || export RAG_AVAILABLE=false
+    mount | grep -q "${DEV_ROOT:-$HOME/dev}" || export RAG_AVAILABLE=false
     ```
     Query prior architecture assessments:
     ```bash

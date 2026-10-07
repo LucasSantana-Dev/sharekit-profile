@@ -1,10 +1,6 @@
 ---
 name: changelog-update
-description: Updates CHANGELOG.md from recent commits, grouping entries by type (feat/fix/docs/breaking) with semantic version headings.
-  Update CHANGELOG.md by promoting [Unreleased] content to a versioned section
-  and bumping the package version. Follows Keep a Changelog format. Use when
-  preparing a release or when [Unreleased] has accumulated work that needs to
-  be captured under a version.
+description: "Update CHANGELOG.md (Keep a Changelog): promote [Unreleased] to a versioned section grouped by feat/fix/docs/breaking, and bump the package version. Use when preparing a release."
 metadata:
   owner: global-agents
   tier: contextual

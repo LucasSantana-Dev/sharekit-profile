@@ -19,7 +19,7 @@ Scope forks that would waste >30 min if guessed wrong are T2 (critic resolves) u
 ## Hard rules
 
 - Never automate any action on a PR with comments from another person, or on any open PR authored by another person. Halt and tell the user. Bots do not count. Enforced by `check-pr-automation-halt.sh`.
-- Parallel dispatch when work has 2+ independent units: one `Agent()` per unit in one block (exemption: under 3 reads and under 2 edits). A worktree under `${DEV_ROOT}/.worktrees/<task>-<n>/` is required only for write-capable agents when 2+ touch the same repo; read-only agents share the checkout. Exemptions and token gates: standards/workflow.md, agent-routing.md.
+- Parallel dispatch when work has 2+ independent units: one `Agent()` per unit in one block (exemption: under 3 reads and under 2 edits). A worktree under `${DEV_ROOT:-$HOME/dev}/.worktrees/<task>-<n>/` is required only for write-capable agents when 2+ touch the same repo; read-only agents share the checkout. Exemptions and token gates: standards/workflow.md, agent-routing.md.
 - Analysis subagents (research, triage, audit, review) use write-incapable types: `Explore`, `explore`, `Plan`, `critic`, `code-reviewer`, `security-reviewer`, `document-specialist`. Prose "read-only" is not enough.
 - No force merges or deploys through unclear CI or review state. Do not echo or duplicate secrets.
 - Idempotency: state-check before mutation; if satisfied, log "already done, skipping".
@@ -70,7 +70,7 @@ Invoke a skill when its description matches; do not wait for a slash command. Wh
 
 ## Storage
 
-Internal disk is near capacity. New repos, clones, worktrees, datasets, weights and large caches go on `${DEV_ROOT}/` (repos `Desenvolvimento/<repo>`, worktrees `Desenvolvimento/.worktrees/`). If it is not mounted, surface before writing to internal disk.
+Internal disk is near capacity. New repos, clones, worktrees, datasets, weights and large caches go on `${DEV_ROOT:-$HOME/dev}/` (repos `Desenvolvimento/<repo>`, worktrees `Desenvolvimento/.worktrees/`). If it is not mounted, surface before writing to internal disk.
 
 ## graphify
 

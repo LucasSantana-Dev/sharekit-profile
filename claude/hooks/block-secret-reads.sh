@@ -87,7 +87,7 @@ def d_(v):
 def s(v): return CTRL.sub(' ', v if isinstance(v,str) else '')
 
 # TOKENISE RESPECTING QUOTES, NOT BY SPLITTING ON SPACES. Splitting on spaces cut
-#   cat "${DEV_ROOT}/x/<long name>"
+#   cat "${DEV_ROOT:-$HOME/dev}/x/<long name>"
 # into `/Volumes/External` and `HD/x/<long name>`; the second fragment does not start with a
 # slash, does not exist relative to the cwd, so the existence exemption never applied and an
 # ordinary read of this machine's own working directory was refused as a credential. On this
@@ -100,7 +100,7 @@ def s(v): return CTRL.sub(' ', v if isinstance(v,str) else '')
 # parse, so this is a regex that cannot raise: a double-quoted run, a single-quoted run, or a
 # stretch of non-whitespace, in that order.
 # ...AND THE REGEX ONLY HELD A QUOTED RUN TOGETHER WHEN THE TOKEN STARTED WITH THE QUOTE.
-# `F="${DEV_ROOT}/..."` starts with `F=`, so `\S+` won took over and cut at the
+# `F="${DEV_ROOT:-$HOME/dev}/..."` starts with `F=`, so `\S+` won took over and cut at the
 # space again — the same bug, one character to the right, and it blocked five reads before
 # it was named (2026-08-29). Scan instead: whitespace separates only OUTSIDE quotes. An
 # unterminated quote swallows the rest of the line, which is the safe direction: the joined
@@ -281,7 +281,7 @@ mask_script="$HOME/.claude/scripts/omniroute-mask-secrets.mjs"
 # Both copies arrive already tokenised and path-exempted from `field()`. This used to be a
 # bash `while read` loop that split on spaces and spawned a subshell per word; it now lives
 # in the python that already parses the payload, because splitting on spaces cut every path
-# on this machine in half at `${DEV_ROOT}/`.
+# on this machine in half at `${DEV_ROOT:-$HOME/dev}/`.
 flags() {       # 0 = the mask changed it, i.e. a secret-shaped literal is in there
   local t="$1" m
   [ -n "${t// /}" ] || return 1

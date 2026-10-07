@@ -1,0 +1,17 @@
+# gh run view 9100231 --log   (job: ci / validate, id 25001)
+validate	Set up job	2026-10-06T10:01:02Z Current runner version: '2.319.1'
+validate	Checkout	2026-10-06T10:01:04Z HEAD is now at 3fa9c1e feat: sync registry
+validate	Setup Node	2026-10-06T10:01:08Z Node 20.11.1 installed, cache restored
+validate	Install	2026-10-06T10:01:20Z added 412 packages in 11s
+validate	Lint	2026-10-06T10:01:41Z > widgets@2.4.0 lint
+validate	Lint	2026-10-06T10:01:44Z > eslint . --max-warnings 0
+validate	Lint	2026-10-06T10:01:49Z (no problems)
+validate	Format check	2026-10-06T10:01:50Z > prettier --check .
+validate	Format check	2026-10-06T10:01:53Z Checking formatting...
+validate	Format check	2026-10-06T10:01:55Z [warn] src/api/client.ts
+validate	Format check	2026-10-06T10:01:55Z [warn] src/registry/sync.ts
+validate	Format check	2026-10-06T10:01:55Z [warn] Code style issues found in 2 files. Run Prettier with --write to fix.
+validate	Format check	2026-10-06T10:01:55Z ##[error]Process completed with exit code 1.
+validate	Typecheck	2026-10-06T10:01:55Z (skipped, previous step failed)
+validate	Post Checkout	2026-10-06T10:01:56Z Cleaning up orphan processes
+# job ci / test (id 25002): skipped, needs: validate

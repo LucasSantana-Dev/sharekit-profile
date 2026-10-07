@@ -102,7 +102,7 @@ Findings from completed audits: <verdict + top-3>
 
 Next steps:
   1. Rerun failed audits via `/audit-deep` or individual skills
-  2. Reconcile recall (Phase 2.5) once all audits complete
+  2. Reconcile recall (Phase 3) once all audits complete
 ```
 
 ## Memory file naming

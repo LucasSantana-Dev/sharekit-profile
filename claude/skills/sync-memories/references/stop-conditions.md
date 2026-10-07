@@ -6,7 +6,7 @@ When to halt the skill and surface a blocker.
 
 ### 1. External HD Unmounted (Pre-flight Mount Guard)
 
-**Condition:** `mount | grep -q "${DEV_ROOT}"` returns false.
+**Condition:** `mount | grep -q "${DEV_ROOT:-$HOME/dev}"` returns false.
 
 **Action:** Surface immediately:
 ```
@@ -70,7 +70,7 @@ Skipping Serena memory update. Proceeding to local .agents/memory/ capture only.
 
 **Action:** Surface:
 ```
-BLOCKED: knowledge-brain git state corrupted or inaccessible at ${DEV_ROOT}/knowledge-brain.
+BLOCKED: knowledge-brain git state corrupted or inaccessible at ${DEV_ROOT:-$HOME/dev}/knowledge-brain.
 Cannot commit/push memory changes. Local .agents/memory/ capture succeeded.
 ```
 
@@ -114,7 +114,7 @@ Vault push skipped (incomplete state). Recommend manual fix to .agents/memory/ p
 ```
 INFO: Memory sync complete (Serena + local). Vault push deferred (session continues).
 Memories will push automatically at session end via sync push-memories hook.
-To push now: git -C ${DEV_ROOT}/Desenvolvimento/knowledge-brain push
+To push now: git -C ${DEV_ROOT:-$HOME/dev}/Desenvolvimento/knowledge-brain push
 ```
 
 ---

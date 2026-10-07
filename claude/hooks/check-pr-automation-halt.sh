@@ -29,10 +29,11 @@
 # Fails OPEN (exit 0) on unparseable input: a blocking hook that wedges on odd quoting is worse
 # than one that misses an edge case, and the operator still has branch protection server-side.
 #
-# A bare `git push` with no refspec is resolved against the current HEAD (see the push check
-# below), but that resolution is best-effort: a `cd` chain or `-C` path it cannot follow still
-# slips through. This hook is a fast local tripwire, not a replacement for server-side branch
-# protection.
+# A bare `git push` with no refspec is resolved against the current HEAD and its push/upstream
+# branch (see the push check below), in the directory bash would run it: the command's `cd`
+# chain and `git -C`, with `~`, `$HOME` and in-command `VAR=` values expanded, relative to the
+# session cwd. Still best-effort: a path built any other way (`cd "$(...)"`) fails open. This
+# hook is a fast local tripwire, not a replacement for server-side branch protection.
 #
 # DO NOT READ THAT AS "the server will catch it." This comment used to promise exactly that, and
 # the promise was false for at least one repo: a personal memory vault synced by an automated
@@ -65,6 +66,12 @@ ti = d.get("tool_input") if isinstance(d.get("tool_input"), dict) else {}
 cmd = ti.get("command") or d.get("command") or ""
 if not cmd.strip():
     sys.exit()
+# Where the Bash tool's shell actually sits. The hook process runs in the project dir, which
+# is not where a session that earlier ran `cd` is, so os.getcwd() is only the fallback.
+try:
+    SESSION_CWD = d.get("cwd") if isinstance(d.get("cwd"), str) and d.get("cwd") else os.getcwd()
+except OSError:                 # deleted cwd: a crash here would exit 0 for EVERY rule
+    SESSION_CWD = os.path.expanduser("~")
 
 # A SENTINEL, NOT A CHARACTER TEST. Two versions of this were wrong for opposite reasons.
 # Enumerating operators (`{";", "&&", "||", "|", "&"}`) missed `|&`, which shlex glues into
@@ -285,12 +292,67 @@ def git_out(cwd_hint: str, *args) -> str:
     inside a PreToolUse hook: a hung `git` would stall the tool call, not just mis-answer."""
     try:
         out = subprocess.run(
-            ["git", "-C", cwd_hint or os.getcwd(), *args],
+            ["git", "-C", cwd_hint or SESSION_CWD, *GIT_GLOBAL, *args],
             capture_output=True, text=True, timeout=2,
         )
     except Exception:
         return ""
     return out.stdout.strip() if out.returncode == 0 else ""
+
+
+# THE DIRECTORY A PUSH RESOLVES AGAINST MUST BE A REAL PATH. `cd ~/.agents/skills && git push -q`
+# passed six times on 2026-10-07 with `main` checked out: the literal `~/.agents/skills` went to
+# `git -C`, git could not find it, HEAD resolved to "" and the gate failed open. bash expands
+# `~`, `$HOME` and the command's own `W=...; cd "$W"` before git ever runs, so this does too.
+shell_vars = {"PWD": SESSION_CWD}   # the hook's own $PWD is the project dir, not the shell's
+GIT_GLOBAL = []                 # --git-dir/--work-tree/-c of the git command being judged
+PUSH_VALUE_FLAGS = {"-o", "--push-option", "--receive-pack", "--exec", "--repo"}
+
+
+def expand(text: str) -> str:
+    return re.sub(r"\$\{?([A-Za-z_][A-Za-z0-9_]*)\}?",
+                  lambda m: shell_vars.get(m.group(1), os.environ.get(m.group(1), m.group(0))), text)
+
+
+def resolve_dir(path: str, base: str) -> str:
+    return os.path.normpath(os.path.join(base, os.path.expanduser(expand(path))))
+
+
+# git's own options before the subcommand. `git -C <repo> push --force origin main` used to
+# leave args[0] == "-C", so neither the push rules nor the commit rule ever looked at it.
+GIT_OPT_VALUE = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--config-env",
+                 "--exec-path", "--super-prefix", "--list-cmds", "--attr-source"}
+
+
+def git_subcommand(args: list, base: str):
+    """(directory git runs in, global options worth replaying, argv from the subcommand on)."""
+    where, keep, i = base, [], 0
+    while i < len(args) and args[i].startswith("-"):
+        a = args[i]
+        if a in GIT_OPT_VALUE and i + 1 < len(args):
+            if a == "-C":
+                where = resolve_dir(args[i + 1], where)
+            elif a in ("-c", "--git-dir", "--work-tree"):
+                keep += [a, expand(args[i + 1])]
+            i += 2
+            continue
+        if a.startswith(("--git-dir=", "--work-tree=")):
+            keep.append(expand(a))
+        i += 1
+    return where, keep, args[i:]
+
+
+def push_targets(git_dir: str) -> list:
+    """Branches a refspec-less `git push` can land on: the checked-out branch and the remote
+    branch it is configured to push to. Only refs/remotes/ count, so a feature branch
+    tracking LOCAL main (`--track main`, remote ".") is not mistaken for a push to main."""
+    out = [git_out(git_dir, "rev-parse", "--abbrev-ref", "HEAD")]
+    # @{push}, not @{u}: it already applies push.default (equals @{u} under `upstream`), while
+    # @{u} alone falsely blocked a branch cut from origin/main under push.default=current.
+    full = git_out(git_dir, "rev-parse", "--symbolic-full-name", "@{push}")
+    if full.startswith("refs/remotes/") and full.count("/") >= 3:
+        out.append(full.split("/", 3)[3])
+    return [t for t in out if t]
 
 
 def push_remote(rest: list) -> str:
@@ -317,9 +379,8 @@ def push_is_exempt(cwd_hint: str, rest: list) -> bool:
     FAILS CLOSED on every uncertainty (no repo, git missing, timeout, unknown remote name,
     unparseable URL). Returning False just keeps the normal block, the safe direction.
 
-    Does NOT understand `git -C <dir> push` (cwd_hint only tracks a literal `cd`), which
-    resolves to the session cwd and so fails closed. Wrong in the harmless direction; use
-    `cd <dir> && git push`.
+    cwd_hint is the resolved directory git runs in: the command's `cd`, then `-C`, then the
+    session cwd.
     """
     allow = exempt_remotes()
     if not allow:
@@ -411,8 +472,16 @@ def real_argv(a):
 
 
 cwd_hint = ""
+cwd_abs = SESSION_CWD           # cwd_hint resolved the way bash would (see resolve_dir)
 for argv in simple:
     if not argv:
+        continue
+    # `W=/repo; cd "$W"` and `export W=/repo`: remember the value so the `cd` can use it.
+    pre = argv[1:] if argv[0] == "export" else argv
+    if pre and all(ASSIGN.match(a) for a in pre):
+        for a in pre:
+            k, _, v = a.partition("=")
+            shell_vars[k] = expand(v)
         continue
     argv = real_argv(argv)
     if not argv:
@@ -422,10 +491,28 @@ for argv in simple:
 
     if exe == "cd" and args and not args[0].startswith("-"):
         cwd_hint = args[0]
+        target = resolve_dir(args[0], cwd_abs)
+        if os.path.isdir(target):   # a failed `cd` leaves bash where it was
+            cwd_abs = target
+
+    git_dir = cwd_abs
+    if exe == "git":
+        git_dir, GIT_GLOBAL, args = git_subcommand(args, cwd_abs)
 
     if exe == "git" and args[:1] == ["push"]:
-        raw = args[1:]
+        # An option's VALUE is not an argument to judge, and `-o "ci skip"` used to be read as
+        # parse residue, which skips the HEAD check: a plain push on main passed. Variables the
+        # command itself set (`b=main; git push origin "$b"`) are expanded the way bash would.
+        raw, skip = [], False
+        for a in args[1:]:
+            if not skip:
+                raw.append(expand(a))
+            skip = not skip and a in PUSH_VALUE_FLAGS
         rest = usable_push_args(raw)
+        # A `cd` the hook followed may not be where bash ended up (subshell, failed cd): if it
+        # is not a repo, judge the session cwd rather than answering "" and failing open.
+        if git_dir != SESSION_CWD and not git_out(git_dir, "rev-parse", "--git-dir"):
+            git_dir = SESSION_CWD
         # Something was dropped: this "command" is parse residue from a quoted mention, not
         # a push anyone is running. Judge only what survived, and never fall through to
         # resolving HEAD, which would block on the checked-out branch of whatever directory
@@ -466,16 +553,20 @@ for argv in simple:
         if any(a in ("--all", "--mirror") for a in rest):
             hits = ["(--all/--mirror: every local ref)"]
         elif refspecs:
-            hits = [a for a in refspecs if protected_ref(a)]
-        elif residue:
-            hits = []                   # truncated parse: no refspec to trust, do not guess
+            # `HEAD` / `@` with no destination push the current branch to its own name.
+            head = lambda: git_out(git_dir, "rev-parse", "--abbrev-ref", "HEAD")
+            hits = [a for a in refspecs
+                    if protected_ref(head() if a.lstrip("+") in ("HEAD", "@") else a)]
+        elif residue or "--tags" in rest:
+            hits = []                   # truncated parse, or tags only: no branch travels
         else:
-            implied = git_out(cwd_hint, "rev-parse", "--abbrev-ref", "HEAD")
-            hits = [implied] if implied and protected_ref(implied) else []
+            # Checked-out branch AND the remote branch it pushes/tracks: either one being
+            # protected means this plain push lands on it.
+            hits = [t for t in push_targets(git_dir) if protected_ref(t)]
         if hits:
             # Force-push above is unconditional and stays that way; only the PR-required
             # rule yields, and only for a remote listed in push-exemptions.txt.
-            if not push_is_exempt(cwd_hint, rest):
+            if not push_is_exempt(git_dir, rest):
                 print("BLOCK\tdirect push to protected branch (main/release/*); open a PR instead "
                       "(branch_policy: feature=pr-required). See standards/pr-conventions.md.")
                 break

@@ -746,7 +746,7 @@
       Guide
     </button>
     <button class="nav-tab" data-panel="skills">
-      Skills <span class="tab-count" id="tc-skills">52</span>
+      Skills <span class="tab-count" id="tc-skills">48</span>
     </button>
     <button class="nav-tab" data-panel="agents">
       Agents <span class="tab-count" id="tc-agents">49</span>
@@ -826,7 +826,7 @@
 <span class="c-cmd">&gt; /next-priority</span>
 <span class="c-out">→ scans active repo, open PRs, CI, memory</span>
 <span class="c-ok">✓ ranked list: start at #1</span></div>
-            <div class="term-status"><b id="st-skills">52</b> skills<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">49</b> agents<span class="sep">·</span><b>4</b> hook events wired<span class="sep">·</span><b id="st-mcp">15</b> MCP servers<span class="sep">·</span><b>22</b> standards</div>
+            <div class="term-status"><b id="st-skills">48</b> skills<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">49</b> agents<span class="sep">·</span><b>4</b> hook events wired<span class="sep">·</span><b id="st-mcp">15</b> MCP servers<span class="sep">·</span><b>22</b> standards</div>
           </div>
 
           <div class="g-proof">
@@ -854,7 +854,7 @@
               <div class="g-nodes">
                 <div class="g-node">
                   <div class="g-node-title"><span class="pip" style="background:var(--kind-skill)"></span>Skills</div>
-                  <div class="g-node-desc">One well-scoped task: <code>/ship</code>, <code>/review</code>, <code>/verify</code>. Runs in your context. Invoke with <code>/name</code> or let its description match your request.</div>
+                  <div class="g-node-desc">One well-scoped task: <code>/ship</code>, <code>/review</code>, <code>/verify-before-done</code>. Runs in your context. Invoke with <code>/name</code> or let its description match your request.</div>
                 </div>
                 <div class="g-node">
                   <div class="g-node-title"><span class="pip" style="background:var(--kind-hook)"></span>Composites</div>
@@ -1059,12 +1059,12 @@
             <button class="g-task" data-search="plan"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18v16H3V4z"/><path d="M3 10h18M7 4v6M12 4v6M17 4v6"/></svg></span><span class="g-task-main"><span class="g-task-want">Plan multi-step work</span><span class="g-task-skill">/plan</span></span></button>
             <button class="g-task" data-search="dispatch"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8M4 10l6-6m4 6l6 6"/></svg></span><span class="g-task-main"><span class="g-task-want">Run independent tasks in parallel</span><span class="g-task-skill">/dispatch · /orchestrate</span></span></button>
             <button class="g-task" data-search="review"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span><span class="g-task-main"><span class="g-task-want">Review code before merge</span><span class="g-task-skill">/review</span></span></button>
-            <button class="g-task" data-search="ci-watch"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10h10M8 14h2M14 14h2M7 10a4 4 0 0 0-2.83 7M17 10a4 4 0 0 1 2.83 7"/></svg></span><span class="g-task-main"><span class="g-task-want">Fix a red CI check</span><span class="g-task-skill">/ci-watch</span></span></button>
+            <button class="g-task" data-search="gh-fix-ci"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10h10M8 14h2M14 14h2M7 10a4 4 0 0 0-2.83 7M17 10a4 4 0 0 1 2.83 7"/></svg></span><span class="g-task-main"><span class="g-task-want">Fix a red CI check</span><span class="g-task-skill">/gh-fix-ci</span></span></button>
             <button class="g-task" data-search="ship"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v14m0 0L7 11m5 5l5-5"/></svg></span><span class="g-task-main"><span class="g-task-want">Ship work to production</span><span class="g-task-skill">/ship</span></span></button>
             <button class="g-task" data-search="refactor"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20m-2 8v4m-16-4v4m4-12v16m8-16v16"/></svg></span><span class="g-task-main"><span class="g-task-want">Refactor a module safely</span><span class="g-task-skill">/refactor</span></span></button>
             <button class="g-task" data-search="audit-deep"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span><span class="g-task-main"><span class="g-task-want">Audit the whole project</span><span class="g-task-skill">/audit-deep</span></span></button>
             <button class="g-task" data-search="secure"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1L2 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-10-4z"/></svg></span><span class="g-task-main"><span class="g-task-want">Security pass before deploy</span><span class="g-task-skill">/secure</span></span></button>
-            <button class="g-task" data-search="decide"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></svg></span><span class="g-task-main"><span class="g-task-want">Make &amp; record a decision</span><span class="g-task-skill">/decide · /decide-now</span></span></button>
+            <button class="g-task" data-search="research-and-decide"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></svg></span><span class="g-task-main"><span class="g-task-want">Make &amp; record a decision</span><span class="g-task-skill">/research-and-decide</span></span></button>
             <button class="g-task" data-search="handoff"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2z"/><path d="M9 8V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span><span class="g-task-main"><span class="g-task-want">Save state before stopping</span><span class="g-task-skill">/handoff</span></span></button>
             <button class="g-task" data-search="memory"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v12H8z"/><path d="M5 16h14a2 2 0 0 1 2 2v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a2 2 0 0 1 2-2z"/></svg></span><span class="g-task-main"><span class="g-task-want">Recall or persist knowledge</span><span class="g-task-skill">/recall · /knowledge-loop</span></span></button>
           </div>
@@ -1138,7 +1138,7 @@
       <div class="grid-header">
         <div>
           <div class="grid-header-title" id="grid-title">All Skills</div>
-          <div class="grid-header-sub" id="grid-sub">52 skills across 11 categories: invoke autonomously or with /<i>name</i></div>
+          <div class="grid-header-sub" id="grid-sub">48 skills across 11 categories: invoke autonomously or with /<i>name</i></div>
         </div>
         <div class="result-count" id="result-count"></div>
       </div>
@@ -1240,11 +1240,11 @@ const CATEGORIES = [
   { id: 'testing',      label: 'Testing',                     color: 'var(--kind-tool)', guide: 'Use tdd or test-driven-development when building behavior test-first.' },
   { id: 'security',     label: 'Security',                    color: 'var(--kind-hook)', guide: 'Use secure before work touching credentials, auth, dependencies, infra, or deployment shortcuts, and streamer-mode while sharing your screen.' },
   { id: 'git',          label: 'Git & PR',                    color: 'var(--kind-server)', guide: 'Use pr-merge-readiness before merge to combine CI, review, coverage, Sonar, and conflict signals.' },
-  { id: 'release',      label: 'Release & Deployment',        color: 'var(--kind-server)', guide: 'Use ship for validated release/deploy flow, changelog-update for release notes, version-bump for versioning, and ci-watch when checks block release.' },
-  { id: 'architecture', label: 'Architecture & Decisions',    color: 'var(--kind-skill)', guide: 'Use decide for durable architectural choices, decide-now to break analysis paralysis, debate or grill-me to stress-test options, and the teardown skills to learn from other apps and codebases.' },
+  { id: 'release',      label: 'Release & Deployment',        color: 'var(--kind-server)', guide: 'Use ship for validated release/deploy flow, changelog-update for release notes, version-bump for versioning, and gh-fix-ci when checks block release.' },
+  { id: 'architecture', label: 'Architecture & Decisions',    color: 'var(--kind-skill)', guide: 'Use research-and-decide for durable architectural choices (its now mode breaks analysis paralysis), debate or grill-with-options to stress-test options, and the teardown skills to learn from other apps and codebases.' },
   { id: 'rag',          label: 'RAG & Memory',                color: 'var(--kind-agent)', guide: 'Use recall for semantic lookup, codebase-memory for structural queries, memory-prune for stale memory cleanup, rag-curate and adt-rag-drift for index health, and client-offboard to keep client knowledge scoped.' },
   { id: 'sync-docs',    label: 'Sync & Documentation',        color: 'var(--kind-tool)', guide: 'Use graphify to query a codebase knowledge graph and sync-sharekit-profile to publish your own harness profile.' },
-  { id: 'cicd',         label: 'CI/CD',                       color: 'var(--kind-hook)', guide: 'Use ci-watch to diagnose red checks and dep-sweep to process dependency-update PRs safely.' },
+  { id: 'cicd',         label: 'CI/CD',                       color: 'var(--kind-hook)', guide: 'Use gh-fix-ci to diagnose red checks and dep-sweep to process dependency-update PRs safely.' },
 ];
 
 const TRANSLATIONS = {
@@ -1252,23 +1252,19 @@ const TRANSLATIONS = {
   "app-teardown": "Faz engenharia reversa de um app ao vivo percorrendo os fluxos reais e mapeia cada ideia aproveitável num relatório, com evidência e veredito adotar/adaptar/já-temos/rejeitar.",
   "audit-deep": "Composite de saúde do projeto (testes, config, hooks, segurança, MCP, plugins) em um único relatório ordenado por severidade. Use semanalmente ou antes de releases grandes.",
   "backlog": "Composite que monta o backlog de um repo: pontua achados por ROI, agrupa em temas e cria issues no GitHub num Project board.",
-  "brainstorming": "Facilita exploração colaborativa de ideias e transforma conceitos brutos numa direção de design validada antes de implementar.",
   "changelog-update": "Atualiza o CHANGELOG.md a partir de commits recentes, agrupando por tipo e promovendo [Unreleased] para uma versão semântica.",
-  "ci-watch": "Diagnostica CI vermelho, isola o primeiro bloqueador real e aponta o menor fix viável antes de merge ou release.",
   "client-offboard": "Guarda as lições técnicas de um trabalho para cliente e remove o conhecimento de negócio desse cliente da memória e do índice RAG.",
   "code-teardown": "Faz engenharia reversa de um repositório externo e mapeia cada ideia adotável num relatório, com evidência arquivo:linha e veredito. Somente leitura no alvo.",
   "codebase-memory": "Usa o grafo de conhecimento da codebase para consultas estruturais: arquitetura, quem chama o quê, dependências, código morto.",
   "context-pack": "Monta um pacote de contexto sensível à tarefa (código, padrões, planos, hits de RAG) antes de mudanças grandes, reviews ou repos desconhecidos.",
   "debate": "Roda um debate estruturado entre agentes sobre uma decisão: posições independentes, réplica e síntese reconciliada.",
-  "decide": "Pipeline composite de decisão: research-and-decide e depois adr-write, com alternativas e justificativa registradas.",
-  "decide-now": "Força uma decisão quando a análise trava. Use para \"só decide\", \"escolhe um\", \"segue em frente\".",
   "dep-sweep": "Processa PRs do Dependabot/Renovate em lote por risco: faz auto-merge dos seguros e destaca os arriscados para revisão.",
   "dispatch": "Paraleliza auditoria ou coleta de evidência independente em 2+ trilhas de agentes e reconcilia num único veredito; também despacha para um host remoto via SSH.",
   "efficiency-advisor": "Analisa um workflow multi-agente, script Workflow() ou sessão ativa atrás de desperdício de tokens e gargalos de tempo, com economia estimada por correção.",
   "frontend-reference-hunt": "Busca referências de UI no Dribbble, Mobbin e Awwwards e monta um board. Não constrói UI.",
+  "gh-fix-ci": "Diagnostica checks de PR vermelhos, instáveis ou travados: separa o primeiro bloqueador real do ruído, lê os logs do Actions e corrige os checks no seu próprio branch.",
   "graphify": "Responde perguntas de codebase, arquitetura e relação entre arquivos via grafo de conhecimento do graphify, principalmente quando existe graphify-out/.",
-  "grill-me": "Entrevista o usuário sem pausa sobre um plano ou design até chegar a entendimento compartilhado.",
-  "grill-with-docs": "Desafia o plano contra o modelo de domínio, afina a terminologia e atualiza CONTEXT.md e ADRs durante a conversa.",
+  "grill-with-options": "Entrevista em quatro modos: options (forks limitados de 2 a 4 opções), open (pergunta mais palpite), docs (contra CONTEXT.md e ADRs) e explore (2 a 3 abordagens, sem código).",
   "handoff": "Compacta a conversa atual num documento de handoff para outro agente continuar.",
   "knowledge-loop": "Composite (recall, sync-memories, rag-curate, handoff) para persistir conhecimento no meio da sessão: \"o que decidimos\", \"lembra disso\".",
   "loop": "Detecta quando o agente repete a mesma ação sem progresso e quebra o ciclo. Use quando travar ou um erro voltar 3+ vezes.",
@@ -1283,7 +1279,7 @@ const TRANSLATIONS = {
   "rag-curate": "Melhora a qualidade do corpus RAG adicionando docs faltantes, reescrevendo chunks fracos e cobrindo lacunas.",
   "recall": "Busca semântica one-shot no índice RAG local: \"o que decidimos sobre X\", \"onde já vimos esse bug\".",
   "refactor": "Refatoração cirúrgica sem mudar comportamento: extrair funções, limpar código, corrigir code smells.",
-  "research-and-decide": "Pesquisa uma questão, desafia a conclusão, planeja a adoção e registra a decisão (research, critic, plan, adr-write).",
+  "research-and-decide": "Decide em três modos: quick (escolha pequena e reversível), full (pesquisa, critic, plano, ADR) e now (destrava a paralisia de análise: \"só decide\").",
   "resolve-before-asking": "Responde por conta própria uma pergunta de esclarecimento quando ela é pesquisável, reversível e não é T3. Nunca para ações destrutivas, de produção, dinheiro ou PR de outra pessoa: aí pergunta.",
   "resume": "Reidrata a tarefa atual a partir de handoffs, planos, tarefas, notas de memória e estado do git.",
   "review": "Revisa as mudanças desde um ponto fixo em dois eixos, Padrões e Spec, em paralelo.",
@@ -1297,7 +1293,7 @@ const TRANSLATIONS = {
   "tdd": "Alias curto para desenvolvimento orientado a testes: red, green, refactor.",
   "test-driven-development": "Aplica TDD em qualquer feature ou bugfix: teste falhando antes do código de implementação.",
   "three-man-team": "Despacha Architect (Opus), Builder e Reviewer (Sonnet) em paralelo para tarefas complexas multi-fase.",
-  "verify": "Executa a validação mais estreita e significativa antes de merge, release ou handoff.",
+  "verify-before-done": "Gate pré-ship: matriz completa (lint, build, testes, cobertura, sonar, CI, sentry) ou modo rápido (checks mais estreitos, PASS/FAIL/PARTIAL).",
   "version-bump": "Automatiza version bump em monorepos npm com promoção do CHANGELOG e PR.",
   "xp": "Extreme Programming para par humano-IA: ciclos pequenos, testes, papéis claros e refactor contínuo.",
 };
@@ -1307,23 +1303,19 @@ const SKILLS = [
   { name: 'app-teardown', cat: 'architecture', composite: false, desc: 'Reverse-engineer a live application (web app, SaaS, mobile) by walking its real flows in the browser and map every idea worth taking (UX patterns, features, visual design, copy, growth mechanics) into a teardown report where each finding carries evidence, an adopt/adapt/already-have/reject verdict, and a constraint rationale for our context. Use when asked "faz um teardown do app X", "analisa esse app e mapeia ideias", "what can we steal from X", "reverse-engineer this product", "competitive teardown", "o que dá pra aproveitar do app Y". For a codebase or repository use code-teardown; for purely visual reference boards from design platforms use frontend-reference-hunt.' },
   { name: 'audit-deep', cat: 'quality', composite: true, desc: 'Composite project health check (testing, config, hooks, security, MCP, plugins) into one severity-ranked report. Use weekly or before major releases.' },
   { name: 'backlog', cat: 'planning', composite: true, desc: 'Composite backlog builder for one repo: scores findings by ROI, groups themes, creates GitHub issues on a Project board. Use to build a backlog or plan sprints.' },
-  { name: 'brainstorming', cat: 'architecture', composite: false, desc: 'Facilitate collaborative idea exploration and turn rough concepts into a validated design direction before implementation starts. Use when the user is still shaping the solution and should not be pushed into code yet.' },
   { name: 'changelog-update', cat: 'release', composite: false, desc: 'Updates CHANGELOG.md from recent commits, grouping entries by type (feat/fix/docs/breaking) with semantic version headings. Update CHANGELOG.md by promoting [Unreleased] content to a versioned section and bumping the package version. Follows Keep a Changelog format. Use when preparing a release or when [Unreleased] has accumulated work that needs to be captured under a version.' },
-  { name: 'ci-watch', cat: 'cicd', composite: false, desc: 'Diagnose failing CI checks, isolate the first real blocker, and surface the smallest fix. Use when a PR has failing checks or CI is red before merge or release.' },
   { name: 'client-offboard', cat: 'rag', composite: false, desc: 'Keep the technical and behavioral lessons from a client engagement and remove that client\'s business knowledge from memory and the RAG index. Modes - harvest (batch-promote pending lessons to general memory), promote-now NOTE (one lesson), offboard SLUG (final harvest, purge, verification). Use for "offboard client", "trocar de cliente", "encerrar cliente", "harvest lessons", "purge client", or at session close in a client repo.' },
   { name: 'code-teardown', cat: 'architecture', composite: false, desc: 'Reverse-engineer an external repository or codebase (competitor OSS, reference implementation, trending project) and map every adoptable idea (architecture, code patterns, DX, tooling, testing, docs conventions) into a teardown report where each finding carries evidence (file:line), an adopt/adapt/already-have/reject verdict, and a constraint rationale for our context. Use when asked "faz um teardown desse repo", "analisa esse repositório pra ideias", "o que dá pra aproveitar desse projeto open-source", "evaluate X repo for insights", "what can we learn from this codebase". Read-only toward the target; clones to a scratch directory. For live apps use app-teardown; to onboard for contributing use adt-repo-intake; to document our own architecture use doc-and-modernize.' },
   { name: 'codebase-memory', cat: 'rag', composite: false, desc: 'Use the codebase knowledge graph for structural code queries. Triggers on: explore the codebase, understand the architecture, what functions exist, show me the structure, who calls this function, what does X call, trace the call chain, find callers of, show dependencies, impact analysis, dead code, unused functions, high fan-out, refactor candidates, code quality audit, graph query syntax, Cypher query examples, edge types, how to use search_graph.' },
   { name: 'context-pack', cat: 'session', composite: false, desc: 'Packs the most relevant context (files, docs, prior decisions) into a compact payload for injection into the next agent turn. Build a task-aware context bundle before large changes, reviews, or unfamiliar work. Pull only the code, standards, plans, RAG hits, and notes that matter instead of reading wide. Use before refactors, cross-file fixes, unfamiliar repos, or when starting a session where you will spend more than five reads exploring. Backed by the local RAG index via the rag_query MCP tool. Skip when the task touches one known file or the answer fits in a single grep.' },
   { name: 'debate', cat: 'architecture', composite: false, desc: 'Run a structured multi-agent debate on a decision: independent positions, rebuttal, reconciled synthesis. Use to weigh alternatives before deciding.' },
-  { name: 'decide', cat: 'architecture', composite: true, desc: 'Composite decision pipeline: research-and-decide then adr-write, with alternatives and rationale. Use for architectural or tooling decisions needing a record.' },
-  { name: 'decide-now', cat: 'architecture', composite: false, desc: 'Force a decision when stuck in analysis paralysis. Use when the user says "just decide", "pick one", "move on", "stop deliberating", or options are deadlocked.' },
   { name: 'dep-sweep', cat: 'cicd', composite: true, desc: 'Batch-process Dependabot/Renovate PRs by risk: auto-merge safe ones, surface risky ones for review. Use when bot PRs pile up.' },
   { name: 'dispatch', cat: 'planning', composite: false, desc: 'Parallelize independent audit or evidence-gathering work into 2+ concurrent agent tracks and reconcile into one verdict; also dispatches to a remote host over SSH.' },
   { name: 'efficiency-advisor', cat: 'planning', composite: false, desc: 'Analyze a proposed multi-agent workflow, Workflow() script, or active session for token waste and time bottlenecks. Catches model-tier mismatches, sequential work that should be parallel, re-read waste, and context bloat: scores each fix by impact with estimated savings. Use before spawning large agent fleets, when choosing between parallel vs sequential dispatch, or when a session is burning budget faster than expected.' },
   { name: 'frontend-reference-hunt', cat: 'architecture', composite: false, desc: 'Search Dribbble, Mobbin, Awwwards for UI references into a board. Use for "busca referências", "find design references", "moodboard". Does not build UI.' },
+  { name: 'gh-fix-ci', cat: 'cicd', composite: false, desc: 'Diagnose red, flaky or blocked PR checks: isolate the first real blocker from noise, read Actions logs, and fix failing checks on your own PR branch. Handles Buildkite and SonarCloud by reporting. Use when CI is red before merge.' },
   { name: 'graphify', cat: 'sync-docs', composite: false, desc: 'Answer codebase, architecture and file-relationship questions via a graphify knowledge graph (query/path/explain), especially when graphify-out/ exists.' },
-  { name: 'grill-me', cat: 'architecture', composite: false, desc: 'Interview the user relentlessly about a plan or design until shared understanding. Use to stress-test a plan, "grill me", or get grilled on a design.' },
-  { name: 'grill-with-docs', cat: 'architecture', composite: false, desc: 'Grilling session that challenges a plan against the domain model, sharpens terms, updates CONTEXT.md and ADRs inline. Use to stress-test a plan against docs.' },
+  { name: 'grill-with-options', cat: 'architecture', composite: false, desc: 'Interview skill with four modes: options (default, bounded 2-4 option AskUserQuestion forks), open (Q plus GUESS), docs (vs CONTEXT.md and ADRs), explore (2-3 approaches, no code). Use for grill me, help me decide, brainstorm.' },
   { name: 'handoff', cat: 'session', composite: false, desc: 'Compact the current conversation into a handoff document for another agent to pick up.' },
   { name: 'knowledge-loop', cat: 'rag', composite: true, desc: 'Composite (recall, sync-memories, rag-curate, handoff) to persist knowledge mid-session: "what did we decide", "remember this". Session end: session-close.' },
   { name: 'loop', cat: 'planning', composite: false, desc: 'Detect when the agent repeats the same action without progress and break the cycle. Use when stuck, "you\'re going in circles", or an error recurs 3+ times.' },
@@ -1338,7 +1330,7 @@ const SKILLS = [
   { name: 'rag-curate', cat: 'rag', composite: false, desc: 'Improve RAG corpus quality by adding missing docs, rewriting weak chunks, filling gaps. Use after a diagnostic flags a gap or when the index returns poor hits.' },
   { name: 'recall', cat: 'rag', composite: false, desc: 'One-shot semantic lookup in the local RAG index. Use for "what did we decide about X", "where did we hit this bug before", "is there a memory note for Y".' },
   { name: 'refactor', cat: 'quality', composite: false, desc: 'Surgical refactoring without behavior change. Use for "refactor this", "clean up this code", "this is messy", "extract functions", "fix code smells".' },
-  { name: 'research-and-decide', cat: 'architecture', composite: true, desc: 'Research a question, challenge it, plan adoption, record the decision (research, critic, plan, adr-write). Use to evaluate a library, pattern or architecture.' },
+  { name: 'research-and-decide', cat: 'architecture', composite: true, desc: 'Decide with three modes: quick (small reversible pick), full (research, critic, plan, ADR), now (break analysis paralysis: "just decide"). Use to evaluate a library, pattern or architecture, or force a call.' },
   { name: 'resolve-before-asking', cat: 'planning', composite: false, desc: 'Answer a would-be clarifying question yourself when researchable, reversible, not T3. Never for destructive, prod, money or other-author-PR actions: ask.' },
   { name: 'resume', cat: 'session', composite: false, desc: 'Rehydrate the current task from handoffs, plans, tasks, memory notes, and git state.' },
   { name: 'review', cat: 'quality', composite: false, desc: 'Review changes since a fixed point (commit, branch, tag) on two axes, Standards and Spec, in parallel. Use to review a branch, PR or WIP, or "review since X".' },
@@ -1352,7 +1344,7 @@ const SKILLS = [
   { name: 'tdd', cat: 'testing', composite: false, desc: 'Short alias for test-driven development. Use for red-green-refactor, tracer bullets, behavior-driven testing, or TDD workflows.' },
   { name: 'test-driven-development', cat: 'testing', composite: false, desc: 'Use when implementing any feature or bugfix, before writing implementation code. Also invoked via /tdd (alias archived: this is the canonical skill).' },
   { name: 'three-man-team', cat: 'planning', composite: true, desc: 'Parallel Architect (Opus), Builder, Reviewer (Sonnet) dispatch for complex multi-phase tasks. Use for 3+ phase features, CRITICAL work, or PRs over 5 files.' },
-  { name: 'verify', cat: 'quality', composite: false, desc: 'Run the narrowest meaningful validation sequence before merge, release, or handoff.' },
+  { name: 'verify-before-done', cat: 'quality', composite: false, desc: 'Pre-ship gate: full matrix (lint, build, tests, coverage, sonar, CI, sentry) or quick mode (narrowest checks, PASS/FAIL/PARTIAL). Use for "is this ready?", verify, run checks, validate this.' },
   { name: 'version-bump', cat: 'release', composite: false, desc: 'Automate version bumping in npm monorepos with CHANGELOG promotion and PR automation' },
   { name: 'xp', cat: 'planning', composite: false, desc: 'Extreme Programming for AI-human pair development. Use when: pair programming with your AI, building incrementally with tests, working with clear role division, or the user mentions XP/YAGNI/simple design/continuous refactoring.' },
 ];
@@ -1945,7 +1937,7 @@ const GUIDE_PT = {
     <div class="g-hero-badge"><span class="dot"></span> Harness operador · referência viva</div>
     <h1>Seu <span class="g-accent">operador</span> autônomo de engenharia.</h1>
     <p class="g-hero-sub">
-      Um ambiente operador de agentes totalmente conectado: 52 <strong>skills</strong> ativas repo-tracked que você invoca,
+      Um ambiente operador de agentes totalmente conectado: 48 <strong>skills</strong> ativas repo-tracked que você invoca,
       <strong>composites</strong> que as encadeiam com gates, <strong>sub-agentes</strong> que fazem trabalho
       isolado em paralelo e <strong>hooks</strong> que disparam automaticamente a cada prompt.
       Esta página é o mapa: comece aqui e depois mergulhe no catálogo.
@@ -1965,7 +1957,7 @@ const GUIDE_PT = {
 <span class="c-cmd">&gt; /next-priority</span>
 <span class="c-out">→ varre o repo ativo, PRs abertos, CI, memória</span>
 <span class="c-ok">✓ lista priorizada: comece pelo #1</span></div>
-      <div class="term-status"><b id="st-skills">52</b> skills ativas<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">49</b> agentes<span class="sep">·</span><b>4</b> eventos de hook ligados<span class="sep">·</span><b id="st-mcp">15</b> servidores MCP<span class="sep">·</span><b>22</b> standards</div>
+      <div class="term-status"><b id="st-skills">48</b> skills ativas<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">49</b> agentes<span class="sep">·</span><b>4</b> eventos de hook ligados<span class="sep">·</span><b id="st-mcp">15</b> servidores MCP<span class="sep">·</span><b>22</b> standards</div>
     </div>
 
     <div class="g-proof">
@@ -1991,7 +1983,7 @@ const GUIDE_PT = {
         <div class="g-nodes">
           <div class="g-node">
             <div class="g-node-title"><span class="pip" style="background:var(--kind-skill)"></span>Skills</div>
-            <div class="g-node-desc">Uma tarefa bem delimitada: <code>/ship</code>, <code>/review</code>, <code>/verify</code>. Roda no seu contexto. Invoque com <code>/nome</code> ou deixe a descrição dela casar com o seu pedido.</div>
+            <div class="g-node-desc">Uma tarefa bem delimitada: <code>/ship</code>, <code>/review</code>, <code>/verify-before-done</code>. Roda no seu contexto. Invoque com <code>/nome</code> ou deixe a descrição dela casar com o seu pedido.</div>
           </div>
           <div class="g-node">
             <div class="g-node-title"><span class="pip" style="background:var(--kind-hook)"></span>Composites</div>
@@ -2188,12 +2180,12 @@ const GUIDE_PT = {
       <button class="g-task" data-search="plan"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18v16H3V4z"/><path d="M3 10h18M7 4v6M12 4v6M17 4v6"/></svg></span><span class="g-task-main"><span class="g-task-want">Planejar trabalho multi-etapa</span><span class="g-task-skill">/plan</span></span></button>
       <button class="g-task" data-search="dispatch"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8M4 10l6-6m4 6l6 6"/></svg></span><span class="g-task-main"><span class="g-task-want">Rodar tarefas independentes em paralelo</span><span class="g-task-skill">/dispatch · /orchestrate</span></span></button>
       <button class="g-task" data-search="review"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span><span class="g-task-main"><span class="g-task-want">Revisar código antes do merge</span><span class="g-task-skill">/review</span></span></button>
-      <button class="g-task" data-search="ci-watch"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10h10M8 14h2M14 14h2M7 10a4 4 0 0 0-2.83 7M17 10a4 4 0 0 1 2.83 7"/></svg></span><span class="g-task-main"><span class="g-task-want">Consertar um check de CI vermelho</span><span class="g-task-skill">/ci-watch</span></span></button>
+      <button class="g-task" data-search="gh-fix-ci"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10h10M8 14h2M14 14h2M7 10a4 4 0 0 0-2.83 7M17 10a4 4 0 0 1 2.83 7"/></svg></span><span class="g-task-main"><span class="g-task-want">Consertar um check de CI vermelho</span><span class="g-task-skill">/gh-fix-ci</span></span></button>
       <button class="g-task" data-search="ship"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v14m0 0L7 11m5 5l5-5"/></svg></span><span class="g-task-main"><span class="g-task-want">Subir trabalho para produção</span><span class="g-task-skill">/ship</span></span></button>
       <button class="g-task" data-search="refactor"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20m-2 8v4m-16-4v4m4-12v16m8-16v16"/></svg></span><span class="g-task-main"><span class="g-task-want">Refatorar um módulo com segurança</span><span class="g-task-skill">/refactor</span></span></button>
       <button class="g-task" data-search="audit-deep"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span><span class="g-task-main"><span class="g-task-want">Auditar o projeto inteiro</span><span class="g-task-skill">/audit-deep</span></span></button>
       <button class="g-task" data-search="secure"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1L2 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-10-4z"/></svg></span><span class="g-task-main"><span class="g-task-want">Passada de segurança antes do deploy</span><span class="g-task-skill">/secure</span></span></button>
-      <button class="g-task" data-search="decide"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></svg></span><span class="g-task-main"><span class="g-task-want">Tomar e registrar uma decisão</span><span class="g-task-skill">/decide · /decide-now</span></span></button>
+      <button class="g-task" data-search="research-and-decide"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="9"/></svg></span><span class="g-task-main"><span class="g-task-want">Tomar e registrar uma decisão</span><span class="g-task-skill">/research-and-decide</span></span></button>
       <button class="g-task" data-search="handoff"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2z"/><path d="M9 8V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span><span class="g-task-main"><span class="g-task-want">Salvar estado antes de parar</span><span class="g-task-skill">/handoff</span></span></button>
       <button class="g-task" data-search="memory"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v12H8z"/><path d="M5 16h14a2 2 0 0 1 2 2v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a2 2 0 0 1 2-2z"/></svg></span><span class="g-task-main"><span class="g-task-want">Lembrar ou persistir conhecimento</span><span class="g-task-skill">/recall · /knowledge-loop</span></span></button>
     </div>`,

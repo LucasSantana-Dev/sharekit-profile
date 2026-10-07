@@ -36,7 +36,7 @@ work" documentation use `doc-and-modernize`.
 ## Inputs / Prereqs
 
 - Target repo (URL or local path). Clone shallow to
-  `${DEV_ROOT}/<repo>` (storage policy; never `$HOME`, never internal disk).
+  `${DEV_ROOT:-$HOME/dev}/<repo>` (storage policy; never `$HOME`, never internal disk).
 - OUR context lock: which project the ideas land in, its stack and constraints.
 - Memory state-check FIRST: `reference_<target>_evaluated_*` exists → surface prior outcome
   and stop unless the revisit condition is met.

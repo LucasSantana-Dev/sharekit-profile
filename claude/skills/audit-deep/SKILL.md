@@ -30,7 +30,16 @@ manually and try to remember what each said" pattern.
 
 ## Workflow
 
-### Phase 1 — Parallel audit dispatch (always)
+Canonical phase list (shared with `references/stop-conditions.md`, which holds abort, skip and
+PARTIAL semantics per phase): 0 Pre-flight, 1 Discover, 2 Rank, 2.5 Critic, 3 Recall,
+4 Remediation, 5 Snapshot.
+
+### Phase 0: Pre-flight
+Confirm a git repo (else abort: `Pre-flight: (failed: not a git repo)`), check External HD / RAG
+availability, and apply the skip-if-fresh gate (`audit_freshness_days`, see
+`references/config-schema.md`). Abort and skip rules: `references/stop-conditions.md`.
+
+### Phase 1: Discover (parallel audit dispatch, always)
 Invoke in parallel via Agent tool or sequential Skill calls:
 - `test-health` — suite proportionality, coverage, runtime
 - `config-drift-detect` — gate compatibility
@@ -46,7 +55,7 @@ Invoke in parallel via Agent tool or sequential Skill calls:
 
 Each returns a structured verdict + findings.
 
-### Phase 2 — Reconcile by severity
+### Phase 2: Rank (reconcile by severity)
 Aggregate all findings into one ranked list:
 - CRITICAL — blocks merge / release / production safety
 - HIGH — degrades workflow significantly
@@ -56,7 +65,12 @@ Aggregate all findings into one ranked list:
 Cross-reference: a HIGH from `config-drift` that explains a HIGH from `test-health`
 is reported as one root cause, not two findings.
 
-### Phase 2.5 — Recall vs historical exceptions (mandatory before remediation)
+### Phase 2.5: Critic
+Single `critic` subagent challenges the ranked findings and assigns confidence
+(prompt: `references/critic-prompt.md`). Skipped when `critic_enabled=false` or no subagent
+capability; findings then proceed with confidence=high.
+
+### Phase 3: Recall vs historical exceptions (mandatory before remediation)
 
 Audits do not know history. Memory does. Before drafting fixes:
 
@@ -77,8 +91,8 @@ checking memory #3415 (2026-05-07) which explicitly documented the exception.
 Required a revert commit before merge. This phase prevents the same class of
 mistake at the audit-deep level.
 
-### Phase 3 — Remediation plan
-For each `AUTO_FIX`-tagged CRITICAL + HIGH (Phase 2.5 filters out `NEEDS_REVIEW`):
+### Phase 4: Remediation plan
+For each `AUTO_FIX`-tagged CRITICAL + HIGH (Phase 3 filters out `NEEDS_REVIEW`):
 - Recommend the specific composite skill to fix it (`fix-the-suite`,
   `secrets-rotate`, `gate-relax`, etc.)
 - Estimate the effort
@@ -87,13 +101,14 @@ For each `AUTO_FIX`-tagged CRITICAL + HIGH (Phase 2.5 filters out `NEEDS_REVIEW`
 `NEEDS_REVIEW` findings are listed separately with their conflicting memory
 reference so the user can reconcile manually.
 
-### Phase 4 — Memory + handoff
+### Phase 5: Snapshot (memory + handoff)
 Write the report to `~/.claude/projects/<slug>/memory/audit_deep_<repo>_<date>.md`
 so trends are visible across audits. Update MEMORY.md index.
 
 ## Reconciliation
 
-Single report:
+Single report. The closing block is one line per phase, in this exact order
+(per-termination variants in `references/stop-conditions.md`):
 ```
 AUDIT DEEP — <repo> — <date>
 
@@ -119,6 +134,12 @@ REMEDIATION PLAN (ranked by impact-per-effort):
   2. /dependency-update-batch (resolves 1 HIGH)
   3. /secrets-rotate ANTHROPIC_API_KEY (it's been 90 days)
 
+Pre-flight:            <cache status | (failed: ...) | (skipped: ...)>
+Discover:              <N completed✓, M errored✗ | (skipped: all audits returned CLEAN)>
+Rank:                  <N findings ranked | (skipped: no findings)>
+Critic:                <confidence summary | (skipped: ...)>
+Recall:                <HIGH/MEDIUM reconciled against memory | (blocked: ...)>
+Remediation:           <plan from AUTO_FIX findings | (skipped: ...)>
 Snapshot:              <path to handoff/audit report | (none — task ongoing)>
 Open watch:            <future obligation | (none)>
 ```
@@ -132,7 +153,8 @@ Open watch:            <future obligation | (none)>
 
 ## Failure / Stop Conditions
 
-- Any audit skill errors → mark as PARTIAL, continue with the rest
+- Not a git repo: abort at Phase 0 (`Pre-flight: (failed: not a git repo)`)
+- Some (not all) audit skills error → mark as PARTIAL, continue with the rest; all error → UNABLE_TO_AUDIT
 - All audits return CLEAN → write a "no findings" memory; a clean baseline is
   itself valuable evidence
 - If user invokes during active development → defer non-blocking audits to next

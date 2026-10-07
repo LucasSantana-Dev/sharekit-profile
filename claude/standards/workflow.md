@@ -61,9 +61,9 @@ Running independent units sequentially in the main context is a contract violati
 
 ### Worktrees
 
-A worktree is required only for write-capable agents when 2+ agents touch the same repo: one each, at `${DEV_ROOT}/.worktrees/<task>-<n>/` (via `EnterWorktree` or `git worktree add`). Read-only agents (`Explore`, `Plan`, `critic`, `code-reviewer`, `security-reviewer`, `document-specialist`, `explore`) share the checkout.
+A worktree is required only for write-capable agents when 2+ agents touch the same repo: one each, at `${DEV_ROOT:-$HOME/dev}/.worktrees/<task>-<n>/` (via `EnterWorktree` or `git worktree add`). Read-only agents (`Explore`, `Plan`, `critic`, `code-reviewer`, `security-reviewer`, `document-specialist`, `explore`) share the checkout.
 
-- Never use `~/.claude/worktrees/` or internal-disk paths. If `${DEV_ROOT}` is unmounted, halt and tell the user.
+- Never use `~/.claude/worktrees/` or internal-disk paths. If `${DEV_ROOT:-$HOME/dev}` is unmounted, halt and tell the user.
 - After agents finish, `git worktree remove` those merged or abandoned; keep only in-flight ones.
 
 ### Anti-patterns

@@ -89,7 +89,7 @@ Every user prompt triggers `UserPromptSubmit` hooks (0-overhead):
 | Implement independently-parallelizable tasks | `/dispatch` or `/orchestrate` | Fans out parallel agents, reconciles results |
 | Review code before merge | `/review` | Severity-rated findings (bugs, regressions, security > style) |
 | Debug a failing test or prod error | `/debug` | Systematic root-cause analysis |
-| Full project health check | `/verify` + `/secure` | Validation gates + security-first assessment |
+| Full project health check | `/verify-before-done` + `/secure` | Validation gates + security-first assessment |
 | Refactor a module end-to-end | `/refactor` or `/plan` + `/orchestrate` | Surgical refactoring or scoped team work |
 | Ship work + capture memory | `/ship` + `/knowledge-loop` | Releases work, syncs memory, and writes handoff when needed |
 
@@ -355,9 +355,9 @@ Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete r
 
 **Consolidated catalog**: the skill catalog was reduced from 103 repo-tracked skills to 50 (wave 1), then further pruned to 39 active (wave 2, 2026-07-01) by merging skill families, removing zero-use wrappers (ponytail, quality-gates, quality-assurance, rag-maintenance, scope-it, architecture-patterns, codebase-design, context-save, domain-modeling, request-refactor-plan, setup-pre-commit), and consolidating RAG operations. 64 skills archived in `claude/skills/.archive/` (recoverable). See `/docs/composites.md` for archived skill replacements.
 
-**Core Development** (13): add, debug, fallback, impeccable, loop, plan, refactor, review, ship, tdd, test-driven-development, verify, xp
+**Core Development** (13): add, debug, fallback, impeccable, loop, plan, refactor, review, ship, tdd, test-driven-development, verify-before-done, xp
 
-**Architecture & Design** (4): decide, decide-now, frontend-design, prototype
+**Architecture & Design** (3): frontend-design, prototype, research-and-decide
 
 **Context & Memory** (6): codebase-memory, context-pack, graphify, handoff, knowledge-loop, memory-prune
 
@@ -365,11 +365,11 @@ Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete r
 
 **Session** (1): session-bootstrap
 
-**Quality & Release** (7): changelog-update, ci-watch, dep-sweep, pr-merge-readiness, version-bump, verify, xp
+**Quality & Release** (7): changelog-update, dep-sweep, gh-fix-ci, pr-merge-readiness, version-bump, verify-before-done, xp
 
 **RAG** (4): adt-rag, adt-rag-drift, rag-curate, recall
 
-**Planning & Meta** (3): brainstorming, secure, skill-creator-plugin
+**Planning & Meta** (3): grill-with-options, secure, skill-creator-plugin
 
 
 The full catalog with triggers and frontmatter details is indexed by `hooks/skill-index.sh` and listed in `~/.claude/SKILLS.md`. Archived skills can be restored from `claude/skills/.archive/`.
@@ -467,7 +467,7 @@ Key policy documents in `~/.agents/skills/standards/`:
 1. /session-bootstrap (chains resume/priority/context-pack)
 2. /plan or /dispatch for complex work
 3. /dispatch or /orchestrate (≥2 independent tasks) or /loop (single task)
-4. /review + /quality-gates or /verify (before merge)
+4. /review + /quality-gates or /verify-before-done (before merge)
 5. /ship + /knowledge-loop (release, memory, handoff)
 ```
 
@@ -477,9 +477,9 @@ When composite-router emits `🎯 Composite match: /<name>`: invoke that composi
 | Task | Use Composite | Why |
 |------|---------------|-----|
 | Refactor a module | `/refactor` or `/plan` + `/orchestrate` | Preserves plan → team → validation → decision capture without restoring archived wrapper names |
-| Onboard repo | `/session-bootstrap` + `/verify` + `/secure` | Intake, context, gates, and first safe action |
+| Onboard repo | `/session-bootstrap` + `/verify-before-done` + `/secure` | Intake, context, gates, and first safe action |
 | Build feature from scratch | `/plan` + `/frontend-design`/`tdd`/`ship` | Research, scope, design, test, and release through active skills |
-| Health check | `/verify` + `/secure` | Composes tests, config, security, MCP, and release evidence |
+| Health check | `/verify-before-done` + `/secure` | Composes tests, config, security, MCP, and release evidence |
 | End session | `/knowledge-loop` | Captures memory, curates weak recall, and writes handoff |
 
 ### Model Selection
@@ -548,7 +548,7 @@ The profile ships a **Ledger** system: one vault for all projects (memory + grap
 - **Policy questions:** check `~/.agents/skills/standards/` for decision rules
 - **Hook debugging:** inspect `~/.claude/tool-failures.log`
 - **Token analysis:** use diagnostics/flywheel reports for weekly spend review
-- **System health:** `/quality-assurance` + `/verify` for project checks
+- **System health:** `/quality-assurance` + `/verify-before-done` for project checks
 - **Stuck:** `/fallback` to recover or `/plan` to reframe unclear work
 
 ---
