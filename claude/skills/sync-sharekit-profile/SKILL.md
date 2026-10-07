@@ -175,9 +175,13 @@ Replace machine-specific and identity references with generic placeholders. Appl
 > operands into no-ops (`s|${DEV_ROOT}|${DEV_ROOT}|g`) and breaks the negated-address
 > protection above them (found 2026-07-10, caught in PR review before merge).
 
+`*.txt` is in scope since 2026-10-07: eval fixtures (`skills/*/evals/files/*.txt`) carried the
+external-drive mount path unsanitized, so the #231 re-sync had to keep the older
+knowledge-loop evals.
+
 ```bash
 # Use /usr/bin/find explicitly — RTK's find wrapper silently drops compound -o predicates
-/usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" -o -name "*.py" -o -name "*.json" -o -name "*.toml" -o -name "*-gate" -o -name "*-reminder" \) | while read f; do
+/usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" -o -name "*.py" -o -name "*.json" -o -name "*.toml" -o -name "*.txt" -o -name "*-gate" -o -name "*-reminder" \) | while read f; do
   case "$f" in */sync-sharekit-profile/*) continue ;; esac
 
   # Personal paths (specific BEFORE bare so the prefix isn't half-replaced). Always emit the
@@ -254,7 +258,7 @@ regex operands. Lowercase compounds (`acme/lucky`, `-work-lucky`) still never ma
 Phase 4 eval-fixture check below catches them.
 
 ```bash
-/usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" -o -name "*.json" \) | while read f; do
+/usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" -o -name "*.json" -o -name "*.txt" \) | while read f; do
   case "$f" in */sync-sharekit-profile/*) continue ;; esac
   sed -i '' 's|[[:<:]]Lucky[[:>:]]|<project-a>|g' "$f"
   sed -i '' 's|[[:<:]]Criativaria[[:>:]]|<project-b>|g' "$f"
@@ -401,7 +405,7 @@ while IFS= read -r f; do
     PERSONAL_REFS="$PERSONAL_REFS
 $f"
   fi
-done < <(/usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" -o -name "*.py" \))
+done < <(/usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" -o -name "*.py" -o -name "*.txt" \))
 
 echo "Phase 4 scan: $(echo "$PERSONAL_REFS" | grep -c . || echo 0) files with residual personal refs"
 ```
@@ -416,14 +420,16 @@ Report the full exclusion list, even if empty: `Phase 4: 0 files excluded` is a 
 **Eval fixtures, case-insensitive.** Phase 3b only rewrites word-bounded proper nouns, so a
 fixture keeps lowercase compounds (`acme/lucky`, `-work-lucky`) and other casings. Any hit
 excludes that skill's whole `evals/` dir (a partial removal leaves `evals.json` pointing at
-missing files). Fix the source fixture with a fictional name, then
-re-sync. `sync-sharekit-profile` is skipped for the same self-reference reason as above.
+missing files). It also flags the real personal path prefixes Phase 3 rewrites: a hit means a
+fixture type Phase 3 does not cover (`.yml`, `.js`, a Dockerfile). Fixtures with fictional paths
+(`/Users/dev/...`, `/System/Volumes/Data`) do not match. Fix the source fixture with a fictional
+name or path, then re-sync. `sync-sharekit-profile` is skipped for the same self-reference reason as above.
 
 ```bash
 /usr/bin/find "$PROFILE_DIR/skills" -type d -name evals -prune -print | while read -r d; do
   case "$d" in */sync-sharekit-profile/*) continue ;; esac
-  if grep -rqiE 'lucky|criativaria|cojam|homelab' "$d"; then
-    grep -rniE 'lucky|criativaria|cojam|homelab' "$d" | head -5
+  if grep -rqiE 'lucky|criativaria|cojam|homelab|/Volumes/External|/Users/lucassantana' "$d"; then
+    grep -rniE 'lucky|criativaria|cojam|homelab|/Volumes/External|/Users/lucassantana' "$d" | head -5
     rm -rf "$d"
     echo "Excluded (private-name): ${d#"$PROFILE_DIR/"}/"
   fi
