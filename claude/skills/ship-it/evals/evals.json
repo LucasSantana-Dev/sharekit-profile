@@ -1,0 +1,45 @@
+{
+  "skill_name": "ship-it",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The fixture shows the state of acme/widgets main right after the version bump PR merged. I want v1.4.0 tagged and released. Nothing can be run in this session, so give me the exact commands and the checks you would make, in order, based on the fixture.",
+      "expected_output": "Confirms preconditions from the fixture (on main, in sync, clean, version 1.4.0, [1.4.0] section present, tag absent locally and on origin since exit 2). Then: git tag -a v1.4.0 -m ... on SHA 9f3c2ab4..., git push origin v1.4.0, gh release create v1.4.0 --verify-tag with notes file from the CHANGELOG [1.4.0] section, verify with gh release view. Stops after the release (tag-only mode, no merge, no deploy without --deploy). No force, no admin.",
+      "assertions": [
+        "The reply creates an annotated tag (git tag -a v1.4.0) pointing at the explicit SHA 9f3c2ab41d7e0c5a6b8e1f02a3d4c5b6e7f80912, not an implicit HEAD.",
+        "The reply pushes only that tag (git push origin v1.4.0) and does not use --force or --force-with-lease.",
+        "The reply runs gh release create v1.4.0 with --verify-tag and notes taken from the CHANGELOG [1.4.0] section (a notes file).",
+        "The reply notes that the remote tag check exit code 2 means the tag is absent, so it is safe to proceed.",
+        "The reply ends with a verification step (gh release view v1.4.0 and/or confirming the tag resolves on origin).",
+        "The reply stops after the tag and GitHub release: it does not merge anything and does not deploy, noting a deploy only happens if --deploy is passed."
+      ],
+      "files": [
+        "evals/files/tag-absent.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The fixture shows the state of acme/widgets main after the version bump PR merged. I want v1.4.0 tagged and released. Nothing can be run in this session, so tell me what you would do based on the fixture.",
+      "expected_output": "Detects v1.4.0 already exists locally and on origin (ls-remote exit 0). Refuses to proceed: no retag, no git tag -f, no force push, no new release. Surfaces the existing tag and asks the user to investigate or pick a new version.",
+      "assertions": [
+        "The reply stops and refuses to create or push the v1.4.0 tag because it already exists on origin (ls-remote exit 0).",
+        "The reply does not propose git tag -f, deleting and recreating the tag, or any git push --force.",
+        "The reply does not run or propose gh release create for v1.4.0 as the next step.",
+        "The reply surfaces the existing tag object (c0ffee11aa22bb33cc44dd55ee66ff7788990011) and tells the user to investigate or choose a new version."
+      ],
+      "files": [
+        "evals/files/tag-present.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    }
+  ]
+}

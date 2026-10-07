@@ -1,0 +1,33 @@
+# acme/widgets npm monorepo (fixture)
+$ git status --porcelain
+(empty)
+$ git branch --show-current
+main
+$ git tag -l "v1.4.0"
+(empty)
+$ gh repo view --json autoMergeAllowed -q .autoMergeAllowed
+false
+$ grep '"version"' package.json packages/*/package.json
+package.json:  "version": "1.3.2",
+packages/core/package.json:  "version": "1.3.2",
+packages/cli/package.json:  "version": "1.3.2",
+$ git log v1.3.2..HEAD --format=%s
+feat(cli): add --json output flag
+fix(core): handle empty config file
+docs: update install guide
+chore: bump eslint
+$ sed -n 1,22p CHANGELOG.md
+# Changelog
+
+## [Unreleased]
+
+### Added
+- **JSON output** - cli supports --json (#198)
+
+### Fixed
+- **Empty config** - core no longer throws on empty config (#201)
+
+## [1.3.2] - 2026-09-12
+
+### Fixed
+- **Retry loop** - sync client backs off correctly (#190)

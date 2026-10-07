@@ -19,7 +19,7 @@ Composite skill. Chains existing skills into spec-kit's phase order and terminol
 - The `composite-router` hook emits `🎯 Composite match: /spec-driven-develop`. Composite-first is mandatory: invoke this, never its sub-skills by hand, because the sub-skills do not enforce the phase order, the reconciliation block, or the stop conditions.
 - Another composite hands off a spec-shaped remainder ("the rest needs a real plan").
 
-It does NOT fire on: trivial mechanical edits, read-only asks, or when a named lifecycle composite (hotfix, incident-response, release-cut, merge-confidently, debug-deep) matches. See Stop conditions.
+It does NOT fire on: trivial mechanical edits, read-only asks, or when a named lifecycle composite (hotfix, incident-response, ship-it, merge-confidently, debug-deep) matches. See Stop conditions.
 
 ## Why this exists
 
@@ -86,7 +86,7 @@ A phase with no work to do is marked `SKIPPED (precondition <X> not met)`, never
 
 - **Trivial edit** (<3 files, mechanical, no ambiguity): skip this pipeline entirely, go straight to `add` or a direct edit. Forcing the full phase sequence on a one-line fix is the exact overhead the "negative rules" in `skill-authoring.md` warn against.
 - **Read-only ask** (audit, analysis, question): this skill doesn't apply — use the diagnostic skill directly.
-- **A more specific composite matches** (hotfix, incident-response, release-cut, merge-confidently, debug-deep, or any other named lifecycle composite): defer to it. This skill is the default for build/add/fix/implement when nothing more specific matches, not a universal override — that exception holds regardless of how "mandatory" the default framing reads elsewhere.
+- **A more specific composite matches** (hotfix, incident-response, ship-it, merge-confidently, debug-deep, or any other named lifecycle composite): defer to it. This skill is the default for build/add/fix/implement when nothing more specific matches, not a universal override — that exception holds regardless of how "mandatory" the default framing reads elsewhere.
 - **Bailing mid-phase**: surface the blocker as this skill's output, mark the phase incomplete, resume next turn — never silently drop to ad-hoc editing (same contract as other composites, `standards/composite-contract.md`).
 
 ## Negative rules

@@ -43,7 +43,8 @@ it when the PR is the user's own.
   commit and push to that branch) is T1: proceed and report. No approval step, no plan skill.
 - Rebase plus `git push --force-with-lease` to the user's OWN PR branch is T1. Any shared branch
   (main, release, a branch others push to) is T3: ask.
-- T3, ask the user: merges into main, other-author PRs (halted above), protection or ruleset
+- Merging your own PR after a MERGE verdict is T2 (critic pass plus gates log line; see `merge-confidently`).
+- T3, ask the user: merges into main of another author's PR (halted above), protection or ruleset
   changes, production or deploy workflows, secrets or credentials, destructive actions such as
   close and recreate PR or force-push of shared history.
 - Read-only diagnosis (Watch, triage and report, steps 1 to 6) is T0: proceed silently.
@@ -135,7 +136,7 @@ anything from an UNKNOWN or BLOCKED label. Then:
 
 | mergeable / state | Action |
 |---|---|
-| `MERGEABLE` + `CLEAN` | proceed to merge (merging itself is a T2/T3 call, not part of this skill) |
+| `MERGEABLE` + `CLEAN` | proceed to merge (merging itself is a T2 call for your own PR, not part of this skill) |
 | `MERGEABLE` + `UNSTABLE` | non-required check failing or pending; poll required-only checks |
 | `MERGEABLE` + `BEHIND` | `gh pr update-branch`, or local rebase plus `git push --force-with-lease` to the user's OWN PR branch (T1). Any shared branch: T3, ask |
 | `MERGEABLE` + `BLOCKED` | check `reviewDecision` and branch protection (`requiredStatusChecks`, `requiredApprovingReviewCount`, conversation resolution). Review or protection block: surface it to the user, never toggle protection |

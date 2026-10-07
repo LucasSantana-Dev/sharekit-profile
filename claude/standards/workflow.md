@@ -70,7 +70,7 @@ A worktree is required only for write-capable agents when 2+ agents touch the sa
 
 - Sequential Read() calls that could be one parallel batch.
 - Auditing N repos by `cd`-ing into each in turn.
-- Running independent diagnostics (`/test-health`, `/config-drift-detect`, `/coverage-gap`) in series.
+- Running independent diagnostics (`/test-health`, `/config-drift-detect`, `/mutation-test`) in series.
 - Two write-capable agents on the same checkout.
 
 ## Harness-native tools (prefer over skills/scripts)

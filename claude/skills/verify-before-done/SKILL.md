@@ -2,13 +2,16 @@
 name: verify-before-done
 description: 'Pre-ship gate: full matrix (lint, build, tests, coverage, sonar, CI, sentry) or quick mode (narrowest checks, PASS/FAIL/PARTIAL). Use for "is this ready?", verify, run checks, validate this.'
 user-invocable: true
-auto-invoke: pre-ship-verification + "is this ready" + "can I ship" + "before I merge" + "double-check before release" + "verify" + "run checks" + "validate this"
+auto-invoke: pre-ship-verification + "is this ready" + "can I ship" + "before I merge" + "double-check before release" + "prepare to merge" + "release-ready check" + "verify" + "run checks" + "validate this"
 argument-hint: '[quick] [--strict] [--skip <gate1,gate2>]'
 triggers:
   - is this ready
   - can i ship
   - before i merge
   - pre-ship check
+  - prepare to merge
+  - release-ready check
+  - shippable
   - verify before done
   - double-check before release
   - verify
@@ -33,10 +36,10 @@ Replaces:
 
 ## Mode selection (decide first)
 
-- **quick**: argument `quick`, or a caller (for example `/ship` step 1) asks for quick
+- **quick**: argument `quick`, or a caller asks for quick
   mode, or a bare "verify", "run checks", "validate this".
 - **full**: `--strict`, or any ship/merge/release readiness phrase ("is this ready",
-  "can I ship", "before I merge/ship/release", "double-check before release").
+  "can I ship", "prepare to merge", "release-ready check", "before I merge/ship/release", "double-check before release").
 - Conflict between signals: use **full**.
 
 ## When this fires
@@ -44,7 +47,7 @@ Replaces:
 Auto-invoke when ANY apply:
 - User says "is this ready", "can I ship", "can I merge", "before I release",
   "double-check before <verb>", "verify", "run checks", "validate this"
-- A composite (`ship`, `ship-it`, `merge-confidently`, `release-cut`) is about to fire
+- A composite (`ship-it`, `merge-confidently`) is about to fire
   and the user wants a stricter check first
 - A PR has been pushed and the user wants to verify before requesting review
 
@@ -153,11 +156,19 @@ Run the FULL test suite (targeted-first applies to quick mode only). Detected te
 
 Emit `PASS`/`FAIL` with failing-test names on fail.
 
-### Phase 4 — coverage (conditional) — invoke `coverage-gap`
+### Phase 4: coverage (conditional, read-only)
 
-Only if Phase 1 detected coverage config. Invoke `coverage-gap` skill (which reads
-the threshold and computes the gap). Emit `PASS` if at or above threshold, `FAIL`
-with the gap percentage otherwise.
+Only if Phase 1 detected coverage config. Detected coverage commands:
+- Node: `npx vitest run --coverage` or `npx jest --coverage`
+- Python: `pytest --cov --cov-fail-under=<n>`
+- Go: `go test -cover ./...`
+
+Compare each configured metric (lines, branches, functions, statements) to its
+threshold. Emit `PASS` if every metric is at or above its threshold, `FAIL` with the gap
+percentage per metric otherwise. A non-zero exit from the runner's own threshold check
+(for example vitest/jest `coverageThreshold`, `--cov-fail-under`) counts as `FAIL`. This
+phase never writes tests or pushes. On FAIL, suggest `generate-tests --pr N` as a
+follow-up for the user to run; never run it inside verify.
 
 Skip with `(skipped: no coverage threshold configured)` if not applicable.
 
@@ -211,7 +222,7 @@ Verdict: <READY-TO-SHIP | NOT-READY | NEEDS-ATTENTION> ✅ DONE
 Blockers (in priority order):
   1. <gate>: <what to do>
   2. ...
-Recommended next skill: <e.g., /gh-fix-ci or /ship or /merge-confidently>
+Recommended next skill: <e.g., /gh-fix-ci or /merge-confidently or /ship-it>
 Snapshot:        (none — verify-before-done is a gate, not a write)
 Open watch:      (none) | <future-dated obligation>
 ```
@@ -270,8 +281,7 @@ Optional repo-local `.claude/verify-before-done.json`:
 
 ## Integration
 
-- **Pairs with `/ship`**: `/ship` step 1 runs `/verify-before-done quick`, which returns
-  `PASS` / `FAIL` / `PARTIAL`; `/ship` proceeds only on `PASS` (or acknowledged `PARTIAL`).
+- **Quick mode** returns `PASS` / `FAIL` / `PARTIAL`; a caller proceeds only on `PASS` (or acknowledged `PARTIAL`).
   Use full mode (`READY-TO-SHIP` / `NOT-READY` / `NEEDS-ATTENTION`) for a stricter pre-release gate
 - **Pairs with `/merge-confidently`** — runs as a stricter pre-merge gate
 - **Pairs with release-please** — runs on `main` before the pending release PR is merged
@@ -279,7 +289,8 @@ Optional repo-local `.claude/verify-before-done.json`:
 
 ## Related skills
 
-- `ship` — actually performs the merge/tag/release; this skill is the gate
+- `merge-confidently` / `ship-it` — actually perform the merge and the tag/release/deploy; this skill is the gate
 - `pr-merge-readiness` — broader PR-level readiness (CI + reviews + conflicts); this
   skill is narrower (local + remote quality gates only)
-- `gh-fix-ci`, `coverage-gap`, `sonar-check`, `sentry`: atomic skills called per gate
+- `gh-fix-ci`, `sonar-check`, `sentry`: atomic skills called per gate
+- `generate-tests --pr N`: suggested follow-up when the coverage gate fails (never run by verify)

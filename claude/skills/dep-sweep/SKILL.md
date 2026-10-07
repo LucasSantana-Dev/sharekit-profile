@@ -194,10 +194,10 @@ NOT configured here — it's resolved from `.claude/release-cadence-config.json`
 ## What this composite is NOT
 
 - Not a security-vuln workflow → use `/security-sweep` for advisories
-- Not a single-PR review tool → use `/pr-to-release` for one PR at a time
+- Not a single-PR review tool → use `/merge-confidently` for one PR at a time
 - Not a release cut → release-please (or `/ship-it`) ships the accumulated batch
 
 ## Pairs with
 
-- `/pr-to-release` — for non-bot PRs that pile up
+- `/merge-confidently` — for non-bot PRs that pile up
 - `/security-sweep` — when bumps are security-driven

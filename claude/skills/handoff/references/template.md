@@ -85,8 +85,8 @@ cd ${DEV_ROOT}/myapp && \
 Or:
 
 ```
-Invoke: /ship
-(verifies CI passing, merges PR #1234, triggers production deploy)
+Invoke: /merge-confidently
+(verifies CI passing, merges PR #1234; then /ship-it for the production deploy)
 ```
 
 ## Key Anchors

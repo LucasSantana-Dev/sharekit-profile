@@ -1,0 +1,21 @@
+$ gh pr list --repo acme/widgets --state open --json number,title,author,isDraft --limit 10
+[{"number":101,"title":"Add retry to sync client","author":{"login":"alex-dev"},"isDraft":false},
+ {"number":102,"title":"Refactor auth middleware","author":{"login":"alex-dev"},"isDraft":false},
+ {"number":103,"title":"Update pricing page copy","author":{"login":"alex-dev"},"isDraft":false},
+ {"number":104,"title":"Add CSV export endpoint","author":{"login":"alex-dev"},"isDraft":false}]
+
+$ gh pr view 101 --json mergeable,mergeStateStatus,reviewDecision,statusCheckRollup
+{"mergeable":"MERGEABLE","mergeStateStatus":"CLEAN","reviewDecision":"APPROVED",
+ "statusCheckRollup":[{"name":"ci / validate","conclusion":"SUCCESS"},{"name":"ci / test","conclusion":"SUCCESS"}]}
+
+$ gh pr view 102 --json mergeable,mergeStateStatus,reviewDecision,statusCheckRollup
+{"mergeable":"MERGEABLE","mergeStateStatus":"UNSTABLE","reviewDecision":"APPROVED",
+ "statusCheckRollup":[{"name":"ci / validate","conclusion":"SUCCESS"},{"name":"ci / test","conclusion":"FAILURE"}]}
+
+$ gh pr view 103 --json mergeable,mergeStateStatus,reviewDecision,statusCheckRollup
+{"mergeable":"CONFLICTING","mergeStateStatus":"DIRTY","reviewDecision":"APPROVED",
+ "statusCheckRollup":[{"name":"ci / validate","conclusion":"SUCCESS"},{"name":"ci / test","conclusion":"SUCCESS"}]}
+
+$ gh pr view 104 --json mergeable,mergeStateStatus,reviewDecision,statusCheckRollup
+{"mergeable":"MERGEABLE","mergeStateStatus":"BLOCKED","reviewDecision":"CHANGES_REQUESTED",
+ "statusCheckRollup":[{"name":"ci / validate","conclusion":"SUCCESS"},{"name":"ci / test","status":"IN_PROGRESS"}]}

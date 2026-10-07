@@ -78,12 +78,12 @@ Make "does not edit" structural, not prose. Analysis phases (research, triage, a
 
 ## Catalog topology
 
-Canonical is the only source of truth: `~/.agents/skills/` (`skills.git`) for skills + standards (`~/.claude/skills`, `~/.claude/standards`, `~/.codex/skills` symlink into it). Mirror: `~/.claude-env/skills|standards/` (downstream only; claude-env stays canonical for non-skill dotfiles). Export: the sharekit-profile repo (curated via `curated-skills.txt`; never hand-edit).
+Canonical is the only source of truth: `~/.agents/skills/` (`skills.git`) for skills + standards (`~/.claude/skills`, `~/.claude/standards`, `~/.codex/skills` symlink into it). Mirror: `~/.claude-env/standards/` (downstream only; claude-env stays canonical for non-skill dotfiles). The `~/.claude-env/skills/` mirror was retired 2026-10-07. Export: the sharekit-profile repo (curated via `curated-skills.txt`; never hand-edit).
 
 - Skill/standard edit = edit `~/.agents/skills/...` AND commit+push `skills.git` in the same session. Do not rely on the SessionStart WIP auto-commit.
 - Mirror-only commits are incomplete: commit canonical first, mirror follows via sync.
 - Multi-machine divergence: 3-way merge, never "keep newer local"; verify superset claims with `git diff`, not subagent summaries.
-- Dead symlinks: delete on BOTH roots or they return (`sync pull` rsyncs without `--delete`): `for d in ~/.agents/skills ~/.claude-env/skills; do (cd "$d" && find . -maxdepth 1 -type l ! -exec test -e {} \; -delete); done`
+- Dead symlinks: `sync pull` prunes dangling top-level symlinks in `~/.agents/skills`; by hand: `(cd ~/.agents/skills && find . -maxdepth 1 -type l ! -exec test -e {} \; -delete)`
 - Never copy a `.git` dir between roots; never commit the live set into the export repo.
 
 ## MCP manifest
@@ -92,7 +92,7 @@ Declare needed MCP servers in frontmatter so a skill never silently runs degrade
 
 ## Trigger map
 
-Workflows auto-trigger on task shape, not only slash commands. Pruned skills stay invocable by explicit `/name`. Standing reactive watch: if a real intent stops auto-routing to `incident-response`, `debug-deep` or `pr-to-release` (kept despite zero use), restore its row from git immediately.
+Workflows auto-trigger on task shape, not only slash commands. Pruned skills stay invocable by explicit `/name`. Standing reactive watch: if a real intent stops auto-routing to `incident-response`, `debug-deep` or `merge-confidently` (absorbed `pr-to-release` as `--open`), restore its row from git immediately.
 
 ### Composite-first principle
 **When multiple skills could fit and one is a composite chaining them, ALWAYS prefer the composite.** Composites enforce auto-chaining, reconciliation and stop conditions that single skills lack. Example: "the test suite is bad" invokes `fix-the-suite`, NOT `test-cleanup`.
@@ -100,11 +100,9 @@ Workflows auto-trigger on task shape, not only slash commands. Pruned skills sta
 ### Composite triggers
 Overlap: "prod is down" appears under both `hotfix` and `incident-response`; the router checks production-impact language first (incident-response), then hotfix on P0/SEV/emergency wording. See Precedence below.
 
-- `merge-confidently`: "merge this", "ship this PR", "is this ready to merge"; DIRECT-TO-MAIN repos only (no release branch).
-- `pr-to-release`: "open a PR", "merge this", "ship this change" when a release branch exists (the router probes origin for it, so "merge this" routes here, not to merge-confidently). Lands the change on release with a single `[Unreleased]` changelog line; does NOT cut a version. Kept despite zero direct use as the conditional target of the still-used merge intent.
-- `release-cut`: "cut the release", "tag a version"; MANUAL fire only; nudge when `main..release` >= 5 commits.
-- `hotfix`: "prod is down", "hotfix", "emergency fix", "P0", "SEV-1/2", "users can't X right now"; bypasses release branch, patches main directly, cherry-picks back to release.
-- `ship-it`: "deploy to prod", "release this" (post-merge).
+- `merge-confidently`: "merge this", "ship this PR", "is this ready to merge", "open PR and merge", "merge to main", "ship this change". `--open` creates the PR first on `main` via `pr-flow --base main` (adds the `[Unreleased]` changelog line outside release-please repos); default mode merges an existing PR from any branch. Trunk-based `main` only (the release-branch train is retired). Absorbed `pr-to-release` 2026-10-07. A bare "open a PR" goes to `pr-flow`.
+- `hotfix`: "prod is down", "hotfix", "emergency fix", "P0", "SEV-1/2", "users can't X right now"; patches main directly, then tags and deploys via `ship-it --from tag`.
+- `ship-it`: "deploy to prod", "release this", "prepare release", "tag a release" (post-merge). `--from tag` starts at the tag phase for an already-bumped main. Absorbed `ship` tag-only mode 2026-10-07; `release-cut` is archived.
 - `debug-deep`: bug already tried once, "intermittent", "prod but not local".
 - `research-and-decide`: "X or Y", "is X worth adopting", library/SaaS choice.
 - `knowledge-loop`: "remember this", "what did we decide", end-of-task, and the `STOP checkpoint` line from `knowledge-loop-nudge.sh` (an invocation, not a suggestion).
@@ -118,7 +116,7 @@ Overlap: "prod is down" appears under both `hotfix` and `incident-response`; the
 - `docs-sync`: after editing any skill / standard / hook.
 
 ### Core single skills (only when no composite matches)
-`route` (workflow not obvious), `next-priority` (entering a repo), `plan` (multi-step/risky), `secure` (config/auth/credentials/deps), `gh-fix-ci` (failing checks), `verify-before-done` (before merge/release/handoff), `ship` (merge-ready; ONLY if `merge-confidently` fits worse), `handoff` (context tight / session switch).
+`route` (workflow not obvious), `next-priority` (entering a repo), `plan` (multi-step/risky), `secure` (config/auth/credentials/deps), `gh-fix-ci` (failing checks), `verify-before-done` (before merge/release/handoff; "prepare to merge", "release-ready check"), `handoff` (context tight / session switch).
 
 - `repaint` is the route for ANY non-trivial UI work (build, restyle, polish, audit); its Phase 4 audits inline. `observe` is the single observability skill (instrument/debug/tune/analyze/monitor/bootstrap/audit/<homelab>, one mode per invocation); do NOT wire the full stack on local-only or hobby code with no production-shaped target; not for `/debug-deep`, `/incident-response`, `/sentry`, `/langfuse-observe`.
 
@@ -128,18 +126,17 @@ composite-router emits ` Skill match: /<name>` only when no composite matches fi
 ### Auto-chain pairs (when one fires, queue the next)
 - `test-cleanup` outputs: ALWAYS chain `mutation-test`.
 - Any skill edit: ALWAYS chain `docs-sync`.
-- Pre-`ship`: ALWAYS chain `pr-merge-readiness` (or use `merge-confidently`).
+- Pre-merge: ALWAYS chain `pr-merge-readiness` (or use `merge-confidently`).
 - Pre-`refactor`: ALWAYS chain `config-drift-detect`.
 - After hook wiring: ALWAYS queue `hook-effectiveness` for next session.
 - Bail-out from any skill: ALWAYS queue `skill-effectiveness-audit`.
 - Major decision: ALWAYS chain `adr-write`.
-- After every `pr-to-release` merge or `dep-sweep` auto-merge: check `main..release`; if >= 5 surface the `/release-cut` nudge.
-- After `hotfix` merges to main: ALWAYS cherry-pick back to release (Phase 10).
+- After `hotfix` merges to main: cherry-pick back to `release` only in a repo that opted back into the retired train (Phase 10).
 - After `hotfix` Phase 10 (defer if <6h since incident) or any revert/rollback to main: ALWAYS queue `/incident-response` Phase 3.
 - `repaint` audits inline (Phase 4); do not declare UI done while criticals remain; it authors `DESIGN.md` in token-spec when missing.
 
-### Release-branch model
-With a long-lived release branch: work to `/pr-to-release`, bot PRs to `/dep-sweep`, batch to `/release-cut`, unwaitable breakage to `/hotfix` (only acceptable bypass). First contribution to a new repo: `/onboard-new-repo` then `/pr-to-release`. `/pr-to-release` does NOT call `version-bump` or `ship`; only `/release-cut` and `/hotfix` create tags.
+### Release model
+Trunk-based `main` (release-branch train retired 2026-07-23): work to `/merge-confidently --open`, bot PRs to `/dep-sweep`, releases via release-please or `/ship-it`, unwaitable breakage to `/hotfix`. First contribution to a new repo: `/onboard-new-repo` then `/merge-confidently --open`. `/merge-confidently` does NOT call `changelog-update --bump` or tag; only `/ship-it` and `/hotfix` (via `ship-it --from tag`) create tags. Archived: `pr-to-release`, `release-cut`, `ship` (see `~/.agents/skills-archive/redirects.yaml`).
 
 ### Negative rules
 - Diagnostic skills run on a launchd schedule (Sundays 03:00). Do not invoke them unless asked.

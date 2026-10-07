@@ -1,5 +1,5 @@
 $ gh pr view 60 --json number,author,mergeStateStatus,reviewDecision
-{"number":60,"author":{"login":"lucas-dev"},"mergeStateStatus":"UNSTABLE","reviewDecision":"","comments":[],"reviews":[]}
+{"number":60,"author":{"login":"alex-dev"},"mergeStateStatus":"UNSTABLE","reviewDecision":"","comments":[],"reviews":[]}
 
 $ gh pr checks 60 --json name,bucket,state,link,workflow
 [

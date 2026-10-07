@@ -1,8 +1,8 @@
 ---
 name: pr-merge-readiness
-description: Aggregate every PR merge signal (CI, reviews, conflicts, scans, bot reviewers) into one verdict, MERGE / WAIT / FIX. Use as the one-call check before merging.
+description: Aggregate every PR merge signal (CI, reviews, conflicts, scans, bots) into one verdict, MERGE / WAIT / FIX. Use before merging. --batch [N...] gives a read-only verdict table for several PRs or all your open PRs.
 user-invocable: true
-argument-hint: "[<PR number or URL>] [--strict]"
+argument-hint: "[<PR number or URL>] [--strict] [--batch [N...] [--quick] [--repo owner/name]]"
 metadata:
   owner: global-agents
   tier: contextual
@@ -13,6 +13,9 @@ triggers:
   - merge check
   - is this pr ready
   - merge readiness
+  - pr-snapshot
+  - batch pr check
+  - pr status table
 ---
 
 # PR Merge Readiness
@@ -30,7 +33,7 @@ collects every signal and outputs one verdict.
 
 ## Do Not Use When
 
-- The PR is still WIP and you know it isn't done — use `ship` later
+- The PR is still WIP and you know it isn't done — use `merge-confidently` later
 - Only one signal matters (e.g., just need CI status): use `gh-fix-ci` directly (report-only mode)
 - The work is on a branch with no PR yet — use `pr-flow` to create one first
 
@@ -39,6 +42,71 @@ collects every signal and outputs one verdict.
 - `gh` CLI authenticated for the repo
 - PR number, URL, or current branch (defaults to current branch's open PR)
 - `--strict` flag: fail on any non-passing signal, even informational ones
+- `--batch [N...] [--quick]` flag: batch mode (see "Batch mode" below)
+
+## Batch mode (`--batch [N...] [--quick]`)
+
+Verdict many PRs at once. Replaces the retired `pr-snapshot` skill. Batch verdicts are
+identical to single-PR verdicts (same 9 signals, same thresholds, same verdict table,
+`--strict` included, so `--strict` size rules apply too).
+
+Targets:
+
+- `--batch 645 646 647`: verdict each listed PR in the current repo (or `--repo owner/name`).
+- `--batch` with no numbers, inside a git repo: all my open PRs there,
+  `gh pr list --author @me --state open --json number --limit 50`.
+- `--batch` with no numbers, outside a git repo and no `--repo`: never stop to ask. Run
+  `gh search prs --author=@me --state=open --json repository,number,title,url`, group
+  by repository, and run one batched query per repo.
+
+Procedure:
+
+1. Collect PR numbers (and repos). Zero PRs: print "No open PRs" and stop.
+2. Per repo, fetch every signal in ONE `gh api graphql` call (one alias per PR number).
+   Per PR request: title, state, isDraft, mergeable, mergeStateStatus, reviewDecision,
+   `reviewRequests`, additions, deletions, changedFiles, createdAt, updatedAt, author,
+   `baseRefName`, `headRefName`, `statusCheckRollup` (CI, plus the Sonar and Socket
+   check names), `comments(last:50){ author{login} body }` (CodeRabbit, Greptile),
+   `closingIssuesReferences(first:5){ nodes{ number state closedAt } }`, and staleness
+   via `baseRef{ compare(headRef: "<head>"){ behindBy } }`. If the GraphQL `compare`
+   field is unavailable, use `gh api repos/{o}/{r}/compare/{base}...{head}` (`behind_by`)
+   and say so in the output. Never use local `git rev-list` in batch mode, and never
+   loop `gh pr view` per PR. An unavailable staleness value is WARN, not PASS.
+3. Evaluate all 9 signals per PR with the single-PR rules. Non-OPEN PRs (MERGED/CLOSED)
+   get no verdict: show State and sort them last.
+4. Print one compact table, one row per PR:
+
+```
+#PR  Title (max 50 chars)       State   CI       Age  Verdict  Blocking signal        Next action
+---  -------------------------  ------  -------  ---  -------  ---------------------  --------------------------
+645  Add auth refresh flow              pass     1d   MERGE    none                   gh pr merge 645 --squash
+646  Fix cache invalidation             pending  2d   WAIT     CI running             re-run when checks finish
+647  Bump dependencies                  fail     5d   FIX      CI: ci / test failing  /gh-fix-ci
+650  Old experiment             CLOSED  pass     40d  none     closed                 none
+```
+
+   State is blank when OPEN. CI is pass, pending or fail from the rollup. Age is days
+   since updatedAt. Order: open rows MERGE, then WAIT, then FIX, then PR number; non-OPEN
+   rows last. Blocking signal is the first FAIL (else first WARN), named concretely.
+   Unknown or unfetchable signals count as WARN, never PASS. Add one totals line, e.g.
+   `1 MERGE, 1 WAIT, 1 FIX`. For one PR's full signal list, re-run without `--batch`.
+5. Next action. For a PR authored by someone else, or my PR that has comments from a
+   human (non-bot) reviewer, write `halt: tell user` and never a merge command.
+6. Not found or errors. A PR number that resolves to nothing gets a "not found" row;
+   retry the query without it instead of failing the batch. On rate-limit or network
+   errors mark the affected rows WAIT ("could not check"); never invent a verdict.
+
+`--quick`: base signals only (state, CI rollup, review decision, mergeable, age). Used by
+`session-bootstrap`. Verdicts in quick mode are provisional: skip signals 5 to 9, and
+label the verdict column `Verdict*` with a footnote that third-party, size, staleness and
+card signals were not evaluated. Unknown stays WARN.
+
+Batch hard rules (inline, not negotiable):
+
+- Read-only. Never merge, rebase, comment, label, approve or push, even for a MERGE row.
+  The next-action column is a suggestion only.
+- One batched query for all signals (per repo), not a per-PR loop.
+- PRs authored by someone else may be listed but are never acted on.
 
 ---
 

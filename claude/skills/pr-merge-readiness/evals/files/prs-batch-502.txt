@@ -1,0 +1,10 @@
+# Batched GraphQL result for acme/widgets, my open PRs (author alex-dev), one query, all signals
+pr301 "Add retry to sync client": isDraft=false, mergeable=MERGEABLE, mergeStateStatus=CLEAN,
+  reviewDecision=APPROVED, rollup: ci / validate SUCCESS, ci / test SUCCESS, behindBy=2,
+  additions=90, deletions=10, changedFiles=4, updatedAt 1 day ago, comments: none,
+  closingIssuesReferences: #12 OPEN
+pr302 "Add CSV export endpoint": node error: "HTTP 502 Bad Gateway" (no data returned for this PR)
+pr303 "Refactor auth middleware": isDraft=false, mergeable=MERGEABLE, mergeStateStatus=UNSTABLE,
+  reviewDecision=APPROVED, rollup: ci / validate SUCCESS, ci / test FAILURE, behindBy=1,
+  additions=140, deletions=60, changedFiles=7, updatedAt 2 days ago, comments: none,
+  closingIssuesReferences: none
