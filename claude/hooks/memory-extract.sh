@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# shellcheck source=py-resolve.sh
+. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
 # memory-extract.sh: PreCompact + SessionEnd hook. One extractor for both events.
 # Scans the session JSONL for decision/learning markers and writes a memory note that
 # reindex-hook picks up. Replaces pre-compact-memory-snapshot.sh and sessionend-memory-writer.sh.
@@ -7,7 +9,7 @@
 #   SessionEnd: only for expensive sessions (>$50 estimated OR >500 turns).
 #               Note: session_end_<ts>.md.
 set -uo pipefail
-command -v python3 >/dev/null 2>&1 || exit 0
+[ -n "$PY" ] || exit 0
 command -v jq >/dev/null 2>&1 || exit 0
 
 INPUT=$(cat 2>/dev/null || true)
@@ -31,12 +33,12 @@ CWD=$(jq -r '.cwd // empty' <<<"$INPUT" 2>/dev/null)
 if [ -n "$CWD" ] && [ "$("$HOME/.claude/scripts/repo-mode.sh" "$CWD" 2>/dev/null || echo solo)" = "cooperative" ]; then
   RESOLVED=$(cd "$MEMORY_DIR" 2>/dev/null && pwd -P || echo "$MEMORY_DIR")
   case "$RESOLVED" in
-    "${DEV_ROOT}/knowledge-brain"*) MEMORY_DIR="$PROJECT_DIR/memory-coop"; mkdir -p "$MEMORY_DIR" 2>/dev/null || exit 0 ;;
+    "${DEV_ROOT:-$HOME/dev}/knowledge-brain"*) MEMORY_DIR="$PROJECT_DIR/memory-coop"; mkdir -p "$MEMORY_DIR" 2>/dev/null || exit 0 ;;
   esac
 fi
 
 TS=$(date -u +%Y-%m-%dT%H-%M-%SZ)
-OUT=$(python3 - "$MODE" "$JSONL" "$SID" "$MEMORY_DIR" "$TS" <<'PY' 2>/dev/null || true
+OUT=$("$PY" - "$MODE" "$JSONL" "$SID" "$MEMORY_DIR" "$TS" <<'PY' 2>/dev/null || true
 import json, os, re, sys
 mode, path, sid, mdir, ts = sys.argv[1:6]
 
@@ -111,6 +113,6 @@ PY
 [ -n "$OUT" ] || exit 0
 
 # Write-path guard: redact any secrets captured from the session JSONL, stamp provenance.
-python3 "${DEV_ROOT}/rag-index/memory_guard.py" guard "$OUT" \
+"$PY" "${DEV_ROOT:-$HOME/dev}/rag-index/memory_guard.py" guard "$OUT" \
   --provenance hook-auto --trust trusted 2>/dev/null || true
 exit 0

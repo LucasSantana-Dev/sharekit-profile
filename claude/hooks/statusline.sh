@@ -10,7 +10,7 @@ set -uo pipefail
 INPUT=$(cat 2>/dev/null || true)
 MODEL=$(printf '%s' "$INPUT" | jq -r '.model.id // .model.display_name // ""' 2>/dev/null | tr '[:upper:]' '[:lower:]')
 APEX=""
-case "$MODEL" in *opus*|*fable*) APEX="  APEX-\$\$ routine? sonnet next session" ;; esac
+case "$MODEL" in *opus*|*fable*) APEX="  APEX-\$\$ routine?->/model sonnet" ;; esac
 
 ctx=$(printf '%s' "$INPUT" | jq -r '.context_window.used_percentage // empty' 2>/dev/null)
 count="${ctx:+${ctx%.*}%}"; count="${count:-?}"
@@ -37,7 +37,8 @@ if [ -z "$saved" ] && command -v rtk &>/dev/null; then
     else
       saved="$raw"
     fi
-    echo -n "$saved" > "$CACHE"
+    mkdir -p "$(dirname "$CACHE")" 2>/dev/null
+    echo -n "$saved" > "$CACHE" 2>/dev/null
   fi
 fi
 
