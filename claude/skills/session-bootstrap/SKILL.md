@@ -1,6 +1,6 @@
 ---
 name: session-bootstrap
-description: 'Start-of-day routine: resume --brief, next-priority, PR snapshot, context-pack. Use for "what was I doing", "what''s next", "load context".'
+description: 'Start-of-day routine: resume --brief, next-priority, PR queue, context-pack. Use for "what was I doing", "what''s next", "load context".'
 user-invocable: true
 auto-invoke: first-prompt-of-session + post-resume + post-handoff-load
 metadata:
@@ -17,7 +17,7 @@ triggers:
 # Session Bootstrap
 
 The single command for "I just sat down, get me oriented and ready to work."
-Replaces the manual `/resume --brief` → `/next-priority` → `/pr-snapshot` sequence.
+Replaces the manual `/resume --brief` → `/next-priority` → `/pr-merge-readiness --batch --quick` sequence.
 
 ## Pair with standards
 
@@ -47,10 +47,9 @@ Invoke `next-priority` to rank the highest-value safe action:
 - Drafted plans that haven't started
 
 ### Phase 3 — PR queue (always — quick, batched)
-Invoke `pr-snapshot` for one-line status across all open PRs:
-- Color-coded ready / waiting / blocked
-- Ages per PR
-- Third-party reviewer status
+Invoke `pr-merge-readiness --batch --quick` for a table across all my open PRs:
+- Provisional MERGE / WAIT / FIX verdict per PR (base signals only)
+- State, CI and age (days since update) per PR
 
 ### Phase 4 — Context pack (conditional)
 If `next-priority` returned a work item AND prompt mentions implement/refactor/fix:
@@ -80,7 +79,7 @@ Where you left off (resume --brief):
 Top priority (next-priority):
   <ranked action with reason> ✅ DONE
 
-PR queue (pr-snapshot):
+PR queue (pr-merge-readiness --batch --quick):
   ✓ #234 MERGE-ready    PR title ✅ DONE
   ⏳ #235 awaiting review ✅ DONE
   ⚠️ #236 CI failing ✅ DONE

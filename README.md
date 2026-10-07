@@ -84,14 +84,14 @@ Every user prompt triggers `UserPromptSubmit` hooks (0-overhead):
 
 | Task | Use This | Why |
 |------|----------|-----|
-| Start day, understand blocking work | `/session-bootstrap` | Chains wake-up → next-priority → pr-snapshot → context-pack |
+| Start day, understand blocking work | `/session-bootstrap` | Chains wake-up → next-priority → pr-merge-readiness --batch → context-pack |
 | Plan before coding | `/plan` | Validation-gated plan for multi-step work |
 | Implement independently-parallelizable tasks | `/dispatch` or `/orchestrate` | Fans out parallel agents, reconciles results |
 | Review code before merge | `/review` | Severity-rated findings (bugs, regressions, security > style) |
 | Debug a failing test or prod error | `/debug` | Systematic root-cause analysis |
 | Full project health check | `/verify-before-done` + `/secure` | Validation gates + security-first assessment |
 | Refactor a module end-to-end | `/refactor` or `/plan` + `/orchestrate` | Surgical refactoring or scoped team work |
-| Ship work + capture memory | `/ship` + `/knowledge-loop` | Releases work, syncs memory, and writes handoff when needed |
+| Ship work + capture memory | `/ship-it` + `/knowledge-loop` | Releases work, syncs memory, and writes handoff when needed |
 
 ### When to use composites vs. individual skills
 
@@ -365,7 +365,7 @@ Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete r
 
 **Session** (1): session-bootstrap
 
-**Quality & Release** (7): changelog-update, dep-sweep, gh-fix-ci, pr-merge-readiness, version-bump, verify-before-done, xp
+**Quality & Release** (7): changelog-update, dep-sweep, gh-fix-ci, pr-merge-readiness, ship-it, verify-before-done, xp
 
 **RAG** (4): adt-rag, adt-rag-drift, rag-curate, recall
 
@@ -468,7 +468,7 @@ Key policy documents in `~/.agents/skills/standards/`:
 2. /plan or /dispatch for complex work
 3. /dispatch or /orchestrate (≥2 independent tasks) or /loop (single task)
 4. /review + /quality-gates or /verify-before-done (before merge)
-5. /ship + /knowledge-loop (release, memory, handoff)
+5. /ship-it + /knowledge-loop (release, memory, handoff)
 ```
 
 ### Using Composites

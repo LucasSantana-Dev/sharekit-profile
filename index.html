@@ -746,7 +746,7 @@
       Guide
     </button>
     <button class="nav-tab" data-panel="skills">
-      Skills <span class="tab-count" id="tc-skills">48</span>
+      Skills <span class="tab-count" id="tc-skills">47</span>
     </button>
     <button class="nav-tab" data-panel="agents">
       Agents <span class="tab-count" id="tc-agents">49</span>
@@ -826,7 +826,7 @@
 <span class="c-cmd">&gt; /next-priority</span>
 <span class="c-out">→ scans active repo, open PRs, CI, memory</span>
 <span class="c-ok">✓ ranked list: start at #1</span></div>
-            <div class="term-status"><b id="st-skills">48</b> skills<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">49</b> agents<span class="sep">·</span><b>4</b> hook events wired<span class="sep">·</span><b id="st-mcp">15</b> MCP servers<span class="sep">·</span><b>22</b> standards</div>
+            <div class="term-status"><b id="st-skills">47</b> skills<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">49</b> agents<span class="sep">·</span><b>4</b> hook events wired<span class="sep">·</span><b id="st-mcp">15</b> MCP servers<span class="sep">·</span><b>22</b> standards</div>
           </div>
 
           <div class="g-proof">
@@ -854,7 +854,7 @@
               <div class="g-nodes">
                 <div class="g-node">
                   <div class="g-node-title"><span class="pip" style="background:var(--kind-skill)"></span>Skills</div>
-                  <div class="g-node-desc">One well-scoped task: <code>/ship</code>, <code>/review</code>, <code>/verify-before-done</code>. Runs in your context. Invoke with <code>/name</code> or let its description match your request.</div>
+                  <div class="g-node-desc">One well-scoped task: <code>/ship-it</code>, <code>/review</code>, <code>/verify-before-done</code>. Runs in your context. Invoke with <code>/name</code> or let its description match your request.</div>
                 </div>
                 <div class="g-node">
                   <div class="g-node-title"><span class="pip" style="background:var(--kind-hook)"></span>Composites</div>
@@ -1060,7 +1060,7 @@
             <button class="g-task" data-search="dispatch"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8M4 10l6-6m4 6l6 6"/></svg></span><span class="g-task-main"><span class="g-task-want">Run independent tasks in parallel</span><span class="g-task-skill">/dispatch · /orchestrate</span></span></button>
             <button class="g-task" data-search="review"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span><span class="g-task-main"><span class="g-task-want">Review code before merge</span><span class="g-task-skill">/review</span></span></button>
             <button class="g-task" data-search="gh-fix-ci"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10h10M8 14h2M14 14h2M7 10a4 4 0 0 0-2.83 7M17 10a4 4 0 0 1 2.83 7"/></svg></span><span class="g-task-main"><span class="g-task-want">Fix a red CI check</span><span class="g-task-skill">/gh-fix-ci</span></span></button>
-            <button class="g-task" data-search="ship"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v14m0 0L7 11m5 5l5-5"/></svg></span><span class="g-task-main"><span class="g-task-want">Ship work to production</span><span class="g-task-skill">/ship</span></span></button>
+            <button class="g-task" data-search="ship-it"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v14m0 0L7 11m5 5l5-5"/></svg></span><span class="g-task-main"><span class="g-task-want">Ship work to production</span><span class="g-task-skill">/ship-it</span></span></button>
             <button class="g-task" data-search="refactor"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20m-2 8v4m-16-4v4m4-12v16m8-16v16"/></svg></span><span class="g-task-main"><span class="g-task-want">Refactor a module safely</span><span class="g-task-skill">/refactor</span></span></button>
             <button class="g-task" data-search="audit-deep"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span><span class="g-task-main"><span class="g-task-want">Audit the whole project</span><span class="g-task-skill">/audit-deep</span></span></button>
             <button class="g-task" data-search="secure"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1L2 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-10-4z"/></svg></span><span class="g-task-main"><span class="g-task-want">Security pass before deploy</span><span class="g-task-skill">/secure</span></span></button>
@@ -1138,7 +1138,7 @@
       <div class="grid-header">
         <div>
           <div class="grid-header-title" id="grid-title">All Skills</div>
-          <div class="grid-header-sub" id="grid-sub">48 skills across 11 categories: invoke autonomously or with /<i>name</i></div>
+          <div class="grid-header-sub" id="grid-sub">47 skills across 11 categories: invoke autonomously or with /<i>name</i></div>
         </div>
         <div class="result-count" id="result-count"></div>
       </div>
@@ -1240,7 +1240,7 @@ const CATEGORIES = [
   { id: 'testing',      label: 'Testing',                     color: 'var(--kind-tool)', guide: 'Use tdd or test-driven-development when building behavior test-first.' },
   { id: 'security',     label: 'Security',                    color: 'var(--kind-hook)', guide: 'Use secure before work touching credentials, auth, dependencies, infra, or deployment shortcuts, and streamer-mode while sharing your screen.' },
   { id: 'git',          label: 'Git & PR',                    color: 'var(--kind-server)', guide: 'Use pr-merge-readiness before merge to combine CI, review, coverage, Sonar, and conflict signals.' },
-  { id: 'release',      label: 'Release & Deployment',        color: 'var(--kind-server)', guide: 'Use ship for validated release/deploy flow, changelog-update for release notes, version-bump for versioning, and gh-fix-ci when checks block release.' },
+  { id: 'release',      label: 'Release & Deployment',        color: 'var(--kind-server)', guide: 'Use ship-it for validated release/deploy flow, and changelog-update (--bump) for release notes and versioning, and gh-fix-ci when checks block release.' },
   { id: 'architecture', label: 'Architecture & Decisions',    color: 'var(--kind-skill)', guide: 'Use research-and-decide for durable architectural choices (its now mode breaks analysis paralysis), debate or grill-with-options to stress-test options, and the teardown skills to learn from other apps and codebases.' },
   { id: 'rag',          label: 'RAG & Memory',                color: 'var(--kind-agent)', guide: 'Use recall for semantic lookup, codebase-memory for structural queries, memory-prune for stale memory cleanup, rag-curate and adt-rag-drift for index health, and client-offboard to keep client knowledge scoped.' },
   { id: 'sync-docs',    label: 'Sync & Documentation',        color: 'var(--kind-tool)', guide: 'Use graphify to query a codebase knowledge graph and sync-sharekit-profile to publish your own harness profile.' },
@@ -1284,8 +1284,8 @@ const TRANSLATIONS = {
   "resume": "Reidrata a tarefa atual a partir de handoffs, planos, tarefas, notas de memória e estado do git.",
   "review": "Revisa as mudanças desde um ponto fixo em dois eixos, Padrões e Spec, em paralelo.",
   "secure": "Passada security-first em config, credenciais, risco de dependências e padrões de código inseguros. Cobre OWASP Top 10, infra (Terraform/K8s/Docker), CORS/CSRF.",
-  "session-bootstrap": "Rotina de início do dia: briefing, next-priority, snapshot dos PRs e context-pack.",
-  "ship": "Shipping ponta a ponta: version bump, changelog, tag, release no GitHub, deploy e verificação. Recusa force ou bypass de admin na main.",
+  "session-bootstrap": "Rotina de início do dia: briefing, next-priority, fila de PRs e context-pack.",
+  "ship-it": "Leva um PR já mergeado até produção: changelog-update --bump, tag e release, deploy e verificação pós-deploy. --from tag começa na fase de tag.",
   "spec-driven-develop": "Entrada padrão para build/add/fix/refactor não-trivial: especificar, planejar, quebrar em tarefas, implementar e verificar. Edits com menos de 3 arquivos pulam.",
   "streamer-mode": "Modo de segurança para live ou compartilhamento de tela: nunca mostra segredos, variáveis de ambiente, tokens, IPs ou hostnames, e adia achados de segurança para um arquivo privado.",
   "sync-memories": "Sincroniza conhecimento durável do projeto ou da sessão nos sistemas de memória para que sessões futuras tenham contexto correto.",
@@ -1294,7 +1294,6 @@ const TRANSLATIONS = {
   "test-driven-development": "Aplica TDD em qualquer feature ou bugfix: teste falhando antes do código de implementação.",
   "three-man-team": "Despacha Architect (Opus), Builder e Reviewer (Sonnet) em paralelo para tarefas complexas multi-fase.",
   "verify-before-done": "Gate pré-ship: matriz completa (lint, build, testes, cobertura, sonar, CI, sentry) ou modo rápido (checks mais estreitos, PASS/FAIL/PARTIAL).",
-  "version-bump": "Automatiza version bump em monorepos npm com promoção do CHANGELOG e PR.",
   "xp": "Extreme Programming para par humano-IA: ciclos pequenos, testes, papéis claros e refactor contínuo.",
 };
 
@@ -1335,8 +1334,8 @@ const SKILLS = [
   { name: 'resume', cat: 'session', composite: false, desc: 'Rehydrate the current task from handoffs, plans, tasks, memory notes, and git state.' },
   { name: 'review', cat: 'quality', composite: false, desc: 'Review changes since a fixed point (commit, branch, tag) on two axes, Standards and Spec, in parallel. Use to review a branch, PR or WIP, or "review since X".' },
   { name: 'secure', cat: 'security', composite: false, desc: 'Security-first pass over config, credentials, dependency risk and unsafe code patterns. Covers OWASP Top 10, infra config (Terraform/K8s/Docker), CORS/CSRF.' },
-  { name: 'session-bootstrap', cat: 'session', composite: true, desc: 'Start-of-day routine: wake-up brief, next-priority, PR snapshot, context-pack. Use for "what was I doing", "what\'s next", "load context".' },
-  { name: 'ship', cat: 'release', composite: false, desc: 'End-to-end shipping: version bump, changelog, tag, GitHub release, deploy, verify. Refuses force/admin bypass on main. Already-merged PR to prod: use ship-it.' },
+  { name: 'session-bootstrap', cat: 'session', composite: true, desc: 'Start-of-day routine: wake-up brief, next-priority, PR queue, context-pack. Use for "what was I doing", "what\'s next", "load context".' },
+  { name: 'ship-it', cat: 'release', composite: false, desc: 'Take a merged PR to production: changelog-update --bump, tag/release, deploy, post-deploy verify. --from tag starts at the tag phase. For "live in prod, verified". Unmerged work: use merge-confidently.' },
   { name: 'spec-driven-develop', cat: 'planning', composite: true, desc: 'Default entry for non-trivial build/add/fix/refactor: specify, plan, tasks, implement, verify. Not if a narrower composite (hotfix etc) fits; skip &lt;3 files.' },
   { name: 'streamer-mode', cat: 'security', composite: false, desc: 'Behavioral safety mode for when the user is live streaming or screen sharing: never print secrets, env vars, tokens, IPs, hostnames, or terminal-sensitive data on screen; substitute safe command alternatives; defer security findings to a private file instead of announcing them on stream. Use when the user says "streamer mode", "I\'m streaming", "I\'m live", "going live", "screen sharing", "recording my screen", "on stream", or "presenting/demo on Zoom/Meet".' },
   { name: 'sync-memories', cat: 'session', composite: false, desc: 'Sync durable project or session knowledge into the available memory systems so future sessions have accurate context. Use when meaningful work is complete and the user wants the result remembered.' },
@@ -1345,7 +1344,6 @@ const SKILLS = [
   { name: 'test-driven-development', cat: 'testing', composite: false, desc: 'Use when implementing any feature or bugfix, before writing implementation code. Also invoked via /tdd (alias archived: this is the canonical skill).' },
   { name: 'three-man-team', cat: 'planning', composite: true, desc: 'Parallel Architect (Opus), Builder, Reviewer (Sonnet) dispatch for complex multi-phase tasks. Use for 3+ phase features, CRITICAL work, or PRs over 5 files.' },
   { name: 'verify-before-done', cat: 'quality', composite: false, desc: 'Pre-ship gate: full matrix (lint, build, tests, coverage, sonar, CI, sentry) or quick mode (narrowest checks, PASS/FAIL/PARTIAL). Use for "is this ready?", verify, run checks, validate this.' },
-  { name: 'version-bump', cat: 'release', composite: false, desc: 'Automate version bumping in npm monorepos with CHANGELOG promotion and PR automation' },
   { name: 'xp', cat: 'planning', composite: false, desc: 'Extreme Programming for AI-human pair development. Use when: pair programming with your AI, building incrementally with tests, working with clear role division, or the user mentions XP/YAGNI/simple design/continuous refactoring.' },
 ];
 
@@ -1937,7 +1935,7 @@ const GUIDE_PT = {
     <div class="g-hero-badge"><span class="dot"></span> Harness operador · referência viva</div>
     <h1>Seu <span class="g-accent">operador</span> autônomo de engenharia.</h1>
     <p class="g-hero-sub">
-      Um ambiente operador de agentes totalmente conectado: 48 <strong>skills</strong> ativas repo-tracked que você invoca,
+      Um ambiente operador de agentes totalmente conectado: 47 <strong>skills</strong> ativas repo-tracked que você invoca,
       <strong>composites</strong> que as encadeiam com gates, <strong>sub-agentes</strong> que fazem trabalho
       isolado em paralelo e <strong>hooks</strong> que disparam automaticamente a cada prompt.
       Esta página é o mapa: comece aqui e depois mergulhe no catálogo.
@@ -1957,7 +1955,7 @@ const GUIDE_PT = {
 <span class="c-cmd">&gt; /next-priority</span>
 <span class="c-out">→ varre o repo ativo, PRs abertos, CI, memória</span>
 <span class="c-ok">✓ lista priorizada: comece pelo #1</span></div>
-      <div class="term-status"><b id="st-skills">48</b> skills ativas<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">49</b> agentes<span class="sep">·</span><b>4</b> eventos de hook ligados<span class="sep">·</span><b id="st-mcp">15</b> servidores MCP<span class="sep">·</span><b>22</b> standards</div>
+      <div class="term-status"><b id="st-skills">47</b> skills ativas<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">49</b> agentes<span class="sep">·</span><b>4</b> eventos de hook ligados<span class="sep">·</span><b id="st-mcp">15</b> servidores MCP<span class="sep">·</span><b>22</b> standards</div>
     </div>
 
     <div class="g-proof">
@@ -1983,7 +1981,7 @@ const GUIDE_PT = {
         <div class="g-nodes">
           <div class="g-node">
             <div class="g-node-title"><span class="pip" style="background:var(--kind-skill)"></span>Skills</div>
-            <div class="g-node-desc">Uma tarefa bem delimitada: <code>/ship</code>, <code>/review</code>, <code>/verify-before-done</code>. Roda no seu contexto. Invoque com <code>/nome</code> ou deixe a descrição dela casar com o seu pedido.</div>
+            <div class="g-node-desc">Uma tarefa bem delimitada: <code>/ship-it</code>, <code>/review</code>, <code>/verify-before-done</code>. Roda no seu contexto. Invoque com <code>/nome</code> ou deixe a descrição dela casar com o seu pedido.</div>
           </div>
           <div class="g-node">
             <div class="g-node-title"><span class="pip" style="background:var(--kind-hook)"></span>Composites</div>
@@ -2181,7 +2179,7 @@ const GUIDE_PT = {
       <button class="g-task" data-search="dispatch"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8M4 10l6-6m4 6l6 6"/></svg></span><span class="g-task-main"><span class="g-task-want">Rodar tarefas independentes em paralelo</span><span class="g-task-skill">/dispatch · /orchestrate</span></span></button>
       <button class="g-task" data-search="review"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span><span class="g-task-main"><span class="g-task-want">Revisar código antes do merge</span><span class="g-task-skill">/review</span></span></button>
       <button class="g-task" data-search="gh-fix-ci"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10h10M8 14h2M14 14h2M7 10a4 4 0 0 0-2.83 7M17 10a4 4 0 0 1 2.83 7"/></svg></span><span class="g-task-main"><span class="g-task-want">Consertar um check de CI vermelho</span><span class="g-task-skill">/gh-fix-ci</span></span></button>
-      <button class="g-task" data-search="ship"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v14m0 0L7 11m5 5l5-5"/></svg></span><span class="g-task-main"><span class="g-task-want">Subir trabalho para produção</span><span class="g-task-skill">/ship</span></span></button>
+      <button class="g-task" data-search="ship-it"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v14m0 0L7 11m5 5l5-5"/></svg></span><span class="g-task-main"><span class="g-task-want">Subir trabalho para produção</span><span class="g-task-skill">/ship-it</span></span></button>
       <button class="g-task" data-search="refactor"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h20m-2 8v4m-16-4v4m4-12v16m8-16v16"/></svg></span><span class="g-task-main"><span class="g-task-want">Refatorar um módulo com segurança</span><span class="g-task-skill">/refactor</span></span></button>
       <button class="g-task" data-search="audit-deep"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span><span class="g-task-main"><span class="g-task-want">Auditar o projeto inteiro</span><span class="g-task-skill">/audit-deep</span></span></button>
       <button class="g-task" data-search="secure"><span class="g-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1L2 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-10-4z"/></svg></span><span class="g-task-main"><span class="g-task-want">Passada de segurança antes do deploy</span><span class="g-task-skill">/secure</span></span></button>

@@ -37,7 +37,7 @@ resume
 review
 secure
 session-bootstrap
-ship
+ship-it
 spec-driven-develop
 streamer-mode
 sync-memories
@@ -46,5 +46,4 @@ tdd
 test-driven-development
 three-man-team
 verify-before-done
-version-bump
 xp

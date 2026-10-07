@@ -1,0 +1,16 @@
+# acme/widgets npm monorepo (fixture), tag already released
+$ git status --porcelain
+(empty)
+$ git branch --show-current
+main
+$ git tag -l "v1.4.0"
+(empty)
+$ git ls-remote --exit-code --tags origin refs/tags/v1.4.0
+a1b2c3d	refs/tags/v1.4.0
+(exit code 0)
+$ gh repo view --json autoMergeAllowed -q .autoMergeAllowed
+true
+$ grep '"version"' package.json packages/*/package.json
+package.json:  "version": "1.3.2",
+packages/core/package.json:  "version": "1.3.2",
+packages/cli/package.json:  "version": "1.3.2",

@@ -1,5 +1,5 @@
 $ gh pr view 88 --json number,author,state,mergeable,mergeStateStatus,reviewDecision
-{"number":88,"author":{"login":"lucas-dev"},"state":"OPEN","mergeable":"MERGEABLE","mergeStateStatus":"BLOCKED","reviewDecision":""}
+{"number":88,"author":{"login":"alex-dev"},"state":"OPEN","mergeable":"MERGEABLE","mergeStateStatus":"BLOCKED","reviewDecision":""}
 
 $ gh pr checks 88
 ci / validate     pass
@@ -16,8 +16,8 @@ $ gh api repos/acme/widgets/branches/main/protection --jq '.required_conversatio
 true
 
 $ gh pr view 91 --json number,author,mergeable,mergeStateStatus,reviewDecision
-{"number":91,"author":{"login":"lucas-dev"},"mergeable":"UNKNOWN","mergeStateStatus":"UNKNOWN","reviewDecision":""}
+{"number":91,"author":{"login":"alex-dev"},"mergeable":"UNKNOWN","mergeStateStatus":"UNKNOWN","reviewDecision":""}
 (second poll 15s later, same result: UNKNOWN / UNKNOWN)
 
 $ gh pr view 91 --json state,mergedAt,mergedBy
-{"state":"MERGED","mergedAt":"2026-10-06T09:48:11Z","mergedBy":{"login":"lucas-dev"}}
+{"state":"MERGED","mergedAt":"2026-10-06T09:48:11Z","mergedBy":{"login":"alex-dev"}}

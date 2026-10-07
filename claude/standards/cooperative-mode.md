@@ -64,7 +64,7 @@ Prefer marking individual repos over widening the owner allowlist.
 | Context pack | RAG pack on coding-intent prompts | skipped (`coop-skip` in the kill-gate log); repo-local graphify still allowed |
 | Memory writes (sessionend/precompact) | project memory dir (often vault-symlinked, RAG-indexed) | redirected to `<project>/memory-coop` when the dir resolves into the vault; never RAG-indexed |
 | Conventions | harness conventions roll out freely | repo's own AGENTS.md/CLAUDE.md/CONTRIBUTING/CI/commit-style/release-flow win; no harness artifacts (DECISIONS.md, docs/adr, dependabot/stale/release-please, hooks) unless explicitly asked |
-| PR/release machinery | merge-confidently, ship, dep-sweep, release-please installers | read-only by default; act only on explicit ask, one PR at a time |
+| PR/release machinery | merge-confidently, ship-it, dep-sweep, release-please installers | read-only by default; act only on explicit ask, one PR at a time |
 | Identity/disclosure | operator identity, no AI markers (house rule) | repo-configured git identity if set; follow the repo's AI-assistance norms |
 
 Isolation is structural: the RAG index does not ingest `~/.claude/projects/*/memory/`

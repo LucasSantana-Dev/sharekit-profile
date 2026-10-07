@@ -77,9 +77,15 @@ match_composite() {
     return 0
   fi
 
-  # RELEASE CUT (promote release → main, tag, deploy)
-  if echo "$P" | grep -qE 'cut (the |a )?release|promote release|release-train|tag a version|ship the batch|release branch .{0,15}(to|into) main'; then
-    echo "release-cut|release-cut intent"
+  # TAG A VERSION (ship-it --from tag; release-cut folded)
+  if echo "$P" | grep -qE 'tag a version'; then
+    echo "ship-it|release intent (tag a version: use ship-it --from tag only if the version is already bumped; otherwise changelog-update --bump first)"
+    return 0
+  fi
+
+  # TRAIN-ONLY PHRASES (release train retired; trunk release via ship-it)
+  if echo "$P" | grep -qE 'cut (the |a )?release|promote release|release-train|ship the batch|release branch .{0,15}(to|into) main'; then
+    echo "ship-it|release intent (release train retired; trunk release)"
     return 0
   fi
 
@@ -101,15 +107,19 @@ match_composite() {
     return 0
   fi
 
-  # MERGE PR — branches on presence of `release` branch on origin
-  if echo "$P" | grep -qE 'merge this|merge the pr\b|ship this pr\b|ready to merge|can i merge|open (a )?pr\b|land this'; then
-    # If we're in a repo with a `release` branch on origin, prefer pr-to-release.
-    # Cheap probe: 1s timeout, swallow all errors. Falls back to merge-confidently.
-    if command -v git &>/dev/null && \
-       timeout 1 git ls-remote --heads origin release 2>/dev/null | grep -q .; then
-      echo "pr-to-release|merge intent + release branch detected"
+  # OPEN PR only (pr-flow opens; the merge composites below do not open PRs).
+  # "open a pr and merge" still falls through to the merge branch.
+  if echo "$P" | grep -qE 'open (a |the )?(pr|pull request)\b' && ! echo "$P" | grep -qE 'merge|land|ship'; then
+    echo "pr-flow|open-pr intent"
+    return 0
+  fi
+
+  # MERGE PR (merge-confidently; pr-to-release folded into --open)
+  if echo "$P" | grep -qE 'merge this|merge the pr\b|ship this pr\b|ready to merge|can i merge|open (a )?pr and merge|land this'; then
+    if echo "$P" | grep -qE 'open (a |the )?(pr|pull request)\b'; then
+      echo "merge-confidently|merge intent (use --open if no PR exists)"
     else
-      echo "merge-confidently|merge-pr intent (no release branch)"
+      echo "merge-confidently|merge intent"
     fi
     return 0
   fi
@@ -164,9 +174,9 @@ match_composite() {
     return 0
   fi
 
-  # TEST SWEEP (end-to-end test quality)
+  # TEST SWEEP (fix-the-suite --conservative; test-sweep folded in 2026-10-07)
   if echo "$P" | grep -qE 'test sweep|clean up tests end-to-end|improve test quality|test quality pipeline|run a full test pass'; then
-    echo "test-sweep|test-quality-improvement intent"
+    echo "fix-the-suite|test-quality-improvement intent (use --conservative mode)"
     return 0
   fi
 
@@ -222,7 +232,7 @@ match_composite() {
   fi
 
   # SESSION CLOSE (knowledge-loop close mode). Must precede handoff and ship so
-  # "wrap up and ship it" routes here, not to /ship.
+  # "wrap up and ship it" routes here, not to merge-confidently.
   if echo "$P" | grep -qE 'wrap (it |things )?up *$|wrap up (the |this |my )?(session|day|work)|wrap up and (ship|push|commit)|sign off|save and stop|close (the |this )?session|end (the |this )?session|done for the day'; then
     echo "knowledge-loop|close-mode intent (add --ship if the user says ship, commit or push)"
     return 0
@@ -242,7 +252,7 @@ match_composite() {
   # --- FREQUENT-SKILL HINTS (2026-07-02 E5 refresh — patterns derived from 69 real
   # train-split prompts in rag-index experiments/e5-skill-router; test split held out) ---
   if echo "$P" | grep -qE '^ *ship it *$|commit and ship|\bship (this|it)\b'; then
-    echo "ship|ship intent (real-usage)"
+    echo "merge-confidently|merge intent (use --open if no PR exists; 'commit and ship' always --open)"
     return 0
   fi
   if echo "$P" | grep -qE 'run the app(lication)?\b.{0,20}\b(dev|local)'; then
@@ -285,7 +295,7 @@ case "$composite" in
       '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": (" Skill match: /\($c) — \($r). Invoke the /\($c) skill (senior-QA reviewer). Default = chat report; only post to a PR with an explicit --pr N --comment.")}}'
     exit 0
     ;;
-  adr-write|performance-audit|config-drift-detect|handoff|next-priority|ship|repaint|run|plan|backlog)
+  adr-write|performance-audit|config-drift-detect|handoff|next-priority|repaint|run|plan|backlog)
     jq -n --arg c "$composite" --arg r "$reason" \
       '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": (" Skill match: /\($c) — \($r). Invoke the /\($c) skill.")}}'
     exit 0

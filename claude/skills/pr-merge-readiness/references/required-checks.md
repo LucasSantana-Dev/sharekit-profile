@@ -9,16 +9,15 @@ Before any PR can merge, ALL must pass. This is the source of truth for `/pr-mer
 3. **No unresolved threads** — CodeRabbit, Greptile, Sonar, human reviewers all done
 4. **No merge conflicts** with base branch
 5. **Base branch up-to-date** — either branch is current or rebase-on-merge configured
-6. **Correct base branch** (release-branch repos only) — base is `release`, not `main` (except `/hotfix` and `chore/release-vX.Y.Z`)
+6. **Correct base branch** — base is `main` (trunk-based default). A repo that opted back into the retired release train (`.claude/release-cadence-config.json`) is surfaced to the user, not auto-handled
 7. **Regression test present** (hotfixes only) — severity gate documented in PR body
 
-See `standards/pr-conventions.md §82–96` for full detail.
+See `standards/pr-conventions.md` for full detail.
 
 ## Merge method
 
 - **Default:** squash (one PR = one commit)
-- **Exception 1:** `/release-cut`'s `chore/release-vX.Y.Z` PR — use merge commit
-- **Exception 2:** PR explicitly documented as merge-commit intent in body (rare)
+- **Exception:** PR explicitly documented as merge-commit intent in body (rare), or a repo `.claude/release-config.json` `mergeMethod` override
 - **Never:** rebase-merge unless branch protection requires it
 
 Forbidden: `gh pr merge --admin`, `gh api ... rulesets` mutations (blocked at PreToolUse).
