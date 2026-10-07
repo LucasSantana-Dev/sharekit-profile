@@ -40,7 +40,11 @@ if [ -f "$OPS_FILE" ] && command -v jq >/dev/null 2>&1; then
   [ -n "$NAMES" ] && OP_GREP="${OP_GREP:+$OP_GREP|}$NAMES"
 fi
 
-OTHERS=$(git -C "$TOP" shortlog -sne --since="180 days ago" 2>/dev/null \
+# Explicit HEAD + </dev/null: with no revision, git shortlog reads a log from stdin
+# when stdin is not a tty and blocks forever on an open pipe. No commits => 0.
+OTHERS=0
+git -C "$TOP" rev-parse -q --verify HEAD >/dev/null 2>&1 && \
+OTHERS=$(git -C "$TOP" shortlog -sne --since="180 days ago" HEAD </dev/null 2>/dev/null \
   | grep -viE "${BOT_GREP}${OP_GREP:+|$OP_GREP}" \
   | wc -l | tr -d ' ')
 [ "${OTHERS:-0}" -ge 2 ] && { echo "cooperative"; exit 0; }
