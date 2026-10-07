@@ -1,8 +1,8 @@
 ---
 name: knowledge-loop
-description: "Composite (recall, sync-memories, rag-curate, handoff) to persist knowledge mid-session: \"what did we decide\", \"remember this\". Session end: session-close."
+description: "Persist knowledge: recall, sync-memories, rag-curate, handoff. Modes: checkpoint, close (wrap up, sign off, save and stop, close session, --ship). Also \"what did we decide\", \"remember this\"."
 user-invocable: true
-auto-invoke: end-of-task + recall-questions + checkpoint-requests
+auto-invoke: end-of-task + recall-questions + checkpoint-requests + session-end + context-budget-warning
 metadata:
   owner: global-agents
   tier: contextual
@@ -12,6 +12,14 @@ triggers:
   - remember this
   - save knowledge
   - persist
+  - wrap up
+  - sign off
+  - close session
+  - save and stop
+  - session ending
+  - memory persistence
+  - end session
+  - ship and remember
 ---
 
 # Knowledge Loop
@@ -23,15 +31,15 @@ so capture and retrieval stop being separate manual acts.
 
 - User asks "what did we decide about X" / "where did we leave Y" / "is there a memory note for Z"
 - End of a meaningful task (commit landed, PR merged, decision reached)
-- User explicitly says "remember", "save this", "checkpoint", "handoff"
-- Session-budget guard signals approaching context limit
+- User explicitly says "remember", "save this", "checkpoint", "wrap up", "sign off", "save and stop", "close session", "switching projects", "handing off to another machine"
+- Session-budget guard signals approaching context limit (>85%: checkpoint plus handoff, then suggest close)
 
 ## Workflow
 
 **Mount guard (required before any RAG/brain op, `standards/skill-authoring.md §mount-guard`):**
 run [references/mount-guard.sh](references/mount-guard.sh) — if External HD is unmounted,
 surface `BLOCKED: External HD unmounted — RAG/vault unreachable` and halt; do not return
-empty recall as if the index were searched.
+empty recall as if the index were searched. In close mode the guard is per phase, see Close mode.
 
 ### Phase 1 — Query (always)
 Invoke `/recall` (MCP: `rag_query(query="<topic>", top=5)`) with the user's question
@@ -58,7 +66,7 @@ was strong.
 **Done when:** skill/rag-curate confirms N chunks rewritten or N docs added — verify via incremental reindex completion and cosine score ≥0.40 for the weak query in top 3 results.
 
 ### Phase 4 — Snapshot (if session-ending or context-pressured)
-Invoke `handoff` to write a durable resume packet. Skip if work continues immediately.
+Invoke `handoff` to write a durable resume packet. Write it when work is in progress OR context >80%; skip otherwise.
 
 **Done when:** handoff file written to `~/.claude/handoffs/<project>/latest.md` with exact
 next action + file paths — confirm the path exists; or `(skipped: work continues)`.
@@ -92,9 +100,55 @@ meta-questions tops out near 50% autonomous invocation however the description i
 (measured; memory `session_2026-06-26_adt_auto_invoke_refresh`). Detection has to be
 deterministic; this skill stays the procedure.
 
-At a **checkpoint** run Phases 1–3 and treat Phase 4 as `(skipped: work continues)` unless
-context is >80%. At **session end** run all four. A checkpoint that produced no durable
-output exits clean at Phase 1 — recall, confirm nothing new, say so, move on.
+At a **checkpoint** run Phases 1-3 and treat Phase 4 as `(skipped: work continues)` unless
+work is in progress or context is >80%. A checkpoint that produced no durable output exits clean at Phase 1: recall,
+confirm nothing new, say so, move on.
+
+## Close mode (session end, one mode: "session end" == "close")
+
+Mode comes from who asked, not context alone. **Checkpoint**: a Stop-hook nudge
+(`STOP checkpoint: ...`), end of a task, or "save this". Always checkpoint at any context
+level; above 80% it also writes the handoff; it never ships, never prints SESSION CLOSE, and
+work continues. **Close**: only when the user's own message says wrap up, sign off, save and
+stop, close session, end session, or passes `--ship`. Above 85% with no user close phrase: run
+the checkpoint, write the handoff, and suggest close. **Recall**: a question only, Phase 1
+then stop. Detail: [references/mode-close.md](references/mode-close.md).
+
+Close = Phases 1-4 above (Phase 3 only on weak hits), then push brain, then the SESSION CLOSE
+summary; with `--ship`, ship first. `--ship` means the flag or a close request that explicitly
+asks to ship, commit or push. Order never changes: (0 only with ship) ship, memory, handoff,
+push brain.
+
+Hard gates (inline on purpose):
+- **Mount guard first.** External HD unmounted: say `BLOCKED: External HD unmounted` for the
+  brain writes, halt that phase (no retry, no silent skip), offer local-only memory under
+  `.agents/memory/`, state the brain push is deferred until remount, never claim it was pushed.
+- **Memory:** write only new items, skip what is already recorded (idempotent). Nothing new:
+  `SKIPPED: no memory changes needed`.
+- **Handoff: write it when work is in progress OR context >80%** (unfinished feature,
+  mid-refactor branch, failing test, open task). All shipped and context low:
+  `SKIPPED: all work shipped; no handoff needed`. Name the
+  unfinished state in the packet. Packet at most ~2000 words, next action copy-pasteable.
+- **Push brain** only if memory or graph changed, via `bash ~/.claude/skills/knowledge-loop/references/push-protocol.sh`.
+  Never an inline `git add`. Push fails: `BLOCKED: brain push failed`, no silent retry.
+- **Without ship, close never commits or pushes project code.** Dirty or unpushed tree:
+  report it, still write the handoff, and recommend re-running with `--ship` (or pr-flow).
+- **Ship (`--ship` or an explicit ask to ship, commit or push):** commit (conventional, meaningful) and push, or hand off to `pr-flow` when a
+  PR is wanted, before any capture. Also update README/CHANGELOG if warranted. Tests failing: ship is `BLOCKED` (no commit, no push), list as unfinished; memory and summary still run.
+
+Close summary (every line DONE, SKIPPED: reason, or BLOCKED: reason, with evidence). Always end
+close mode with this block, including when ship hands off to pr-flow (dry run, nothing can execute: say so once,
+then give each line the status it would get; never PLANNED or NOT RUN):
+```
+SESSION CLOSE - <date / project>
+  Ship: <commit SHAs / PR | SKIPPED: not requested | BLOCKED: <reason>> (pr-flow | git)
+  Recalled: <n hits, top cosine X | SKIPPED: reason> (skill: recall)
+  Memory:   <DONE paths | SKIPPED: reason | BLOCKED: reason> (skill: sync-memories)
+  Improved: <chunks/docs | SKIPPED: strong hits> (skill: rag-curate)
+  Handoff:  <DONE path | SKIPPED: all work shipped | BLOCKED: <reason>> (skill: handoff)
+  Push brain: <DONE n files, sha | SKIPPED: no brain changes | BLOCKED: reason> (push-protocol.sh)
+  Open watch: <outstanding commitments | (none)>
+```
 
 ## Reconciliation
 
@@ -127,7 +181,7 @@ After capturing any decision, check: "Would a future agent need this committed c
   no capture needed
 - If `sync-memories` and `rag-curate` would write to the same file → consolidate writes
   to avoid double-update churn
-- Never skip Phase 4 if context is >80% — handoff is required for cross-session continuity
+- Never skip Phase 4 when work is in progress OR context is >80%: handoff is required for cross-session continuity
 
 ## Worked example
 
@@ -145,8 +199,3 @@ KNOWLEDGE LOOP — token optimization rounds 1-4
              (skill: handoff — auto-written by PreCompact hook 5 min earlier,
               so phase 4 was effectively idempotent)
 ```
-
-Key points the example demonstrates:
-- Each phase output names the underlying skill, even when invoked indirectly (PreCompact hook fired `handoff` for me).
-- A skipped phase says **why**, not just "skipped" — the threshold (cos 0.40) is the audit trail.
-- Capture and Snapshot can land in the same turn without conflict; both write to `memory/`.

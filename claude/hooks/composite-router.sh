@@ -221,8 +221,15 @@ match_composite() {
     echo "config-drift-detect|config-drift intent"; return 0
   fi
 
-  # HANDOFF / SESSION WRAP
-  if echo "$P" | grep -qE 'hand ?off|wrap up (the |this )?session|save [a-z ]{0,15}(context|state) for (next|later)|context for next session'; then
+  # SESSION CLOSE (knowledge-loop close mode). Must precede handoff and ship so
+  # "wrap up and ship it" routes here, not to /ship.
+  if echo "$P" | grep -qE 'wrap (it |things )?up *$|wrap up (the |this |my )?(session|day|work)|wrap up and (ship|push|commit)|sign off|save and stop|close (the |this )?session|end (the |this )?session|done for the day'; then
+    echo "knowledge-loop|close-mode intent (add --ship if the user says ship, commit or push)"
+    return 0
+  fi
+
+  # HANDOFF
+  if echo "$P" | grep -qE 'hand ?off|save [a-z ]{0,15}(context|state) for (next|later)|context for next session'; then
     echo "handoff|session-handoff intent"; return 0
   fi
 

@@ -1,0 +1,3 @@
+$ git status -sb && git log -1 --oneline
+## feat/settings-loader...origin/feat/settings-loader [ahead 1]
+7e1a9b2 feat(settings): new config loader

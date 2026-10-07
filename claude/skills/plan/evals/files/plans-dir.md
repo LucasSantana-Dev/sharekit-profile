@@ -1,4 +1,4 @@
-# Listing of .claude/plans/ (cwd = repo root of "<homelab>-dash")
+# Listing of .claude/plans/ (cwd = repo root of "atlas-dash")
 - homepage-customization-2026-10-01.md   (modified 2026-10-01, status header: "Status: active. Phases 1-5 done (2026-10-02)")
 - auth-rework-2026-07-02.md              (modified 2026-07-02, status: shipped)
 

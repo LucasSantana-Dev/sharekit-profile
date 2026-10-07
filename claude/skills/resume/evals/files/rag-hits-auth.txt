@@ -1,0 +1,4 @@
+rag_query top 3 for "auth token rotation" (scope: auth-api)
+1. docs/adr/0033-refresh-rotation.md:8  "Rotation window 30s; replay revokes the whole family."
+2. docs/runbook/staging-migrations.md:15  "Migrations touching auth tables need DBA sign-off, 2 business days."
+3. memory/gotcha_k6_install.md:2  "k6 comes from brew; npm k6 is a stub."

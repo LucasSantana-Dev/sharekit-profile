@@ -1,6 +1,6 @@
 ---
 name: session-bootstrap
-description: 'Start-of-day routine: wake-up brief, next-priority, PR snapshot, context-pack. Use for "what was I doing", "what''s next", "load context".'
+description: 'Start-of-day routine: resume --brief, next-priority, PR snapshot, context-pack. Use for "what was I doing", "what''s next", "load context".'
 user-invocable: true
 auto-invoke: first-prompt-of-session + post-resume + post-handoff-load
 metadata:
@@ -17,7 +17,7 @@ triggers:
 # Session Bootstrap
 
 The single command for "I just sat down, get me oriented and ready to work."
-Replaces the manual `/wake-up` → `/next-priority` → `/pr-snapshot` sequence.
+Replaces the manual `/resume --brief` → `/next-priority` → `/pr-snapshot` sequence.
 
 ## Pair with standards
 
@@ -27,14 +27,14 @@ Replaces the manual `/wake-up` → `/next-priority` → `/pr-snapshot` sequence.
 
 - First non-trivial prompt of a fresh session (no prior conversation context)
 - User says "where are we", "what's next", "catch me up", "good morning"
-- After `/resume` or session restart
+- After a user `/resume`, not one session-bootstrap issued itself, or a session restart
 - After loading a `/handoff` from another machine/session
 
 ## Workflow
 
 ### Phase 1 — Brief (always)
-Invoke `wake-up` for the compact 600-900 token bootstrap:
-- Latest handoff
+Invoke `resume --brief` for the compact 600-900 token bootstrap:
+- Open handoff via `handoffs list` (not only legacy latest.md): picks and states why in one line when several are open
 - Top 3 RAG hits scoped to current repo
 - Git status one-liner
 - Most recent memory note
@@ -72,7 +72,7 @@ Single one-page brief:
 ```
 SESSION BOOTSTRAP — <date>
 
-Where you left off (wake-up):
+Where you left off (resume --brief):
   Last handoff: <path, age> ✅ DONE
   Recent commits: <3 bullets> ✅ DONE
   Recent decisions: <1-2 from memory> ✅ DONE

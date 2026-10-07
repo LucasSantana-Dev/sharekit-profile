@@ -1,0 +1,187 @@
+{
+  "skill_name": "resume",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Resume my work in acme/shop-api. Nothing can be run in this session; the fixtures hold the command outputs and file bodies. Fixtures: the latest handoff and git status with open PRs. Tell me where to pick up.",
+      "expected_output": "Surfaces the OPEN P1 incident flag first, before the objective or any next task. States a committed root-cause artifact (incident-log or ADR) is required before the next task; does not start the PR #212 re-land. Then gives objective, repo/branch, done, remaining, exact next action (write docs/incident-log/2026-10-06-checkout-500.md).",
+      "assertions": [
+        "The first substantive item in the reply is the OPEN P1 incident (checkout 500s), placed before the objective and next steps.",
+        "The reply says a root-cause artifact (incident-log entry or ADR) must be committed before moving on to the next task.",
+        "The reply does not recommend starting the PR #212 pricing refactor re-land before the root-cause artifact exists.",
+        "The exact next action is writing docs/incident-log/2026-10-06-checkout-500.md (or an equivalent root-cause entry).",
+        "The reply reports the branch feat/pricing-refactor (behind 3) and the open PRs #212 (draft) and #215."
+      ],
+      "files": [
+        "evals/files/handoff-incident.md",
+        "evals/files/git-state-incident.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Resume the settings migration in acme/portal, my terminal crashed. Nothing can be run in this session; the fixtures hold the command outputs and file bodies. Fixtures: .agents/memory/in-progress.md, the swarm_state.py output, the plan, and git status.",
+      "expected_output": "Reports agent-a done (7e1a9b2), agent-b and agent-c LOST with uncommitted work in worktrees settings-b-2 and settings-c-3. Says these must be re-dispatched or explicitly abandoned before any new work, recommends inspecting the uncommitted files first. Next action is not Phase 2.",
+      "assertions": [
+        "The reply identifies agent-b and agent-c as LOST (crashed) subagents with uncommitted work, and agent-a as done with commit 7e1a9b2.",
+        "The reply says the lost agents must be re-dispatched or explicitly abandoned before new work starts.",
+        "The reply mentions the uncommitted files or worktrees (settings-b-2, settings-c-3) as the place to recover from.",
+        "The reply does not propose starting Phase 2 (removing legacy.ts) as the immediate next action.",
+        "The reply gives the objective: migrating the settings module to the new config loader on branch feat/settings-loader."
+      ],
+      "files": [
+        "evals/files/in-progress-crash.md",
+        "evals/files/swarm-state-output.txt",
+        "evals/files/plan-settings.md",
+        "evals/files/git-state-crash.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Resume in acme/billing-svc. Nothing can be run in this session; the fixtures hold the command outputs and file bodies. The handoffs directory for this project has NO latest.md. Fixtures: the output of `handoffs list`, the bodies of the two open handoffs and the auto snapshot, and git status.",
+      "expected_output": "Does not say 'no context found'. Lists the two open handoffs and the auto snapshot (names both), picks the retry queue thread based on branch and recency or asks which to resume, then gives objective, branch, done, remaining, exact next action (pin redis 7.2 at ci.yml:44).",
+      "assertions": [
+        "The reply does not say that no handoff or no context was found.",
+        "The reply names both open handoffs (retry queue and invoice PDF font fallback) in its text; telling the user to run `handoffs list` alone does not count.",
+        "The reply picks the retry queue thread (matches branch feat/webhook-retry) or asks which one to resume, giving a reason.",
+        "The reply gives an exact next action such as pinning redis to 7.2 in .github/workflows/ci.yml:44.",
+        "The reply uses the [auto] snapshot only as supporting context (2 failing backoff tests), not as the primary handoff."
+      ],
+      "files": [
+        "evals/files/handoffs-list.txt",
+        "evals/files/handoff-retry-queue-impl.md",
+        "evals/files/handoff-invoice-pdf-fix.md",
+        "evals/files/handoff-auto-compact.md",
+        "evals/files/git-state-2.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Resume --brief for a new session in acme/billing-svc, give me the session-start brief. Nothing can be run in this session; the fixtures hold the command outputs and file bodies. Fixtures: the active handoff, the top 3 rag_query hits, git status plus last commit, and the newest memory note. Keep it tight.",
+      "expected_output": "Four-section brief in order (blockers, what's next, context, fresh state), about 800 tokens or less. Blocker: ci / integration failing because the redis service container does not start. Next: pin redis 7.2 at ci.yml:44, add backoff cap test at tests/retry.integration.test.ts:88, open PR. Context cites ADR-0021 and the redis gotcha. Fresh state one-liner with branch feat/webhook-retry, ahead 2, dirty files, last commit a1b2c3d.",
+      "assertions": [
+        "The reply has exactly these four sections in this order: blockers, what's next, context, fresh state, as headings.",
+        "The blockers section names the failing ci / integration job caused by the redis service container not starting.",
+        "The what's next section lists concrete actions citing file and line (ci.yml:44 and tests/retry.integration.test.ts:88), at most 3 bullets.",
+        "The fresh state section is a single line with branch feat/webhook-retry, ahead 2, and the last commit a1b2c3d (or its subject).",
+        "The reply is a compact brief (roughly under 500 words) and does not paste the whole handoff or fixtures back."
+      ],
+      "files": [
+        "evals/files/handoff-billing.md",
+        "evals/files/rag-hits.txt",
+        "evals/files/git-state.txt",
+        "evals/files/memory-newest.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Resume --brief in acme/billing-svc. Nothing can be run in this session; the fixtures hold the command outputs and file bodies. The handoffs directory for this project has NO latest.md. Fixtures: the output of `handoffs list`, the bodies of the two open handoffs and the auto snapshot, and git status. Give the session-start brief.",
+      "expected_output": "Does not claim there is no handoff. Recognizes two open handoffs (retry-queue-impl, invoice-pdf-fix) plus an [auto] snapshot, names both of them, picks the most likely thread (retry queue, matches branch feat/webhook-retry and the newest non-auto handoff) or asks which one, and still produces the four-section brief.",
+      "assertions": [
+        "The reply does not say that no handoff exists or lead with 'no active handoff'.",
+        "The reply names both open handoffs (retry queue and invoice PDF font fallback) in its text; telling the user to run `handoffs list` alone does not count.",
+        "The reply picks or recommends one thread with a reason (for example the retry queue matches branch feat/webhook-retry) or asks the user which to resume.",
+        "The reply uses the four-section shape: blockers, what's next, context, fresh state.",
+        "The reply mentions or uses the [auto] compaction snapshot as extra context (tests failing on the backoff cap) without treating it as the main handoff."
+      ],
+      "files": [
+        "evals/files/handoffs-list.txt",
+        "evals/files/handoff-retry-queue-impl.md",
+        "evals/files/handoff-invoice-pdf-fix.md",
+        "evals/files/handoff-auto-compact.md",
+        "evals/files/git-state-2.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Resume --brief on acme/auth-api. Hard cap: the brief must be about 800 tokens. Nothing can be run in this session; the fixtures hold the command outputs and file bodies. Fixtures: a long handoff, the rag hits, git status, and the newest memory note.",
+      "expected_output": "Compresses the long handoff into the 4 sections without copying it. Blocker: staging migration 0042 awaiting DBA approval SEC-118. Next: openapi.yaml:310, k6 load test, ping SEC-118. Context: ADR-0033 family revocation, k6 via brew. Memory note not repeated since it only duplicates the handoff. Fresh state one-liner: feat/token-rotation, clean-ish, 9f8e7d6.",
+      "assertions": [
+        "The reply has the four sections blockers, what's next, context, fresh state, in that order, and no extra sections.",
+        "The blockers section names the pending staging migration 0042 approval (SEC-118).",
+        "The what's next section has at most 3 bullets, including updating docs/openapi.yaml:310 and the k6 load test.",
+        "The context section cites ADR-0033 (family revocation) and does not repeat the same decision twice by also restating the memory note.",
+        "The reply is much shorter than the handoff plus fixtures combined, roughly under 500 words, and fresh state is one line with branch feat/token-rotation."
+      ],
+      "files": [
+        "evals/files/handoff-long.md",
+        "evals/files/rag-hits-auth.txt",
+        "evals/files/git-state-3.txt",
+        "evals/files/memory-dup.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Resume in acme/billing-svc. Nothing can be run in this session; the fixtures hold the command outputs and file bodies. The handoffs directory has no written handoffs, only compaction snapshots. Fixtures: the output of `handoffs list`, the body of the newest auto snapshot, and git status.",
+      "expected_output": "Uses the newest [auto] snapshot (compact-1730) as the handoff, labeled as an auto snapshot with no written handoff. Does not claim there is no handoff. Gives objective, branch, remaining, next action from the snapshot.",
+      "assertions": [
+        "The reply does not claim that no handoff or no context exists.",
+        "The reply uses the newest [auto] snapshot (compact-1730, 3h old) rather than the older one (compact-0912).",
+        "The reply labels it as an auto snapshot with no written handoff (for example 'auto snapshot, no written handoff').",
+        "The reply gives the objective or branch from the snapshot (feat/webhook-retry, 2 failing backoff tests)."
+      ],
+      "files": [
+        "evals/files/handoffs-list-auto-only.txt",
+        "evals/files/handoff-auto-compact.md",
+        "evals/files/git-state-2.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "/resume 2 in acme/billing-svc. Nothing can be run in this session; the fixtures hold the command outputs and file bodies. Fixtures: the output of `handoffs list` (3 entries), the bodies of the open handoffs and the auto snapshot, and git status.",
+      "expected_output": "Honors the explicit argument: reads entry 2 (retry-queue-impl), referring to it by stem (handoffs path retry-queue-impl), not the most recent entry (the auto snapshot). Does not ask which to resume.",
+      "assertions": [
+        "The reply follows entry 2 of the list, the retry queue handoff (retry-queue-impl), and not the newest entry (the [auto] compact-1730 snapshot) as the main handoff.",
+        "The reply refers to the handoff by its stem (retry-queue-impl), for example `handoffs path retry-queue-impl`, rather than only by the number 2.",
+        "The reply does not ask the user which handoff to resume and does not run a heuristic over the other entries.",
+        "The reply gives the retry queue objective or next action (for example pinning redis 7.2 at .github/workflows/ci.yml:44)."
+      ],
+      "files": [
+        "evals/files/handoffs-list.txt",
+        "evals/files/handoff-retry-queue-impl.md",
+        "evals/files/handoff-invoice-pdf-fix.md",
+        "evals/files/handoff-auto-compact.md",
+        "evals/files/git-state-2.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    }
+  ]
+}

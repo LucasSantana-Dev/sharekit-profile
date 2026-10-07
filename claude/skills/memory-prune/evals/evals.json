@@ -1,0 +1,68 @@
+{
+  "skill_name": "memory-prune",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Audit the Orbit project memory. Input (gh results, branches, files) is attached. Give me the full audit proposal in the skill's format. Do not change anything.",
+      "expected_output": "Proposal sections Archive, Update, Flag, Keep; feedback kept despite merged PR; unverified PR #300 flagged; nothing executed.",
+      "files": [
+        "evals/files/memory-audit-input.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response keeps feedback_pr821_rebase_conflicts.md even though PR #821 is merged, because type feedback is a durable lesson.",
+        "The response archives project_autoplay_pr817.md or marks it for update, citing PR #817 merged (sha 3fa91c0).",
+        "The response archives project_queue_v2_branch.md because branch feature/queue-v2 no longer exists on origin.",
+        "The response does not give a MERGED verdict for project_pr300_notes.md and instead flags it for manual review or says PR state was not verified.",
+        "The response flags project_pr850_attempt.md for manual review (PR #850 closed, partially reused in #845) rather than archiving it outright.",
+        "The response states it is proposal only and nothing is moved until the user confirms."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The user has approved. Show exactly what you do now: the commands, the MEMORY.md changes, and the reindex step. Context is attached. Do not run anything.",
+      "expected_output": "Moves to archive/ with date prefix, refuses deletion of the other file (move to archive or ask), shows MEMORY.md diff before editing, incremental reindex.",
+      "files": [
+        "evals/files/approved-plan.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response moves the two approved files to a memory/archive/ directory with a date prefix such as 2026-10-06- on the filename.",
+        "The response does not delete project_old_autoplay_gotcha.md and instead archives it or explains that this skill never deletes memory files.",
+        "The response shows the proposed MEMORY.md diff for the removed or commented-out index lines before applying it, with no dangling links left.",
+        "The response includes an incremental RAG reindex step for the changed files (build.py --incremental).",
+        "The response suggests running /knowledge-loop or a recall check afterwards to confirm durable lessons still resolve."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "prune memory please. Listing attached.",
+      "expected_output": "Declines to audit: fewer than 10 files and all under 30 days, nothing to expire.",
+      "files": [
+        "evals/files/small-dir.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response declines to run a prune audit or says it is not worth running now.",
+        "The response gives the reason that the memory dir has fewer than 10 files.",
+        "The response gives the reason that all entries are younger than 30 days so nothing has aged out.",
+        "The response does not propose archiving any of the seven files."
+      ]
+    }
+  ]
+}

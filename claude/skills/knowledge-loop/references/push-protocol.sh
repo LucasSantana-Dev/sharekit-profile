@@ -26,7 +26,7 @@ fi
 # fails with "did not match any files" and stages NOTHING. With `2>/dev/null` on
 # top, the error is invisible and the script goes on to report "nothing to push":
 # uma captura real perdida em silencio, com cara de sucesso (medido 2026-09-16, a
-# mesma linha copiada em session-close/SKILL.md). Never swallow git's stderr here.
+# mesma linha copiada na antiga skill session-close). Never swallow git's stderr here.
 staged_algo=0
 for alvo in memory graphs; do
   [ -e "$BRAIN/$alvo" ] || continue
