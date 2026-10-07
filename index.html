@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>sharekit: Claude Code Operator Harness Guide</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%2322d3ee%22/%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%2306181c%22%20stroke-width%3D%222.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%227%22%20cy%3D%226.5%22%20r%3D%222%22%20fill%3D%22%2306181c%22%20stroke%3D%22none%22/%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%226.5%22%20r%3D%222%22%20fill%3D%22%2306181c%22%20stroke%3D%22none%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2218%22%20r%3D%222.3%22%20fill%3D%22%2306181c%22%20stroke%3D%22none%22/%3E%3Cpath%20d%3D%22M7%208.7v4.2l5%202.8M17%208.7v4.2l-5%202.8%22/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%23dfb264%22/%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%231c1408%22%20stroke-width%3D%222.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%227%22%20cy%3D%226.5%22%20r%3D%222%22%20fill%3D%22%231c1408%22%20stroke%3D%22none%22/%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%226.5%22%20r%3D%222%22%20fill%3D%22%231c1408%22%20stroke%3D%22none%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2218%22%20r%3D%222.3%22%20fill%3D%22%231c1408%22%20stroke%3D%22none%22/%3E%3Cpath%20d%3D%22M7%208.7v4.2l5%202.8M17%208.7v4.2l-5%202.8%22/%3E%3C/g%3E%3C/svg%3E">
   <meta name="description" content="A clear guide to the sharekit agent operator harness for Claude Code (and any Claude-compatible provider): 52 skills, composites, sub-agents, lifecycle hooks, MCP servers, and plugin integrations.">
   <link rel="canonical" href="https://harness.lucassantana.tech">
   <meta property="og:title" content="sharekit: Claude Code Operator Harness Guide">
@@ -28,118 +28,143 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #09090b;
-      --surface:     #111113;
-      --surface-2:   #18181b;
-      --border:      #27272a;
-      --border-2:    #3f3f46;
-      --text:        #fafafa;
-      --text-muted:  #71717a;
-      --text-dim:    #52525b;
-      --cyan:        #22d3ee;
-      --violet:      #a78bfa;
-      --blue:        #60a5fa;
-      --green:       #4ade80;
-      --amber:       #fbbf24;
-      --red:         #f87171;
-      --pink:        #f472b6;
-      --nav-h:       56px;
-      --sidebar-w:   260px;
-      --radius:      8px;
-      --radius-sm:   5px;
-      /* spacing scale */
-      --sp-xs:       4px;
-      --sp-sm:       8px;
-      --sp-md:       16px;
-      --sp-lg:       24px;
-      --sp-xl:       32px;
-      --sp-2xl:      48px;
-      /* transitions */
-      --dur-fast:    0.1s;
-      --dur-norm:    0.15s;
-      --dur-slow:    0.2s;
+      /* color: DESIGN.md token spec (OKLCH, hue 265 neutrals, gold accent hue 75) */
+      --bg:            oklch(7% .004 265);
+      --bg-elev:       oklch(11% .004 265);
+      --bg-panel:      oklch(15% .005 265);
+      --fg:            oklch(97% .003 265);
+      --fg-muted:      oklch(80% .007 265);
+      --fg-subtle:     oklch(68% .006 265);
+      --border:        oklch(100% 0 0 / .12);
+      --border-strong: oklch(100% 0 0 / .24);
+      --accent:        oklch(80% .1 75);
+      --accent-fg:     oklch(18% .02 75);
+      --ok:            oklch(78% .15 150);
+      --kind-skill:    oklch(75% .08 75);
+      --kind-agent:    oklch(72% .1 275);
+      --kind-hook:     oklch(73% .11 45);
+      --kind-server:   oklch(73% .09 185);
+      --kind-tool:     oklch(72% .09 145);
+      /* type */
+      --font-display:  'Geist', system-ui, sans-serif;
+      --font-body:     'Geist', system-ui, sans-serif;
+      --font-mono:     'IBM Plex Mono', ui-monospace, monospace;
+      /* layout */
+      --nav-h:         56px;
+      --sidebar-w:     260px;
+      --radius:        10px;
+      --radius-sm:     6px;
+      --radius-pill:   999px;
+      /* spacing (4px base) */
+      --sp-xs:         4px;
+      --sp-sm:         8px;
+      --sp-md:         16px;
+      --sp-lg:         24px;
+      --sp-2xl:        48px;
+      --sp-section:    96px;
+      /* motion */
+      --dur-fast:      120ms;
+      --dur-norm:      200ms;
     }
 
     html { color-scheme: dark; scroll-behavior: smooth; }
 
     body {
-      font-family: 'Geist', system-ui, -apple-system, sans-serif;
+      font-family: var(--font-body);
       background: var(--bg);
-      color: var(--text);
+      color: var(--fg);
       min-height: 100vh;
-      font-size: 14px;
-      line-height: 1.5;
+      font-size: 16px;
+      line-height: 1.6;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── NAV ────────────────────────────────────── */
-    nav {
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .skip-link {
+      position: absolute; left: 16px; top: -64px; z-index: 300;
+      background: var(--accent); color: var(--accent-fg);
+      padding: 10px 16px; border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 600; text-decoration: none;
+      transition: top var(--dur-fast) ease-out;
+    }
+    .skip-link:focus { top: 8px; }
+
+    /* ── HEADER / NAV ───────────────────────────── */
+    .site-header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       height: var(--nav-h);
-      background: rgba(9,9,11,0.85);
-      backdrop-filter: blur(12px);
+      background: var(--bg);
       border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: 0;
+    }
+    .site-nav {
+      height: 100%; display: flex; align-items: center; gap: 0;
       padding: 0 20px;
     }
 
     .nav-brand {
-      display: flex; align-items: center; gap: 9px;
-      font-weight: 700; font-size: 15px; letter-spacing: -0.3px;
-      color: var(--text); text-decoration: none; flex-shrink: 0;
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
+      color: var(--fg); text-decoration: none; flex-shrink: 0;
       margin-right: 24px;
     }
     .nav-brand-icon {
-      width: 28px; height: 28px; border-radius: 7px;
-      background: var(--cyan);
+      width: 28px; height: 28px; border-radius: var(--radius-sm);
+      background: var(--accent); color: var(--accent-fg);
       display: flex; align-items: center; justify-content: center;
-      font-size: 15px;
     }
     .nav-version {
-      font-size: 11px; font-family: 'Geist Mono', monospace;
-      background: var(--surface-2); border: 1px solid var(--border);
-      color: var(--text-muted); padding: 2px 7px; border-radius: 99px;
+      font-size: 11px; font-family: var(--font-mono);
+      border: 1px solid var(--border);
+      color: var(--fg-subtle); padding: 2px 8px; border-radius: var(--radius-pill);
     }
 
     .nav-tabs {
-      display: flex; gap: 2px; flex: 1;
+      display: flex; gap: 4px; flex: 1; align-self: stretch; align-items: stretch;
       overflow-x: auto; scrollbar-width: none;
     }
     .nav-tabs::-webkit-scrollbar { display: none; }
     .nav-tab {
-      padding: 6px 14px; border-radius: var(--radius-sm);
-      font-size: 13px; font-weight: 500; cursor: pointer;
-      border: none; background: transparent; color: var(--text-muted);
-      transition: color .15s, background .15s; white-space: nowrap;
+      position: relative;
+      padding: 0 12px; border-radius: 0;
+      font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer;
+      border: none; background: transparent; color: var(--fg-subtle);
+      transition: color var(--dur-fast) ease-out, background-color var(--dur-fast) ease-out; white-space: nowrap;
     }
-    .nav-tab:hover { color: var(--text); background: var(--surface-2); }
-    .nav-tab.active { color: var(--text); background: var(--surface-2); }
+    .nav-tab:hover { color: var(--fg); background: var(--bg-panel); }
+    .nav-tab.active { color: var(--fg); }
+    .nav-tab.active::after {
+      content: ''; position: absolute; left: 12px; right: 12px; bottom: 0;
+      height: 2px; background: var(--accent);
+    }
     .nav-tab .tab-count {
-      display: inline-flex; align-items: center; justify-content: center;
-      background: var(--border); color: var(--text-dim);
-      font-size: 10px; font-family: 'Geist Mono', monospace;
-      padding: 1px 5px; border-radius: 99px; margin-left: 5px;
+      font-size: 11px; font-family: var(--font-mono);
+      color: var(--fg-subtle); margin-left: 6px;
     }
-    .nav-tab.active .tab-count { background: var(--border-2); color: var(--text-muted); }
 
     .nav-right {
-      display: flex; gap: 10px; align-items: center; margin-left: auto; flex-shrink: 0;
+      display: flex; gap: 8px; align-items: center; margin-left: auto; flex-shrink: 0;
     }
     .nav-gh-link {
       display: flex; align-items: center; gap: 6px;
-      color: var(--text-muted); text-decoration: none; font-size: 13px;
+      color: var(--fg-subtle); text-decoration: none; font-size: 13px;
       padding: 6px 10px; border-radius: var(--radius-sm);
-      transition: color .15s, background .15s;
+      transition: color var(--dur-fast) ease-out, background-color var(--dur-fast) ease-out;
     }
-    .nav-gh-link:hover { color: var(--text); background: var(--surface-2); }
-.lang-toggle { display: flex; align-items: center; gap: 5px; height: 32px; padding: 0 10px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; color: var(--text-muted); background: transparent; border: 1px solid var(--border); cursor: pointer; transition: color .15s, background .15s, border-color .15s; white-space: nowrap; }
-.lang-toggle:hover { color: var(--text); background: var(--surface-2); border-color: var(--border-2); }
-.lang-toggle.active { color: var(--cyan); border-color: var(--cyan); background: #0e7490/10; }
+    .nav-gh-link:hover { color: var(--fg); background: var(--bg-panel); }
+    .lang-toggle {
+      display: flex; align-items: center; gap: 4px; height: 32px; padding: 0 10px;
+      border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; font-family: var(--font-mono);
+      color: var(--fg-subtle); background: transparent; border: 1px solid var(--border); cursor: pointer;
+      transition: color var(--dur-fast) ease-out, border-color var(--dur-fast) ease-out, background-color var(--dur-fast) ease-out;
+    }
+    .lang-toggle:hover { color: var(--fg); background: var(--bg-panel); border-color: var(--border-strong); }
+    .lang-toggle.active { color: var(--fg); border-color: var(--accent); }
 
     /* ── LAYOUT ─────────────────────────────────── */
     .layout {
@@ -161,274 +186,223 @@
       scrollbar-color: var(--border) transparent;
     }
 
-    .search-wrap {
-      position: relative; margin-bottom: 16px;
-    }
+    .search-wrap { position: relative; margin-bottom: 16px; }
     .search-icon {
       position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-      color: var(--text-dim); pointer-events: none;
+      color: var(--fg-subtle); pointer-events: none;
       width: 14px; height: 14px;
     }
     #search {
       width: 100%; padding: 8px 10px 8px 32px;
-      background: var(--surface-2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); color: var(--text);
-      font-size: 13px; font-family: inherit; outline: none;
-      transition: border-color .15s;
+      background: var(--bg-panel); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--fg);
+      font-size: 13px; font-family: inherit;
+      transition: border-color var(--dur-fast) ease-out;
     }
-    #search::placeholder { color: var(--text-dim); }
-    #search:focus { border-color: var(--border-2); }
+    #search::placeholder { color: var(--fg-subtle); }
+    #search:focus { border-color: var(--border-strong); }
 
-    .filter-row {
-      display: flex; gap: 6px; margin-bottom: 16px;
-    }
+    .filter-row { display: flex; gap: 6px; margin-bottom: 16px; }
     .filter-btn {
-      padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 500;
+      padding: 4px 10px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; font-family: inherit;
       cursor: pointer; border: 1px solid var(--border); background: transparent;
-      color: var(--text-muted); transition: all .15s;
+      color: var(--fg-subtle);
+      transition: color var(--dur-fast) ease-out, border-color var(--dur-fast) ease-out, background-color var(--dur-fast) ease-out;
     }
-    .filter-btn:hover { color: var(--text); border-color: var(--border-2); }
-    .filter-btn.active { background: var(--violet); border-color: var(--violet); color: #fff; }
+    .filter-btn:hover { color: var(--fg); border-color: var(--border-strong); }
+    .filter-btn.active { background: var(--bg-panel); border-color: var(--accent); color: var(--fg); }
 
     .sidebar-section-label {
-      font-size: 10px; font-weight: 600; letter-spacing: .08em;
-      text-transform: uppercase; color: var(--text-dim);
+      font-size: 11px; font-weight: 500; letter-spacing: .08em; font-family: var(--font-mono);
+      text-transform: uppercase; color: var(--fg-subtle);
       padding: 4px 6px 8px; margin-top: 4px;
     }
 
     .cat-item {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 6px 8px; border-radius: var(--radius-sm);
-      cursor: pointer; transition: background .1s, color .1s;
-      color: var(--text-muted); font-size: 13px; font-weight: 450;
+      padding: 6px 8px; border-radius: var(--radius-sm); font-family: inherit;
+      cursor: pointer;
+      transition: background-color var(--dur-fast) ease-out, color var(--dur-fast) ease-out;
+      color: var(--fg-subtle); font-size: 13px; font-weight: 450;
       border: none; background: transparent; width: 100%; text-align: left;
     }
-    .cat-item:hover { background: var(--surface-2); color: var(--text); }
-    .cat-item.active { background: var(--surface-2); color: var(--text); }
+    .cat-item:hover { background: var(--bg-panel); color: var(--fg); }
+    .cat-item.active { background: var(--bg-panel); color: var(--fg); }
     .cat-item-dot {
-      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+      width: 6px; height: 6px; border-radius: var(--radius-pill); flex-shrink: 0;
       margin-right: 8px;
     }
     .cat-item-name { flex: 1; }
     .cat-item-count {
-      font-size: 11px; font-family: 'Geist Mono', monospace;
-      color: var(--text-dim); background: var(--surface-2);
-      padding: 1px 6px; border-radius: 99px; min-width: 22px; text-align: center;
+      font-size: 11px; font-family: var(--font-mono);
+      color: var(--fg-subtle); min-width: 22px; text-align: right;
     }
-    .cat-item.active .cat-item-count { background: var(--border); color: var(--text-muted); }
 
     /* ── MAIN ───────────────────────────────────── */
     main {
       flex: 1; min-width: 0;
-      padding: 24px 28px 48px;
+      padding: 32px 28px 96px;
     }
 
     .panel { display: none; }
     .panel.active { display: block; }
     @media (prefers-reduced-motion: no-preference) {
-      .panel.active { animation: panel-in 180ms ease-out; }
-      @keyframes panel-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+      .panel.active { animation: panel-in 200ms ease-out; }
+      @keyframes panel-in { from { opacity: 0; } to { opacity: 1; } }
     }
 
-    /* ── SKILL GRID ─────────────────────────────── */
+    /* ── SKILL LIST (docs table density) ────────── */
     .grid-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 20px; gap: 12px; flex-wrap: wrap;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      margin-bottom: 24px; gap: 12px; flex-wrap: wrap;
+      padding-bottom: 16px; border-bottom: 1px solid var(--border);
     }
     .grid-header-title {
-      font-size: 20px; font-weight: 700; letter-spacing: -0.4px;
+      font-size: 24px; font-weight: 600; letter-spacing: -0.02em;
     }
-    .grid-header-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+    .grid-header-sub { font-size: 14px; color: var(--fg-muted); margin-top: 4px; max-width: 720px; }
     .result-count {
-      font-size: 12px; font-family: 'Geist Mono', monospace;
-      color: var(--text-dim); white-space: nowrap;
+      font-size: 12px; font-family: var(--font-mono);
+      color: var(--fg-subtle); white-space: nowrap;
     }
 
-    .skill-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 10px;
-    }
+    .skill-grid { display: flex; flex-direction: column; }
 
     .skill-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      cursor: default;
-      transition: border-color .15s, box-shadow .15s;
-      display: flex; flex-direction: column; gap: 8px;
-      position: relative; overflow: hidden;
+      display: grid; grid-template-columns: minmax(180px, 240px) minmax(0, 1fr) minmax(0, 200px);
+      column-gap: 24px; align-items: start;
+      padding: 12px 8px;
+      border-bottom: 1px solid var(--border);
+      transition: background-color var(--dur-fast) ease-out;
     }
-    .skill-card:hover {
-      border-color: var(--border-2);
-      box-shadow: 0 4px 20px rgba(0,0,0,.4);
-    }
-    .skill-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0;
-      height: 2px; opacity: 0; transition: opacity .15s;
-    }
-    .skill-card:hover::before { opacity: 1; }
+    .skill-card:hover { background: var(--bg-elev); }
 
     .skill-card-top {
-      display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
     }
     .skill-name {
-      font-family: 'Geist Mono', monospace;
-      font-size: 13px; font-weight: 600;
-      color: var(--cyan); letter-spacing: -0.2px;
+      font-family: var(--font-mono);
+      font-size: 13px; font-weight: 500;
+      color: var(--fg); overflow-wrap: anywhere;
     }
-    .skill-name::before { content: '/'; opacity: .5; }
-    .skill-card-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .skill-name::before { content: '/'; color: var(--fg-subtle); }
+    .skill-card-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
 
     .badge {
-      display: inline-flex; align-items: center; gap: 3px;
-      font-size: 10px; font-weight: 600; letter-spacing: .03em;
-      padding: 2px 7px; border-radius: 99px; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 500; font-family: var(--font-mono); letter-spacing: .02em;
+      white-space: nowrap; color: var(--fg-muted);
     }
-    .badge-composite { background: rgba(167,139,250,.15); color: var(--violet); border: 1px solid rgba(167,139,250,.3); }
-    .badge-category { background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }
+    .badge .kdot { width: 6px; height: 6px; border-radius: var(--radius-pill); flex-shrink: 0; background: var(--kind-tool); }
+    .badge-composite { color: var(--accent); }
+    .badge-composite .kdot { background: var(--accent); }
 
     .copy-btn {
       display: inline-flex; align-items: center; justify-content: center;
-      width: 24px; height: 24px; border-radius: 5px;
+      width: 28px; height: 28px; border-radius: var(--radius-sm);
       border: 1px solid var(--border); background: transparent;
-      color: var(--text-dim); cursor: pointer; transition: all .15s; flex-shrink: 0;
+      color: var(--fg-subtle); cursor: pointer; flex-shrink: 0;
+      transition: color var(--dur-fast) ease-out, border-color var(--dur-fast) ease-out, background-color var(--dur-fast) ease-out;
     }
-    .copy-btn:hover { color: var(--text); border-color: var(--border-2); background: var(--surface-2); }
-    .copy-btn.copied { color: var(--green); border-color: rgba(74,222,128,.4); }
+    .copy-btn:hover { color: var(--fg); border-color: var(--border-strong); background: var(--bg-panel); }
+    .copy-btn.copied { color: var(--ok); border-color: var(--ok); }
 
     .skill-desc {
-      font-size: 13px; color: var(--text-muted); line-height: 1.55;
+      font-size: 14px; color: var(--fg-muted); line-height: 1.55;
       display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-      overflow: hidden;
+      overflow: hidden; grid-column: 2;
     }
-    .skill-desc.expanded {
-      display: block; -webkit-line-clamp: unset; overflow: visible;
-    }
+    .skill-desc.expanded { display: block; -webkit-line-clamp: unset; overflow: visible; }
     .desc-toggle {
-      display: inline-block; margin-top: 4px; padding: 0;
-      font-size: 11px; font-weight: 600; font-family: inherit;
-      color: var(--text-dim); background: none; border: none;
-      cursor: pointer; transition: color .15s;
+      grid-column: 2; justify-self: start; margin-top: 4px; padding: 0;
+      font-size: 11px; font-weight: 500; font-family: var(--font-mono);
+      color: var(--fg-subtle); background: none; border: none;
+      cursor: pointer; transition: color var(--dur-fast) ease-out;
     }
-    .desc-toggle:hover { color: var(--cyan); }
+    .desc-toggle:hover { color: var(--fg); }
 
-    .skill-footer {
-      display: flex; align-items: center; gap: 6px; margin-top: 2px;
-    }
+    .skill-card .skill-card-top { grid-column: 1; grid-row: 1 / span 2; }
+    .skill-card .skill-desc { grid-row: 1; }
+    .skill-card .desc-toggle { grid-row: 2; }
+    .skill-footer { grid-column: 3; grid-row: 1; display: flex; align-items: center; justify-content: flex-start; }
 
     .no-results {
-      grid-column: 1 / -1;
       text-align: center; padding: 64px 20px;
-      color: var(--text-muted);
+      color: var(--fg-muted);
     }
-    .no-results-icon { font-size: 32px; margin-bottom: 12px; }
-    .no-results-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .no-results-icon { font-size: 28px; margin-bottom: 12px; color: var(--fg-subtle); font-family: var(--font-mono); }
+    .no-results-title { font-size: 16px; font-weight: 600; color: var(--fg); margin-bottom: 6px; }
 
-    /* ── AGENT TABLE ────────────────────────────── */
-    .section-header {
-      margin-bottom: 24px;
-    }
-    .section-title {
-      font-size: 20px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 4px;
-    }
-    .section-sub { font-size: 13px; color: var(--text-muted); }
+    /* ── AGENT LIST ─────────────────────────────── */
+    .section-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .section-title { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .section-sub { font-size: 14px; color: var(--fg-muted); max-width: 720px; }
 
-    .agent-group { margin-bottom: 36px; }
+    .agent-group { margin-bottom: 48px; }
     .agent-group-title {
-      font-size: 12px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: .08em; color: var(--text-dim); margin-bottom: 12px;
+      font-size: 11px; font-weight: 500; text-transform: uppercase; font-family: var(--font-mono);
+      letter-spacing: .08em; color: var(--fg-subtle); margin-bottom: 8px;
       padding-bottom: 8px; border-bottom: 1px solid var(--border);
     }
-    .agent-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 8px;
+    .agent-grid, .mcp-grid, .plugin-grid { display: flex; flex-direction: column; }
+    .agent-card, .mcp-card, .plugin-card {
+      display: grid; grid-template-columns: minmax(180px, 240px) minmax(0, 1fr) minmax(0, 150px);
+      column-gap: 24px; align-items: start;
+      padding: 12px 8px; border-bottom: 1px solid var(--border);
+      transition: background-color var(--dur-fast) ease-out;
     }
-    .agent-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 12px 14px;
-      transition: border-color .15s;
+    .agent-card:hover, .mcp-card:hover, .plugin-card:hover { background: var(--bg-elev); }
+    .agent-name, .mcp-name, .plugin-name {
+      font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+      color: var(--fg); overflow-wrap: anywhere;
     }
-    .agent-card:hover { border-color: var(--border-2); }
-    .agent-name {
-      font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 600;
-      color: var(--blue); margin-bottom: 4px;
+    .agent-desc, .mcp-desc, .plugin-desc { font-size: 14px; color: var(--fg-muted); line-height: 1.55; }
+    .agent-tag, .mcp-type, .plugin-tag {
+      display: inline-flex; align-items: center; gap: 6px; margin: 0;
+      font-size: 11px; font-weight: 500; font-family: var(--font-mono); color: var(--fg-muted);
     }
-    .agent-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
-    .agent-tag {
-      display: inline-block; margin-top: 6px;
-      font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;
+    .agent-tag::before, .mcp-type::before, .plugin-tag::before {
+      content: ''; width: 6px; height: 6px; border-radius: var(--radius-pill); background: var(--kind-tool); flex-shrink: 0;
     }
-    .agent-tag-analysis { background: rgba(96,165,250,.12); color: var(--blue); }
-    .agent-tag-execution { background: rgba(74,222,128,.12); color: var(--green); }
-    .agent-tag-forge { background: rgba(251,191,36,.12); color: var(--amber); }
+    .agent-tag-analysis::before { background: var(--kind-agent); }
+    .agent-tag-execution::before { background: var(--kind-tool); }
+    .agent-tag-forge::before { background: var(--kind-skill); }
+    .mcp-local::before { background: var(--ok); }
+    .mcp-cloud::before { background: var(--kind-server); }
+    .plugin-card > div:last-child { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+    .plugin-tag::before { background: var(--kind-skill); }
 
     /* ── HOOKS PANEL ────────────────────────────── */
     .hooks-timeline { margin-top: 8px; }
     .hook-event {
       border: 1px solid var(--border); border-radius: var(--radius);
-      margin-bottom: 12px; overflow: hidden;
+      margin-bottom: 16px; overflow: hidden;
     }
     .hook-event-header {
-      display: flex; align-items: center; gap: 10px;
-      background: var(--surface-2); padding: 10px 14px;
-      cursor: pointer; user-select: none;
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg-elev); padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
     }
-    .hook-event-header:hover { background: var(--surface); }
     .hook-event-tag {
-      font-family: 'Geist Mono', monospace; font-size: 11px; font-weight: 600;
-      padding: 2px 8px; border-radius: 4px; background: rgba(34,211,238,.12);
-      color: var(--cyan);
+      font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+      color: var(--fg); display: inline-flex; align-items: center; gap: 8px;
     }
-    .hook-event-title { font-size: 13px; font-weight: 600; flex: 1; }
-    .hook-event-subtitle { font-size: 12px; color: var(--text-dim); }
-    .hook-event-body { padding: 12px 14px; background: var(--surface); }
+    .hook-event-tag::before { content: ''; width: 6px; height: 6px; border-radius: var(--radius-pill); background: var(--kind-hook); }
+    .hook-event-title { font-size: 14px; font-weight: 600; flex: 1; }
+    .hook-event-subtitle { font-size: 12px; color: var(--fg-subtle); }
+    .hook-event-body { padding: 8px 16px; background: var(--bg); }
     .hook-step {
-      display: flex; gap: 10px; align-items: flex-start;
-      padding: 5px 0; border-bottom: 1px solid var(--border);
-      font-size: 12.5px; color: var(--text-muted);
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+      font-size: 14px; color: var(--fg-muted);
     }
     .hook-step:last-child { border-bottom: none; }
     .hook-step-num {
-      font-family: 'Geist Mono', monospace; font-size: 10px;
-      color: var(--text-dim); padding-top: 2px; min-width: 16px;
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--fg-subtle); padding-top: 3px; min-width: 20px;
     }
 
-    /* ── MCP PANEL ──────────────────────────────── */
-    .mcp-section { margin-bottom: 32px; }
-    .mcp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; }
-    .mcp-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 14px 16px; transition: border-color .15s;
-    }
-    .mcp-card:hover { border-color: var(--border-2); }
-    .mcp-name {
-      font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 600;
-      color: var(--green); margin-bottom: 5px;
-    }
-    .mcp-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
-    .mcp-type {
-      display: inline-block; margin-top: 8px;
-      font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;
-    }
-    .mcp-local { background: rgba(74,222,128,.12); color: var(--green); }
-    .mcp-cloud { background: rgba(96,165,250,.12); color: var(--blue); }
-
-    /* ── PLUGINS PANEL ──────────────────────────── */
-    .plugin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; }
-    .plugin-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 14px 16px; transition: border-color .15s;
-    }
-    .plugin-card:hover { border-color: var(--border-2); }
-    .plugin-name { font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text); }
-    .plugin-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
-    .plugin-tag {
-      display: inline-block; margin-top: 8px;
-      font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 99px;
-      background: var(--surface-2); color: var(--text-dim); border: 1px solid var(--border);
-    }
+    .mcp-section { margin-bottom: 48px; }
 
     /* ── DIVIDER ───────────────────────────────── */
     .divider { height: 1px; background: var(--border); margin: 24px 0; }
@@ -437,373 +411,330 @@
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--border-2); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
 
     /* ── MOBILE BOTTOM TABS ─────────────────────── */
     .mobile-tabs {
       display: none;
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
-      background: rgba(9,9,11,0.95);
-      backdrop-filter: blur(16px);
+      background: var(--bg);
       border-top: 1px solid var(--border);
       padding-bottom: env(safe-area-inset-bottom);
     }
-    .mobile-tab-grid {
-      display: grid; grid-template-columns: repeat(6, 1fr); height: 56px;
-    }
+    .mobile-tab-grid { display: grid; grid-template-columns: repeat(6, 1fr); height: 56px; }
     .mobile-tab {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 3px; font-size: 9px; font-weight: 600; letter-spacing: .04em;
-      text-transform: uppercase; color: var(--text-dim);
+      gap: 3px; font-size: 10px; font-weight: 500; font-family: var(--font-mono); letter-spacing: .04em;
+      text-transform: uppercase; color: var(--fg-subtle);
       border: none; background: transparent; cursor: pointer; padding: 8px 4px;
-      transition: color .15s; -webkit-tap-highlight-color: transparent;
+      transition: color var(--dur-fast) ease-out; -webkit-tap-highlight-color: transparent;
     }
-    .mobile-tab.active { color: var(--cyan); }
+    .mobile-tab.active { color: var(--accent); }
     .mobile-tab svg { width: 20px; height: 20px; }
 
     /* ── MOBILE CONTROLS (search + pills) ───────── */
-    .mobile-controls {
-      display: none; flex-direction: column; gap: 10px; margin-bottom: 16px;
-    }
+    .mobile-controls { display: none; flex-direction: column; gap: 12px; margin-bottom: 16px; }
     .mobile-search-wrap { position: relative; }
     .mobile-search-icon {
       position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
-      color: var(--text-dim); pointer-events: none; width: 15px; height: 15px;
+      color: var(--fg-subtle); pointer-events: none; width: 15px; height: 15px;
     }
     #search-mobile {
-      width: 100%; padding: 10px 12px 10px 34px;
-      background: var(--surface-2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); color: var(--text);
-      font-size: 15px; font-family: inherit; outline: none;
-      transition: border-color .15s; -webkit-appearance: none;
+      width: 100%; padding: 12px 12px 12px 34px; min-height: 44px;
+      background: var(--bg-panel); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--fg);
+      font-size: 16px; font-family: inherit;
+      transition: border-color var(--dur-fast) ease-out; -webkit-appearance: none;
     }
-    #search-mobile::placeholder { color: var(--text-dim); }
-    #search-mobile:focus { border-color: var(--border-2); }
+    #search-mobile::placeholder { color: var(--fg-subtle); }
+    #search-mobile:focus { border-color: var(--border-strong); }
 
-    .mobile-filter-row { display: flex; gap: 6px; }
+    .mobile-filter-row { display: flex; gap: 8px; }
     .mobile-filter-btn {
-      padding: 6px 12px; border-radius: 99px; font-size: 12px; font-weight: 500;
+      padding: 8px 12px; min-height: 44px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; font-family: inherit;
       cursor: pointer; border: 1px solid var(--border); background: transparent;
-      color: var(--text-muted); transition: all .15s; white-space: nowrap;
-      -webkit-tap-highlight-color: transparent;
+      color: var(--fg-subtle);
+      transition: color var(--dur-fast) ease-out, border-color var(--dur-fast) ease-out, background-color var(--dur-fast) ease-out;
+      white-space: nowrap; -webkit-tap-highlight-color: transparent;
     }
-    .mobile-filter-btn.active { background: var(--violet); border-color: var(--violet); color: #fff; }
+    .mobile-filter-btn.active { background: var(--bg-panel); border-color: var(--accent); color: var(--fg); }
 
-    .cat-pills-row {
-      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;
-      scrollbar-width: none;
-    }
+    .cat-pills-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
     .cat-pills-row::-webkit-scrollbar { display: none; }
     .cat-pill {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 5px 12px; border-radius: 99px;
-      border: 1px solid var(--border); background: transparent;
-      color: var(--text-muted); font-size: 12px; font-weight: 500;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 12px; min-height: 44px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: transparent; font-family: inherit;
+      color: var(--fg-subtle); font-size: 13px; font-weight: 500;
       white-space: nowrap; cursor: pointer; flex-shrink: 0;
-      transition: all .15s; -webkit-tap-highlight-color: transparent;
+      transition: color var(--dur-fast) ease-out, border-color var(--dur-fast) ease-out, background-color var(--dur-fast) ease-out;
+      -webkit-tap-highlight-color: transparent;
     }
     .cat-pill:active { opacity: .7; }
-    .cat-pill.active { color: var(--text); background: var(--surface-2); }
-    .cat-pill-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .cat-pill.active { color: var(--fg); background: var(--bg-panel); }
+    .cat-pill-dot { width: 6px; height: 6px; border-radius: var(--radius-pill); flex-shrink: 0; }
 
     /* ── RESPONSIVE ────────────────────────────── */
     @media (max-width: 900px) {
-      .skill-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
-      .agent-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+      .skill-card, .agent-card, .mcp-card, .plugin-card { grid-template-columns: minmax(150px, 200px) minmax(0, 1fr); }
+      .skill-footer { grid-column: 2; grid-row: auto; margin-top: 8px; }
+      .agent-tag, .mcp-type, .plugin-card > div:last-child { grid-column: 2; margin-top: 8px; }
     }
 
     @media (max-width: 768px) {
       :root { --sidebar-w: 0px; --nav-h: 48px; }
 
-      /* nav */
-      nav { padding: 0 16px; }
+      .site-nav { padding: 0 16px; }
       .nav-brand { margin-right: 0; }
       .nav-version { display: none; }
       .nav-tabs { display: none; }
       .nav-right { display: none; }
 
-      /* sidebar */
       aside { display: none; }
-
-      /* mobile controls */
       .mobile-controls { display: flex; }
       .mobile-tabs { display: block; }
 
-      /* main */
-      main {
-        padding: 16px 16px calc(56px + env(safe-area-inset-bottom) + 16px);
-      }
+      main { padding: 16px 16px calc(56px + env(safe-area-inset-bottom) + 24px); }
 
-      /* grids */
-      .skill-grid { grid-template-columns: 1fr; }
-      .agent-grid { grid-template-columns: 1fr; }
-      .mcp-grid { grid-template-columns: 1fr; }
-      .plugin-grid { grid-template-columns: 1fr; }
+      .skill-card, .agent-card, .mcp-card, .plugin-card { grid-template-columns: 1fr; row-gap: 4px; }
+      .skill-card .skill-card-top, .skill-card .skill-desc, .skill-card .desc-toggle, .skill-footer,
+      .agent-tag, .mcp-type, .plugin-card > div:last-child { grid-column: 1; grid-row: auto; }
+      .copy-btn { width: 44px; height: 44px; }
 
-      /* cards */
-      .skill-card { padding: 12px 14px; }
-      .copy-btn { width: 32px; height: 32px; }
+      .section-title, .grid-header-title { font-size: 20px; }
+      .grid-header { margin-bottom: 16px; }
 
-      /* section headers */
-      .section-title { font-size: 17px; }
-      .grid-header-title { font-size: 17px; }
-      .grid-header { margin-bottom: 14px; }
-
-      /* hooks */
-      .hook-event-header { flex-wrap: wrap; gap: 6px; }
-      .hook-event-subtitle { width: 100%; font-size: 11px; }
+      .hook-event-header { flex-wrap: wrap; gap: 8px; }
+      .hook-event-subtitle { width: 100%; font-size: 12px; }
     }
 
     @media (max-width: 480px) {
-      main { padding: 12px 12px calc(56px + env(safe-area-inset-bottom) + 12px); }
-      nav { padding: 0 12px; }
-      .nav-brand-icon { width: 24px; height: 24px; font-size: 13px; }
-      .nav-brand { font-size: 14px; gap: 7px; }
+      main { padding: 12px 12px calc(56px + env(safe-area-inset-bottom) + 24px); }
+      .site-nav { padding: 0 12px; }
+    }
+
+    @media (pointer: coarse) {
+      .g-btn { min-height: 44px; }
+      .g-task { min-height: 44px; }
     }
 
     /* ══ GUIDE PANEL ═══════════════════════════════════════════ */
     .g-wrap { max-width: 960px; margin: 0 auto; }
-    .g-section { margin-bottom: 56px; scroll-margin-top: calc(var(--nav-h) + 20px); }
+    .g-section { margin-bottom: var(--sp-section); scroll-margin-top: calc(var(--nav-h) + 24px); }
     .g-eyebrow {
-      font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
-      color: var(--cyan); margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--fg-subtle); margin-bottom: 16px;
     }
-    .g-eyebrow::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--border), transparent); }
-    .g-h2 { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; margin-bottom: 8px; }
-    .g-lead { font-size: 15px; color: var(--text-muted); line-height: 1.65; margin-bottom: 24px; max-width: 720px; font-weight: 500; }
+    .g-h2 { font-size: clamp(28px, 3.4vw, 36px); font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 16px; }
+    .g-lead { font-size: 16px; color: var(--fg-muted); line-height: 1.6; margin-bottom: 24px; max-width: 720px; }
+    .g-lead strong, .g-lead b { color: var(--fg); font-weight: 600; }
+    .g-lead a, .g-hero-sub a { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--border-strong); }
 
     /* hero */
-    .g-hero {
-      padding: 48px 0 12px; text-align: left;
-    }
+    .g-hero { padding: 48px 0 0; text-align: left; }
     .g-hero-badge {
-      display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500;
-      color: var(--text-muted); background: rgba(34,211,238,.08); border: 1px solid rgba(34,211,238,.2);
-      padding: 6px 14px; border-radius: 99px; margin-bottom: 20px;
-      transition: all var(--dur-norm);
+      display: flex; align-items: center; gap: 8px;
+      font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--fg-subtle); margin-bottom: 24px;
     }
-    .g-hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
-    .g-hero-badge:hover { border-color: var(--cyan); background: rgba(34,211,238,.12); }
+    .g-hero-badge .dot { width: 6px; height: 6px; border-radius: var(--radius-pill); background: var(--ok); }
     .g-hero h1 {
-      font-size: clamp(32px, 6vw, 48px); font-weight: 800; letter-spacing: -1.4px;
-      line-height: 1.1; margin-bottom: 18px;
-      color: var(--text);
+      font-family: var(--font-display);
+      font-size: clamp(44px, 6vw, 76px); font-weight: 600; letter-spacing: -0.035em;
+      line-height: 1.02; margin-bottom: 24px; max-width: 18ch;
+      color: var(--fg); text-wrap: balance;
     }
-    .g-hero-sub { font-size: 16px; color: var(--text-muted); line-height: 1.65; max-width: 680px; margin-bottom: 32px; }
-    .g-hero-sub strong { color: var(--text); font-weight: 600; }
+    .g-accent { color: var(--accent); }
+    .g-hero-sub { font-size: 18px; color: var(--fg-muted); line-height: 1.6; max-width: 720px; margin-bottom: 32px; }
+    .g-hero-sub strong { color: var(--fg); font-weight: 600; }
 
-    .g-stats {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-      gap: 1px; background: var(--border); border: 1px solid var(--border);
-      border-radius: var(--radius); overflow: hidden; margin-bottom: 36px;
+    .term {
+      margin: 48px 0 0; max-width: 720px;
+      background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: 0 18px 38px oklch(0% 0 0 / .4); overflow: hidden;
     }
-    .g-stat { background: var(--surface); padding: 18px 14px; text-align: center; transition: all var(--dur-norm); }
-    .g-stat:hover { background: var(--surface-2); }
-    .g-stat-num { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; font-family: 'Geist Mono', monospace; margin-bottom: 4px; }
-    .g-stat-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .06em; font-weight: 500; }
+    .term-bar {
+      display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono); font-size: 12px; color: var(--fg-subtle);
+    }
+    .term-dots { display: inline-flex; gap: 6px; }
+    .term-dots i { width: 8px; height: 8px; border-radius: var(--radius-pill); border: 1px solid var(--border-strong); display: block; }
+    .term-body {
+      font-family: var(--font-mono); font-size: 13px; line-height: 1.7;
+      padding: 16px; white-space: pre-wrap; overflow-x: auto; color: var(--fg);
+    }
+    .term-status {
+      font-family: var(--font-mono); font-size: 12px; color: var(--fg-muted);
+      padding: 12px 16px; border-top: 1px solid var(--border); line-height: 1.7;
+    }
+    .term-status .sep { color: var(--fg-subtle); margin: 0 6px; }
+    .term-status b { color: var(--fg); font-weight: 500; }
 
-    .g-demo-gif { display: block; max-width: 100%; height: auto; margin-top: 12px; border: 1px solid var(--border); border-radius: var(--radius); }
+    .g-demo-gif { display: block; max-width: 100%; height: auto; margin-top: 16px; border: 1px solid var(--border); border-radius: var(--radius); }
 
-    .g-proof { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 28px 0 8px; }
-    .g-proof-cell { background: var(--surface); padding: 16px 18px; }
-    .g-proof-num { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; font-family: 'Geist Mono', monospace; color: var(--cyan); }
-    .g-proof-label { font-size: 12px; font-weight: 600; color: var(--text); margin: 2px 0 6px; }
-    .g-proof-cap { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .g-proof { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0; border-top: 1px solid var(--border); margin: 48px 0 0; max-width: 960px; }
+    .g-proof-cell { padding: 24px 24px 0 0; }
+    .g-proof-num { font-size: 32px; font-weight: 500; letter-spacing: -0.02em; font-family: var(--font-mono); color: var(--fg); }
+    .g-proof-label { font-size: 14px; font-weight: 600; color: var(--fg); margin: 4px 0 8px; }
+    .g-proof-cap { font-size: 14px; color: var(--fg-muted); line-height: 1.6; max-width: 420px; }
 
-    .g-cta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+    .g-cta-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
     .g-btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 600;
-      padding: 11px 20px; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid transparent;
-      text-decoration: none; transition: all var(--dur-norm); white-space: nowrap;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 500; font-family: inherit;
+      padding: 10px 16px; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid transparent;
+      text-decoration: none; white-space: nowrap;
+      transition: color var(--dur-fast) ease-out, background-color var(--dur-fast) ease-out, border-color var(--dur-fast) ease-out;
     }
-    .g-btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
-    .g-btn-primary { background: var(--cyan); color: #06181c; }
-    .g-btn-primary:hover { background: #67e8f9; transform: translateY(-1px); box-shadow: 0 8px 16px rgba(34,211,238,.25); }
-    .g-btn-ghost { background: transparent; border-color: var(--border-2); color: var(--text); }
-    .g-btn-ghost:hover { background: var(--surface-2); border-color: var(--text); }
+    .g-btn-primary { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+    .g-btn-primary:hover { background: oklch(85% .1 75); }
+    .g-btn-ghost { background: transparent; border-color: var(--border-strong); color: var(--fg); }
+    .g-btn-ghost:hover { background: var(--bg-panel); }
 
     /* mental model diagram */
-    .g-diagram {
-      border: 1px solid var(--border); border-radius: var(--radius); padding: 32px;
-      background:
-        radial-gradient(120% 120% at 0% 0%, rgba(167,139,250,.05), transparent 50%),
-        radial-gradient(120% 120% at 100% 100%, rgba(34,211,238,.05), transparent 50%),
-        var(--surface);
-    }
-    .g-layer { margin-bottom: 28px; position: relative; }
+    .g-diagram { border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; background: var(--bg-elev); }
+    .g-layer { margin-bottom: 24px; position: relative; }
     .g-layer:last-child { margin-bottom: 0; }
     .g-layer-label {
-      font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-      color: var(--text-dim); margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--fg-subtle); margin-bottom: 16px;
     }
-    .g-layer-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--border), transparent); }
-    .g-nodes { display: flex; gap: 12px; flex-wrap: wrap; }
+    .g-nodes { display: flex; gap: 16px; flex-wrap: wrap; }
     .g-node {
-      flex: 1; min-width: 160px; border: 1px solid var(--border-2); border-radius: var(--radius-sm);
-      padding: 14px 16px; background: var(--surface-2);
-      transition: all var(--dur-norm);
-      position: relative;
+      flex: 1; min-width: 200px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 16px; background: var(--bg);
+      transition: border-color var(--dur-fast) ease-out;
     }
-    .g-node:hover { border-color: var(--border); background: #1a1a1e; }
-    .g-node::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-      background: linear-gradient(to right, rgba(34,211,238,.3), transparent);
-      opacity: 0; transition: opacity var(--dur-norm);
-    }
-    .g-node:hover::before { opacity: 1; }
-    .g-node-title { font-size: 13px; font-weight: 700; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
-    .g-node-title .pip { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px currentColor; opacity: 0.8; }
-    .g-node-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .g-node:hover { border-color: var(--border-strong); }
+    .g-node-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .g-node-title .pip { width: 6px; height: 6px; border-radius: var(--radius-pill); flex-shrink: 0; }
+    .g-node-desc { font-size: 14px; color: var(--fg-muted); line-height: 1.6; }
     .g-arrow {
-      text-align: center; color: var(--text-dim); font-size: 13px; line-height: 1; margin: 8px 0;
-      font-weight: 500; font-family: 'Geist Mono', monospace; opacity: 0.7;
+      text-align: center; color: var(--fg-subtle); font-size: 12px; line-height: 1; margin: 16px 0;
+      font-family: var(--font-mono);
     }
     .g-substrate {
-      border-top: 1px dashed rgba(34,211,238,.2); margin-top: 20px; padding-top: 16px;
+      border-top: 1px dashed var(--border-strong); margin-top: 24px; padding-top: 16px;
       display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
     }
-    .g-substrate-label { font-size: 11px; color: var(--text-dim); margin-right: 6px; font-weight: 500; }
+    .g-diagram + .g-substrate { margin-bottom: 24px; }
+    .g-substrate-label { font-size: 12px; color: var(--fg-subtle); margin-right: 8px; font-family: var(--font-mono); }
     .g-chip {
-      font-size: 11px; font-family: 'Geist Mono', monospace; color: var(--text-muted);
-      background: rgba(34,211,238,.08); border: 1px solid rgba(34,211,238,.2); padding: 4px 10px; border-radius: 99px;
-      transition: all var(--dur-norm);
+      font-size: 12px; font-family: var(--font-mono); color: var(--fg-muted);
+      border: 1px solid var(--border); padding: 4px 8px; border-radius: var(--radius-sm);
     }
-    .g-chip:hover { border-color: var(--cyan); background: rgba(34,211,238,.12); color: var(--cyan); }
 
     /* steps */
-    .g-steps { display: flex; flex-direction: column; gap: 18px; }
+    .g-steps { display: flex; flex-direction: column; gap: 24px; max-width: 720px; }
     .g-step { display: flex; gap: 16px; }
     .g-step-num {
-      flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; font-family: 'Geist Mono', monospace;
-      font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center;
-      background: var(--surface-2);
-      border: 1.5px solid var(--cyan); color: var(--cyan);
-      flex-shrink: 0; margin-top: 1px;
+      flex-shrink: 0; width: 28px; height: 28px; border-radius: var(--radius-sm); font-family: var(--font-mono);
+      font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border-strong); color: var(--fg-muted); margin-top: 1px;
     }
     .g-step-body { flex: 1; min-width: 0; }
-    .g-step-title { font-size: 14.5px; font-weight: 700; margin-bottom: 8px; }
+    .g-step-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
     .g-code {
-      font-family: 'Geist Mono', monospace; font-size: 12px; line-height: 1.7;
-      background: #0c0c0e; border: 1px solid var(--border); border-radius: var(--radius-sm);
-      padding: 12px 14px; overflow-x: auto; white-space: pre; color: var(--text);
-      transition: all var(--dur-norm);
+      font-family: var(--font-mono); font-size: 13px; line-height: 1.7;
+      background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 12px 16px; overflow-x: auto; white-space: pre; color: var(--fg);
     }
-    .g-code:hover { border-color: var(--border-2); box-shadow: 0 2px 8px rgba(0,0,0,.3); }
-    .g-code .c-cmd { color: #22d3ee; font-weight: 500; }
-    .g-code .c-out { color: var(--text-dim); opacity: 0.9; }
-    .g-code .c-ok { color: #4ade80; font-weight: 500; }
+    .g-code .c-cmd { color: var(--fg); font-weight: 500; }
+    .g-code .c-out { color: var(--fg-subtle); }
+    .g-code .c-ok { color: var(--ok); font-weight: 500; }
+    .term-body .c-cmd { color: var(--fg); font-weight: 500; }
+    .term-body .c-out { color: var(--fg-subtle); }
+    .term-body .c-ok { color: var(--ok); font-weight: 500; }
 
-    /* concept cards */
-    .g-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
-    .g-card {
-      border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; background: var(--surface);
-      transition: all var(--dur-norm);
-      display: flex; flex-direction: column;
+    /* concept list (ruled, not boxed cards) */
+    .g-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 0 48px; }
+    .g-card { border-top: 1px solid var(--border); padding: 24px 0; display: flex; flex-direction: column; }
+    .g-card-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .g-card-icon { flex-shrink: 0; display: flex; color: var(--fg-subtle); }
+    .g-card-icon svg { width: 16px; height: 16px; }
+    .g-card-body { font-size: 14px; color: var(--fg-muted); line-height: 1.6; flex: 1; }
+    .g-card-body b { color: var(--fg); font-weight: 600; }
+    .g-card-body code, .g-lead code, .g-step-title code, .g-rule code, .g-card-eg code, .g-node-desc code, .g-flow-text code {
+      font-family: var(--font-mono); font-size: .9em; color: var(--fg);
+      background: var(--bg-panel); padding: 1px 6px; border-radius: 4px;
+      font-weight: 400;
     }
-    .g-card:hover {
-      border-color: var(--cyan);
-      background: #1a1a1e;
-      box-shadow: 0 2px 8px rgba(0,0,0,.3);
-      transform: translateY(-1px);
-    }
-    .g-card:focus-within { outline: 2px solid var(--cyan); outline-offset: -1px; }
-    .g-card-title { font-size: 14.5px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 9px; }
-    .g-card-icon { flex-shrink: 0; display: flex; color: var(--cyan); }
-    .g-card-icon svg { width: 18px; height: 18px; }
-    .g-card-body { font-size: 13px; color: var(--text-muted); line-height: 1.6; flex: 1; }
-    .g-card-body code, .g-lead code, .g-step-title code, .g-rule code {
-      font-family: 'Geist Mono', monospace; font-size: .9em; color: var(--cyan);
-      background: rgba(34,211,238,.1); padding: 2px 6px; border-radius: 4px;
-      font-weight: 500;
-    }
-    .g-card-eg { font-size: 12px; color: var(--text-dim); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-    .g-card-eg b { color: var(--text-muted); font-weight: 600; }
+    .g-card-eg { font-size: 13px; color: var(--fg-subtle); margin-top: 8px; }
+    .g-card-eg b { color: var(--fg-muted); font-weight: 500; }
 
-    /* task router */
-    .g-tasks { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+    /* task router (ruled table rows) */
+    .g-tasks { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 0 48px; }
     .g-task {
-      display: flex; align-items: flex-start; gap: 14px; text-align: left; width: 100%;
-      border: 1px solid var(--border); border-radius: var(--radius); padding: 15px 17px;
-      background: var(--surface); cursor: pointer; transition: all var(--dur-norm); color: inherit; font: inherit;
-      position: relative;
+      display: flex; align-items: flex-start; gap: 16px; text-align: left; width: 100%;
+      border: none; border-top: 1px solid var(--border); border-radius: 0; padding: 16px 8px;
+      background: transparent; cursor: pointer; color: inherit; font: inherit;
+      transition: background-color var(--dur-fast) ease-out;
     }
-    .g-task:hover {
-      border-color: var(--cyan);
-      background: #1a1a1e;
-      box-shadow: 0 2px 8px rgba(0,0,0,.3);
-      transform: translateY(-1px);
-    }
-    .g-task:focus-visible { outline: 2px solid var(--cyan); outline-offset: -1px; }
-    .g-task::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-      background: linear-gradient(to right, rgba(34,211,238,.2), transparent);
-      opacity: 0; transition: opacity var(--dur-norm);
-    }
-    .g-task:hover::before { opacity: 1; }
-    .g-task-icon { flex-shrink: 0; line-height: 1.2; margin-top: 1px; display: flex; color: var(--cyan); }
-    .g-task-icon svg { width: 19px; height: 19px; }
+    .g-task:hover { background: var(--bg-elev); }
+    .g-task:focus-visible { outline-offset: -2px; }
+    .g-task-icon { flex-shrink: 0; line-height: 1.2; margin-top: 1px; display: flex; color: var(--fg-subtle); }
+    .g-task-icon svg { width: 18px; height: 18px; }
     .g-task-main { flex: 1; min-width: 0; }
-    .g-task-want { font-size: 13.5px; font-weight: 700; margin-bottom: 3px; }
-    .g-task-skill { font-family: 'Geist Mono', monospace; font-size: 11.5px; color: #22d3ee; font-weight: 500; }
-    .g-task-skill::before { content: '→ '; color: var(--text-dim); margin-right: 1px; }
+    .g-task-want { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .g-task-skill { font-family: var(--font-mono); font-size: 12px; color: var(--fg-muted); font-weight: 400; }
+    .g-task-skill::before { content: '\2192  '; color: var(--fg-subtle); }
 
     /* rules / flow */
-    .g-rules { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 10px; }
+    .g-rules { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 0 48px; }
     .g-rule {
-      display: flex; gap: 12px; font-size: 13px; color: var(--text-muted); line-height: 1.6;
-      border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 13px 15px; background: var(--surface);
-      transition: all var(--dur-norm);
+      display: flex; gap: 16px; font-size: 14px; color: var(--fg-muted); line-height: 1.6;
+      border-top: 1px solid var(--border); padding: 16px 0;
     }
-    .g-rule:hover { border-color: var(--red); background: #1a1a1e; }
-    .g-rule-n {
-      font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--red); flex-shrink: 0; font-weight: 700;
-      opacity: 0.8;
-    }
-    .g-rule b { color: var(--text); font-weight: 700; }
+    .g-rule-n { font-family: var(--font-mono); font-size: 12px; color: var(--fg-subtle); flex-shrink: 0; font-weight: 500; padding-top: 2px; }
+    .g-rule b { color: var(--fg); font-weight: 600; }
 
-    .g-flow { display: flex; flex-direction: column; gap: 0; }
+    .g-flow { display: flex; flex-direction: column; gap: 0; max-width: 840px; }
     .g-flow-step {
-      display: flex; gap: 14px; align-items: flex-start; padding: 14px 0;
-      border-bottom: 1px solid var(--border); font-size: 13px;
+      display: flex; gap: 24px; align-items: flex-start; padding: 16px 0;
+      border-top: 1px solid var(--border); font-size: 14px;
     }
-    .g-flow-step:last-child { border-bottom: none; }
     .g-flow-tag {
-      font-family: 'Geist Mono', monospace; font-size: 10px; font-weight: 700; flex-shrink: 0;
-      padding: 3px 10px; border-radius: 4px; background: rgba(34,211,238,.12); color: var(--cyan);
-      min-width: 120px; text-align: center; white-space: nowrap;
-      letter-spacing: .05em;
-      text-transform: uppercase;
+      font-family: var(--font-mono); font-size: 11px; font-weight: 500; flex-shrink: 0;
+      padding: 3px 8px; border-radius: 4px; background: var(--bg-panel); color: var(--fg-muted);
+      min-width: 140px; text-align: left; white-space: nowrap; letter-spacing: .04em;
     }
-    .g-flow-text { color: var(--text-muted); line-height: 1.6; }
-    .g-flow-text b { color: var(--text); font-weight: 700; }
+    .g-flow-text { color: var(--fg-muted); line-height: 1.6; }
+    .g-flow-text b { color: var(--fg); font-weight: 600; }
 
     /* guide footer */
     .g-footer {
-      border-top: 1px solid var(--border); margin-top: 8px; padding-top: 22px;
-      display: flex; flex-wrap: wrap; gap: 18px; align-items: center; justify-content: space-between;
+      border-top: 1px solid var(--border); margin-top: 8px; padding-top: 24px;
+      display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between;
     }
-    .g-footer-links { display: flex; gap: 16px; flex-wrap: wrap; }
-    .g-footer-links a { color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color .15s; }
-    .g-footer-links a:hover { color: var(--cyan); }
-    .g-footer-meta { font-size: 12px; color: var(--text-dim); font-family: 'Geist Mono', monospace; }
+    .g-footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+    .g-footer-links a { color: var(--fg-muted); text-decoration: none; font-size: 14px; transition: color var(--dur-fast) ease-out; display: inline-flex; align-items: center; min-height: 32px; }
+    .g-footer-links a:hover { color: var(--fg); }
+    .g-footer-meta { font-size: 12px; color: var(--fg-subtle); font-family: var(--font-mono); overflow-wrap: anywhere; }
 
     @media (max-width: 768px) {
-      .g-hero { padding: 32px 0 8px; }
-      .g-hero h1 { font-size: clamp(28px, 5vw, 36px); }
-      .g-stats { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); margin-bottom: 28px; }
-      .g-stat { padding: 14px 10px; }
-      .g-stat-num { font-size: 22px; }
-      .g-flow-tag { min-width: 100px; font-size: 9.5px; }
-      .g-cards { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
-      .g-card { padding: 16px 18px; }
-      .g-tasks { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+      .g-section { margin-bottom: 64px; }
+      .g-hero { padding: 24px 0 0; }
+      .g-hero-sub { font-size: 16px; }
+      .term { margin-top: 32px; }
+      .g-diagram { padding: 16px; }
+      .g-flow-step { flex-direction: column; gap: 8px; }
+      .g-cards, .g-tasks, .g-rules { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important; scroll-behavior: auto !important;
+      }
     }
   </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to main content</a>
 
 <!-- NAV -->
-<nav>
+<header class="site-header">
+<nav class="site-nav" aria-label="Primary">
   <a class="nav-brand" href="#">
     <div class="nav-brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="7" cy="6" r="2.1" fill="currentColor" stroke="none"/><circle cx="17" cy="6" r="2.1" fill="currentColor" stroke="none"/><circle cx="12" cy="18" r="2.4" fill="currentColor" stroke="none"/><path d="M7 8.3v4.5l5 3M17 8.3v4.5l-5 3"/></svg></div>
     sharekit
@@ -839,6 +770,7 @@
     </a>
   </div>
 </nav>
+</header>
 
 <!-- LAYOUT -->
 <div class="layout">
@@ -862,7 +794,7 @@
   </aside>
 
   <!-- MAIN CONTENT -->
-  <main>
+  <main id="main">
 
     <!-- GUIDE PANEL -->
     <div class="panel active" id="panel-guide">
@@ -871,7 +803,7 @@
         <!-- HERO -->
         <div class="g-hero g-section" id="g-top">
           <div class="g-hero-badge"><span class="dot"></span> Operator harness · live reference</div>
-          <h1>Your autonomous engineering operator.</h1>
+          <h1>Your autonomous engineering <span class="g-accent">operator</span>.</h1>
           <p class="g-hero-sub">
             A fully-wired agent operator environment: 52 repo-tracked <strong>skills</strong> you invoke,
             <strong>composites</strong> that chain them with gates, <strong>sub-agents</strong> that do
@@ -879,20 +811,22 @@
             This page is the map: start here, then dive into the catalog.
           </p>
 
-          <div class="g-stats">
-            <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">52</div><div class="g-stat-label">Active skills</div></div>
-            <div class="g-stat"><div class="g-stat-num" style="color:var(--violet)" id="st-composites">9</div><div class="g-stat-label">Composites</div></div>
-            <div class="g-stat"><div class="g-stat-num" style="color:var(--blue)" id="st-agents">49</div><div class="g-stat-label">Agents</div></div>
-            <div class="g-stat"><div class="g-stat-num" style="color:var(--amber)">4</div><div class="g-stat-label">Hook events wired</div></div>
-            <div class="g-stat"><div class="g-stat-num" style="color:var(--green)" id="st-mcp">15</div><div class="g-stat-label">MCP servers</div></div>
-            <div class="g-stat"><div class="g-stat-num" style="color:var(--pink)">22</div><div class="g-stat-label">Standards</div></div>
-          </div>
-
           <div class="g-cta-row">
             <button class="g-btn g-btn-primary" data-goto="g-install">Install the harness →</button>
             <button class="g-btn g-btn-ghost" data-goto="g-quickstart">Start in 5 minutes</button>
             <button class="g-btn g-btn-ghost" data-goto="g-tasks">I want to…</button>
             <button class="g-btn g-btn-ghost" data-panel-jump="skills">Browse all skills</button>
+          </div>
+
+          <div class="term">
+            <div class="term-bar"><span class="term-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>~/your-repo · claude</span></div>
+<div class="term-body"><span class="c-cmd">$ claude</span>
+<span class="c-out">⟳ CLAUDE.md rules · standards index · skill + agent listing</span>
+<span class="c-ok">✓ session ready</span>
+<span class="c-cmd">&gt; /next-priority</span>
+<span class="c-out">→ scans active repo, open PRs, CI, memory</span>
+<span class="c-ok">✓ ranked list: start at #1</span></div>
+            <div class="term-status"><b id="st-skills">52</b> skills<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">49</b> agents<span class="sep">·</span><b>4</b> hook events wired<span class="sep">·</span><b id="st-mcp">15</b> MCP servers<span class="sep">·</span><b>22</b> standards</div>
           </div>
 
           <div class="g-proof">
@@ -919,11 +853,11 @@
               <div class="g-layer-label">1 · You invoke</div>
               <div class="g-nodes">
                 <div class="g-node">
-                  <div class="g-node-title"><span class="pip" style="background:var(--cyan)"></span>Skills</div>
+                  <div class="g-node-title"><span class="pip" style="background:var(--kind-skill)"></span>Skills</div>
                   <div class="g-node-desc">One well-scoped task: <code>/ship</code>, <code>/review</code>, <code>/verify</code>. Runs in your context. Invoke with <code>/name</code> or let its description match your request.</div>
                 </div>
                 <div class="g-node">
-                  <div class="g-node-title"><span class="pip" style="background:var(--violet)"></span>Composites</div>
+                  <div class="g-node-title"><span class="pip" style="background:var(--kind-hook)"></span>Composites</div>
                   <div class="g-node-desc">A skill that auto-chains other skills with gates between phases (e.g. specify → plan → implement → verify). Prefer these: running sub-skills by hand skips the gates.</div>
                 </div>
               </div>
@@ -933,7 +867,7 @@
               <div class="g-layer-label">2 · Work gets done</div>
               <div class="g-nodes">
                 <div class="g-node">
-                  <div class="g-node-title"><span class="pip" style="background:var(--blue)"></span>Sub-agents</div>
+                  <div class="g-node-title"><span class="pip" style="background:var(--kind-agent)"></span>Sub-agents</div>
                   <div class="g-node-desc">Autonomous workers in their own context (plus their own git worktree when 2+ writers share a repo). Analysis agents are read-only <em>by construction</em>; execution agents write. Run in parallel for independent work.</div>
                 </div>
               </div>
@@ -942,8 +876,8 @@
             <div class="g-layer">
               <div class="g-layer-label">3 · Hooks (automatic, every prompt &amp; tool call)</div>
               <div class="g-nodes">
-                <div class="g-node" style="background:rgba(34,211,238,.06)">
-                  <div class="g-node-desc" style="color:var(--text-muted)">Anchor the default modes · suggest a model tier · detect composites · block secret reads and risky git · keep analysis agents read-only · re-inject facts after compaction. You never call these: they fire on their own.</div>
+                <div class="g-node">
+                  <div class="g-node-desc">Anchor the default modes · suggest a model tier · detect composites · block secret reads and risky git · keep analysis agents read-only · re-inject facts after compaction. You never call these: they fire on their own.</div>
                 </div>
               </div>
             </div>
@@ -1027,7 +961,7 @@
         <div class="g-section" id="g-quickstart">
           <div class="g-eyebrow">Quickstart · ~5 min</div>
           <h2 class="g-h2">Your first autonomous task</h2>
-          <p class="g-lead">Prerequisites: Claude Code installed, this profile in <code>~/.claude/</code> (see <a href="#g-install" style="color:var(--cyan)">Install</a> above), and a git repo to work in.</p>
+          <p class="g-lead">Prerequisites: Claude Code installed, this profile in <code>~/.claude/</code> (see <a href="#g-install">Install</a> above), and a git repo to work in.</p>
           <div class="g-steps">
             <div class="g-step">
               <div class="g-step-num">1</div>
@@ -1251,7 +1185,7 @@
 </div>
 
 <!-- Mobile bottom tab bar -->
-<nav class="mobile-tabs" id="mobile-tabs">
+<nav class="mobile-tabs" id="mobile-tabs" aria-label="Sections">
   <div class="mobile-tab-grid">
     <button class="mobile-tab active" data-panel="guide">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -1300,17 +1234,17 @@
 // ══ DATA ════════════════════════════════════════════════════════════════════
 
 const CATEGORIES = [
-  { id: 'session',      label: 'Session & Context',           color: '#06b6d4', guide: 'Use session-bootstrap to start focused, resume to rehydrate work, context-pack to load only what matters, and handoff or sync-memories when switching sessions.' },
-  { id: 'planning',     label: 'Planning & Execution',        color: '#6366f1', guide: 'Use spec-driven-develop as the default entry for non-trivial work, plan for a phased plan, dispatch/orchestrate/three-man-team when work decomposes cleanly, and loop when progress stalls.' },
-  { id: 'quality',      label: 'Code Quality & Review',       color: '#a78bfa', guide: 'Use review for two-axis diff review, verify for the narrow pre-ship gate, refactor for behavior-preserving cleanup, and audit-deep for a full project health check.' },
-  { id: 'testing',      label: 'Testing',                     color: '#22d3ee', guide: 'Use tdd or test-driven-development when building behavior test-first.' },
-  { id: 'security',     label: 'Security',                    color: '#fb923c', guide: 'Use secure before work touching credentials, auth, dependencies, infra, or deployment shortcuts, and streamer-mode while sharing your screen.' },
-  { id: 'git',          label: 'Git & PR',                    color: '#4ade80', guide: 'Use pr-merge-readiness before merge to combine CI, review, coverage, Sonar, and conflict signals.' },
-  { id: 'release',      label: 'Release & Deployment',        color: '#34d399', guide: 'Use ship for validated release/deploy flow, changelog-update for release notes, version-bump for versioning, and ci-watch when checks block release.' },
-  { id: 'architecture', label: 'Architecture & Decisions',    color: '#fbbf24', guide: 'Use decide for durable architectural choices, decide-now to break analysis paralysis, debate or grill-me to stress-test options, and the teardown skills to learn from other apps and codebases.' },
-  { id: 'rag',          label: 'RAG & Memory',                color: '#fb7185', guide: 'Use recall for semantic lookup, codebase-memory for structural queries, memory-prune for stale memory cleanup, rag-curate and adt-rag-drift for index health, and client-offboard to keep client knowledge scoped.' },
-  { id: 'sync-docs',    label: 'Sync & Documentation',        color: '#e879f9', guide: 'Use graphify to query a codebase knowledge graph and sync-sharekit-profile to publish your own harness profile.' },
-  { id: 'cicd',         label: 'CI/CD',                       color: '#f59e0b', guide: 'Use ci-watch to diagnose red checks and dep-sweep to process dependency-update PRs safely.' },
+  { id: 'session',      label: 'Session & Context',           color: 'var(--kind-skill)', guide: 'Use session-bootstrap to start focused, resume to rehydrate work, context-pack to load only what matters, and handoff or sync-memories when switching sessions.' },
+  { id: 'planning',     label: 'Planning & Execution',        color: 'var(--kind-agent)', guide: 'Use spec-driven-develop as the default entry for non-trivial work, plan for a phased plan, dispatch/orchestrate/three-man-team when work decomposes cleanly, and loop when progress stalls.' },
+  { id: 'quality',      label: 'Code Quality & Review',       color: 'var(--kind-tool)', guide: 'Use review for two-axis diff review, verify for the narrow pre-ship gate, refactor for behavior-preserving cleanup, and audit-deep for a full project health check.' },
+  { id: 'testing',      label: 'Testing',                     color: 'var(--kind-tool)', guide: 'Use tdd or test-driven-development when building behavior test-first.' },
+  { id: 'security',     label: 'Security',                    color: 'var(--kind-hook)', guide: 'Use secure before work touching credentials, auth, dependencies, infra, or deployment shortcuts, and streamer-mode while sharing your screen.' },
+  { id: 'git',          label: 'Git & PR',                    color: 'var(--kind-server)', guide: 'Use pr-merge-readiness before merge to combine CI, review, coverage, Sonar, and conflict signals.' },
+  { id: 'release',      label: 'Release & Deployment',        color: 'var(--kind-server)', guide: 'Use ship for validated release/deploy flow, changelog-update for release notes, version-bump for versioning, and ci-watch when checks block release.' },
+  { id: 'architecture', label: 'Architecture & Decisions',    color: 'var(--kind-skill)', guide: 'Use decide for durable architectural choices, decide-now to break analysis paralysis, debate or grill-me to stress-test options, and the teardown skills to learn from other apps and codebases.' },
+  { id: 'rag',          label: 'RAG & Memory',                color: 'var(--kind-agent)', guide: 'Use recall for semantic lookup, codebase-memory for structural queries, memory-prune for stale memory cleanup, rag-curate and adt-rag-drift for index health, and client-offboard to keep client knowledge scoped.' },
+  { id: 'sync-docs',    label: 'Sync & Documentation',        color: 'var(--kind-tool)', guide: 'Use graphify to query a codebase knowledge graph and sync-sharekit-profile to publish your own harness profile.' },
+  { id: 'cicd',         label: 'CI/CD',                       color: 'var(--kind-hook)', guide: 'Use ci-watch to diagnose red checks and dep-sweep to process dependency-update PRs safely.' },
 ];
 
 const TRANSLATIONS = {
@@ -1623,7 +1557,7 @@ let lang = 'en';
 
 function getCatColor(catId) {
   const cat = CATEGORIES.find(c => c.id === catId);
-  return cat ? cat.color : '#71717a';
+  return cat ? cat.color : 'var(--fg-subtle)';
 }
 
 function renderCategoryList() {
@@ -1635,7 +1569,7 @@ function renderCategoryList() {
   // Desktop sidebar
   let html = `
     <button class="cat-item ${activeCategory === 'all' ? 'active' : ''}" data-cat="all">
-      <span class="cat-item-dot" style="background:#71717a"></span>
+      <span class="cat-item-dot" style="background:var(--fg-subtle)"></span>
       <span class="cat-item-name">All Categories</span>
       <span class="cat-item-count">${SKILLS.length}</span>
     </button>
@@ -1660,8 +1594,8 @@ function renderCategoryList() {
 
   // Mobile horizontal pills
   let pillsHtml = `
-    <button class="cat-pill ${activeCategory === 'all' ? 'active' : ''}" data-cat="all" style="${activeCategory==='all'?'border-color:#71717a':'' }">
-      <span class="cat-pill-dot" style="background:#71717a"></span>All
+    <button class="cat-pill ${activeCategory === 'all' ? 'active' : ''}" data-cat="all" style="${activeCategory==='all'?'border-color:var(--border-strong)':'' }">
+      <span class="cat-pill-dot" style="background:var(--fg-subtle)"></span>All
     </button>
   `;
   CATEGORIES.forEach(cat => {
@@ -1718,12 +1652,12 @@ function renderSkillGrid() {
   }
 
   const grid = document.getElementById('skill-grid');
-  const catColor = cat ? cat.color : '#71717a';
+  const catColor = cat ? cat.color : 'var(--fg-subtle)';
 
   if (filtered.length === 0) {
     grid.innerHTML = `
       <div class="no-results">
-        <div class="no-results-icon">◎</div>
+        <div class="no-results-icon" aria-hidden="true">[ ]</div>
         <div class="no-results-title">No skills found</div>
         <div>Try a different search term or category</div>
       </div>
@@ -1733,17 +1667,14 @@ function renderSkillGrid() {
 
   grid.innerHTML = filtered.map(skill => {
     const skillCat = CATEGORIES.find(c => c.id === skill.cat);
-    const skillColor = skillCat ? skillCat.color : '#71717a';
+    const skillColor = skillCat ? skillCat.color : 'var(--fg-subtle)';
     return `
-      <div class="skill-card" style="--card-color:${skillColor}">
-        <style>
-          .skill-card[style*="${skillColor}"]:hover::before { background: ${skillColor}; }
-        </style>
+      <div class="skill-card">
         <div class="skill-card-top">
           <div class="skill-name">${skill.name}</div>
           <div class="skill-card-actions">
-            ${skill.composite ? '<span class="badge badge-composite">⚡ composite</span>' : ''}
-            <button class="copy-btn" data-name="${skill.name}" title="Copy /command">
+            ${skill.composite ? '<span class="badge badge-composite"><span class="kdot" aria-hidden="true"></span>composite</span>' : ''}
+            <button class="copy-btn" data-name="${skill.name}" title="Copy /command" aria-label="Copy /${skill.name} command">
               <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
               </svg>
@@ -1752,7 +1683,7 @@ function renderSkillGrid() {
         </div>
         <div class="skill-desc">${lang === 'pt' ? (TRANSLATIONS[skill.name] || skill.desc) : skill.desc}</div>
         <div class="skill-footer">
-          <span class="badge badge-category" style="border-color:${skillColor}22; color:${skillColor}; background:${skillColor}12">${skillCat ? skillCat.label : skill.cat}</span>
+          <span class="badge badge-category"><span class="kdot" style="background:${skillColor}" aria-hidden="true"></span>${skillCat ? skillCat.label : skill.cat}</span>
         </div>
       </div>
     `;
@@ -2012,26 +1943,29 @@ function wireGuide() {
 const GUIDE_PT = {
   'g-top': `
     <div class="g-hero-badge"><span class="dot"></span> Harness operador · referência viva</div>
-    <h1>Seu operador autônomo de engenharia.</h1>
+    <h1>Seu <span class="g-accent">operador</span> autônomo de engenharia.</h1>
     <p class="g-hero-sub">
       Um ambiente operador de agentes totalmente conectado: 52 <strong>skills</strong> ativas repo-tracked que você invoca,
       <strong>composites</strong> que as encadeiam com gates, <strong>sub-agentes</strong> que fazem trabalho
       isolado em paralelo e <strong>hooks</strong> que disparam automaticamente a cada prompt.
       Esta página é o mapa: comece aqui e depois mergulhe no catálogo.
     </p>
-    <div class="g-stats">
-      <div class="g-stat"><div class="g-stat-num" style="color:var(--cyan)" id="st-skills">52</div><div class="g-stat-label">Skills ativas</div></div>
-      <div class="g-stat"><div class="g-stat-num" style="color:var(--violet)" id="st-composites">9</div><div class="g-stat-label">Composites</div></div>
-      <div class="g-stat"><div class="g-stat-num" style="color:var(--blue)" id="st-agents">49</div><div class="g-stat-label">Agentes</div></div>
-      <div class="g-stat"><div class="g-stat-num" style="color:var(--amber)">4</div><div class="g-stat-label">Eventos de hook ligados</div></div>
-      <div class="g-stat"><div class="g-stat-num" style="color:var(--green)" id="st-mcp">15</div><div class="g-stat-label">Servidores MCP</div></div>
-      <div class="g-stat"><div class="g-stat-num" style="color:var(--pink)">22</div><div class="g-stat-label">Standards</div></div>
-    </div>
     <div class="g-cta-row">
       <button class="g-btn g-btn-primary" data-goto="g-install">Instale o harness →</button>
       <button class="g-btn g-btn-ghost" data-goto="g-quickstart">Comece em 5 minutos</button>
       <button class="g-btn g-btn-ghost" data-goto="g-tasks">Eu quero…</button>
       <button class="g-btn g-btn-ghost" data-panel-jump="skills">Ver todas as skills</button>
+    </div>
+
+    <div class="term">
+      <div class="term-bar"><span class="term-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>~/your-repo · claude</span></div>
+<div class="term-body"><span class="c-cmd">$ claude</span>
+<span class="c-out">⟳ regras do CLAUDE.md · índice de standards · lista de skills + agentes</span>
+<span class="c-ok">✓ sessão pronta</span>
+<span class="c-cmd">&gt; /next-priority</span>
+<span class="c-out">→ varre o repo ativo, PRs abertos, CI, memória</span>
+<span class="c-ok">✓ lista priorizada: comece pelo #1</span></div>
+      <div class="term-status"><b id="st-skills">52</b> skills ativas<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">49</b> agentes<span class="sep">·</span><b>4</b> eventos de hook ligados<span class="sep">·</span><b id="st-mcp">15</b> servidores MCP<span class="sep">·</span><b>22</b> standards</div>
     </div>
 
     <div class="g-proof">
@@ -2056,11 +1990,11 @@ const GUIDE_PT = {
         <div class="g-layer-label">1 · Você invoca</div>
         <div class="g-nodes">
           <div class="g-node">
-            <div class="g-node-title"><span class="pip" style="background:var(--cyan)"></span>Skills</div>
+            <div class="g-node-title"><span class="pip" style="background:var(--kind-skill)"></span>Skills</div>
             <div class="g-node-desc">Uma tarefa bem delimitada: <code>/ship</code>, <code>/review</code>, <code>/verify</code>. Roda no seu contexto. Invoque com <code>/nome</code> ou deixe a descrição dela casar com o seu pedido.</div>
           </div>
           <div class="g-node">
-            <div class="g-node-title"><span class="pip" style="background:var(--violet)"></span>Composites</div>
+            <div class="g-node-title"><span class="pip" style="background:var(--kind-hook)"></span>Composites</div>
             <div class="g-node-desc">Uma skill que encadeia outras skills com um gate entre as fases (ex.: especificar → planejar → implementar → verificar). Prefira-as: rodar sub-skills na mão pula os gates.</div>
           </div>
         </div>
@@ -2070,7 +2004,7 @@ const GUIDE_PT = {
         <div class="g-layer-label">2 · O trabalho acontece</div>
         <div class="g-nodes">
           <div class="g-node">
-            <div class="g-node-title"><span class="pip" style="background:var(--blue)"></span>Sub-agentes</div>
+            <div class="g-node-title"><span class="pip" style="background:var(--kind-agent)"></span>Sub-agentes</div>
             <div class="g-node-desc">Workers autônomos no próprio contexto (mais um worktree git próprio quando 2+ agentes que escrevem dividem um repo). Agentes de análise são somente-leitura <em>por construção</em>; agentes de execução escrevem. Rodam em paralelo para trabalho independente.</div>
           </div>
         </div>
@@ -2079,8 +2013,8 @@ const GUIDE_PT = {
       <div class="g-layer">
         <div class="g-layer-label">3 · Hooks (automáticos, a cada prompt e tool call)</div>
         <div class="g-nodes">
-          <div class="g-node" style="background:rgba(34,211,238,.06)">
-            <div class="g-node-desc" style="color:var(--text-muted)">Ancoram os modos padrão · sugerem o tier do modelo · detectam composites · bloqueiam leitura de segredos e git arriscado · mantêm agentes de análise somente-leitura · reinjetam fatos após a compactação. Você nunca os chama: eles disparam sozinhos.</div>
+          <div class="g-node">
+            <div class="g-node-desc">Ancoram os modos padrão · sugerem o tier do modelo · detectam composites · bloqueiam leitura de segredos e git arriscado · mantêm agentes de análise somente-leitura · reinjetam fatos após a compactação. Você nunca os chama: eles disparam sozinhos.</div>
           </div>
         </div>
       </div>
@@ -2160,7 +2094,7 @@ const GUIDE_PT = {
   'g-quickstart': `
     <div class="g-eyebrow">Início rápido · ~5 min</div>
     <h2 class="g-h2">Sua primeira tarefa autônoma</h2>
-    <p class="g-lead">Pré-requisitos: Claude Code instalado, este profile em <code>~/.claude/</code> (veja <a href="#g-install" style="color:var(--cyan)">Instalação</a> acima) e um repo git para trabalhar.</p>
+    <p class="g-lead">Pré-requisitos: Claude Code instalado, este profile em <code>~/.claude/</code> (veja <a href="#g-install">Instalação</a> acima) e um repo git para trabalhar.</p>
     <div class="g-steps">
       <div class="g-step">
         <div class="g-step-num">1</div>
