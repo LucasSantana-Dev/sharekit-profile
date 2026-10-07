@@ -12,6 +12,7 @@ metadata:
   owner: global-agents
   tier: contextual
   canonical_source: ~/.agents/skills/app-teardown
+disable-model-invocation: true
 ---
 
 # App Teardown

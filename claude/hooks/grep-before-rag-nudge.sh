@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
-# shellcheck source=py-resolve.sh
-. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
-[ -n "$PY" ] || exit 0
 # grep-before-rag-nudge.sh — PreToolUse. Enforces the graph/RAG-first discipline (CLAUDE.md
-# graph-first rule + standards/graphify-discipline.md) deterministically instead of relying on the
+# graph-first rule + standards/knowledge-brain.md section 5) deterministically instead of relying on the
 # model to remember it: when a WIDE content sweep (grep -r / rg / ag over a broad path) runs and no
 # retrieval tool was used recently, emit a one-line advisory. HIGH-PRECISION by design — only wide
 # recursive content searches, only when RAG/graph wasn't just consulted. Advisory, never blocks (exit 0).
@@ -11,7 +8,7 @@ set -uo pipefail
 HOOK_JSON=$(cat); [ -n "$HOOK_JSON" ] || exit 0   # robust to no-trailing-newline stdin
 MARK="$HOME/.claude/.rag-recent"
 
-read TOOL CMD < <(printf '%s' "$HOOK_JSON" | "$PY" -c "
+read TOOL CMD < <(printf '%s' "$HOOK_JSON" | python3 -c "
 import sys,json
 try: d=json.load(sys.stdin)
 except: print(' '); sys.exit()

@@ -1,6 +1,6 @@
 ---
 name: decide-now
-description: Force a decision when the agent is stuck in analysis paralysis, going in circles, or repeatedly weighing options without committing. Picks the best available option, states the rationale, and moves forward immediately. Use when the agent has been deliberating for 3+ turns, when options are deadlocked, or when the user says "just decide", "pick one", "move on", or "stop deliberating". Also use when the user asks for a decision and the agent keeps hedging.
+description: Force a decision when stuck in analysis paralysis. Use when the user says "just decide", "pick one", "move on", "stop deliberating", or options are deadlocked.
 triggers:
   - decide now
   - pick one

@@ -1,6 +1,6 @@
 ---
 name: session-bootstrap
-description: Composite skill — start-of-day routine. Chains wake-up (compact brief) → next-priority (decide) → pr-snapshot (PR queue) → context-pack (load relevant context if work-intent). Replaces "what was I doing", "what's next", "load context" with one invocation. Auto-fires on the first non-trivial prompt of a fresh session.
+description: 'Start-of-day routine: wake-up brief, next-priority, PR snapshot, context-pack. Use for "what was I doing", "what''s next", "load context".'
 user-invocable: true
 auto-invoke: first-prompt-of-session + post-resume + post-handoff-load
 metadata:
@@ -21,7 +21,7 @@ Replaces the manual `/wake-up` → `/next-priority` → `/pr-snapshot` sequence.
 
 ## Pair with standards
 
-- `standards/session-resume.md` — session-resume protocol that session-bootstrap orchestrates
+- `standards/workflow.md` (Startup sequence): session-resume protocol that session-bootstrap orchestrates
 
 ## Auto-invocation triggers
 

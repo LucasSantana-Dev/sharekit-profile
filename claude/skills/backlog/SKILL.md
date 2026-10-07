@@ -1,6 +1,6 @@
 ---
 name: backlog
-description: Composite backlog builder for a single repo. Analyzes code, scores findings by value and ROI, groups into themes, and creates prioritized GitHub issues on a Project board. Use to discover what to work on, build a backlog, plan sprints, or prioritize work with a time budget.
+description: "Composite backlog builder for one repo: scores findings by ROI, groups themes, creates GitHub issues on a Project board. Use to build a backlog or plan sprints."
 user-invocable: true
 auto-invoke: build a backlog, generate a backlog, find gaps, find opportunities, refactoring opportunities, what should i work on, what is missing in this repo, audit and plan, comprehensive backlog, project audit and plan, what can i get done this week, sprint planning, i have N days, prioritize my work, what has the most value
 metadata:

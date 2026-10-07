@@ -1,6 +1,6 @@
 ---
 name: audit-deep
-description: Composite skill — full project health check across testing, config, hooks, performance, security, MCP, and plugins. Runs the audit skills in parallel and reconciles into one severity-ranked report with prioritized remediation plan. Use weekly per active project, before major releases, or as part of quarterly tech-debt review.
+description: Composite project health check (testing, config, hooks, security, MCP, plugins) into one severity-ranked report. Use weekly or before major releases.
 user-invocable: true
 auto-invoke: weekly-per-repo + pre-release + tech-debt-review
 metadata:
@@ -60,7 +60,7 @@ is reported as one root cause, not two findings.
 
 Audits do not know history. Memory does. Before drafting fixes:
 
-- For each HIGH/MEDIUM finding, run `recall` (or `mcp__plugin_claude-mem_mcp-search__search`)
+- For each HIGH/MEDIUM finding, run `recall`
   on the flagged file, image tag, config key, or symbol.
 - If recall surfaces any past decision about that exact item (exception,
   intentional pattern, "do not change X" memory), tag the finding `NEEDS_REVIEW`

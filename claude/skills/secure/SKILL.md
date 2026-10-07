@@ -1,6 +1,6 @@
 ---
 name: secure
-description: Run a security-first pass for config, credentials, dependency risk, unsafe code patterns, and unsafe operational shortcuts. Covers OWASP Top 10, secure coding, infrastructure config (Terraform/K8s/Docker/GitHub Actions), HTTPS/CORS/CSRF/rate limiting, and credential handling.
+description: Security-first pass over config, credentials, dependency risk and unsafe code patterns. Covers OWASP Top 10, infra config (Terraform/K8s/Docker), CORS/CSRF.
 triggers:
   - secure
   - security review

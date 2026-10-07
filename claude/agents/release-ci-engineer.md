@@ -2,6 +2,7 @@
 name: release-ci-engineer
 description: Release engineering and CI/CD specialist for GitHub Actions pipelines, release-please automation, semantic versioning, changelogs, branch protection, flaky-test diagnosis, and runner cost optimization. Use for: CI failures and diagnostics, release-please gate issues, version bumps and changelogs, merge-train/branch-protection setup, Docker/npm lockfile cache-busting, GitHub Actions runner cost analysis, flaky CI investigation, and post-deploy verification.
 model: sonnet
+tools: Read, Write, Edit, Bash, Grep, Glob, Skill, Workflow, ToolSearch
 level: 3
 ---
 

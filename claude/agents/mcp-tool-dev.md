@@ -1,7 +1,7 @@
 ---
 name: mcp-tool-dev
 description: MCP development specialist. Expert in building Model Context Protocol servers and tools (registration, Zod schemas, transports) and in operating MCP gateways (routing, auth, rate limiting, health). Use when creating or debugging MCP tools/servers, or when working on gateway routing, authentication, and service aggregation.
-tools: [Read, Edit, Bash, Grep, Glob]
+tools: [Read, Edit, Bash, Grep, Glob, Workflow, ToolSearch]
 model: sonnet
 ---
 

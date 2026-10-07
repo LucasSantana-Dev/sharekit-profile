@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck source=py-resolve.sh
-. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
-[ -n "$PY" ] || exit 0
 # skill-quality-gate.sh — PostToolUse hook (SELF-CONTAINED, no external script dep).
 # Derived from SkillSpector's CI-gate concept (ADR repo-list, 2026-06-24). No emoji (CLAUDE.md).
 #
@@ -17,8 +14,8 @@ set -e
 [ "${SKILL_GATE_BYPASS:-0}" = "1" ] && exit 0
 
 HOOK_JSON=$(cat); [ -n "$HOOK_JSON" ] || exit 0   # $(cat): robust to stdin without a trailing newline
-TOOL=$(printf '%s' "$HOOK_JSON" | "$PY" -c "import sys,json;print(json.load(sys.stdin).get('tool_name',''))" 2>/dev/null || echo "")
-FILE=$(printf '%s' "$HOOK_JSON" | "$PY" -c "import sys,json;print(json.load(sys.stdin).get('tool_input',{}).get('file_path',''))" 2>/dev/null || echo "")
+TOOL=$(printf '%s' "$HOOK_JSON" | python3 -c "import sys,json;print(json.load(sys.stdin).get('tool_name',''))" 2>/dev/null || echo "")
+FILE=$(printf '%s' "$HOOK_JSON" | python3 -c "import sys,json;print(json.load(sys.stdin).get('tool_input',{}).get('file_path',''))" 2>/dev/null || echo "")
 
 # only SKILL.md Write/Edit/MultiEdit
 case "$TOOL" in Write|Edit|MultiEdit) ;; *) exit 0 ;; esac
@@ -28,7 +25,7 @@ case "$FILE" in */SKILL.md) ;; *) exit 0 ;; esac
 hard=""; warn=""
 # PyYAML is not stdlib: without it the frontmatter check cannot run, so skip it (never block on it).
 HAVE_YAML=0
-"$PY" -c 'import yaml' 2>/dev/null && HAVE_YAML=1
+python3 -c 'import yaml' 2>/dev/null && HAVE_YAML=1
 [ "$HAVE_YAML" = "1" ] || echo "skill-quality-gate: PyYAML not installed, skipping frontmatter YAML check (pip install pyyaml to enable)" >&2
 hadd(){ hard="${hard}${hard:+; }$1"; }
 add(){ warn="${warn}${warn:+; }$1"; }
@@ -36,7 +33,7 @@ add(){ warn="${warn}${warn:+; }$1"; }
 # ===== HARD checks (block) =====
 # H1. frontmatter parses as strict YAML (the 19-skill bug class) — invalid YAML => skill won't load
 if [ "$HAVE_YAML" = "1" ]; then
-"$PY" - "$FILE" <<'PY' 2>/dev/null || hadd "frontmatter not valid YAML (quote colon/list values)"
+python3 - "$FILE" <<'PY' 2>/dev/null || hadd "frontmatter not valid YAML (quote colon/list values)"
 import re,sys,yaml
 t=open(sys.argv[1]).read()
 m=re.match(r'^---\n(.*?)\n---\n',t,re.S)
@@ -52,7 +49,7 @@ fi
 DIR="${FILE%/SKILL.md}"; DIR="${DIR##*/}"
 NM=""
 if [ "$HAVE_YAML" = "1" ]; then
-NM=$("$PY" - "$FILE" <<'PY' 2>/dev/null || true
+NM=$(python3 - "$FILE" <<'PY' 2>/dev/null || true
 import re,sys,yaml
 t=open(sys.argv[1]).read()
 m=re.match(r'^---\n(.*?)\n---\n',t,re.S)
@@ -67,7 +64,7 @@ fi
 [ -n "$NM" ] && [ "$NM" != "$DIR" ] && add "frontmatter name '$NM' != dir '$DIR' (name should match dir)"
 # S2. mcp_servers declared-vs-available (delegate to checker if present)
 if [ -x "$HOME/.claude/scripts/skill-mcp-check.py" ]; then
-  MCPOUT=$("$PY" "$HOME/.claude/scripts/skill-mcp-check.py" "$FILE" 2>/dev/null | grep -iE 'MISSING|undeclared' | head -1 || true)
+  MCPOUT=$(python3 "$HOME/.claude/scripts/skill-mcp-check.py" "$FILE" 2>/dev/null | grep -iE 'MISSING|undeclared' | head -1 || true)
   [ -n "$MCPOUT" ] && add "mcp: ${MCPOUT}"
 fi
 # S3. size > 30 lines

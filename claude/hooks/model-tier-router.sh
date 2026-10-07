@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck source=py-resolve.sh
-. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
-[ -n "$PY" ] || exit 0
 # model-tier-router.sh — suggest /model sonnet for routine prompts and
 # /model fable for depth-requiring prompts, per ADR-0049
 # (fable-apex-tiering-inversion — Fable is apex, Opus is fallback).
@@ -25,7 +22,7 @@ SID="${CLAUDE_CODE_SESSION_ID:-}"
 [ -z "$SID" ] && exit 0
 
 INPUT=$(cat 2>/dev/null || true)
-PROMPT=$("$PY" -c 'import json,sys
+PROMPT=$(python3 -c 'import json,sys
 try:
  d=json.loads(sys.stdin.read() or "{}")
  print(d.get("prompt") or d.get("user_prompt") or "")
@@ -50,7 +47,7 @@ JSONL=$(find "$HOME/.claude/projects" -maxdepth 2 -name "${SID}.jsonl" -type f 2
 
 # Detect current model from last assistant turn — read file in Python (portable,
 # no SIGPIPE from tac|head). Tails last 400 lines to keep it fast on long sessions.
-CURRENT_MODEL=$("$PY" - "$JSONL" <<'PY' 2>/dev/null || true
+CURRENT_MODEL=$(python3 - "$JSONL" <<'PY' 2>/dev/null || true
 import json, sys
 path = sys.argv[1]
 try:
@@ -87,10 +84,10 @@ FIRED=""
 
 ADVICE=""
 if [ "$CATEGORY" = "depth" ] && [ "$CURRENT_MODEL" != "fable" ] && ! echo "$FIRED" | grep -q "depth-up"; then
-  ADVICE=" Depth-requiring prompt detected on **$CURRENT_MODEL**. Per ADR-0049 (Fable-apex tiering), consider \`/model fable\` for this work (composite skills, architecture, critic, ADRs) — Opus is the fallback, not first choice. Fires once per session."
+  ADVICE=" Depth-requiring prompt detected on **$CURRENT_MODEL**. Per ADR-0049 (Fable-apex tiering), consider starting the next session on \`/model fable\` (switch only at a task boundary, after a handoff) for this work (composite skills, architecture, critic, ADRs) - Opus is the fallback, not first choice. Fires once per session."
   FIRED="$FIRED depth-up"
 elif [ "$CATEGORY" = "routine" ] && { [ "$CURRENT_MODEL" = "opus" ] || [ "$CURRENT_MODEL" = "fable" ]; } && ! echo "$FIRED" | grep -q "routine-down"; then
-  ADVICE=" Routine prompt on **$CURRENT_MODEL**. Per ADR-0049, apex-tier cache reads apply for the whole session — gate on task difficulty. Consider \`/model sonnet\` for glue/CI/PR work — composites will still escalate as needed via Agent. Fires once per session."
+  ADVICE=" Routine prompt on **$CURRENT_MODEL**. Per ADR-0049, apex-tier cache reads apply for the whole session - gate on task difficulty. Consider \`/model sonnet\` for glue/CI/PR work in the next session (switch only at a task boundary, after a handoff) - composites will still escalate as needed via Agent. Fires once per session."
   FIRED="$FIRED routine-down"
 fi
 
@@ -99,4 +96,4 @@ fi
 echo "$FIRED" > "$STATE_FILE"
 
 jq -n --arg m "$ADVICE" '{"systemMessage": $m}' 2>/dev/null || \
-  "$PY" -c "import json,sys; print(json.dumps({'systemMessage': sys.argv[1]}))" "$ADVICE"
+  python3 -c "import json,sys; print(json.dumps({'systemMessage': sys.argv[1]}))" "$ADVICE"

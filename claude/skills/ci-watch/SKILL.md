@@ -1,6 +1,6 @@
 ---
 name: ci-watch
-description: "Diagnose failing CI checks, isolate the first real blocker (vs. noise), and surface the smallest viable fix. Use when a PR has failing checks, the pipeline is broken, or you need to understand why CI is red before proceeding with merge or release."
+description: Diagnose failing CI checks, isolate the first real blocker, and surface the smallest fix. Use when a PR has failing checks or CI is red before merge or release.
 triggers:
   - ci watch
   - failing checks

@@ -2,6 +2,7 @@
 name: repaint-builder
 description: Executes the /repaint pipeline — register lock, reference anchor, token spec (or DESIGN.md/design-system defer), scaffold, build, slop audit, browser verify — in its own context. Dispatched by the /repaint skill, 1× or N-parallel (worktrees). Builds and verifies; never deploys. (Sonnet)
 model: sonnet
+tools: Read, Write, Edit, Bash, Grep, Glob, Skill, mcp__plugin_playwright_playwright, ToolSearch
 level: 2
 ---
 

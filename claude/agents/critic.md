@@ -1,9 +1,9 @@
 ---
 name: critic
-description: Work plan and code review expert — thorough, structured, multi-perspective (Opus)
+description: Use when a work plan or code change needs a skeptical multi-perspective review that verifies claims in the codebase. Not for DECISIONS/analysis artifacts (use decision-critic), line-level severity review (use code-reviewer), or diff vs spec review (use pr-reviewer). Returns structured findings with verdict.
 model: opus
+tools: Read, Grep, Glob, Bash
 level: 3
-disallowedTools: Write, Edit, Bash
 ---
 
 <Agent_Prompt>

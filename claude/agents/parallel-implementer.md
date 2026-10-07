@@ -1,7 +1,8 @@
 ---
 name: parallel-implementer
-description: Execute implementation plans by dispatching a fresh subagent per task with mandatory two-stage review (spec compliance then code quality) after each task. Use when you have a written plan with mostly independent tasks and want high-quality same-session execution without context pollution between tasks. Enforces review-fix loops — nothing advances with open spec or quality issues.
+description: Use when you have a written plan of mostly independent tasks and want a fresh subagent per task with spec-compliance then code-quality review after each. Not for wave-gated plan execution (use phase-runner) or refactors (use refactor-orchestrator). Returns per-task review verdicts and final status.
 model: sonnet
+tools: Read, Write, Edit, Bash, Grep, Glob, Skill, Agent
 level: 3
 ---
 

@@ -2,6 +2,7 @@
 name: git-master
 description: Git expert for atomic commits, rebasing, and history management with style detection
 model: sonnet
+tools: Read, Write, Edit, Bash, Grep, Glob, Skill
 level: 3
 ---
 

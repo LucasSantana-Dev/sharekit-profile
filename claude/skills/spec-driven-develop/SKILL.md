@@ -1,6 +1,6 @@
 ---
 name: spec-driven-develop
-description: Mandatory default entry point for any non-trivial build/add/fix/implement/refactor request — drives work through explicit spec-driven-development phases (constitution check → specify → clarify → plan → tasks → implement → verify/converge). Use instead of running adt-specs-spec-new + grill-with-docs + plan + dispatch + review separately; it replaces standalone /plan as the default path for multi-step or ambiguous work (/plan remains a valid sub-phase and stays directly invocable for planning-only asks). Adapts GitHub spec-kit's workflow (github.com/github/spec-kit) onto existing harness skills instead of installing spec-kit's specify CLI — no new dependency, keeps the docs/specs/<date>-<slug>/ convention. Skip for trivial edits (<3 files, mechanical). Use whenever the user asks to build/add/fix/implement/refactor anything non-trivial and no more specific composite (hotfix, incident-response, release-cut, merge-confidently, etc.) matches.
+description: "Default entry for non-trivial build/add/fix/refactor: specify, plan, tasks, implement, verify. Not if a narrower composite (hotfix etc) fits; skip <3 files."
 user-invocable: true
 auto-invoke: build X, add X, implement X, fix X, refactor X, ship this feature, non-trivial change with no more specific composite matching
 metadata:
@@ -31,7 +31,7 @@ GitHub's spec-kit enforces a structured spec → plan → tasks → implement wo
 |---|---|---|
 | constitution | Phase 0 — confirm CLAUDE.md/CONTEXT.md exist for the repo; if `.harness/constitution.json` exists, treat it as the authoritative source (it, not `constitution.md`, is the enforced-invariants record) and also read `.harness/mcp-policy.json` when present; note gaps, don't block | (read-only check) |
 | specify | Phase 1 — create/find the spec | `adt-specs-spec-new` → `docs/specs/<date>-<slug>/spec.md` |
-| clarify | Phase 2 — resolve ambiguity inline | `grill-with-docs` (the `decision-griller` agent is an alternative for bounded-option forks) |
+| clarify | Phase 2 — resolve ambiguity inline | `grill-with-docs` |
 | plan | Phase 3 — phased implementation plan | `plan` → `.claude/plans/<name>.md` (or `.agents/plans/`) — that skill's real output location; the persisted spec from Phase 1 is what carries forward past session scope, not this plan file |
 | tasks | Phase 4 — externalize tasks if tracked work | `plan-to-issues` (skip if session-scoped, not tracked) |
 | implement | Phase 5 — execute tasks, parallel where independent | `dispatch` / `orchestrate` / `loop` (mandatory parallel-execution rule applies) |
@@ -84,7 +84,7 @@ A phase with no work to do is marked `SKIPPED (precondition <X> not met)`, never
 
 ## Stop conditions
 
-- **Trivial edit** (<3 files, mechanical, no ambiguity): skip this pipeline entirely, go straight to `add` or a direct edit. Forcing the full phase sequence on a one-line fix is the exact overhead the "negative rules" in `skill-auto-invoke.md` warn against.
+- **Trivial edit** (<3 files, mechanical, no ambiguity): skip this pipeline entirely, go straight to `add` or a direct edit. Forcing the full phase sequence on a one-line fix is the exact overhead the "negative rules" in `skill-authoring.md` warn against.
 - **Read-only ask** (audit, analysis, question): this skill doesn't apply — use the diagnostic skill directly.
 - **A more specific composite matches** (hotfix, incident-response, release-cut, merge-confidently, debug-deep, or any other named lifecycle composite): defer to it. This skill is the default for build/add/fix/implement when nothing more specific matches, not a universal override — that exception holds regardless of how "mandatory" the default framing reads elsewhere.
 - **Bailing mid-phase**: surface the blocker as this skill's output, mark the phase incomplete, resume next turn — never silently drop to ad-hoc editing (same contract as other composites, `standards/composite-contract.md`).
@@ -96,7 +96,7 @@ A phase with no work to do is marked `SKIPPED (precondition <X> not met)`, never
 - Do NOT let Phase 5 implement what Phase 1 never specified. An unknown found mid-implementation goes back into the spec, not into ad-hoc mid-task research (same rule `/spec-research` hands to its executor).
 - Do NOT treat a passed clarify phase as approval for a T2 or T3 action later in the chain. Tier the action, not the conversation.
 - Do NOT dispatch an analysis phase with a write-capable `agentType`.
-- Do NOT run this pipeline on a trivial edit. Forcing seven phases onto a one-line fix is the overhead `skill-auto-invoke.md`'s negative rules exist to prevent.
+- Do NOT run this pipeline on a trivial edit. Forcing seven phases onto a one-line fix is the overhead `skill-authoring.md`'s negative rules exist to prevent.
 - Do NOT end a run without the reconciliation block, including when bailing on a blocker.
 
 ## Interop with actual spec-kit projects

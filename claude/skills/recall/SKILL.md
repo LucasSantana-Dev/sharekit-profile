@@ -1,6 +1,6 @@
 ---
 name: recall
-description: One-shot semantic lookup against the local RAG index — answers "what did we decide about X", "where did we hit this bug before", "is there a memory note for Y" in a single MCP call. Backed by the rag_query MCP tool over ~21k chunks (memory, plans, handoffs, skills, standards, repo docs, changelogs, specs, code, commits, transcripts) across curated repos. Auto-scopes to current repo. Use instead of grep when the question is fuzzy, cross-file, or about prior reasoning. Skip for pure navigation.
+description: One-shot semantic lookup in the local RAG index. Use for "what did we decide about X", "where did we hit this bug before", "is there a memory note for Y".
 triggers:
   - recall
   - have we seen this before
@@ -57,7 +57,7 @@ A `rag_query()` result includes:
 }
 ```
 
-Typical scores: relevant = 0.75+; weak relevance = 0.50–0.75; noise = <0.50. Higher `top` → more noise. See `standards/skill-patterns.md §completion-criteria` for "Done when" discipline.
+Typical scores: relevant = 0.75+; weak relevance = 0.50-0.75; noise = <0.50. Higher `top` → more noise. See `standards/skill-authoring.md §completion-criteria` for "Done when" discipline.
 
 ## When recall beats grep
 

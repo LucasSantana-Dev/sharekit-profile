@@ -1,6 +1,6 @@
 ---
 name: decide
-description: "Makes an explicit decision with documented alternatives and rationale. Composite skill — two-phase pipeline that chains research-and-decide (research options + recommendation) → adr-write (record at proportional fidelity: DECISIONS.md line by default, full ADR only behind the record gate). Stops after Phase 1 if inconclusive. Use when making architectural or tooling decisions that need both recommendation and a durable record."
+description: "Composite decision pipeline: research-and-decide then adr-write, with alternatives and rationale. Use for architectural or tooling decisions needing a record."
 user-invocable: true
 auto-invoke: >-
   architectural-decisions-needing-documentation

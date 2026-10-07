@@ -1,7 +1,8 @@
 ---
 name: qa-tester
-description: Interactive CLI testing specialist using tmux for session management
+description: Use when you need interactive CLI or service testing through tmux sessions - start, drive, observe, clean up. Not for unit test authoring (use test-engineer). Returns a pass/fail report with captured output.
 model: sonnet
+tools: Read, Write, Edit, Bash, Grep, Glob, Skill, Artifact, ToolSearch
 level: 3
 ---
 

@@ -10,7 +10,7 @@
 #
 # 2026-07-23: checks 8-11 added (hook/plist target existence, heartbeats, ADR-0039 guard,
 # catalog surface) after the moved-rag-index incident; 2026-07-24: check 12 (phantom
-# guardrails) from the multi-person-work-ethics findings. EDIT THE CANONICAL COPY IN
+# guardrails) from the cooperative-mode ethics rules. EDIT THE CANONICAL COPY IN
 # ~/.claude-env — ~/.claude is derived via `sync pull`; derived edits get reverted.
 set -uo pipefail
 
@@ -284,15 +284,14 @@ if [ -d "$ASK_ROOT" ]; then
   fi
 fi
 
-# 12. phantom-guardrail check (multi-person-work-ethics 2.6): every rule that
+# 12. phantom-guardrail check (cooperative-mode rule 6): every rule that
 # claims MECHANICAL enforcement must name an artifact that provably exists.
 # If one of these goes missing, the rules citing it are instructions, not rails.
 for art in \
   "$HOME/.claude/scripts/repo-mode.sh" \
   "$HOME/.kimi-code/hooks/rtk-rewrite.sh" \
   "$ENV_DIR/bin/sync" \
-  "$HOME/.agents/skills/standards/cooperative-mode.md" \
-  "$HOME/.agents/skills/standards/multi-person-work-ethics.md"; do
+  "$HOME/.agents/skills/standards/cooperative-mode.md"; do
   [ -e "$art" ] || warns+=("enforcement artifact MISSING: $art — rules citing it are phantom guardrails")
 done
 

@@ -1,6 +1,6 @@
 ---
 name: loop-engineer
-description: "Designs and implements autonomous agent loops for any task. Trigger when the user wants to stop manually prompting agents and build a self-running feedback cycle — coding automation, research pipelines, content workflows, CI loops, or any repeating AI-driven process. Also trigger for \"design a loop\", \"build an agent loop\", \"I want this to run automatically\", or when describing a workflow currently driven manually. Output: complete loop spec plus working implementation."
+description: Designs and builds autonomous agent loops. Use for "design a loop", "build an agent loop", "I want this to run automatically", or self-running feedback cycles.
 triggers:
   - design loop
   - build agent loop
@@ -17,8 +17,8 @@ without a human manually driving each step.
 ## Preamble — RAG pre-flight
 
 Before starting any design work, query prior loop designs for this exact task domain.
-See [standards/skill-patterns.md §rag-first](../standards/skill-patterns.md) and
-[§mount-guard](../standards/skill-patterns.md).
+See [standards/skill-authoring.md §rag-first](../standards/skill-authoring.md) and
+[§mount-guard](../standards/skill-authoring.md).
 
 ```bash
 mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: External HD unmounted — RAG unreachable"; exit 1; }

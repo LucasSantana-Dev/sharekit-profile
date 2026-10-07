@@ -1,6 +1,6 @@
 ---
 name: refactor
-description: 'Surgical code refactoring to improve maintainability without changing behavior. Invoke when user says "refactor this", "clean up this code", "extract functions", "this is messy", "improve maintainability", "fix code smells", "simplify this", "this function is too long", or when you see god functions, nested conditionals, duplicate logic, magic numbers, unclear naming, or dead code. Always run a discovery pass first — catalog smells before touching anything. Gradual evolution, not revolution.'
+description: Surgical refactoring without behavior change. Use for "refactor this", "clean up this code", "this is messy", "extract functions", "fix code smells".
 license: MIT
 triggers:
   - refactor
@@ -143,4 +143,4 @@ See REFERENCE.md for the full catalog with before/after code examples:
 
 ## See also
 
-- `standards/naming-conventions.md` — case, boolean-prefix, and abbreviation rules to apply when renaming
+- `standards/code-standards.md` (naming): case, boolean-prefix, and abbreviation rules to apply when renaming
