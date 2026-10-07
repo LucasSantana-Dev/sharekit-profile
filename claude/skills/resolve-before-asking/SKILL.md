@@ -10,6 +10,7 @@ metadata:
   owner: global-agents
   tier: contextual
   canonical_source: ~/.agents/skills/resolve-before-asking
+disable-model-invocation: true
 ---
 
 # Resolve Before Asking
@@ -30,9 +31,9 @@ questions that evidence, not the operator's presence, would answer.
 
 | Situation | Use instead |
 |---|---|
-| Already deliberated 3+ turns with no new evidence, going in circles | `decide-now` |
-| A named tech/library/architecture adoption choice that should end in a durable record | `research-and-decide` / `decide` |
-| Challenging a plan against domain docs as a standalone step (not part of resolving a blocked question) | `grill-with-docs` directly |
+| Already deliberated 3+ turns with no new evidence, going in circles | `research-and-decide` (now mode) |
+| A named tech/library/architecture adoption choice that should end in a durable record | `research-and-decide` (full mode) |
+| Challenging a plan against domain docs as a standalone step (not part of resolving a blocked question) | `grill-with-options` (docs mode) directly |
 | Repeating the same action/fix without progress | `loop` |
 | A preferred tool/path failed | `fallback` |
 | Pure taste/bikeshed with no research surface (naming, tabs vs spaces) | Pick a sensible default silently, no skill needed |
@@ -74,7 +75,7 @@ escalate per debate's own failure conditions.
 ### 3. Grill-with-docs — challenge against existing docs (conditional)
 
 If the question touches domain terminology, `CONTEXT.md`, or an existing ADR: invoke
-`grill-with-docs` against debate's synthesis, self-answering each challenge round (no
+`grill-with-options` (docs mode) against debate's synthesis, self-answering each challenge round (no
 human is present in full-autonomy mode — do not pause waiting for one). If no doc surface
 is relevant to a purely mechanical/internal question, skip this phase and say so
 explicitly in your output. Never fabricate a self-answer against nothing.

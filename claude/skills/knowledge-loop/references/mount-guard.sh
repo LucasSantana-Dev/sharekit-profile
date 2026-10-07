@@ -5,13 +5,13 @@
 # Default DEV_ROOT when unset: an unset env var is not an unmounted disk.
 # The reachability test below is the real guard (feedback_knowledge_loop_mount_guard_devroot).
 if [ -z "$DEV_ROOT" ]; then
-  DEV_ROOT="${DEV_ROOT}"
+  DEV_ROOT="${DEV_ROOT:-$HOME/dev}"
 fi
 
 BRAIN="${DEV_ROOT}/knowledge-brain"
 
 # Directory reachability is the real signal here — `mount` only lists actual
-# mount points (e.g. ${DEV_ROOT}), never subdirectories like
+# mount points (e.g. ${DEV_ROOT:-$HOME/dev}), never subdirectories like
 # $DEV_ROOT, so grepping mount output for a nested path always false-positives
 # as "unmounted" even when the volume is present and the path is reachable.
 if [ ! -d "$BRAIN/.git" ]; then

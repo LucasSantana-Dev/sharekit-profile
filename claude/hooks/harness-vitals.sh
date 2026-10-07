@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # shellcheck source=py-resolve.sh
 . "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
-[ -n "$PY" ] || exit 0
+# No early exit when PY is empty: this hook is the silent-failure detector, so the
+# python-free checks still run and the python-backed ones are skipped LOUDLY (below).
 # harness-vitals.sh — SessionStart heartbeat. Surfaces SILENT failures in the harness's own
 # automation (the class of bug that left the memory mirror dead 9 days undetected, 2026-06-26).
 # Design: cheap checks every session, the one slow check (scorecard) only when skills changed.
@@ -44,6 +45,7 @@ DEV_ROOT_DIR="${DEV_ROOT:-$HOME/dev}"
 EXTERNAL_HD="${EXTERNAL_HD_DIR:-$DEV_ROOT_DIR}"
 RAG_ROOT="$DEV_ROOT_DIR/rag-index"
 warns=()
+[ -n "$PY" ] || warns+=("no working python3/python: scorecard, hook-target, launchd-target and rag-job checks skipped")
 
 now=$(date +%s)
 age_h() { echo $(( (now - $1) / 3600 )); }   # epoch -> hours ago
@@ -85,7 +87,7 @@ fi
 # 5. scorecard delta — only when a skill changed since the committed baseline (keeps SessionStart fast)
 sc="$CLAUDE_DIR/scripts/harness-skill-scorecard.py"
 base="$CLAUDE_DIR/scripts/scorecard-baseline.json"
-if [ -f "$sc" ] && [ -f "$base" ]; then
+if [ -n "$PY" ] && [ -f "$sc" ] && [ -f "$base" ]; then
   changed=$(find "$SKILLS/" -maxdepth 2 -name SKILL.md -newer "$base" 2>/dev/null | head -1)
   if [ -n "$changed" ]; then
     cur=$(timeout 15 "$PY" "$sc" --json 2>/dev/null | "$PY" -c "import sys,json;print(json.load(sys.stdin)['structural_score_pct'])" 2>/dev/null || echo "")
@@ -163,7 +165,7 @@ fi
 # 2 orphaned plists pointed at a deleted skill dir; autorecall burned a 20s timeout
 # on every prompt). This check turns that class into a same-session alarm.
 settings_json="$CLAUDE_DIR/settings.json"
-if [ -f "$settings_json" ]; then
+if [ -n "$PY" ] && [ -f "$settings_json" ]; then
   while IFS= read -r p; do
     [ -n "$p" ] && [ ! -e "$p" ] && warns+=("hook target MISSING: $p (registered in settings.json) — hook errors every fire")
   done < <("$PY" - "$settings_json" 2>/dev/null <<'PY'
@@ -181,6 +183,7 @@ PY
 fi
 
 PLIST_PREFIXES="com.lucas. com.luk. com.<github-user>."
+[ -n "$PY" ] || PLIST_PREFIXES=""   # ProgramArguments parsing needs python
 for pre in $PLIST_PREFIXES; do
 for plist in "$HOME/Library/LaunchAgents/$pre"*.plist; do
   [ -f "$plist" ] || continue
@@ -239,7 +242,7 @@ check_hb sync-dev-assets 96
 # with status ok|degraded|failed|skipped-no-disk. Surface anything not ok, or ok but
 # stale (job stopped running silently).
 RAG_JOBS_DIR="$HOME/.claude/state/rag-jobs"
-if [ -d "$RAG_JOBS_DIR" ]; then
+if [ -n "$PY" ] && [ -d "$RAG_JOBS_DIR" ]; then
   for jf in "$RAG_JOBS_DIR"/*.json; do
     [ -f "$jf" ] || continue
     jname=$(basename "$jf" .json)

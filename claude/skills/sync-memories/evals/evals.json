@@ -1,0 +1,68 @@
+{
+  "skill_name": "sync-memories",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Sync memories for the orbit-api session. State and existing memory are in the attached file (treat as command output). Tell me exactly which memory files you update or create and what goes in them.",
+      "expected_output": "Updates the existing overview note in place with version 2.4.1 and 312 tests, adds a one-fact gotcha note, updates MEMORY.md pointer, before/after snapshot, does not duplicate AGENTS.md rule.",
+      "files": [
+        "evals/files/state.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response updates the existing project_orbit_overview note in place (version 2.4.1, 312 tests) instead of creating a second overview note.",
+        "The response shows a before and after for the changed fields (2.3.0 to 2.4.1 and 280 to 312 tests).",
+        "The response writes the DATABASE_URL trailing-slash gotcha as its own separate note (one fact per file).",
+        "The response adds a pointer line to MEMORY.md for each new note.",
+        "The response does not create a memory for the 'Never create empty commits' rule, because it duplicates AGENTS.md.",
+        "The new notes include frontmatter with provenance and trust fields (for example provenance agent and trust trusted)."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "sync memories so we remember what we learned about queues. Details attached. Say which files you would write, where, and with what frontmatter.",
+      "expected_output": "First-party benchmark note goes to normal memory; externally derived blog/issue content goes to memory/quarantine with trust: quarantine; the token is not written.",
+      "files": [
+        "evals/files/external-notes.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response puts the content derived from the blog post and the third-party GitHub issue in memory/quarantine/ with 'trust: quarantine'.",
+        "The response marks the quarantined note with 'provenance: external-derived'.",
+        "The response records the first-party benchmark finding (1,200 jobs/s, benchmarks/queue.md) as a separate normal note with trusted provenance such as agent.",
+        "The response does not write the API token value into any note and says credentials are never pasted into notes.",
+        "The response says quarantined notes stay out of the RAG index until a human reviews and promotes them."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Sync memories. Details attached.",
+      "expected_output": "Declines or minimizes: no memory for typo fix or reformat, aborts the verbatim duplicate and does not create a second copy.",
+      "files": [
+        "evals/files/dup-state.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response does not create a new memory note for the README typo fix.",
+        "The response does not create a duplicate of the existing prettier feedback note and says it already exists (or offers to update the original instead).",
+        "The response says memories for trivial changes (typo fixes, formatting) are an anti-pattern or not worth saving.",
+        "The response concludes with no memory writes needed, or at most a minimal update to the existing note."
+      ]
+    }
+  ]
+}

@@ -21,7 +21,7 @@ level: 3
     ## Step 1 — Pre-flight (run ALL gates before anything else)
 
     **Mount guard** — RAG access requires External HD:
-    `mount | grep -q "${DEV_ROOT}" || echo "WARN: External HD unmounted — RAG unreachable, local discovery only"`
+    `mount | grep -q "${DEV_ROOT:-$HOME/dev}" || echo "WARN: External HD unmounted — RAG unreachable, local discovery only"`
 
     **gh authentication**:
     `gh auth status`

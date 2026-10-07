@@ -17,7 +17,7 @@ Recover state before doing new work.
 2. `~/.claude/handoffs/latest.md`
 3. newest plan in `.claude/plans/` or `.agents/plans/`
 4. `.agents/memory/in-progress.md`
-5. subagent checkpoints: `python3 "${DEV_ROOT}/harness-evals/swarm_state.py"` — any LOST in-flight agents from a crashed swarm get re-dispatched or explicitly abandoned before new work
+5. subagent checkpoints: `python3 "${DEV_ROOT:-$HOME/dev}/harness-evals/swarm_state.py"` — any LOST in-flight agents from a crashed swarm get re-dispatched or explicitly abandoned before new work
 6. current git branch, status, and open PRs
 
 ## Post-incident check

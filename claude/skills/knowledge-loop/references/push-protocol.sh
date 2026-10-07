@@ -6,14 +6,14 @@ set -e  # fail loud
 # Default DEV_ROOT when unset (same rationale as mount-guard.sh):
 # an unset env var is not an unmounted disk; the reachability test is the guard.
 if [ -z "$DEV_ROOT" ]; then
-  DEV_ROOT="${DEV_ROOT}"
+  DEV_ROOT="${DEV_ROOT:-$HOME/dev}"
 fi
 
 BRAIN="${DEV_ROOT}/knowledge-brain"
 
 # Mount guard (standards/knowledge-brain.md §1) — fail loud, never silent.
 # Directory reachability is the real signal: `mount` lists mount points only
-# (e.g. ${DEV_ROOT}), never nested paths like $DEV_ROOT, so grepping
+# (e.g. ${DEV_ROOT:-$HOME/dev}), never nested paths like $DEV_ROOT, so grepping
 # it for $DEV_ROOT false-positives as "unmounted" (same fix as mount-guard.sh).
 if [ ! -d "$BRAIN/.git" ]; then
   echo "BLOCKED: External HD not mounted — knowledge-brain unreachable. Skip push." >&2

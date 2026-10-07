@@ -54,7 +54,7 @@ level: 3
     ## Phase 2.5 — Memory cross-check (mandatory before any AUTO_FIX tag)
     Mount guard first:
     ```bash
-    mount | grep -q "${DEV_ROOT}" || {
+    mount | grep -q "${DEV_ROOT:-$HOME/dev}" || {
       echo "BLOCKED: External HD unmounted — all findings downgraded to NEEDS_REVIEW"
       exit 0
     }

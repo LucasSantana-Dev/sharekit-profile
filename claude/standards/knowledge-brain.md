@@ -10,7 +10,7 @@ Related: [[adr_0029_cross_project_shared_brain]], [[homelab_dashboard_audit_2026
 ## Paths (use these, no variants)
 
 ```
-BRAIN="${DEV_ROOT}/knowledge-brain"   # vault root
+BRAIN="${DEV_ROOT:-$HOME/dev}/knowledge-brain"   # vault root
 $BRAIN/memory/                       # memory .md files + MEMORY.md index
 $BRAIN/graphs/<project>/graph.json   # per-project graph snapshots
 SYM="$HOME/.claude/projects/-Volumes-External-HD-Desenvolvimento/memory"  # -> $BRAIN/memory
@@ -23,8 +23,8 @@ GitHub remote: `<github-user>/knowledge-brain`.
 The brain and the RAG embedder cache live on the External HD. Fail loud, never silent:
 
 ```bash
-BRAIN="${DEV_ROOT}/knowledge-brain"
-if ! mount | grep -q "${DEV_ROOT}" || [ ! -d "$BRAIN/.git" ]; then
+BRAIN="${DEV_ROOT:-$HOME/dev}/knowledge-brain"
+if ! mount | grep -q "${DEV_ROOT:-$HOME/dev}" || [ ! -d "$BRAIN/.git" ]; then
   echo "BLOCKED: External HD not mounted, knowledge-brain unreachable." >&2
   exit 0   # in a hook; in a skill, surface the blocker as output and halt the phase
 fi
@@ -46,7 +46,7 @@ The SessionEnd `sync push-memories` hook commits and pushes. Push explicitly whe
 the session is not ending soon, or after a graph snapshot:
 
 ```bash
-BRAIN="${DEV_ROOT}/knowledge-brain"
+BRAIN="${DEV_ROOT:-$HOME/dev}/knowledge-brain"
 git -C "$BRAIN" add memory/ graphs/ 2>/dev/null
 git -C "$BRAIN" diff --cached --quiet || {
   git -C "$BRAIN" commit -q -m "chore: knowledge-brain sync from session" && git -C "$BRAIN" push -q

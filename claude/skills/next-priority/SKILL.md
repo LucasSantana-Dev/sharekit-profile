@@ -28,10 +28,18 @@ PR-state interpretation detail, not a second ranking).
 8. Refactors justified by churn or repeated friction
 9. Deferred migrations or speculative work
 
-If the picked action is irreversible or outward-facing (merge, deploy, publish,
-history rewrite), the pick stands but execution follows the autonomy tiers in
-`~/.claude/standards/autonomy-tiers.md` (ADR-0051) — this skill chooses, it does
-not bypass gates.
+### Act or ask (single canonical rule)
+
+Pick the action, then act per the autonomy tiers in `~/.claude/standards/autonomy-tiers.md`
+(ADR-0051) and `~/.claude/CLAUDE.md` "Autonomy". This is the only place that states it:
+
+- T0 / T1 (reads, discovery, planning, branch commits, edits under 5 files, claiming or
+  starting a task, creating a plan): proceed and report. No confirmation stop.
+- T2 (merges, multi-module refactors, architecture/API/schema changes): one adversarial critic
+  pass (different tier, mechanical checks first), then proceed; log the gate.
+- T3 (destructive, irreversible, production, other-author PRs, money, outward publishes,
+  history rewrites): ask the human before executing. This skill chooses, it never bypasses gates.
+
 
 ### Waiting for CI is never a priority
 
@@ -79,7 +87,7 @@ When the top candidate is blocked, apply the matching pattern before falling bac
 
 | Blocker | Pattern |
 |---|---|
-| Self-approve blocked on own PR | Branch protection requires review you can't give yourself. If `enforce_admins: true` → `DELETE .../enforce_admins` → admin-merge → re-`POST` to re-enable. Document in PR body. |
+| Self-approve blocked on own PR | Branch protection requires review you can't give yourself. Branch protection blocks: surface to the user (T3), never toggle `enforce_admins` or admin-merge. |
 | Webhook desync (PR head SHA stale) | Close the PR + open a fresh PR from same branch. Empty-commit nudges rarely fix it. |
 | PR `mergeStateStatus: BEHIND` | `gh pr update-branch` first; if 422 conflict, local rebase + force-push-with-lease |
 | `CONFLICTING` but local `git merge-tree` is clean | Webhook desync — same recipe as above |

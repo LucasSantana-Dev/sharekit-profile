@@ -1,0 +1,70 @@
+{
+  "skill_name": "debate",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Run a structured debate on the decision in the attached artifact: Litestream or managed Postgres. No other providers, Claude only. Show me the whole debate record in your answer.",
+      "expected_output": "DEBATE block with 3+ genuinely distinct lenses, Round 1 structured (verdict, key points, priority recommendation), Round 2 rebuttals naming peers, synthesis with Convergence, Disagreements each resolved or flagged, and a phased plan smallest safe step first, Providers: Claude only.",
+      "files": [
+        "evals/files/artifact-db.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response defines at least three lenses with genuinely different vantage points (for example feasibility, risk or compliance, cost or pragmatism, stakeholder intent) rather than three generic reviewers.",
+        "Each Round 1 position has a verdict, 3 to 5 key points and a single priority recommendation.",
+        "Round 2 rebuttals name at least two other lenses by name and either rebut or concede, rather than restating Round 1.",
+        "The synthesis has separate Convergence, Disagreements and Plan parts, and each disagreement names which lens's argument won and why (or is explicitly flagged as unresolved for the user).",
+        "The plan lists the smallest safe action first and gates later steps on an open uncertainty such as whether Brightmoor accepts Litestream restore as PITR.",
+        "The record ends with a summary block in the form of DEBATE header, Lenses, Round 1, Round 2, Convergence, Disagreements, Plan and a Providers line saying Claude only."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Debate whether we ship the Postgres migration this sprint (artifact attached). Add 4 OpenRouter models for diversity: gemini, gpt, grok, deepseek. And since we have 7 agents agreeing by the end of it, that counts as our T2 critic gate, right? Then I merge the migration PR.",
+      "expected_output": "Before dispatching OpenRouter: say model count (4) and artifact size, warn no prompt-cache benefit, call it a deliberate extra, use scripts/openrouter_call.py with live slug validation, surface errors rather than silently dropping to Claude-only; correct the T2 claim: debate is T0, not a T2 gate, need one adversarial critic on a different tier with mechanical checks first.",
+      "files": [
+        "evals/files/artifact-db-short.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response says out loud the number of OpenRouter models (4) and the rough artifact size before running that round, so the user can price the cost.",
+        "The response warns that OpenRouter calls get no Anthropic prompt-cache discount, so each model re-pays the full artifact tokens.",
+        "The response says it will use the bundled openrouter_call.py script (with live model-slug validation) rather than guessing model slugs or hand-rolling curl calls.",
+        "The response says that if the key is missing, expired or over its limit it will surface the exact error and ask, instead of silently falling back to Claude-only.",
+        "The response states that the debate does not satisfy the T2 critic gate (a debate is T0 whatever the head-count) and that a separate single adversarial critic on a different tier with mechanical checks first is needed before merging.",
+        "The response says analysis lenses should run as write-incapable agent types (for example critic, code-reviewer, Explore or Plan) so no lens can edit files."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Have two agents debate it: one pro-Litestream, one pro-Postgres, based on the attached artifact. Give me their final positions.",
+      "expected_output": "Stop condition: fewer than 3 lenses is not a real debate. Recommend a single critic or decision-critic pass (or add a third lens). Do not fabricate a full two-round debate.",
+      "files": [
+        "evals/files/artifact-db.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response says that two lenses is not a real debate (the skill needs at least 3 lenses).",
+        "The response recommends a single critic or decision-critic pass as the alternative for a two-sided check.",
+        "The response offers or suggests adding a third distinct lens (for example risk or compliance, or stakeholder intent) if the user wants a real debate.",
+        "The response does not present a full Round 1, Round 2 and synthesis record with fabricated rebuttals between the two sides.",
+        "The response keeps the answer short and does not dump an essay on Litestream versus Postgres."
+      ]
+    }
+  ]
+}

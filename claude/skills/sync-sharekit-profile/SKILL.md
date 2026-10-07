@@ -43,7 +43,7 @@ SOURCE_DIR="$HOME/.claude"
 ## Phase 0 — Mount guard
 
 ```bash
-[ -d "$PROFILE_REPO/.git" ] || {
+[ -e "$PROFILE_REPO/.git" ] || {   # -e: a worktree's .git is a file
   echo "BLOCKED: profile repo not found at $PROFILE_REPO"
   echo "  set SHAREKIT_PROFILE_REPO to your clone of the profile repo and retry."
   exit 1
@@ -77,7 +77,9 @@ Sync each allowlisted skill from source; unpublish profile skills no longer in t
 `CLAUDE.md`. Skills in the allowlist but NOT in source (e.g. plugin-native) are kept, not removed.
 
 ```bash
-COMMON_EXCLUDES=(--exclude='.archive/' --exclude='*-workspace/' --exclude='worktrees/' --exclude='backlog/' --exclude='__pycache__/')
+# plugin-eval-last-run.json is a local run artifact (date, cost, scores), not a fixture: it fails the
+# profile's validate_fixtures.py schema, so it never publishes (evals.json and evals/files/ still do).
+COMMON_EXCLUDES=(--exclude='.archive/' --exclude='*-workspace/' --exclude='worktrees/' --exclude='backlog/' --exclude='__pycache__/' --exclude='plugin-eval-last-run.json')
 ALLOWLIST="$PROFILE_REPO/curated-skills.txt"
 [ -f "$ALLOWLIST" ] || { echo "BLOCKED: no curated-skills.txt — refusing to full-mirror"; exit 1; }
 
@@ -124,6 +126,7 @@ for pair in "agents:curated-agents.txt" "hooks:curated-hooks.txt" "standards:cur
       if cmp -s "$src" "$dest" 2>/dev/null; then
         echo "$tree/$n: already done - skipping"
       else
+        # Repo-side edits are protected after sanitization, in Phase 3b.1 (content-based).
         mkdir -p "$(dirname "$dest")"; cp "$src" "$dest"
       fi
     fi
@@ -177,10 +180,17 @@ Replace machine-specific and identity references with generic placeholders. Appl
 /usr/bin/find "$PROFILE_DIR" -type f \( -name "*.md" -o -name "*.sh" -o -name "*.py" -o -name "*.json" -o -name "*.toml" -o -name "*-gate" -o -name "*-reminder" \) | while read f; do
   case "$f" in */sync-sharekit-profile/*) continue ;; esac
 
-  # Personal paths (specific BEFORE bare so the prefix isn't half-replaced)
-  sed -i '' 's|/Volumes/External HD/Desenvolvimento|${DEV_ROOT}|g' "$f"
-  sed -i '' 's|/Volumes/External HD|${DEV_ROOT}|g' "$f"   # bare external-drive mount (catches mount-guard lines)
-  sed -i '' 's|/Volumes/External\\ HD|${DEV_ROOT}|g' "$f"   # backslash-escaped-space variant (found 2026-07-26,
+  # Personal paths (specific BEFORE bare so the prefix isn't half-replaced). Always emit the
+  # defaulted form ${DEV_ROOT:-$HOME/dev}, never a bare ${DEV_ROOT}: hooks run under `set -u`
+  # and `env -i`, where a bare reference crashes or builds "/rag-index" paths (sharekit-profile
+  # #193, regressed by the 2026-10-06 sync; tests/hooks-portability.bats enforces it).
+  # An already-defaulted live form collapses first so it doesn't nest into ${DEV_ROOT:-${DEV_ROOT:-..}}.
+  sed -i '' 's|\${DEV_ROOT:-/Volumes/External HD/Desenvolvimento}|${DEV_ROOT:-$HOME/dev}|g' "$f"
+  sed -i '' 's|/Volumes/External HD/Desenvolvimento|${DEV_ROOT:-$HOME/dev}|g' "$f"
+  # Bare mount: maps to the dev root too, so live code must never derive repo paths from the
+  # mount (e.g. "$MOUNT/Desenvolvimento/x" becomes ".../dev/Desenvolvimento/x"). Hand-check hits.
+  sed -i '' 's|/Volumes/External HD|${DEV_ROOT:-$HOME/dev}|g' "$f"   # bare external-drive mount (catches mount-guard lines)
+  sed -i '' 's|/Volumes/External\\ HD|${DEV_ROOT:-$HOME/dev}|g' "$f"   # backslash-escaped-space variant (found 2026-07-26,
                                                               # recall/SKILL.md: the literal-space sed above doesn't
                                                               # match this form at all - a real backslash character
                                                               # sits where the sed pattern expects a bare space)
@@ -192,6 +202,9 @@ Replace machine-specific and identity references with generic placeholders. Appl
   sed -i '' '/npx @lucassantana\/sharekit install/!s|LucasSantana-Dev|<github-user>|g' "$f"
   sed -i '' '/npx @lucassantana\/sharekit install/!s|LucasSantana|<github-user>|g' "$f"
   sed -i '' '/npx @lucassantana\/sharekit install/!s|lucassantana|<github-user>|g' "$f"
+  # Separated slug form ("deciders: lucas-santana" in standards/artifact-schema.md leaked
+  # through 2026-10-06: none of the patterns above match a hyphen, dot or underscore).
+  sed -i '' 's|[Ll]ucas[-_.][Ss]antana|<operator>|g' "$f"
 
   # Real human name (distinct from the CamelCase GitHub handle above — this is prose like
   # "authored by Lucas Santana (the operator)", not a path or handle). Found 2026-07-25:
@@ -247,6 +260,65 @@ After this pass, grep for lowercase compound forms (`criativaria-`, `lucky-`, et
 profile and hand-review any hit before deciding sed vs. manual fix — the regex-operand risk
 above means these can't be safely automated.
 
+### Phase 3b.1: Repo-edit revert guard (content-based)
+
+Fixes are sometimes made directly in the profile repo (e.g. #201 python/DEV_ROOT portability).
+If the live source never gets them, the next sync silently reverts them (#223 did exactly that,
+found 2026-10-06). A timestamp check cannot tell "repo has a newer fix" from "file unchanged",
+and any `sync pull` or checkout bumps mtimes, so the guard compares content, after sanitization:
+
+- **base** = the file at the LATEST `chore(profile): sync` commit overall (the last published
+  snapshot of live). Not the last sync that touched this file: a later sync that skipped it still
+  saw live equal to repo, and an older base turns already-ported fixes into false conflicts.
+- **repo** = the file at `HEAD`; if it equals base there are no repo-side edits and the new copy
+  (or its deletion) wins
+- otherwise, for a modified file, 3-way merge `new + (base -> repo)`; if that equals `new`, live
+  already carries the edits
+- anything else is restored from `HEAD` with a warning: edits missing from live, a repo-owned file
+  (absent at base, i.e. added in the repo after the last sync), a deleted file the repo changed, or
+  a sanitizer-rule change that conflicts. Port the edit into the live source, then re-sync.
+
+Tests (run after any change to the block below): `bash evals/guard-hermetic.sh` (throwaway repos,
+14 cases) and `SHAREKIT_PROFILE_REPO=<clone> bash evals/guard-real-repo.sh` (replays the
+#201/#223 regression on real history in a temporary worktree; skips without a clone).
+
+```bash
+(
+cd "$PROFILE_REPO" || { echo "BLOCKED: cannot cd to $PROFILE_REPO" >&2; exit 1; }
+base_sha="$(git log -1 --format=%H --grep='^chore(profile): sync' HEAD)"
+[ -n "$base_sha" ] || { echo "BLOCKED: no 'chore(profile): sync' commit, no base to guard against" >&2; exit 1; }
+# A clone behind origin cannot see repo-side edits already merged there.
+if git rev-parse -q --verify origin/main >/dev/null && [ "$(git rev-list --count HEAD..origin/main)" -gt 0 ]; then
+  echo "WARN: HEAD is behind origin/main; pull first or the guard is blind to edits there" >&2
+fi
+# -z and quotePath=false: a quoted non-ASCII path would match nothing and revert silently.
+# List first, loop after: piping `git diff` into the loop races its index.lock with the
+# `git checkout` restore below (found 2026-10-06 on the real repo, not in a small one).
+list="$(mktemp)"; trap 'rm -f "$list"' EXIT
+git -c core.quotePath=false diff -z --name-only --diff-filter=MD HEAD -- claude/ > "$list" \
+  || { echo "BLOCKED: git diff failed" >&2; exit 1; }
+while IFS= read -r -d '' f; do
+  head_blob="$(git rev-parse "HEAD:$f")" || { echo "BLOCKED: cannot read HEAD:$f" >&2; exit 1; }
+  base_blob="$(git rev-parse -q --verify "$base_sha:$f" 2>/dev/null || true)"
+  [ "$base_blob" = "$head_blob" ] && continue                 # no repo-side edits since last sync
+  if [ -f "$f" ] && [ -n "$base_blob" ]; then
+    tmp="$(mktemp -d)"
+    git show "$base_sha:$f" > "$tmp/base"; git show "HEAD:$f" > "$tmp/repo"
+    git merge-file -p "$f" "$tmp/base" "$tmp/repo" > "$tmp/merged" 2>/dev/null \
+      && cmp -s "$tmp/merged" "$f"; ok=$?
+    rm -rf "$tmp"
+    [ "$ok" -eq 0 ] && continue                               # new copy already carries them
+  fi
+  if [ "${SHAREKIT_ALLOW_REVERT:-0}" = 1 ]; then
+    echo "WARN: $f: publishing over repo-side edits (SHAREKIT_ALLOW_REVERT=1)" >&2
+    continue
+  fi
+  git checkout -q HEAD -- "$f" || { echo "BLOCKED: could not restore $f from HEAD" >&2; exit 1; }
+  echo "WARN: kept repo version of $f: repo edits since the last sync are not in the new copy (or a sanitizer change conflicts); port them to the live source, then re-sync" >&2
+done < "$list"
+)
+```
+
 ### Phase 3c — Executable redaction review + regression re-check (round-trip rules 1.1/1.4)
 
 Sanitization rewrites tokens inside executable code, not just prose. A placeholder
@@ -270,6 +342,12 @@ filtering. After Phase 3/3b:
    /usr/bin/find "$PROFILE_DIR" -name "*.sh" -print0 | xargs -0 -n1 bash -n
    /usr/bin/find "$PROFILE_DIR" -name "*.py" -print0 | xargs -0 -n1 python3 -m py_compile
    /usr/bin/find "$PROFILE_DIR" -name "*.json" -print0 | xargs -0 -I{} python3 -c "import json; json.load(open('{}'))"
+   # Bare ${DEV_ROOT} (no default) in hook code = blocker: hooks run under `set -u`/`env -i`
+   # (tests/hooks-portability.bats). Comments are fine; skill scripts that default DEV_ROOT
+   # first are covered by the item 1 hand review.
+   hits="$(/usr/bin/find "$PROFILE_DIR/hooks" -type f -print0 | xargs -0 grep -nE '\$\{DEV_ROOT\}' \
+     | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#')"
+   [ -z "$hits" ] || { echo "$hits"; echo "BLOCKER: bare \${DEV_ROOT} in hook code above"; exit 1; }
    ```
 
 3. **Regression re-check.** Sanitization regresses when a sync runs from an older
@@ -279,7 +357,10 @@ filtering. After Phase 3/3b:
    source, never by hand-editing the profile copy:
 
    ```bash
-   git -C "$PROFILE_REPO" diff --cached -U0 | grep -E '^\+' | \
+   # Nothing is staged yet at this point (git add runs at commit time), so diff the working
+   # tree against HEAD; add -N first so brand-new files show up too.
+   git -C "$PROFILE_REPO" add -N claude/
+   git -C "$PROFILE_REPO" diff HEAD -U0 | grep -E '^\+' | \
      grep -Ei '<your-real-identity-patterns>' && echo "BLOCKER: sanitization regressed"
    ```
 
@@ -332,7 +413,7 @@ The scanner lives in the **sharekit** repo, not the profile repo (path fixed 202
 the profile's `claude/` dir:
 
 ```bash
-SHAREKIT_REPO="${SHAREKIT_REPO:-${DEV_ROOT}/sharekit}"
+SHAREKIT_REPO="${SHAREKIT_REPO:-${DEV_ROOT:-$HOME/dev}/sharekit}"
 cd "$SHAREKIT_REPO"
 npx tsx src/index.ts scan "$PROFILE_DIR" 2>&1
 ```

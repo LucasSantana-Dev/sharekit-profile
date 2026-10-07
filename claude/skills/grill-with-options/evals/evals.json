@@ -1,0 +1,187 @@
+{
+  "skill_name": "grill-with-options",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I want to build a backend API for a mobile app. Help me work through the key decisions.",
+      "expected_output": "The skill should use AskUserQuestion to present bounded options for forking decisions (e.g., language/runtime, auth strategy, data storage, deployment target). Should ask one fork at a time, adapt based on prior answers, and end with a structured restatement of decisions made.",
+      "files": [],
+      "assertions": [
+        "The response presents only the first fork (one decision), not a list of all decisions.",
+        "The fork offers 2-4 options, each described by its consequence rather than a definition.",
+        "One option is listed first or marked as recommended.",
+        "The response asks exactly one question and then stops to wait."
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "We're about to deploy our app to production. Walk me through the deployment decisions we need to make.",
+      "expected_output": "The skill should surface deployment forks (e.g., platform choice, rollback strategy, traffic cutover, secret management) as AskUserQuestion calls with 2-4 options each. Options should explain consequences, not just definitions. Should converge on a restatement of the deployment plan.",
+      "files": [],
+      "assertions": [
+        "The response presents only the first fork (one decision), not a list of all decisions.",
+        "The fork offers 2-4 options, each described by its consequence rather than a definition.",
+        "One option is listed first or marked as recommended.",
+        "The response asks exactly one question and then stops to wait."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I'm planning a notifications feature \u2014 push, email, in-app. Help me decide the architecture.",
+      "expected_output": "The skill should identify decision forks in a notifications system (delivery channels, delivery guarantees, unsubscribe model, storage of notification history) and present each as a bounded AskUserQuestion. Should use multi-select where multiple choices can coexist and single-select where options are mutually exclusive.",
+      "files": [],
+      "assertions": [
+        "The response presents only the first fork (one decision), not a list of all decisions.",
+        "The fork offers 2-4 options, each described by its consequence rather than a definition.",
+        "One option is listed first or marked as recommended.",
+        "The response asks exactly one question and then stops to wait."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Grill me on the plan in evals/files/open-plan.md. I want it stress-tested before I commit to it.",
+      "expected_output": "Reads the plan, then asks exactly one focused question in Q/GUESS shape, waits for the user, and does not dump a list of questions or propose a finished solution.",
+      "files": [
+        "evals/files/open-plan.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response asks exactly one question to the user, not a numbered list or batch of questions.",
+        "The question is labeled Q and is accompanied by a line labeled GUESS that states the assistant's own hypothesis for the answer.",
+        "The GUESS includes reasoning for the hypothesis, not just a bare answer.",
+        "The question targets a real gap in the plan (for example link expiry duration, failure or retry handling, huge exports, queue durability in Redis, or rollout risk).",
+        "The response stops after the question and waits for the user instead of answering its own question or rewriting the plan."
+      ],
+      "mode": "open"
+    },
+    {
+      "id": 4,
+      "prompt": "What does the HTTP status code 409 mean, and when should an API return it?",
+      "expected_output": "A plain direct answer. No interview, no Q/GUESS format, no grilling.",
+      "files": [],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response directly explains that 409 means Conflict and gives when an API should return it.",
+        "The response does not use a Q/GUESS interview format.",
+        "The response does not ask the user a clarifying question about their plan or design.",
+        "The response does not end with a restatement block containing Outcome, User, Why now, Success, Constraint and Out of scope."
+      ],
+      "mode": "open"
+    },
+    {
+      "id": 5,
+      "prompt": "Grill me on the plan in evals/files/docs-plan.md against our domain docs in evals/files/docs-CONTEXT.md. Start the session.",
+      "expected_output": "Notices the plan misuses glossary terms (cancel part of an order vs Cancellation as whole-order void; cart vs order; user vs customer), calls out the conflict immediately, and asks one question at a time with a recommended answer.",
+      "files": [
+        "evals/files/docs-plan.md",
+        "evals/files/docs-CONTEXT.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response points out that the plan's 'cancel individual items' conflicts with the glossary, where Cancellation voids an entire Order and partial removal is an Order Amendment.",
+        "The response quotes or paraphrases the glossary definition it is challenging rather than just saying the term is vague.",
+        "The response notes a second term problem in the plan (such as 'cart' where Order is meant, or 'users' where the glossary says Customer).",
+        "The response asks one question at a time and includes its own recommended answer to that question.",
+        "The response does not ask about anything the provided CONTEXT.md already answers.",
+        "The response does not propose creating an ADR yet and does not rewrite the plan."
+      ],
+      "mode": "docs"
+    },
+    {
+      "id": 6,
+      "prompt": "We just decided that the order-confirmation email subject line will say 'Your order is confirmed' instead of 'Order received'. Please write an ADR for this decision in docs/adr/. (Use grill-with-options in docs mode.)",
+      "expected_output": "Declines or questions the ADR because the decision is easy to reverse, not surprising, and had no real trade-off; offers a lighter alternative.",
+      "files": [
+        "evals/files/docs-CONTEXT.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response says an ADR is not warranted for this decision.",
+        "The response explains the reason using the three ADR criteria: hard to reverse, surprising without context, and a real trade-off.",
+        "The response states that this decision fails at least two of the three criteria, such as being trivially reversible and unsurprising.",
+        "The response does not produce a full multi-section ADR document with Status, Considered Options and Consequences sections.",
+        "The response does not start a long grilling interview about the email wording."
+      ],
+      "mode": "docs"
+    },
+    {
+      "id": 7,
+      "prompt": "I want to improve how we onboard new engineers. My rough notes are in evals/files/explore-notes.md. Help me brainstorm a direction. I do not want code or a final plan yet.",
+      "expected_output": "Reads notes, surfaces constraints, proposes 2-3 distinct approaches with trade-offs and a recommendation, asks a single clarifying question, and commits to nothing yet.",
+      "files": [
+        "evals/files/explore-notes.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response presents 2 or 3 clearly distinct approaches, each with at least one trade-off.",
+        "The response leads with or clearly marks a recommended approach and gives reasoning for it.",
+        "The response surfaces constraints taken from the notes (small budget, the two hires starting in 3 weeks, or the untrusted wiki).",
+        "The response asks at most one clarifying question, ideally as a multiple choice, rather than a list of questions.",
+        "The response does not write code, a full implementation plan, or a finished design document.",
+        "The response indicates the design will be presented in sections for the user to approve before moving on."
+      ],
+      "mode": "explore"
+    },
+    {
+      "id": 8,
+      "prompt": "I haven't thought through how retries should work for our payment webhook handler, but skip the discussion and just write the Python code for it now. (Use grill-with-options in explore mode.)",
+      "expected_output": "Holds the gate: does not write the implementation, briefly explains why, and starts with one clarifying question or 2-3 approaches.",
+      "files": [],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response does not contain a complete implementation of the webhook retry handler code.",
+        "The response says it wants a design agreed before writing code, since the retry behavior is not yet decided.",
+        "The response either asks one focused clarifying question or offers 2 or 3 retry approaches with trade-offs.",
+        "The response raises at least one retry-specific constraint to decide (for example idempotency, backoff, max attempts, or dead-letter handling).",
+        "The response does not ask more than one question in a batch."
+      ],
+      "mode": "explore"
+    },
+    {
+      "id": 9,
+      "prompt": "We already chose exponential backoff with 5 attempts and jitter for the webhook retries. Write the retry helper in Python.",
+      "expected_output": "Builds the retry helper directly. No interview.",
+      "files": [],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response does not ask the user an interview or clarifying question about the design.",
+        "The response produces or directly describes the retry helper implementation (exponential backoff, 5 attempts, jitter)."
+      ]
+    }
+  ]
+}

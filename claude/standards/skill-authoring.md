@@ -38,7 +38,7 @@ At least one named blocker per skill, never a silent fallback returning misleadi
 Move each table / config block / >15-line example to `references/<name>.md` and leave one `See [references/<name>.md](references/<name>.md).` line. No content in both places; every file in `references/` is cited at least once (no orphans). Inline what every run needs.
 
 ### parallelism-signaling
-Independent steps: "Dispatch both in a single message (one Agent() call each)". Parallel git-touching work: each agent in its own worktree under `${DEV_ROOT}/.worktrees/<task>-<n>/`; read-only fan-out needs none.
+Independent steps: "Dispatch both in a single message (one Agent() call each)". Parallel git-touching work: each agent in its own worktree under `${DEV_ROOT:-$HOME/dev}/.worktrees/<task>-<n>/`; read-only fan-out needs none.
 
 ### rag-first
 Skills answering prior-decision / prior-result questions add a **Step 0** querying memory before grep. Done when RAG was queried and prior work cited or confirmed absent.
@@ -57,7 +57,7 @@ Canonical reference: `~/.claude/skills/recall/SKILL.md`.
 ### mount-guard
 **Mandatory** before any RAG-index or knowledge-brain reliance (embedder cache and vault live on External HD, knowledge-brain.md §1). Place before the first `rag_query` / `search_knowledge`:
 ```bash
-mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: External HD unmounted, RAG/vault unreachable"; exit 1; }
+mount | grep -q "${DEV_ROOT:-$HOME/dev}" || { echo "BLOCKED: External HD unmounted, RAG/vault unreachable"; exit 1; }
 ```
 If unmounted: say so plainly, fall back to grep, never return a confident-looking empty result.
 
@@ -118,9 +118,9 @@ Overlap: "prod is down" appears under both `hotfix` and `incident-response`; the
 - `docs-sync`: after editing any skill / standard / hook.
 
 ### Core single skills (only when no composite matches)
-`route` (workflow not obvious), `next-priority` (entering a repo), `plan` (multi-step/risky), `secure` (config/auth/credentials/deps), `ci-watch` (failing checks), `verify` (before merge/release/handoff), `ship` (merge-ready; ONLY if `merge-confidently` fits worse), `handoff` (context tight / session switch).
+`route` (workflow not obvious), `next-priority` (entering a repo), `plan` (multi-step/risky), `secure` (config/auth/credentials/deps), `gh-fix-ci` (failing checks), `verify-before-done` (before merge/release/handoff), `ship` (merge-ready; ONLY if `merge-confidently` fits worse), `handoff` (context tight / session switch).
 
-- `repaint` is the route for ANY non-trivial UI work (build, restyle, polish, audit); its Phase 4 audits inline. `observe` is the single observability skill (instrument/debug/tune/analyze/monitor/bootstrap/audit, one mode per invocation); do NOT wire the full stack on local-only or hobby code with no production-shaped target; not for `/debug-deep`, `/incident-response`, `/sentry`, `/langfuse-observe`.
+- `repaint` is the route for ANY non-trivial UI work (build, restyle, polish, audit); its Phase 4 audits inline. `observe` is the single observability skill (instrument/debug/tune/analyze/monitor/bootstrap/audit/<homelab>, one mode per invocation); do NOT wire the full stack on local-only or hobby code with no production-shaped target; not for `/debug-deep`, `/incident-response`, `/sentry`, `/langfuse-observe`.
 
 ### Hook-routed individual skills
 composite-router emits ` Skill match: /<name>` only when no composite matches first; invoke it when seen. To add one: append a matcher in `composite-router.sh` before the `scope-and-execute` catch-all, add the name to the non-composite case at the bottom, mirror and commit. Current: `code-review` (chat report by default; posts to a PR only with explicit `--pr N --comment`), `adr-write`, `performance-audit`, `config-drift-detect`, `handoff`.

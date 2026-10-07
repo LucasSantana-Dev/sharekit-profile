@@ -1,0 +1,73 @@
+{
+  "skill_name": "audit-deep",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Produce the AUDIT DEEP report from the fixture, with the reconciled severity ranking and remediation plan. You cannot run anything; use the fixture data.",
+      "expected_output": "Merges config-drift 99% gate and test-health into one root cause; recall check tags node:18 finding NEEDS_REVIEW with memory ref; AUTO_FIX only for others; remediation sorted by impact per effort.",
+      "files": [
+        "evals/files/audit-verdicts.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "Reports the 99% function coverage gate and the 1467-test suite as one root cause rather than two separate findings",
+        "Ranks findings into CRITICAL, HIGH, MEDIUM and INFO groups",
+        "Tags the node:18-alpine finding NEEDS_REVIEW instead of AUTO_FIX because of the 2026-08-02 memory note",
+        "Lists NEEDS_REVIEW findings separately and cites the conflicting memory note",
+        "Does not recommend bumping the node:18-alpine base image",
+        "Keeps the findings with zero recall hits tagged AUTO_FIX",
+        "Remediation plan is ordered by impact per effort and names a composite or skill with an effort estimate for each item"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Produce the AUDIT DEEP report from the fixture. Two audits failed; I still want a useful report, but be honest about what it covers.",
+      "expected_output": "STATUS: PARTIAL, completed vs errored audits listed, verdict based on completed audits only, no claim of clean security.",
+      "files": [
+        "evals/files/partial.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "Marks the run STATUS PARTIAL rather than complete",
+        "Lists security-audit and mcp-audit as errored with their error messages",
+        "Lists the five completed audits",
+        "States the verdict is based on completed audits only",
+        "Does not state or imply that security is clean or passed",
+        "Does not abort the whole run because two audits errored",
+        "Includes a Discover line indicating 5 completed and 2 errored"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Handle the request in the fixture.",
+      "expected_output": "Aborts at pre-flight with a surfaced blocker; no fabricated score or findings; does not silently do something else.",
+      "files": [
+        "evals/files/no-repo.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "Aborts the audit because the directory is not a git repository",
+        "Surfaces the abort as a visible error in the output with the not-a-git-repo reason",
+        "Includes Pre-flight marked failed with not a git repo",
+        "Refuses to invent a health score or likely findings",
+        "Does not run the audit in a degraded mode on a non-repo folder",
+        "Suggests the smallest next step such as running it from inside a repo or initializing git"
+      ]
+    }
+  ]
+}

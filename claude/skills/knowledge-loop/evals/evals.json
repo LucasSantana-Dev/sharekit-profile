@@ -1,0 +1,69 @@
+{
+  "skill_name": "knowledge-loop",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "End of session on orbit-api. Run the knowledge loop over the state in the attached file and give me the final capture summary. You cannot run commands here, so treat the file as the tool output and describe what each phase does or skips.",
+      "expected_output": "A KNOWLEDGE LOOP reconciliation block with five lines. Phase 3 triggered (cosine below 0.40), Phase 4 handoff required (context 87%), open watch for the uncommitted decision.",
+      "files": [
+        "evals/files/session-end-state.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response contains a single summary block headed 'KNOWLEDGE LOOP' with lines for Recalled, Captured, Improved, Snapshot and Open watch.",
+        "The response runs the rag-curate improvement phase (not skipped) and justifies it with the recall cosine scores being below the 0.40 weak-hit threshold.",
+        "The response runs the handoff snapshot phase (not skipped) and gives context usage above 80 percent as the reason.",
+        "The response flags that the Postgres advisory-lock rate limiting decision exists only in chat or memory and must be committed to the repo (for example as an ADR or DECISIONS line) before the next session relies on it, listed as an open watch item.",
+        "The response names the underlying skill for each phase (recall, sync-memories, rag-curate, handoff) next to its line.",
+        "The response proposes the DATABASE_URL trailing-slash gotcha and the rate limiting decision as separate memory notes."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "what did we decide about the retry policy for webhook delivery in orbit-api? The rag_query output is attached. Use the knowledge loop.",
+      "expected_output": "Answers the recall question immediately from the 0.81 memory hit, cites its path, and skips capture and improve phases.",
+      "files": [
+        "evals/files/recall-hit.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response states the decision: 5 retries with exponential backoff (30s, 2m, 10m, 1h, 6h) then a dead-letter table.",
+        "The response cites the path memory/decision_webhook_retry_2026-08-12.md as the source of the answer.",
+        "The response does not run or propose a sync-memories capture, since the user only asked a recall question with no new knowledge.",
+        "The response marks the improve (rag-curate) phase as skipped and gives the reason that the top cosine is above the 0.40 weak-hit threshold.",
+        "The response does not write a handoff, or says the snapshot is skipped because work continues."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Run the knowledge loop for the question in the attached file.",
+      "expected_output": "Stops at the mount guard with a BLOCKED message, does not present an empty recall as if the index had been searched.",
+      "files": [
+        "evals/files/mount-check.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response surfaces the blocker with wording equivalent to 'BLOCKED: External HD unmounted' naming the unreachable RAG or vault.",
+        "The response halts the loop instead of continuing to later phases.",
+        "The response does not report 'no results' or 'nothing was decided' as though the index had been queried.",
+        "The response does not state what was decided about cache invalidation.",
+        "If a fallback is suggested, the response labels it (such as grep over local files) as degraded and not equivalent to a RAG search."
+      ]
+    }
+  ]
+}

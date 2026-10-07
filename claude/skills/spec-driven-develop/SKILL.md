@@ -23,7 +23,7 @@ It does NOT fire on: trivial mechanical edits, read-only asks, or when a named l
 
 ## Why this exists
 
-GitHub's spec-kit enforces a structured spec → plan → tasks → implement workflow via a `specify` CLI that scaffolds `.specify/` templates. This harness already has an equivalent skill for every phase — `adt-specs-spec-new`, `grill-with-docs`, `plan`, `plan-to-issues`, `dispatch`/`orchestrate`, `review`/`verify`. Installing the actual CLI would duplicate that coverage, add an external dependency, and fight the existing `docs/specs/<date>-<slug>/` convention. This skill gets spec-kit's discipline (explicit phases, no skipping straight to code) without the tool.
+GitHub's spec-kit enforces a structured spec → plan → tasks → implement workflow via a `specify` CLI that scaffolds `.specify/` templates. This harness already has an equivalent skill for every phase: `adt-specs-spec-new`, `grill-with-options` (docs mode), `plan`, `plan-to-issues`, `dispatch`/`orchestrate`, `review`/`verify-before-done`. Installing the actual CLI would duplicate that coverage, add an external dependency, and fight the existing `docs/specs/<date>-<slug>/` convention. This skill gets spec-kit's discipline (explicit phases, no skipping straight to code) without the tool.
 
 ## Phase mapping
 
@@ -31,11 +31,11 @@ GitHub's spec-kit enforces a structured spec → plan → tasks → implement wo
 |---|---|---|
 | constitution | Phase 0 — confirm CLAUDE.md/CONTEXT.md exist for the repo; if `.harness/constitution.json` exists, treat it as the authoritative source (it, not `constitution.md`, is the enforced-invariants record) and also read `.harness/mcp-policy.json` when present; note gaps, don't block | (read-only check) |
 | specify | Phase 1 — create/find the spec | `adt-specs-spec-new` → `docs/specs/<date>-<slug>/spec.md` |
-| clarify | Phase 2 — resolve ambiguity inline | `grill-with-docs` |
+| clarify | Phase 2: resolve ambiguity inline | `grill-with-options` (docs mode) |
 | plan | Phase 3 — phased implementation plan | `plan` → `.claude/plans/<name>.md` (or `.agents/plans/`) — that skill's real output location; the persisted spec from Phase 1 is what carries forward past session scope, not this plan file |
 | tasks | Phase 4 — externalize tasks if tracked work | `plan-to-issues` (skip if session-scoped, not tracked) |
 | implement | Phase 5 — execute tasks, parallel where independent | `dispatch` / `orchestrate` / `loop` (mandatory parallel-execution rule applies) |
-| analyze / converge | Phase 6 — gate before done | `review`, `verify`, `pr-merge-readiness` |
+| analyze / converge | Phase 6: gate before done | `review`, `verify-before-done`, `pr-merge-readiness` |
 
 ## Autonomy tiers per phase (ADR-0051)
 

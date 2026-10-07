@@ -20,7 +20,7 @@ level: 3
   <Skill_Operating_Procedure>
     ## Phase 0 — RAG pre-flight (always first)
 
-    Mount guard: `mount | grep -q "${DEV_ROOT}" || echo "WARN: RAG unreachable — proceeding with local discovery only"`
+    Mount guard: `mount | grep -q "${DEV_ROOT:-$HOME/dev}" || echo "WARN: RAG unreachable — proceeding with local discovery only"`
 
     Query RAG for prior refactor context:
     `python3 ~/.claude/rag-index/query.py "refactor $(basename $(pwd)) prior plan ADR module boundaries" --top 3 --scope memory --format json`
