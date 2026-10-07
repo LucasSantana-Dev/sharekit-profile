@@ -1,0 +1,9 @@
+# Session facts (captured; nothing can be run)
+Project: ledgerly. Branch feat/export-csv. $ git status --short:
+ M src/export/csv.ts
+ M src/export/csv.test.ts
+?? src/export/escape.ts
+$ git log origin/feat/export-csv..feat/export-csv --oneline -> 1 unpushed commit. No PR opened.
+Tests last run: all passing. Decision made this session: CSV fields are quoted with RFC 4180 escaping (not recorded in memory yet).
+$ mount | grep "${DEV_ROOT:-$HOME/dev}" -> mounted.
+User message: "wrap up and ship what's done"

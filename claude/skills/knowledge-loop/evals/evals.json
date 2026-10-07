@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "End of session on orbit-api. Run the knowledge loop over the state in the attached file and give me the final capture summary. You cannot run commands here, so treat the file as the tool output and describe what each phase does or skips.",
-      "expected_output": "A KNOWLEDGE LOOP reconciliation block with five lines. Phase 3 triggered (cosine below 0.40), Phase 4 handoff required (context 87%), open watch for the uncommitted decision.",
+      "expected_output": "A KNOWLEDGE LOOP or SESSION CLOSE block with the per-skill lines. Phase 3 triggered (cosine below 0.40), Phase 4 handoff required (context 87%), open watch for the uncommitted decision.",
       "files": [
         "evals/files/session-end-state.md"
       ],
@@ -15,7 +15,7 @@
         "Skill"
       ],
       "assertions": [
-        "The response contains a single summary block headed 'KNOWLEDGE LOOP' with lines for Recalled, Captured, Improved, Snapshot and Open watch.",
+        "The response contains a single summary block headed 'KNOWLEDGE LOOP' or 'SESSION CLOSE' with lines for Recalled, Captured or Memory, Improved, Snapshot or Handoff, and Open watch.",
         "The response runs the rag-curate improvement phase (not skipped) and justifies it with the recall cosine scores being below the 0.40 weak-hit threshold.",
         "The response runs the handoff snapshot phase (not skipped) and gives context usage above 80 percent as the reason.",
         "The response flags that the Postgres advisory-lock rate limiting decision exists only in chat or memory and must be committed to the repo (for example as an ADR or DECISIONS line) before the next session relies on it, listed as an open watch item.",
@@ -63,6 +63,128 @@
         "The response does not report 'no results' or 'nothing was decided' as though the index had been queried.",
         "The response does not state what was decided about cache invalidation.",
         "If a fallback is suggested, the response labels it (such as grep over local files) as degraded and not equivalent to a RAG search."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Close this session. The session facts are attached. Nothing can run; produce what you would do and the final close summary.",
+      "expected_output": "3 phases in order, handoff skipped, idempotent memory write, shared push script.",
+      "files": [
+        "evals/files/session_ok.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response runs the phases in order: sync memories, then handoff, then push brain.",
+        "The response writes only the new items (streaming writer decision and S5852 finding) and skips the 50k row limit that is already recorded.",
+        "The response marks the handoff phase as SKIPPED because all work is shipped.",
+        "The response runs the brain push through the shared push-protocol.sh script rather than an inline git add.",
+        "The response checks the External HD mount guard before writing to the brain.",
+        "The response ends with a SESSION CLOSE summary showing each phase as DONE or SKIPPED with a reason."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Save and sign off, session facts attached. Describe what happens.",
+      "expected_output": "Mount guard halts, offers local fallback, no retry.",
+      "files": [
+        "evals/files/session_unmounted.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response reports 'BLOCKED: External HD unmounted' for the brain writes.",
+        "The response halts the blocked phase instead of silently skipping ahead or retrying.",
+        "The response offers local-only memory under .agents/memory as a fallback.",
+        "The response says the brain push is deferred until the disk is remounted.",
+        "The response says a handoff is needed because feat/queue-workers is mid-refactor.",
+        "The response does not claim the brain was pushed."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "The user wants to save and stop, state attached. Do the right thing.",
+      "expected_output": "Close mode without --ship: memory and handoff only, no commit or push of code, recommends --ship.",
+      "files": [
+        "evals/files/session_dirty.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response notes that close mode without --ship is memory only and does not commit or push project code.",
+        "The response flags the uncommitted and unpushed work and recommends re-running with --ship (or pr-flow).",
+        "The response includes writing a handoff for the in-progress vat work.",
+        "The response mentions the failing vat.test.ts as unfinished state in the handoff.",
+        "The response does not run git commit or push for the user's code."
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Wrap up and ship what's done. Session facts attached; nothing can run, so describe what you would do and give the close summary.",
+      "expected_output": "Close mode with --ship: commit and push (or route to pr-flow) before memory capture, then the close summary.",
+      "files": [
+        "evals/files/session_ship.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response ships first: commits the dirty working tree and pushes the unpushed commit, or routes to pr-flow, before any memory capture.",
+        "The response runs memory capture (sync-memories) after the ship step and records the CSV RFC 4180 quoting decision.",
+        "The response skips the handoff because all work is shipped and tests pass.",
+        "The response runs the brain push through push-protocol.sh after checking the External HD mount guard.",
+        "The response ends with a SESSION CLOSE summary listing ship, memory, handoff and push brain as DONE, SKIPPED or BLOCKED with reasons."
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "The Stop hook just injected this nudge: \"STOP checkpoint: 10 commit/push/PR action(s) since the last capture. Run the knowledge-loop checkpoint.\" Context is at 90% and the feat/queue-workers refactor is mid-flight with a failing test. Nothing can run; describe what you do.",
+      "expected_output": "Checkpoint mode: memory capture and handoff (context >80%), no ship, no SESSION CLOSE, work continues, suggests close.",
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response treats this as checkpoint mode, not close mode, because the trigger is a Stop-hook nudge and not a user close phrase.",
+        "The response does not print a SESSION CLOSE block.",
+        "The response does not commit, push or ship any project code.",
+        "The response writes the handoff because context is above 80 percent (and work is in progress).",
+        "The response states that work continues and suggests the user run close when ready."
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Wrap up and ship. Facts: branch feat/billing has 3 modified files and 1 unpushed commit; the last test run shows 2 failing tests in billing.test.ts; External HD is mounted; one new decision (idempotency keys per invoice) is not yet in memory. Nothing can run; describe what you do and give the close summary.",
+      "expected_output": "Ship BLOCKED because tests fail (no commit, no push); memory capture and summary still run.",
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response does not commit or push the code.",
+        "The response reports ship as BLOCKED and names the failing tests as the reason.",
+        "The response still runs memory capture and records the idempotency keys decision.",
+        "The response still ends with a SESSION CLOSE summary with ship shown as BLOCKED with the reason.",
+        "The response lists the failing tests as unfinished state in the handoff."
       ]
     }
   ]

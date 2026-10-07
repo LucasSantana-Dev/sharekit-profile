@@ -1,0 +1,10 @@
+# Session facts (captured; nothing can be run)
+Project: ledgerly. $ git status --short:
+ M src/billing/invoice.ts
+ M src/billing/tax.ts
+ M src/billing/tax.test.ts
+?? src/billing/vat.ts
+?? src/billing/vat.test.ts
+$ git log origin/feat/vat..feat/vat --oneline -> 2 unpushed commits. No PR opened. Tests last run: 1 failing (vat.test.ts).
+$ mount | grep "${DEV_ROOT:-$HOME/dev}" -> mounted.
+User message: "context is at 90%, save and stop"
