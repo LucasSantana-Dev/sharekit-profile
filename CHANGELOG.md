@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.14.2](https://github.com/LucasSantana-Dev/sharekit-profile/compare/v0.14.1...v0.14.2) (2026-10-07)
+
+
+### Bug Fixes
+
+* **gates:** skip skill eval fixtures in harness boundary check ([#228](https://github.com/LucasSantana-Dev/sharekit-profile/issues/228)) ([778dc04](https://github.com/LucasSantana-Dev/sharekit-profile/commit/778dc0480e1134e0573a136acab9026023642c49))
+* **hooks:** resolve vitals RAG_ROOT under DEV_ROOT, not DEV_ROOT/Desenvolvimento ([#226](https://github.com/LucasSantana-Dev/sharekit-profile/issues/226)) ([adeac2c](https://github.com/LucasSantana-Dev/sharekit-profile/commit/adeac2c11ebbc31546b5712f0d582716276a0741))
+* **repo-mode:** stop git shortlog blocking on non-tty stdin ([#230](https://github.com/LucasSantana-Dev/sharekit-profile/issues/230)) ([648131f](https://github.com/LucasSantana-Dev/sharekit-profile/commit/648131ff449d1bbfd82e0dad3aba5833d5da6548))
+
 ## [0.14.1](https://github.com/LucasSantana-Dev/sharekit-profile/compare/v0.14.0...v0.14.1) (2026-10-03)
 
 
