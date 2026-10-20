@@ -255,6 +255,16 @@ Verdict rules:
 - Do NOT run any gate that the user passed via `--skip`. Honor the override but mark
   it `SKIP (user-override)` so the trail is visible.
 
+## Common rationalizations
+
+| Excuse | Reality |
+|---|---|
+| "Small change, skip the gates" | Small diffs break builds too. Quick mode exists for this; run it instead of nothing. |
+| "Passed locally, CI will match" | CI runs a clean env and the full matrix. Read the actual check state. |
+| "That failure is flaky, not mine" | Prove it: same failure on main or on a rerun. Until then it is a FAIL. |
+| "Coverage dropped a bit, fine" | The threshold is the contract. Report the delta. |
+| "Run it again to be sure" | A clean run repeated with no code change adds nothing. Rerun after edits only. |
+
 ## Configuration
 
 Optional repo-local `.claude/verify-before-done.json`:

@@ -17,7 +17,7 @@
 | Some (≥1 but not all) audit skills error | 1 | `Discover: <N completed skills>✓, <M errored skills>✗` | Mark errored audits PARTIAL, continue with completed findings. |
 | All audits return CLEAN (no findings) | 1 | `Discover: (skipped: all audits returned CLEAN)` | Write "no findings" memory baseline, jump to Phase 5 (memory). Reconciliation shows "no remediation needed". |
 | Critic subagent unavailable | 2.5 | `Critic: (skipped: no subagent capability)` | Continue to Phase 3 with all findings assigned confidence=high (no critic notes). |
-| External HD unmounted before Phase 3 | 3 | `Recall: (blocked: External HD unmounted; downgrading all findings to NEEDS_REVIEW)` | Downgrade every HIGH/MEDIUM finding to NEEDS_REVIEW. Skip memory cross-check. Continue to Phase 4 with all AUTO_FIX tags removed. Explain to user: "Cannot verify prior decisions; all findings require manual review." |
+| External HD unmounted before Phase 3 | 3 | `Recall: (blocked: External HD unmounted; downgrading all findings to NEEDS_REVIEW)` | Downgrade every CRITICAL/HIGH/MEDIUM finding to NEEDS_REVIEW. Skip memory cross-check. Continue to Phase 4 with all AUTO_FIX tags removed. Explain to user: "Cannot verify prior decisions; all findings require manual review." |
 | No approved items from Phase 4 planning | 4 | `Remediation: (skipped: no AUTO_FIX findings or all findings are NEEDS_REVIEW)` | Jump to Phase 5. Include NEEDS_REVIEW section in output for user to address manually. |
 
 ## Reconciliation blocks (output format per termination)
@@ -54,7 +54,7 @@ TOP ISSUES:
 Discover: (partial: 5 completed, 2 errored)
 Rank: <N findings ranked>
 Critic: (skipped: completed findings only)
-Recall: <HIGH/MEDIUM reconciled against memory>
+Recall: <CRITICAL/HIGH/MEDIUM reconciled against memory>
 Remediation: [plan from AUTO_FIX findings]
 Snapshot: [memory file path]
 

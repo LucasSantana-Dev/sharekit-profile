@@ -93,11 +93,21 @@ A phase with no work to do is marked `SKIPPED (precondition <X> not met)`, never
 
 - Do NOT invoke the sub-skills by hand instead of this composite when the router matched it. The chaining, the tier gates and the reconciliation block are the value; the sub-skills alone enforce none of them.
 - Do NOT skip a phase because it "obviously has nothing to do". Mark it SKIPPED with the unmet precondition.
-- Do NOT let Phase 5 implement what Phase 1 never specified. An unknown found mid-implementation goes back into the spec, not into ad-hoc mid-task research (same rule `/spec-research` hands to its executor).
+- Do NOT let Phase 5 implement what Phase 1 never specified. An unknown found mid-implementation goes back into the spec, not into ad-hoc mid-task research.
 - Do NOT treat a passed clarify phase as approval for a T2 or T3 action later in the chain. Tier the action, not the conversation.
 - Do NOT dispatch an analysis phase with a write-capable `agentType`.
 - Do NOT run this pipeline on a trivial edit. Forcing seven phases onto a one-line fix is the overhead `skill-authoring.md`'s negative rules exist to prevent.
 - Do NOT end a run without the reconciliation block, including when bailing on a blocker.
+
+## Common rationalizations
+
+| Excuse | Reality |
+|---|---|
+| "Simple enough, no spec needed" | Short specs are fine; missing acceptance criteria are not. If it is truly trivial, the stop condition already skips the pipeline. |
+| "I'll write the spec after coding" | That is documentation. The spec's value is forcing clarity before code. |
+| "Requirements will change anyway" | Update the spec when they do. A stale spec still beats none. |
+| "The user knows what they want" | Clear requests still carry implicit assumptions; the clarify phase surfaces them. |
+| "One big spec, splitting is overhead" | If acceptance criteria split into independently testable groups, split the spec so each task reasons over one contract. |
 
 ## Interop with actual spec-kit projects
 

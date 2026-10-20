@@ -136,6 +136,12 @@ match_composite() {
     return 0
   fi
 
+  # VISUAL IDENTITY (no identity / only a logo / looks generic) → identity-studio, before UI BUILD
+  if [ -d "$HOME/.claude/skills/identity-studio" ] && echo "$P" | grep -qE '(sem|falta|(nao|não) tem) (uma |a )?identidade|(so|só) tem (o |a )?logo|(app|site|produto|painel|dashboard|sistema|aplicacao|aplicação|aplicacoes|aplicações).{0,30}(parece (generic|genéric)|cara de ia|feit(o|a) por ia)|(nova|criar|definir|construir) (a |uma )?(identidade|linguagem) visual|identidade visual (tao |tão |bem |nao |não )?(definida|fraca|propria|própria)|(no|lacks?|without|needs?) (a )?(visual|brand) identity|(create|define) (a |the )?(visual|design|brand) language|looks? (generic|ai[- ]made|like ai)|only has a logo|\brebrand|identity-studio'; then
+    echo "identity-studio|visual-identity intent (diagnosis, canvas with the owner, ADR, then repaint)"
+    return 0
+  fi
+
   # UI BUILD (new page/screen/component)
   if echo "$P" | grep -qE 'build.{0,40}(page|screen|component|dashboard|form|modal|layout|landing|ui)|design and (implement|build|code)|create.{0,30}(page|screen|component|ui)|new ui surface|implement.{0,30}(ui|page|screen|component)|redesign .{0,60}(site|website|frontend|\.com)|improve .{0,40}ui(/ux)?|\bui/ux\b'; then
     echo "repaint|ui-build intent (repaint is the frontend entry point)"

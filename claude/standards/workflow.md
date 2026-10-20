@@ -33,7 +33,7 @@ Once the right handoff is chosen, continue from its stated next action. A clean 
 
 ## Research and spec before execution
 
-Every non-trivial task starts with research and a spec, not code: `landscape-scan` when what to build is the question, `spec-research` when the task is known. Searching for a DESIGN fact mid-task (API shape, library behavior, protocol constraint) is a defect signal: loop back and fix the spec, do not research ad hoc mid-implementation. Runtime diagnostics (errors, logs, failing tests) are debugging, not design research, and stay mid-task.
+Every non-trivial task starts with research and a spec, not code: `deep-research` when what to build is the question, `spec-driven-develop` (specify phase) when the task is known. Searching for a DESIGN fact mid-task (API shape, library behavior, protocol constraint) is a defect signal: loop back and fix the spec, do not research ad hoc mid-implementation. Runtime diagnostics (errors, logs, failing tests) are debugging, not design research, and stay mid-task.
 
 ## Branching and merge
 

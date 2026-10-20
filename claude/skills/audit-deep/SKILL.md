@@ -1,5 +1,7 @@
 ---
 name: audit-deep
+agent: general-purpose
+context: fork
 description: Composite project health check (testing, config, hooks, security, MCP, plugins) into one severity-ranked report. Use weekly or before major releases.
 user-invocable: true
 auto-invoke: weekly-per-repo + pre-release + tech-debt-review
@@ -74,7 +76,7 @@ capability; findings then proceed with confidence=high.
 
 Audits do not know history. Memory does. Before drafting fixes:
 
-- For each HIGH/MEDIUM finding, run `recall`
+- For each CRITICAL/HIGH/MEDIUM finding, run `recall`
   on the flagged file, image tag, config key, or symbol.
 - If recall surfaces any past decision about that exact item (exception,
   intentional pattern, "do not change X" memory), tag the finding `NEEDS_REVIEW`
@@ -138,7 +140,7 @@ Pre-flight:            <cache status | (failed: ...) | (skipped: ...)>
 Discover:              <N completed✓, M errored✗ | (skipped: all audits returned CLEAN)>
 Rank:                  <N findings ranked | (skipped: no findings)>
 Critic:                <confidence summary | (skipped: ...)>
-Recall:                <HIGH/MEDIUM reconciled against memory | (blocked: ...)>
+Recall:                <CRITICAL/HIGH/MEDIUM reconciled against memory | (blocked: ...)>
 Remediation:           <plan from AUTO_FIX findings | (skipped: ...)>
 Snapshot:              <path to handoff/audit report | (none — task ongoing)>
 Open watch:            <future obligation | (none)>

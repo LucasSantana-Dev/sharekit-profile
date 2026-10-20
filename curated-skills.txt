@@ -34,6 +34,7 @@ refactor
 research-and-decide
 resolve-before-asking
 resume
+retomar
 review
 secure
 session-bootstrap
