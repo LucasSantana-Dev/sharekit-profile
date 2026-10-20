@@ -408,6 +408,7 @@ Key policy documents in `~/.agents/skills/standards/`:
 - **agent-routing.md** — when to use which agent type, read-only enforcement
 - **composite-contract.md** — composite-first principle, bail-out detection
 - **pr-conventions.md** — PR title/body/attribution standards
+- **voice-and-approach.md**: chat language, reply shape, no em or en dashes, humanizer pass, no AI or agent markers on GitHub, default modes
 - **graphify-discipline.md** — graph-first token discipline
 - **decision-discipline.md** — research-before-deciding rules
 - **artifact-schema.md** — structured artifact formats
@@ -508,8 +509,8 @@ If context bloat builds: `/compact` (saves ~30-40% tokens)
 | Goal | Skill | What it does |
 |------|-------|--------------|
 | ~75% token compression | Caveman mode (default, hook-enforced) | Default behavior that drops filler/articles/pleasantries while keeping full technical accuracy. Toggle off with "stop caveman" or "normal mode". |
-| Minimal solutions | `/ponytail` | Forces simplest, shortest, most minimal solution (YAGNI, stdlib before deps, one line before fifty). |
-| Audit repo or diff for bloat | `/ponytail` | Built-in audit/review mode for over-engineering, ranked by evidence and size of cut. |
+| Minimal solutions | Ponytail mode (default, hook-enforced) | YAGNI, reuse before writing, stdlib before new deps, smallest change that solves the real problem. Never trims validation, error handling or security. Toggle off with "stop ponytail". |
+| Lean subagents | Agent-econ mode (default, hook-enforced) | Recall before searching, grep-first briefs, subagent reports of 200 lines or fewer. Toggle off with "stop agent-econ". |
 | Historical token spend | hook reports | Analyze session JSONLs, cache hit rates, and weekly trends through diagnostics. |
 | Context bloat | `/context-pack` | Build focused context before large changes; compact when needed. |
 | Load only relevant context | `/context-pack` | Build a task-aware context bundle before large changes or unfamiliar work. |

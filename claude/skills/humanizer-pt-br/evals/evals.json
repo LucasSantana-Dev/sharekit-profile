@@ -1,0 +1,72 @@
+{
+  "skill_name": "humanizer-pt-br",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Humaniza esse texto de lançamento, tá com cara de IA. Está no arquivo anexo.",
+      "expected_output": "Texto reescrito direto, sem 'além disso', 'cenário atual', regra dos três, paralelismo negativo, atribuição vaga, 'por que isso muda tudo', 'cada detalhe importa'; mantém os fatos reais (exportação Excel, filtros salvos, 30%, 10 mil linhas, 14 de outubro) sem inventar números; sem travessão; resumo das mudanças e pontuação de qualidade /50.",
+      "files": [
+        "evals/files/texto-produto.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "O texto reescrito não contém 'Além disso', 'cenário atual', 'Por que isso muda tudo' nem 'cada detalhe importa'.",
+        "O texto reescrito remove a estrutura 'Não se trata apenas de X, mas de Y' e a frase 'Especialistas do setor acreditam' (atribuição vaga).",
+        "O texto reescrito mantém os fatos concretos do original: exportação para Excel, filtros salvos por equipe, 30% mais rápido, contas com mais de 10 mil linhas e a data 14 de outubro.",
+        "O texto reescrito não acrescenta números, nomes de clientes ou dados que não existem no original.",
+        "O texto reescrito não usa travessão nem a tríade 'fluida, intuitiva e poderosa'.",
+        "A resposta traz um resumo breve das mudanças feitas e uma pontuação de qualidade em cinco dimensões somando até 50."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Tira o jeito de IA desse texto (arquivo anexo). Vai pro meu blog pessoal, pode ter minha voz.",
+      "expected_output": "Remove abertura de chatbot, emojis, negrito-título em lista, Title Case no heading, aspas curvas, ressalva de data de corte, atribuição vaga, conclusão motivacional genérica e oferta final; heading em caixa de sentença; aspas retas; adiciona voz (primeira pessoa, ritmo variado) por ser blog pessoal.",
+      "files": [
+        "evals/files/resposta-chatbot.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "O texto final não começa com 'Claro!' nem 'Aqui está' e não termina com 'Fico à disposição' nem 'Espero que ajude'.",
+        "O texto final não contém emojis.",
+        "O texto final remove a frase sobre 'data de corte' do conhecimento do modelo.",
+        "O título do texto final está em caixa de sentença (só a primeira palavra em maiúscula), por exemplo 'Cinco dicas para aumentar a produtividade em casa', e não em Title Case.",
+        "O texto final usa aspas retas em vez de aspas curvas.",
+        "O texto final não usa a lista de itens com subtítulo em negrito seguido de dois-pontos.",
+        "O texto final adiciona voz de pessoa, como primeira pessoa ou uma opinião, e não termina com frase motivacional genérica sobre o futuro do trabalho."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Humaniza o aviso do arquivo anexo. Atenção ao contexto que está no topo do arquivo.",
+      "expected_output": "Mantém o registro formal pedido: remove traços de IA (satisfação grande, 'passo crucial', tríade, atribuição vaga, fecho genérico, Title Case no assunto) sem inserir humor, opinião ou primeira pessoa informal; preserva data, horários, prazo de 48h, telefone e taxa R$ 85,00.",
+      "files": [
+        "evals/files/aviso-formal.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "O texto reescrito permanece formal, mantendo o tratamento 'Prezados clientes' e a assinatura, sem gírias nem humor.",
+        "O texto reescrito não insere opinião pessoal nem expressões informais como 'Honestamente' ou 'pra falar a verdade'.",
+        "O texto reescrito preserva todos os dados operacionais: início em 3 de novembro de 2026, novo horário das 8h às 16h, horário anterior das 7h às 18h, agendamento com 48 horas, telefone 0800 000 0000 e taxa de R$ 85,00.",
+        "O texto reescrito remove 'com grande satisfação', 'passo crucial', a tríade 'fluido, eficiente e confiável' e 'Especialistas do setor acreditam'.",
+        "O assunto do e-mail aparece em caixa de sentença (por exemplo 'Alteração do horário de coletas') e não em Title Case.",
+        "O texto reescrito termina sem a frase genérica 'sempre buscando melhorar'."
+      ]
+    }
+  ]
+}

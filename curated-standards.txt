@@ -40,4 +40,5 @@ skill-authoring.md
 storage-policy.md
 sync-memories-forgekit.md
 testing.md
+voice-and-approach.md
 workflow.md
