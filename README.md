@@ -337,13 +337,13 @@ P9 lands the three higher-value/higher-risk cherrypicks the synthesis deferred a
 
 ## Agents: Specialized Worker Types
 
-~40 agent types for different tasks. Invoke via Agent tool or skills that dispatch them.
+~33 agent types for different tasks. Invoke via Agent tool or skills that dispatch them.
 
 **Analysis agents** (read-only): architect, code-reviewer, critic, decision-critic, document-specialist, efficiency-advisor, explore, scientist, security-reviewer
 
-**Execution agents** (write files): backlog-manager, ci-fixer, code-simplifier, debugger, deep-auditor, designer, git-master, handoff-writer, issue-triager, mcp-tool-dev, mutation-tester, parallel-implementer, phase-runner, pr-reviewer, rag-evaluator, refactor-orchestrator, research-decider, systematic-debugger, tdd-practitioner, team-coordinator, test-engineer, tracer, writer, xp-navigator
+**Execution agents** (write files): ci-fixer, code-simplifier, debugger, deep-auditor, designer, git-master, issue-triager, mcp-tool-dev, mutation-tester, parallel-implementer, rag-evaluator, refactor-orchestrator, tdd-practitioner, test-engineer, tracer, writer, xp-navigator
 
-**Forge ecosystem**: ecosystem-coordinator, forge-patterns-expert, mcp-gateway-specialist, uiforge-mcp-architect, webapp-developer
+**Forge ecosystem**: ecosystem-coordinator, forge-patterns-expert, mcp-gateway-specialist, uiforge-mcp-architect
 
 See `~/.claude/agents/` for full definitions.
 
