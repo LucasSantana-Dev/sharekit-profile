@@ -1,6 +1,6 @@
 # Agents: Specialized Worker Types
 
-~40 agent types for different tasks. You rarely invoke agents directly — skills dispatch them and reconcile results. This is the reference guide.
+~33 agent types for different tasks. You rarely invoke agents directly — skills dispatch them and reconcile results. This is the reference guide.
 
 ---
 
@@ -66,12 +66,6 @@ These agents perform investigation, design, and review work. They **cannot write
 
 These agents implement changes, write code, and run builds. They have full tool access.
 
-### backlog-manager
-- **Purpose:** Build ROI-ranked, deduped backlogs from parallel repo analysis
-- **Workflow:** 8 phases: discover → rank → propose (approval gate) → spec → plan → issues → board → snapshot
-- **Use when:** Starting a new work session or when "what should I work on" needs structured answer
-- **Output:** GitHub Project board with issues
-
 ### ci-fixer
 - **Purpose:** Diagnose and fix failing GitHub CI
 - **Workflow:** Fetches Actions logs, queries repo CI history, summarizes failures, drafts fix plan
@@ -109,11 +103,6 @@ These agents implement changes, write code, and run builds. They have full tool 
 - **Use when:** Complex rebase scenarios or history cleanup
 - **Output:** Clean commit history
 
-### handoff-writer
-- **Purpose:** Capture active work state before budget runs low or context switches
-- **Output:** Durable resume packet at `~/.claude/handoffs/<project>/latest.md` with exact next actions, file paths, and copy-pasteable commands
-- **Use when:** Before context switches, approaching token budget, or end-of-day
-
 ### issue-triager
 - **Purpose:** Move issues through triage state machine
 - **States:** needs-triage → needs-info | ready-for-agent | ready-for-human | wontfix
@@ -138,24 +127,11 @@ These agents implement changes, write code, and run builds. They have full tool 
 - **Use when:** Written plan with mostly independent tasks, want high-quality same-session execution
 - **Output:** Implemented + reviewed tasks
 
-### phase-runner
-- **Purpose:** Execute phased plans by fanning out agents per task per wave
-- **Reconciles:** Per wave, with verify gates between phases
-- **Use when:** Plans with ≥3 total tasks or ≥2 tasks in a single phase involving writes
-- **Output:** Phase × outcome report
-
 ### Plan
 - **Purpose:** Software architect agent for designing implementation plans
 - **Identifies:** Critical files, architectural trade-offs
 - **Use when:** Planning strategy for a task before execution
 - **Output:** Step-by-step implementation plan
-
-### pr-reviewer
-- **Purpose:** Two-axis review of git diff — Standards and Spec (run as parallel sub-agents)
-- **Standards:** Does code follow this repo's documented conventions?
-- **Spec:** Does it match what the issue/PRD asked for?
-- **Use when:** Reviewing a branch, PR, or work-in-progress changes
-- **Output:** Side-by-side findings without merging
 
 ### rag-evaluator
 - **Purpose:** Run retrieval regression gates (hitgate)
@@ -169,30 +145,11 @@ These agents implement changes, write code, and run builds. They have full tool 
 - **Use when:** Scope >5 files, cross-module boundaries, or audit-flagged structural issues
 - **Output:** Refactored code + ADR
 
-### research-decider
-- **Purpose:** Evaluate library, pattern, or architecture choices end-to-end
-- **Workflow:** Research candidates → challenge with decision-critic → plan adoption → write ADR with revisit-when condition → index for future recall
-- **Use when:** Any choice where wrong decision creates technical debt or lock-in
-- **Output:** Durable ADR
-
-### systematic-debugger
-- **Purpose:** Apply 4-phase systematic debugging to any bug or test failure
-- **Disciplines:** Enforces root-cause investigation before proposing fix, tracks turn efficiency
-- **Blocks:** Rationalization attempts
-- **Use when:** Encountering technical failure (especially under time pressure or after multiple failed attempts)
-- **Output:** Root cause + fix
-
 ### tdd-practitioner
 - **Purpose:** Enforce test-driven development discipline
 - **Cycle:** Red (write failing test) → Green (minimal code) → Refactor (improve under green)
 - **Use when:** Writing production code — blocks implementation until failing test exists
 - **Output:** Tested implementation
-
-### team-coordinator
-- **Purpose:** Decompose large task into parallel workstreams, assign agent ownership
-- **Workflow:** Fan out agents, run integration at dependency boundaries, synthesize results
-- **Use when:** Task large enough that parallel agents save time or add confidence, clear handoffs possible
-- **Output:** Team plan + final integrated outcome
 
 ### test-engineer
 - **Purpose:** Test strategy, integration/e2e coverage, flaky test hardening, TDD workflows
@@ -225,7 +182,7 @@ Specialized agents for the Forge Space ecosystem and UIForge infrastructure.
 
 ### ecosystem-coordinator
 - **Purpose:** Master coordinator for Forge Space ecosystem
-- **Orchestrates:** forge-patterns, mcp-gateway, uiforge-mcp, and webapp specialists for cross-repository tasks
+- **Orchestrates:** forge-patterns, mcp-gateway, and uiforge-mcp specialists for cross-repository tasks
 
 ### forge-patterns-expert
 - **Purpose:** Specialized expert for forge-patterns repository
@@ -238,10 +195,6 @@ Specialized agents for the Forge Space ecosystem and UIForge infrastructure.
 ### uiforge-mcp-architect
 - **Purpose:** Expert for uiforge-mcp — specialized MCP server for UI generation
 - **Focus:** Template management, AI-powered component creation
-
-### webapp-developer
-- **Purpose:** Expert for uiforge-webapp — management interface for UIForge ecosystem
-- **Focus:** Supabase integration, React development, UX design
 
 ---
 

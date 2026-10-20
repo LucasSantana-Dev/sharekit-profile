@@ -749,7 +749,7 @@
       Skills <span class="tab-count" id="tc-skills">47</span>
     </button>
     <button class="nav-tab" data-panel="agents">
-      Agents <span class="tab-count" id="tc-agents">49</span>
+      Agents <span class="tab-count" id="tc-agents">33</span>
     </button>
     <button class="nav-tab" data-panel="hooks">
       Hooks <span class="tab-count" id="tc-hooks">9</span>
@@ -826,7 +826,7 @@
 <span class="c-cmd">&gt; /next-priority</span>
 <span class="c-out">→ scans active repo, open PRs, CI, memory</span>
 <span class="c-ok">✓ ranked list: start at #1</span></div>
-            <div class="term-status"><b id="st-skills">47</b> skills<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">49</b> agents<span class="sep">·</span><b>4</b> hook events wired<span class="sep">·</span><b id="st-mcp">15</b> MCP servers<span class="sep">·</span><b>22</b> standards</div>
+            <div class="term-status"><b id="st-skills">47</b> skills<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">33</b> agents<span class="sep">·</span><b>4</b> hook events wired<span class="sep">·</span><b id="st-mcp">15</b> MCP servers<span class="sep">·</span><b>22</b> standards</div>
           </div>
 
           <div class="g-proof">
@@ -922,7 +922,7 @@
                 <div class="g-step-title">Install the profile: CLAUDE.md, skills, standards, agents</div>
                 <div class="g-code"><span class="c-cmd">$ npx @lucassantana/sharekit install LucasSantana-Dev</span>
 <span class="c-out">→ backs up existing files · copies claude/ → ~/.claude/</span>
-<span class="c-ok">✓ 52 skills + 49 agents + 22 standards installed</span></div>
+<span class="c-ok">✓ 52 skills + 33 agents + 22 standards installed</span></div>
               </div>
             </div>
             <div class="g-step">
@@ -1019,7 +1019,7 @@
             <div class="g-card">
               <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="8" width="6" height="6" rx="1"/><circle cx="6" cy="5" r="1"/><circle cx="18" cy="5" r="1"/><circle cx="6" cy="19" r="1"/><circle cx="18" cy="19" r="1"/></svg></span>Sub-agent</div>
               <div class="g-card-body">An autonomous Claude in its own context with a scoped toolset. Analysis agents (<code>Explore</code>, <code>critic</code>) are read-only by <em>agentType</em>: their tool set has no Write or Edit. Dispatch many in parallel.</div>
-              <div class="g-card-eg"><b>e.g.</b> the <code>phase-runner</code> agent spawns one agent per task, one wave at a time.</div>
+              <div class="g-card-eg"><b>e.g.</b> the <code>parallel-implementer</code> agent spawns one agent per task, one wave at a time.</div>
             </div>
             <div class="g-card">
               <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6m0 6v6M7 6h10a3 3 0 0 1 3 3v2a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3z"/></svg></span>Hook</div>
@@ -1149,7 +1149,7 @@
     <div class="panel" id="panel-agents">
       <div class="section-header">
         <div class="section-title">Specialized Agent Types</div>
-        <div class="section-sub">49 agent types: invoke via the Agent tool, agent() in Workflows, or skills that dispatch them. Analysis agents ship with write-incapable tool sets.</div>
+        <div class="section-sub">33 agent types: invoke via the Agent tool, agent() in Workflows, or skills that dispatch them. Analysis agents ship with write-incapable tool sets.</div>
       </div>
       <div id="agents-content"></div>
     </div>
@@ -1357,15 +1357,12 @@ const AGENTS = [
   { name: 'document-specialist', type: 'analysis', desc: 'Use when you need external documentation, API or framework reference, package evaluation, or version facts, checked against local docs first.' },
   { name: 'explore', type: 'analysis', desc: 'Use when you need to find files, symbols, or code patterns in a codebase.' },
   { name: 'overengineering-auditor', type: 'analysis', desc: 'Flag code that is heavier than its problem: single-implementation abstractions, speculative generalization, unnecessary indirection, unused config, premature optimization, and type gymnastics for states that can\'t occur.' },
-  { name: 'pr-reviewer', type: 'analysis', desc: 'Two-axis review of a git diff: Standards (does the code follow this repo\'s documented conventions?) and Spec (does it match what the issue/PRD asked for?).' },
   { name: 'rag-evaluator', type: 'analysis', desc: 'Run retrieval regression gates (hitgate) against the current repo state.' },
   { name: 'scientist', type: 'analysis', desc: 'Use when you need data analysis or research execution - load data, run stats or experiments, interpret results.' },
   { name: 'security-reviewer', type: 'analysis', desc: 'Use when code needs vulnerability review - OWASP Top 10, secrets, unsafe patterns, auth and input handling.' },
   { name: 'skill-eval-reviewer', type: 'analysis', desc: 'Review skill-creator benchmark outputs for a completed iteration.' },
   { name: 'tracer', type: 'analysis', desc: 'Use when behavior is unexplained and you need competing hypotheses weighed with evidence for and against, uncertainty, and next probes.' },
   // Execution
-  { name: 'ai-architect', type: 'execution', desc: 'Designs AI/agent systems (agent topology, prompt architecture, RAG design, eval gates, orchestration patterns, model tiering, memory/knowledge-graph design, autonomy guardrails).' },
-  { name: 'backlog-manager', type: 'execution', desc: 'Build ROI-ranked, deduped backlogs from parallel repo analysis to GitHub issues on a Project board.' },
   { name: 'ci-fixer', type: 'execution', desc: 'Diagnose and fix failing GitHub CI on your own PRs.' },
   { name: 'code-simplifier', type: 'execution', desc: 'Simplifies and refines code for clarity, consistency, and maintainability while preserving all functionality.' },
   { name: 'debugger', type: 'execution', desc: 'Use when a bug, stack trace, regression, or build/compile error needs a quick root cause and fix.' },
@@ -1373,33 +1370,20 @@ const AGENTS = [
   { name: 'designer', type: 'execution', desc: 'Use when building or refining UI/UX with working code - layout, components, visual polish.' },
   { name: 'efficiency-advisor', type: 'execution', desc: 'Analyze a proposed multi-agent workflow, Workflow() script, or active session for token waste and time bottlenecks.' },
   { name: 'git-master', type: 'execution', desc: 'Git expert for atomic commits, rebasing, and history management with style detection.' },
-  { name: 'handoff-writer', type: 'execution', desc: 'Capture active work state before budget runs low, switching projects, or ending a session.' },
   { name: 'issue-triager', type: 'execution', desc: 'Move issues through a triage state machine: needs-triage → needs-info | ready-for-agent | ready-for-human | wontfix.' },
   { name: 'mcp-tool-dev', type: 'execution', desc: 'MCP development specialist: builds MCP servers and tools (registration, schemas, transports) and operates MCP gateways.' },
   { name: 'mutation-tester', type: 'execution', desc: 'Use when green coverage may hide weak assertions - runs mutation testing and classifies survivors.' },
   { name: 'parallel-implementer', type: 'execution', desc: 'Use when you have a written plan of mostly independent tasks and want a fresh subagent per task with spec-compliance then code-quality review after each.' },
-  { name: 'phase-runner', type: 'execution', desc: 'Execute phased plans by fanning out one agent per task per wave, reconciling per wave, gating between phases with verify commands, and emitting a phase × outcome report.' },
   { name: 'planner', type: 'execution', desc: 'Use when a task needs a strategic work plan built through an interview - goals, constraints, phases.' },
   { name: 'qa-tester', type: 'execution', desc: 'Use when you need interactive CLI or service testing through tmux sessions - start, drive, observe, clean up.' },
   { name: 'refactor-orchestrator', type: 'execution', desc: 'Use when a refactor spans more than 5 files or crosses module boundaries - RAG pre-flight, plan with rollback, critic gate, parallel execution, two-stage review, ADR. Orchestrates only.' },
   { name: 'release-ci-engineer', type: 'execution', desc: 'Release engineering and CI/CD specialist for GitHub Actions pipelines, release-please automation, semantic versioning, changelogs, branch protection, flaky-test diagnosis, and runner cost optimization.' },
   { name: 'repaint-builder', type: 'execution', desc: 'Executes the /repaint pipeline in its own context: register lock, reference anchor, token spec, scaffold, build, slop audit, browser verify.' },
-  { name: 'research-decider', type: 'execution', desc: 'Evaluate library, pattern, or architecture choices end-to-end: research candidates, challenge with decision-critic, plan adoption, write ADR with revisit-when condition, index for future recall.' },
-  { name: 'systematic-debugger', type: 'execution', desc: 'Apply 4-phase systematic debugging to any bug, test failure, or unexpected behavior.' },
   { name: 'tdd-practitioner', type: 'execution', desc: 'Use when writing production code that must follow strict Red-Green-Refactor - failing test first, minimal code, refactor green.' },
-  { name: 'team-coordinator', type: 'execution', desc: 'Decompose a task into parallel workstreams, assign agent ownership, run integration at dependency boundaries, and synthesize results.' },
   { name: 'test-engineer', type: 'execution', desc: 'Use when you need test strategy, integration or e2e coverage, or flaky test hardening.' },
   { name: 'writer', type: 'execution', desc: 'Use when you need technical documentation written or revised - README, API docs, code comments, verified against the real code.' },
   { name: 'xp-navigator', type: 'execution', desc: 'Use when running structured Extreme Programming pair cycles (plan, test, implement, refactor, release) with a human pair.' },
   // Domain specialists
-  { name: 'cloudflare-edge-specialist', type: 'domain', desc: 'Cloudflare edge platform specialist for Workers, Pages, D1 (SQLite), KV, R2, Durable Objects, Hyperdrive, Wrangler, and OpenNext (Next-on-Cloudflare).' },
-  { name: 'community-manager', type: 'domain', desc: 'Community strategy &amp; engagement specialist for Discord and social channels.' },
-  { name: 'frontend-motion-specialist', type: 'domain', desc: 'Web frontend motion craft specialist: UI animation that feels alive without reading as AI-made.' },
-  { name: 'marketing', type: 'domain', desc: 'Brand &amp; content marketing strategist for positioning, messaging, campaign concepting, content strategy, and copywriting direction.' },
-  { name: 'motion-design', type: 'domain', desc: 'Motion graphics and animation direction for social/video content.' },
-  { name: 'paid-traffic', type: 'domain', desc: 'Performance-marketing specialist for paid acquisition on Meta (Facebook/Instagram) and Google Ads.' },
-  { name: 'video-editing', type: 'domain', desc: 'Video editing craft expert for story, pacing, hooks, and retention.' },
-  { name: 'webapp-developer', type: 'domain', desc: 'Full-stack web application developer for React/Next.js + Supabase.' },
 ];
 
 const HOOKS = [
@@ -1955,7 +1939,7 @@ const GUIDE_PT = {
 <span class="c-cmd">&gt; /next-priority</span>
 <span class="c-out">→ varre o repo ativo, PRs abertos, CI, memória</span>
 <span class="c-ok">✓ lista priorizada: comece pelo #1</span></div>
-      <div class="term-status"><b id="st-skills">47</b> skills ativas<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">49</b> agentes<span class="sep">·</span><b>4</b> eventos de hook ligados<span class="sep">·</span><b id="st-mcp">15</b> servidores MCP<span class="sep">·</span><b>22</b> standards</div>
+      <div class="term-status"><b id="st-skills">47</b> skills ativas<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">33</b> agentes<span class="sep">·</span><b>4</b> eventos de hook ligados<span class="sep">·</span><b id="st-mcp">15</b> servidores MCP<span class="sep">·</span><b>22</b> standards</div>
     </div>
 
     <div class="g-proof">
@@ -2047,7 +2031,7 @@ const GUIDE_PT = {
           <div class="g-step-title">Instale o profile: CLAUDE.md, skills, standards, agentes</div>
           <div class="g-code"><span class="c-cmd">$ npx @lucassantana/sharekit install LucasSantana-Dev</span>
 <span class="c-out">→ faz backup dos arquivos existentes · copia claude/ → ~/.claude/</span>
-<span class="c-ok">✓ 52 skills + 49 agentes + 22 standards instalados</span></div>
+<span class="c-ok">✓ 52 skills + 33 agentes + 22 standards instalados</span></div>
         </div>
       </div>
       <div class="g-step">
@@ -2140,7 +2124,7 @@ const GUIDE_PT = {
       <div class="g-card">
         <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="8" width="6" height="6" rx="1"/><circle cx="6" cy="5" r="1"/><circle cx="18" cy="5" r="1"/><circle cx="6" cy="19" r="1"/><circle cx="18" cy="19" r="1"/></svg></span>Sub-agente</div>
         <div class="g-card-body">Um Claude autônomo no próprio contexto com um conjunto de ferramentas restrito. Agentes de análise (<code>Explore</code>, <code>critic</code>) são somente-leitura por <em>agentType</em>: o conjunto de ferramentas deles não tem Write nem Edit. Despache vários em paralelo.</div>
-        <div class="g-card-eg"><b>ex.</b> o agente <code>phase-runner</code> sobe um agente por tarefa, uma onda por vez.</div>
+        <div class="g-card-eg"><b>ex.</b> o agente <code>parallel-implementer</code> sobe um agente por tarefa, uma onda por vez.</div>
       </div>
       <div class="g-card">
         <div class="g-card-title"><span class="g-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6m0 6v6M7 6h10a3 3 0 0 1 3 3v2a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3z"/></svg></span>Hook</div>
