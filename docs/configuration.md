@@ -105,6 +105,18 @@ Then resume caveman.
 
 **Override:** `/stop caveman` or `/normal mode` (that session only; next session defaults back to ON).
 
+### Ponytail and Agent-econ ON
+
+**Ponytail:** lazy-senior coding. YAGNI, reuse before writing, stdlib before new dependencies, the smallest change that solves the real problem. Never trims validation, error handling or security.
+
+**Agent-econ:** subagent token discipline. Recall before searching, grep-first briefs, subagent reports of 200 lines or fewer.
+
+**Override:** "stop ponytail" (or "normal mode", which also turns caveman off) and "stop agent-econ", that session only.
+
+### Voice
+
+Chat in the operator's language (pt-BR in this profile; shipped content keeps its own language), action-first replies with numbered steps and one next action, no em or en dashes, every outgoing draft through `humanizer` (EN) or `humanizer-pt-br` (PT), and no AI or agent markers on GitHub. Full rules: `claude/standards/voice-and-approach.md`.
+
 ### Skill-First Execution
 
 Skills are not waiting for you to invoke them — they are tools invoked autonomously when a description matches the work. Default to invoking; you only type a slash command when the choice isn't obvious.
@@ -257,6 +269,7 @@ Key policy documents in `~/.agents/skills/standards/`:
 - **agent-routing.md** — when to use which agent type, read-only enforcement
 - **composite-contract.md** — composite-first principle, bail-out detection
 - **pr-conventions.md** — PR title/body/attribution standards
+- **voice-and-approach.md**: chat language, reply shape, no em or en dashes, humanizer pass, no AI or agent markers on GitHub, default modes
 - **graphify-discipline.md** — graph-first token discipline
 - **decision-discipline.md** — research-before-deciding rules
 - **artifact-schema.md** — structured artifact formats
