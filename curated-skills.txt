@@ -4,6 +4,7 @@ adt-rag-drift
 app-teardown
 audit-deep
 backlog
+caveman
 changelog-update
 client-offboard
 code-teardown
@@ -18,6 +19,8 @@ gh-fix-ci
 graphify
 grill-with-options
 handoff
+humanizer
+humanizer-pt-br
 knowledge-loop
 loop
 loop-engineer
