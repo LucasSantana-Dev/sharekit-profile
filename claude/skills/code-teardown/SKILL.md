@@ -1,6 +1,8 @@
 ---
 name: code-teardown
-description: Reverse-engineer an external repository or codebase (competitor OSS, reference implementation, trending project) and map every adoptable idea — architecture, code patterns, DX, tooling, testing, docs conventions — into a teardown report where each finding carries evidence (file:line), an adopt/adapt/already-have/reject verdict, and a constraint rationale for our context. Use when asked "faz um teardown desse repo", "analisa esse repositório pra ideias", "o que dá pra aproveitar desse projeto open-source", "evaluate X repo for insights", "what can we learn from this codebase". Read-only toward the target; clones to External HD. For live apps use app-teardown; to onboard for contributing use adt-repo-intake; to document our own architecture use doc-and-modernize.
+agent: general-purpose
+context: fork
+description: "Use when asked \"faz um teardown desse repo\", \"analisa esse repositório pra ideias\", \"o que dá pra aproveitar desse projeto open-source\", \"evaluate X repo for insights\", \"what can we learn from this codebase\". Reverse-engineers an external repository or codebase (competitor OSS, reference implementation, trending project) and maps every adoptable idea (architecture, code patterns, DX, tooling, testing, docs conventions) into a teardown report where each finding carries evidence (file:line), an adopt/adapt/already-have/reject verdict, and a constraint rationale for our context. Read-only toward the target; clones to External HD. For live apps use app-teardown; to onboard for contributing use adt-repo-intake; to document our own architecture use doc-and-modernize."
 triggers:
   - teardown desse repo
   - analisa esse repositório pra ideias

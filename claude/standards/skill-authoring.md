@@ -67,6 +67,26 @@ Verdict line first (READY / NOT READY / PASS / N issues), then Top 3 with eviden
 ### trigger-design
 The description field lists >=3 genuinely distinct trigger branches (different intents, not synonyms; collapse triggers that always co-occur). Front-load the leading word: `<lead verb + what>. Use when <b1>; when <b2>; or when <b3>.`
 
+Authoring-time patterns below have no checklist item; apply them when writing new text, not as retrofits.
+
+### invocation-choice
+A description is always-loaded context on every turn. A skill that only ever fires by hand gets `disable-model-invocation: true` and a one-line human-facing description: zero context load, at the cost of the owner remembering it exists. Keep model invocation only when the agent or another skill must reach it.
+
+### positive-prompting
+State the target behavior ("write one-line comments"), not the ban. A prohibition names the unwanted behavior and makes it more available. Keep a `Do NOT` line only for hard guardrails with no positive phrasing, and pair it with the positive target.
+
+### environment-is-source
+Do not restate what one command or one file read answers (`package.json` scripts, config, `--help`, directory layout); the copy goes stale. Cache only what lookup cannot find: unwritten conventions, the reason behind a choice, gotchas.
+
+### rationalization-table
+Gate skills (verify, TDD, spec) carry a short `Common rationalizations` table: the excuse the agent will say to skip a step, and the rebuttal. Five rows max; prefer excuses actually seen in transcripts over hypotheticals.
+
+### not-for-routing
+When a skill's triggers overlap a neighbor's, end the description with `Not for <case> (use <skill>).` naming the right skill, so the router picks between them instead of guessing. One clause per real overlap; skip it for skills with no neighbor. (From alirezarezvani/claude-skills, MIT.)
+
+### name-shadowing
+Never name a skill after a built-in slash command (`compact`, `config`, `status`...). The host runs its own command first and the skill never loads (Desktop `/resume`, skills#75). `check-catalog-integrity.sh` check 3 fails CI on a collision; an intentional override goes in its allowlist with a reason.
+
 ### reasoning-scaffold
 Scaffold any delegated prompt, any prompt with >=3 ordered steps, or any with a skippable gate (`standards/prompting-discipline.md`). Fields: Goal (observable end state); Steps (numbered, name file/command, last step is a verification: run <cmd>, expect <result>; non-optional); Constraints; Output (exact shape); Stop when <success>, escalate if <blocker> instead of guessing.
 
@@ -111,14 +131,15 @@ Overlap: "prod is down" appears under both `hotfix` and `incident-response`; the
 - `backlog`: "build a backlog", "what should I work on", "audit and plan".
 - `spec-driven-develop`: **default for non-trivial build/add/fix/implement/refactor** with no more specific composite; check BEFORE `scope-and-execute`/`parallel-phases` (fallback only for e.g. read-only analysis). Skip for trivial edits (<3 files, mechanical).
 - `audit-deep`: "is this project healthy", weekly per active repo, pre-release.
-- `kali-docker-pentesting`: exploitation, cracking, AD/SMB, wireless, RE (Linux-only lane). NOT recon: `bugbounty-recon` and `hack` stay on host.
+- `kali-docker-pentesting`: exploitation, cracking, AD/SMB, wireless, RE (Linux-only lane). NOT recon: `hack` stays on host.
 - `silent-failure-hunt`: "audit the harness", job/hook/gate suspected not firing, stale artifact, harness-vitals warning.
 - `docs-sync`: after editing any skill / standard / hook.
+- `identity-studio`: "sem identidade", "não tem identidade visual", "só tem o logo", "app parece genérico", "cara de IA", "criar identidade visual", "linguagem visual", "rebrand", "no visual identity", "looks generic", "only has a logo", "create a design language", a new product's first visual language. Router fires only when the skill directory exists. Chains recall, repaint Gate 1 method, logo-design (no mark), a Design canvas with the owner, adr-write, then repaint per page. Not for a single component or style-keeping polish (plain `repaint`).
 
 ### Core single skills (only when no composite matches)
 `route` (workflow not obvious), `next-priority` (entering a repo), `plan` (multi-step/risky), `secure` (config/auth/credentials/deps), `gh-fix-ci` (failing checks), `verify-before-done` (before merge/release/handoff; "prepare to merge", "release-ready check"), `handoff` (context tight / session switch).
 
-- `repaint` is the route for ANY non-trivial UI work (build, restyle, polish, audit); its Phase 4 audits inline. `observe` is the single observability skill (instrument/debug/tune/analyze/monitor/bootstrap/audit/<homelab>, one mode per invocation); do NOT wire the full stack on local-only or hobby code with no production-shaped target; not for `/debug-deep`, `/incident-response`, `/sentry`, `/langfuse-observe`.
+- `repaint` is the route for ANY non-trivial UI work (build, restyle, polish, audit) once the identity exists; when the product has no identity or only a logo, `identity-studio` runs first and calls repaint in its build phase; its Phase 4 audits inline. `observe` is the single observability skill (instrument/debug/tune/analyze/monitor/bootstrap/audit/<homelab>, one mode per invocation); do NOT wire the full stack on local-only or hobby code with no production-shaped target; not for `/debug-deep`, `/incident-response`, `/sentry`.
 
 ### Hook-routed individual skills
 composite-router emits ` Skill match: /<name>` only when no composite matches first; invoke it when seen. To add one: append a matcher in `composite-router.sh` before the `scope-and-execute` catch-all, add the name to the non-composite case at the bottom, mirror and commit. Current: `code-review` (chat report by default; posts to a PR only with explicit `--pr N --comment`), `adr-write`, `performance-audit`, `config-drift-detect`, `handoff`.

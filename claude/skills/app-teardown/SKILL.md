@@ -1,6 +1,6 @@
 ---
 name: app-teardown
-description: Reverse-engineer a live application (web app, SaaS, mobile) by walking its real flows in the browser and map every idea worth taking — UX patterns, features, visual design, copy, growth mechanics — into a teardown report where each finding carries evidence, an adopt/adapt/already-have/reject verdict, and a constraint rationale for our context. Use when asked "faz um teardown do app X", "analisa esse app e mapeia ideias", "what can we steal from X", "reverse-engineer this product", "competitive teardown", "o que dá pra aproveitar do app Y". For a codebase or repository use code-teardown; for purely visual reference boards from design platforms use frontend-reference-hunt.
+description: "Use when asked \"faz um teardown do app X\", \"analisa esse app e mapeia ideias\", \"what can we steal from X\", \"reverse-engineer this product\", \"competitive teardown\", \"o que dá pra aproveitar do app Y\". Reverse-engineers a live application (web app, SaaS, mobile) by walking its real flows in the browser and maps every idea worth taking (UX patterns, features, visual design, copy, growth mechanics) into a teardown report where each finding carries evidence, an adopt/adapt/already-have/reject verdict, and a constraint rationale for our context. For a codebase or repository use code-teardown; for purely visual reference boards from design platforms use frontend-reference-hunt."
 triggers:
   - teardown do app
   - analisa esse app e mapeia ideias

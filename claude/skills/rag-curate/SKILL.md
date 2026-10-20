@@ -12,7 +12,7 @@ invocation_type: internal
 
 # RAG Curate
 
-Add missing docs or rewrite weak chunks after a diagnostic (`rag-quality`, `adt-rag-coverage`, `adt-rag-drift`) identifies a gap. Surgical alternative to a full rebuild.
+Add missing docs or rewrite weak chunks after a diagnostic (`adt-rag`, `adt-rag-drift`, `rag-evaluator` agent) identifies a gap. Surgical alternative to a full rebuild.
 
 ## Corpus directories
 
@@ -109,7 +109,6 @@ Commit any doc edits or new standards files to the appropriate repo.
 
 ## See also
 
-- `adt-rag-coverage` — find gaps
-- `rag-quality` — confirm curation worked (also checks chunk shape/quality)
+- `rag-evaluator` agent — confirm curation worked (Hit@5, MRR regression gate)
 - `adt-rag-drift` — detect stale chunks
 - `~/.claude/rag-index/build.py` (full run, no `--incremental`) — full rebuild fallback
