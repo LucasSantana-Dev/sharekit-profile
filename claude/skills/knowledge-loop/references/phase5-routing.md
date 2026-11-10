@@ -2,16 +2,17 @@
 
 **When to run Phase 5:**
 - Memory or graph changed this session (not pure recall).
-- Session is NOT ending soon (SessionEnd hook handles the automatic push).
 - External HD is mounted (mount guard §1 in mount-guard.sh).
 
 **When to skip Phase 5:**
 - Recall-only session with no writes.
-- SessionEnd hook will fire shortly (it auto-pushes memory + graph).
 - Mount guard check fails → surface blocker, skip push, halt Phase 5.
 
+Close mode always runs push-protocol.sh when memory or graph changed; the skip rule applies to checkpoint only.
+Note: the SessionEnd `sync push` hook mirrors the claude-env harness, skills and rag repos; it does not push knowledge-brain.
+
 **What changes**
-- **Memory**: Any file written to `~/.claude/projects/-Volumes-External-HD-Desenvolvimento/memory/`.
+- **Memory**: Any file written to the active project's `~/.claude/projects/<slug>/memory/`. `push-protocol.sh` copies it into `$BRAIN/memory/` (index as `INDEX_<project>.md`) before staging; without that copy the push reports "nothing to push".
 - **Graph**: `graphify` ran a full build (`--update` or new graph) this session — snapshot at `graphify-out/graph.json`.
 
 **How to detect a change**
