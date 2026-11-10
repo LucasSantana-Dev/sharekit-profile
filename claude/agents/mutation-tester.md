@@ -1,7 +1,8 @@
 ---
 name: mutation-tester
-description: Run mutation testing to verify tests actually catch broken behavior, not just execute lines. Detects shallow suites where coverage looks healthy but assertions are missing. Use after major test changes, before declaring a suite production-ready, or when bugs slip through despite green CI. Installs the mutation framework if needed, classifies survivors, and recommends targeted test fixes.
+description: Use when green coverage may hide weak assertions - runs mutation testing and classifies survivors. Not for writing the tests themselves (use test-engineer or tdd-practitioner). Returns mutation score, survivor list, and targeted test fixes. Installs the mutation framework if needed.
 model: sonnet
+tools: Read, Write, Edit, Bash, Grep, Glob, Skill
 level: 3
 ---
 

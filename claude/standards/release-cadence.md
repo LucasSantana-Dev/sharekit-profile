@@ -9,7 +9,7 @@ no repo currently opts in.
 ## Model
 
 ```
-feature branch  →  /pr-to-release (or /merge-confidently)  →  main
+feature branch  →  /merge-confidently --open  →  main
                                                                 │
                                                                 ▼
                                           release-please (GitHub Action, per repo)
@@ -37,8 +37,8 @@ release-please runs as a GitHub Action in each repo. It:
 - On merge of that PR: creates tag `vX.Y.Z` and the GitHub Release
 
 Manual version selection, manual changelog promotion, and manual tagging are
-retired in release-please repos. `/version-bump` and `/changelog-update`
-remain only for repos WITHOUT release-please configured.
+retired in release-please repos. `/changelog-update` (with `--bump` for version bumps)
+remains only for repos WITHOUT release-please configured.
 
 ## When a release happens
 
@@ -87,8 +87,9 @@ hotfix — it becomes a patch release. Required:
 
 ## Bot PR handling
 
-Dependabot / Renovate / pre-commit-ci PRs go through `/dep-sweep`, never
-through `/pr-to-release` individually, targeted at the configured base
+Dependabot / Renovate / pre-commit-ci PRs go through `/dep-sweep`. Bot release
+PRs (release-please) are merged via `/ship-it`; other bot PRs may also go through
+`/ship-all-prs` (which runs each open PR through `/merge-confidently`). Targeted at the configured base
 branch (`main` by default; a repo's opted-in `release_branch` under the
 Exception below, otherwise). Bucket definitions (AUTO-MERGE / REVIEW / HOLD,
 including the security-advisories-always-HOLD precedence rule) live in
@@ -122,8 +123,8 @@ in `.claude/release-cadence-config.json`:
 }
 ```
 
-No repo currently opts in. The historical train flow is preserved under a
-RETIRED banner in `/release-cut` for reference. Do not enable the train for a
+No repo currently opts in. The historical train flow is archived in
+`~/.agents/skills-archive/release-cut/` for reference. Do not enable the train for a
 repo without an explicit user decision; the old `main-release-drift-nudge`
 hook is retired with it.
 

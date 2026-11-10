@@ -1,0 +1,33 @@
+REPO: acme-billing  BRANCH: feat/invoice-rounding  SHA: 4be91c2
+CHANGE: edits src/invoice/round.ts and tests/invoice/round.test.ts only (diff: 2 files, 41 lines)
+Repo has: package.json (lint, typecheck, build, test), vitest coverage threshold 80% lines, sentry configured, open PR #212. No sonar-project.properties, no ORM, no plan file.
+
+=== npm run lint ===
+exit 0, 0 problems
+
+=== npm run typecheck ===
+exit 0
+
+=== npm run build ===
+exit 0
+
+=== npm test ===
+exit 1
+ FAIL  tests/notifications/email-queue.test.ts > flushes queue on shutdown
+ AssertionError: expected 3 to equal 0
+ (this test exists on main at 4be91c2~1 and fails the same way in the main CI run from yesterday; the test file is not touched by this branch)
+Tests: 1 failed, 214 passed
+
+=== coverage (vitest --coverage) ===
+Lines: 78.4% (threshold 80%, main is 82.1%)
+ src/invoice/round.ts: 61% lines (new branches at lines 33-47 untested)
+
+=== gh pr checks 212 ===
+lint        pass
+typecheck   pass
+build       pass
+test        fail   (required)
+coverage    fail   (required)
+
+=== sentry (last 24h, project acme-billing) ===
+2 new issues level=error, release tag does not match this branch (both in notifications worker, first seen before this branch was pushed)

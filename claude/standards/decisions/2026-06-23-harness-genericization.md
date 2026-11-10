@@ -49,7 +49,7 @@ The ~50 vault/RAG/graphify/memory skills are **tiered as "personal-stack" and ke
 
 ## Validation
 
-- Codemod: **158 content files** converted (156 `.md` + 2 `.sh`); post-sweep residual of hardcoded `${DEV_ROOT}` and `/Users/<user>` in content = **0** (fixed-string verified). `${EXTERNAL_HD}`×47, `${DEV_ROOT}`×22, `${GITHUB_USER}`×17.
+- Codemod: **158 content files** converted (156 `.md` + 2 `.sh`); post-sweep residual of hardcoded `${DEV_ROOT:-$HOME/dev}` and `/Users/<user>` in content = **0** (fixed-string verified). `${EXTERNAL_HD}`×47, `${DEV_ROOT}`×22, `${GITHUB_USER}`×17.
 - **`.py` decoupled properly (7 files, DONE):** the string codemod first broke them (`${VAR}` is a dead literal in Python — `Path('$HOME/...')` ≠ home), caught by file-type verification and reverted, then **re-done idiomatically**: 6 skill-maintainer scripts use `Path.home()`; `token-audit/audit.py` derives the Claude project-dir slug prefixes from `Path.home()`/`os.environ['DEV_ROOT']`/`['EXTERNAL_HD']` (which resolve to the exact original values — verified by parity check), keeping the personal project labels as data. All 7 compile; 8/9 skill-maintainer tests pass (the 1 failure is a pre-existing env-dependent "real roots" smoke, confirmed against backup). Lesson: a string-substitution codemod is safe for markdown + shell, **not** for code/config where `${VAR}` doesn't auto-expand — for code, decouple idiomatically (`Path.home()`/`os.environ`) and verify the derived values match the originals.
 - `settings.local.json` `env` block added and JSON-validated; the 212 permission rules untouched.
 - Full pre-sweep backup tarball retained; `~/.agents/skills` is git-tracked (not committed/pushed — left for operator review).

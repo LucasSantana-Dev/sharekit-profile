@@ -1,8 +1,8 @@
 # PR Conventions
 
 Shared rules for any PR opened from this account, regardless of which composite
-creates it (`/pr-to-release`, `/hotfix`, `/dep-sweep`,
-`/repo-bootstrap`, `/release-cut`, `/pr-flow`).
+creates it (`/merge-confidently --open`, `/hotfix`, `/dep-sweep`,
+`/repo-bootstrap`, `/pr-flow`).
 
 ## Branch naming
 
@@ -74,9 +74,9 @@ Every composite-opened PR includes:
 <exact line that will land in CHANGELOG.md [Unreleased] section>
 ```
 
-The `Changelog` field is the source of truth for what `/pr-to-release`
-appends. Omitting it triggers a refusal from `/pr-to-release` Phase 6 — no
-silent CHANGELOG entries.
+The `Changelog` field is the source of truth for what `/merge-confidently --open`
+appends. Omitting it triggers a refusal from `/merge-confidently --open`
+Phase 0 — no silent CHANGELOG entries.
 
 ## Required checks (gating merge)
 
@@ -179,8 +179,8 @@ closed, never while it's open.
 ## Trunk-based default (no `release` branch)
 
 All repos under this account are trunk-based as of 2026-07-23 — the long-lived
-`release`-branch train is retired (release-cut kept for history only).
-`/merge-confidently` and `/pr-to-release` both land work on `main`;
+`release`-branch train is retired (release-cut is archived in `~/.agents/skills-archive/`).
+`/merge-confidently` (`--open` to create the PR first) lands work on `main`;
 release-please owns versioning in release-please repos (`/ship-it` in the
 rest). Everything else in this standard still applies.
 

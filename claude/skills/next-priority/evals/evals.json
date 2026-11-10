@@ -1,0 +1,73 @@
+{
+  "skill_name": "next-priority",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "What should I do next in this repo? Use the evidence in the fixture and answer in the skill's required format.",
+      "expected_output": "Picks merging #301 (UNSTABLE with advisory-only failures, required checks pass), not waiting on #305; flags overdue 09-25 item; format Priority/Why/Blocked by/Next step; merge goes through autonomy tiers.",
+      "files": [
+        "evals/files/evidence-a.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "Starts with a one-line verdict naming merging PR #301 as the top priority",
+        "Explains #301 is not CI-blocked because SonarCloud and Test Autogen are not in the required checks list",
+        "Uses the four labelled lines Priority, Why, Blocked by and Next step",
+        "Does not choose waiting for or polling #305 CI as the priority",
+        "Does not treat #309 as merge-ready because of the CHANGES_REQUESTED review",
+        "Mentions the overdue Stripe webhook secret rotation re-check dated 2026-09-25 as an overdue date-gated item that ranks below the PR merge",
+        "Notes the merge execution still follows the autonomy tiers rather than bypassing a gate"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Triage this repo for me and pick the next action. Evidence is in the fixture.",
+      "expected_output": "Picks retargeting stale-base #77 (rank 3) over the overdue check (5) and small feature (6); flags stale handoff; does not pick waiting on #80.",
+      "files": [
+        "evals/files/evidence-b.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "Picks retargeting or recreating PR #77 as the top priority",
+        "Identifies #77 as stale-base because its base release/2.3 was already merged into main",
+        "Does not call #77 merge-ready despite passing checks",
+        "Ranks the overdue tar@6 npm audit re-check below the stale-base PR",
+        "Ranks the small upload timeout feature below the stale-base PR",
+        "Does not pick waiting on #80 test run",
+        "Warns in the next step to verify no commits were dropped after rebasing a squash-merged branch"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Answer the user's request in the fixture.",
+      "expected_output": "Does not wait on #44; picks independent work; with everything else blocked/nothing, executes Phase 1 of earliest-dated plan; and, since claiming a task and reading Phase 1 are T0/T1, proceeds and reports instead of stopping for confirmation.",
+      "files": [
+        "evals/files/evidence-c.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "Says waiting for or polling #44 CI is not the priority",
+        "Explains CI completion will re-surface the PR on its own",
+        "Explains the pagination task is independent of #44 so the in-flight PR is not the gating item",
+        "Picks Phase 1 of the earliest-dated plan (auth-cleanup, 2026-09-12) as the safe read-only work if choosing from the plans",
+        "Treats claiming the task or creating a plan as T0/T1 work: proceeds and reports without a blanket confirmation stop (asks only for T3 actions)",
+        "Uses the Priority, Why, Blocked by and Next step output format"
+      ]
+    }
+  ]
+}

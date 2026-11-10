@@ -7,7 +7,7 @@ The RAG pre-flight is the first thing `/backlog` does. It checks for prior work 
 ### Mount guard (always run first)
 
 ```bash
-mount | grep -q "${DEV_ROOT}" || {
+mount | grep -q "${DEV_ROOT:-$HOME/dev}" || {
   echo "WARN: External HD unmounted — RAG/vault unreachable; falling back to local discovery only"
   export RAG_AVAILABLE=false
 }
@@ -174,7 +174,7 @@ See `~/.claude/standards/memory-system.md` for:
 Before any RAG query or memory write:
 
 ```bash
-mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: External HD unmounted — RAG/vault unreachable"; exit 1; }
+mount | grep -q "${DEV_ROOT:-$HOME/dev}" || { echo "BLOCKED: External HD unmounted — RAG/vault unreachable"; exit 1; }
 ```
 
 If unmounted, backlog cannot save snapshots or query memory. Fall back to grep + local discovery only.

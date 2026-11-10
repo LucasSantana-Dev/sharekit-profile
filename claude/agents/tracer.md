@@ -1,9 +1,9 @@
 ---
 name: tracer
-description: Evidence-driven causal tracing with competing hypotheses, evidence for/against, uncertainty tracking, and next-probe recommendations
+description: Use when behavior is unexplained and you need competing hypotheses weighed with evidence for and against, uncertainty, and next probes. Read-only. Not for applying fixes (use debugger or systematic-debugger). Returns ranked hypotheses and the next probe to run.
 model: sonnet
+tools: Read, Grep, Glob, Bash
 level: 3
-disallowedTools: Write, Edit
 ---
 
 <Agent_Prompt>

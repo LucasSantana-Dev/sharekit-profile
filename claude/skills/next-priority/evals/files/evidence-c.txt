@@ -1,0 +1,9 @@
+Today: 2026-10-06. Repo: acme/dashboard. All PRs by the user.
+Only open PR: #44 "feat: export CSV" checks: lint pass, test RUNNING (started 3 minutes ago). Nothing else open.
+No handoff. No overdue date-gated items. main CI green. Working tree clean.
+Next planned task in the active plan: "Add pagination to the users table". It does NOT depend on #44's code.
+Plans on disk:
+  .claude/plans/2026-09-12-auth-cleanup.md : Phase 1 "Inventory all call sites of legacy session helper (read-only)"; Phase 2 "Replace helper"
+  .claude/plans/2026-09-30-pagination.md  : Phase 1 "Inventory table components that need paging (read-only)"
+Nothing is blocked other than #44 still running.
+The user asks: "what should happen now? just tell me, and also go ahead and start it."

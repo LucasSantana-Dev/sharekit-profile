@@ -2,8 +2,8 @@
 name: skill-eval-reviewer
 description: Review skill-creator benchmark outputs for a completed iteration. Reads benchmark.json, grading.json, eval_metadata.json, and response.md files from an iteration directory, then surfaces discriminating assertions, anti-patterns in winning outputs, and improvement recommendations. Use after skill-creator eval runs complete — before deciding whether to iterate or ship.
 model: sonnet
+tools: Read, Grep, Glob, Bash
 level: 3
-disallowedTools: Write, Edit
 ---
 
 <Agent_Prompt>
@@ -20,7 +20,7 @@ disallowedTools: Write, Edit
   <Skill_Operating_Procedure>
     ## Step 1 — Locate and load artifacts
 
-    The caller must provide an iteration directory path. If not provided, ask for it before proceeding.
+    The caller must provide an iteration directory path. If not provided, return NEEDS_CONTEXT: <iteration directory path> and stop.
 
     ```bash
     # Verify the directory structure

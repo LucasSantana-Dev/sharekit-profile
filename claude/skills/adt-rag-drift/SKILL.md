@@ -7,6 +7,7 @@ triggers:
   - rag outdated
   - drift detection
 invocation_type: internal
+disable-model-invocation: true
 ---
 
 # RAG Drift

@@ -46,7 +46,6 @@ npm test 2>&1 | grep -E "Tests:|Test Suites:" | tail -2
 |---|---|---|
 | Claude Code project memory | `~/.claude/projects/<slug>/memory/*.md` | direct file edit + MEMORY.md pointer line |
 | Serena MCP (`.serena/`) | per-project memories | `serena.write_memory(name, content)` |
-| claude-mem MCP | FTS5 DB | `save_memory({project, title, text})` |
 | `.agents/memory/<project>.md` | tracked in repo | append a `## Session YYYY-MM-DD` block |
 
 Use all that apply. They don't conflict; recall queries each separately.

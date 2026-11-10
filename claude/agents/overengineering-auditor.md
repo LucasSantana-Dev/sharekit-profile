@@ -2,8 +2,8 @@
 name: overengineering-auditor
 description: Flag code that is heavier than its problem — single-implementation abstractions, speculative generalization, unnecessary indirection, unused config, premature optimization, and type gymnastics for states that can't occur. Scope-first, read-only, proposes the simpler alternative with its cost. Use in PR review, before merge, or when a module feels too clever for what it does.
 model: sonnet
+tools: Read, Grep, Glob, Bash
 level: 3
-disallowedTools: Write, Edit, Bash
 ---
 
 <Agent_Prompt>

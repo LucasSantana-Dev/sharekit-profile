@@ -37,3 +37,13 @@ Findings: literal duplicates (caveman, grill-me, grill-with-docs, handoff, write
 
 - **Operator commits the first Playwright e2e test to any repo** → re-evaluate lifting `playwright-pro`'s skills (skills-only, local-only). Ask: did the deferral cost >15 min of setup? If yes, relax pull-signal for comprehensive skill bundles; if no, the deferral was correct.
 - 90-day check: if the marketplace got cherry-picked >2× ad hoc, audit whether those picks respected pull-signal.
+
+## Re-evaluation 2026-10-18
+
+Re-checked `alirezarezvani/claude-skills` (now with an Authoring Standard and new engineering skills) plus `ComposioHQ/awesome-claude-skills` via `/deep-research` and a 3-lens `/debate` (risk, value gaps, pragmatism). The decision holds: install nothing.
+
+- Ported as an idea, rewritten: the skill-name vs built-in command check (their `scripts/check_skill_names.py`), now check 3 of `check-catalog-integrity.sh`, wired into the `skill-scorecard` workflow.
+- Ported as a note: `not-for-routing` and `name-shadowing` in `skill-authoring.md` Patterns.
+- Declined: `human-gate` (duplicates visual-plan and autonomy tiers), `skillopt-sleep` and `skill-doctor` (rewrite CLAUDE.md and SKILL.md unattended; overlap skill-effectiveness-audit, eval-gate-runner, plugin-eval), `agent-memory` and `memory-engineering` (a second system deciding memory next to memory-write-guard), coding-discipline and loop skills (covered by ponytail, overengineering-auditor, loop).
+- Deferred, no demand: `chaos-engineering`, `code-tour`.
+- Declined, ComposioHQ: the list adds nothing new, and `connect-apps` routes through a third-party Composio API key, a credential and data-egress path that `security.md` does not accept.

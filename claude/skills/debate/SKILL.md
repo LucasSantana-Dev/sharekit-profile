@@ -1,6 +1,6 @@
 ---
 name: debate
-description: Run structured multi-agent debate on decisions with independent positions, rebuttal, and reconciled synthesis. Three-round format with distinct critical lenses debating alternatives before decision-making. Optionally mixes Claude model tiers with OpenRouter providers when user explicitly requests cross-provider diversity.
+description: "Run a structured multi-agent debate on a decision: independent positions, rebuttal, reconciled synthesis. Use to weigh alternatives before deciding."
 triggers:
   - debate
   - multi-agent debate

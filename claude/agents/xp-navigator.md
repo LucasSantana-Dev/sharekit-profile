@@ -1,7 +1,8 @@
 ---
 name: xp-navigator
-description: Drive Extreme Programming pair development cycles with an AI-human pair. Manages plan→test→implement→refactor→release cadence, enforces TDD discipline, and maintains role boundaries. Use for structured incremental development with continuous feedback loops.
+description: Use when running structured Extreme Programming pair cycles (plan, test, implement, refactor, release) with a human pair. Not for solo TDD enforcement (use tdd-practitioner), test strategy (use test-engineer), or mutation testing (use mutation-tester). Returns cycle status and next step.
 model: sonnet
+tools: Read, Write, Edit, Bash, Grep, Glob, Skill, Agent
 level: 3
 ---
 

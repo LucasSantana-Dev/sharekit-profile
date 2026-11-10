@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck source=py-resolve.sh
-. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
-[ -n "$PY" ] || exit 0
 # UserPromptSubmit hook: pattern-match user prompt against composite skill triggers
 # and inject a one-line "consider this composite" hint when a strong match is found.
 #
@@ -9,7 +6,7 @@
 # additionalContext (seen by the model; systemMessage is UI-only) that biases Claude toward invoking the composite.
 #
 # Composites take precedence over individual skills (composite-first principle in
-# ~/.claude/standards/skill-auto-invoke.md).
+# ~/.claude/standards/skill-authoring.md (Trigger map)).
 #
 # PRUNED 2026-07-09 (21d usage audit + T2 critic gate): removed 17 zero-use match
 # branches (dep-sweep, repo-bootstrap, feature-from-zero, fix-the-suite, security-sweep,
@@ -25,9 +22,9 @@ set -uo pipefail
 if ! command -v timeout >/dev/null 2>&1; then
   if command -v gtimeout >/dev/null 2>&1; then
     timeout() { gtimeout "$@"; }
-  elif [ -n "$PY" ]; then
+  elif command -v python3 >/dev/null 2>&1; then
     timeout() {
-      "$PY" -c 'import subprocess, sys
+      python3 -c 'import subprocess, sys
 try:
     sys.exit(subprocess.run(sys.argv[2:], timeout=float(sys.argv[1])).returncode)
 except subprocess.TimeoutExpired:
@@ -42,7 +39,7 @@ fi
 command -v jq &>/dev/null || exit 0
 
 INPUT=$(cat 2>/dev/null || true)
-PROMPT=$(printf '%s' "$INPUT" | "$PY" -c '
+PROMPT=$(printf '%s' "$INPUT" | python3 -c '
 import json, sys
 try:
   d = json.loads(sys.stdin.read() or "{}")
@@ -80,9 +77,15 @@ match_composite() {
     return 0
   fi
 
-  # RELEASE CUT (promote release → main, tag, deploy)
-  if echo "$P" | grep -qE 'cut (the |a )?release|promote release|release-train|tag a version|ship the batch|release branch .{0,15}(to|into) main'; then
-    echo "release-cut|release-cut intent"
+  # TAG A VERSION (ship-it --from tag; release-cut folded)
+  if echo "$P" | grep -qE 'tag a version'; then
+    echo "ship-it|release intent (tag a version: use ship-it --from tag only if the version is already bumped; otherwise changelog-update --bump first)"
+    return 0
+  fi
+
+  # TRAIN-ONLY PHRASES (release train retired; trunk release via ship-it)
+  if echo "$P" | grep -qE 'cut (the |a )?release|promote release|release-train|ship the batch|release branch .{0,15}(to|into) main'; then
+    echo "ship-it|release intent (release train retired; trunk release)"
     return 0
   fi
 
@@ -104,15 +107,19 @@ match_composite() {
     return 0
   fi
 
-  # MERGE PR — branches on presence of `release` branch on origin
-  if echo "$P" | grep -qE 'merge this|merge the pr\b|ship this pr\b|ready to merge|can i merge|open (a )?pr\b|land this'; then
-    # If we're in a repo with a `release` branch on origin, prefer pr-to-release.
-    # Cheap probe: 1s timeout, swallow all errors. Falls back to merge-confidently.
-    if command -v git &>/dev/null && \
-       timeout 1 git ls-remote --heads origin release 2>/dev/null | grep -q .; then
-      echo "pr-to-release|merge intent + release branch detected"
+  # OPEN PR only (pr-flow opens; the merge composites below do not open PRs).
+  # "open a pr and merge" still falls through to the merge branch.
+  if echo "$P" | grep -qE 'open (a |the )?(pr|pull request)\b' && ! echo "$P" | grep -qE 'merge|land|ship'; then
+    echo "pr-flow|open-pr intent"
+    return 0
+  fi
+
+  # MERGE PR (merge-confidently; pr-to-release folded into --open)
+  if echo "$P" | grep -qE 'merge this|merge the pr\b|ship this pr\b|ready to merge|can i merge|open (a )?pr and merge|land this'; then
+    if echo "$P" | grep -qE 'open (a |the )?(pr|pull request)\b'; then
+      echo "merge-confidently|merge intent (use --open if no PR exists)"
     else
-      echo "merge-confidently|merge-pr intent (no release branch)"
+      echo "merge-confidently|merge intent"
     fi
     return 0
   fi
@@ -126,6 +133,12 @@ match_composite() {
   # DEBUGGING (intermittent / recurring → debug-deep, not basic systematic-debugging)
   if echo "$P" | grep -qE 'intermittent|sometimes (fails|breaks|works)|flaky|works locally.{0,20}(fails|breaks) in (ci|prod)|cant figure out|already tried'; then
     echo "debug-deep|deep-debug intent"
+    return 0
+  fi
+
+  # VISUAL IDENTITY (no identity / only a logo / looks generic) → identity-studio, before UI BUILD
+  if [ -d "$HOME/.claude/skills/identity-studio" ] && echo "$P" | grep -qE '(sem|falta|(nao|não) tem) (uma |a )?identidade|(so|só) tem (o |a )?logo|(app|site|produto|painel|dashboard|sistema|aplicacao|aplicação|aplicacoes|aplicações).{0,30}(parece (generic|genéric)|cara de ia|feit(o|a) por ia)|(nova|criar|definir|construir) (a |uma )?(identidade|linguagem) visual|identidade visual (tao |tão |bem |nao |não )?(definida|fraca|propria|própria)|(no|lacks?|without|needs?) (a )?(visual|brand) identity|(create|define) (a |the )?(visual|design|brand) language|looks? (generic|ai[- ]made|like ai)|only has a logo|\brebrand|identity-studio'; then
+    echo "identity-studio|visual-identity intent (diagnosis, canvas with the owner, ADR, then repaint)"
     return 0
   fi
 
@@ -160,15 +173,16 @@ match_composite() {
     return 0
   fi
 
-  # DECIDE (research question → recommendation → ADR)
-  if echo "$P" | grep -qE '\bdecide\b|research and decide|make a decision with adr|evaluate options and document|pick between|choose between'; then
-    echo "decide|decision-research-and-document intent"
+  # DECISION (research-and-decide: quick | full | now). Must stay AFTER the KNOWLEDGE
+  # branch so "what did we decide about X" still routes to knowledge-loop.
+  if echo "$P" | grep -qE '\bdecide\b|make a decision|evaluate options and document|pick between|choose between|stop deliberating|force (a )?decision'; then
+    echo "research-and-decide|decision intent (state the mode first: quick, full or now)"
     return 0
   fi
 
-  # TEST SWEEP (end-to-end test quality)
+  # TEST SWEEP (fix-the-suite --conservative; test-sweep folded in 2026-10-07)
   if echo "$P" | grep -qE 'test sweep|clean up tests end-to-end|improve test quality|test quality pipeline|run a full test pass'; then
-    echo "test-sweep|test-quality-improvement intent"
+    echo "fix-the-suite|test-quality-improvement intent (use --conservative mode)"
     return 0
   fi
 
@@ -223,8 +237,15 @@ match_composite() {
     echo "config-drift-detect|config-drift intent"; return 0
   fi
 
-  # HANDOFF / SESSION WRAP
-  if echo "$P" | grep -qE 'hand ?off|wrap up (the |this )?session|save [a-z ]{0,15}(context|state) for (next|later)|context for next session'; then
+  # SESSION CLOSE (knowledge-loop close mode). Must precede handoff and ship so
+  # "wrap up and ship it" routes here, not to merge-confidently.
+  if echo "$P" | grep -qE 'wrap (it |things )?up *$|wrap up (the |this |my )?(session|day|work)|wrap up and (ship|push|commit)|sign off|save and stop|close (the |this )?session|end (the |this )?session|done for the day'; then
+    echo "knowledge-loop|close-mode intent (add --ship if the user says ship, commit or push)"
+    return 0
+  fi
+
+  # HANDOFF
+  if echo "$P" | grep -qE 'hand ?off|save [a-z ]{0,15}(context|state) for (next|later)|context for next session'; then
     echo "handoff|session-handoff intent"; return 0
   fi
 
@@ -237,7 +258,7 @@ match_composite() {
   # --- FREQUENT-SKILL HINTS (2026-07-02 E5 refresh — patterns derived from 69 real
   # train-split prompts in rag-index experiments/e5-skill-router; test split held out) ---
   if echo "$P" | grep -qE '^ *ship it *$|commit and ship|\bship (this|it)\b'; then
-    echo "ship|ship intent (real-usage)"
+    echo "merge-confidently|merge intent (use --open if no PR exists; 'commit and ship' always --open)"
     return 0
   fi
   if echo "$P" | grep -qE 'run the app(lication)?\b.{0,20}\b(dev|local)'; then
@@ -280,7 +301,7 @@ case "$composite" in
       '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": (" Skill match: /\($c) — \($r). Invoke the /\($c) skill (senior-QA reviewer). Default = chat report; only post to a PR with an explicit --pr N --comment.")}}'
     exit 0
     ;;
-  adr-write|performance-audit|config-drift-detect|handoff|next-priority|ship|repaint|run|plan|backlog)
+  adr-write|performance-audit|config-drift-detect|handoff|next-priority|repaint|run|plan|backlog)
     jq -n --arg c "$composite" --arg r "$reason" \
       '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": (" Skill match: /\($c) — \($r). Invoke the /\($c) skill.")}}'
     exit 0
@@ -289,6 +310,6 @@ esac
 
 # Emit the hint as additionalContext so the model sees it. Claude reads this and is biased toward invoking the composite.
 jq -n --arg c "$composite" --arg r "$reason" \
-  '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": ("🎯 Composite match: /\($c) — \($r). Per skill-auto-invoke standard (composite-first principle), invoke /\($c) instead of running its sub-skills individually.")}}'
+  '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": ("🎯 Composite match: /\($c) — \($r). Per skill-authoring standard (Trigger map) (composite-first principle), invoke /\($c) instead of running its sub-skills individually.")}}'
 
 exit 0

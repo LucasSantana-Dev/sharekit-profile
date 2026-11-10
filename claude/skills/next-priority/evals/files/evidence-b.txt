@@ -1,0 +1,11 @@
+Today: 2026-10-06. Repo: acme/mobile-sdk (default branch main). All PRs by the user, no comments from others.
+Last commit on main: 2026-10-05 22:40.
+Handoff latest.md was written 2026-10-02 (before the last commit). It says: "next: add retry to upload client".
+Memory index line: "re-check npm audit exposure of tar@6 by 2026-09-18"
+Ruleset required checks: ["lint","test"]
+
+Open PRs:
+#77 "feat: offline queue" base = release/2.3 . release/2.3 was merged into main on 2026-10-01 . mergeStateStatus UNKNOWN. checks pass.
+#80 "feat: telemetry opt-out" checks: lint pass, test RUNNING.
+No failing CI on main. No open security advisories with a known fix (tar@6 item above not yet checked).
+Backlog: small feature "add timeout option to upload client" (clear spec, 1 file).

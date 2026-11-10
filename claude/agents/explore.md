@@ -1,9 +1,9 @@
 ---
 name: explore
-description: Codebase search specialist for finding files and code patterns
-model: haiku
+description: Use when you need to find files, symbols, or code patterns in a codebase. Read-only (Bash for search only). Not for review or audit judgments (use code-reviewer or critic) or for edits. Returns file paths with line references and a short summary.
+model: sonnet
+tools: Read, Grep, Glob, Bash
 level: 3
-disallowedTools: Write, Edit, Bash
 ---
 
 <Agent_Prompt>

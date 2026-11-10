@@ -33,7 +33,7 @@ Once the right handoff is chosen, continue from its stated next action. A clean 
 
 ## Research and spec before execution
 
-Every non-trivial task starts with research and a spec, not code: `landscape-scan` when what to build is the question, `spec-research` when the task is known. Searching for a DESIGN fact mid-task (API shape, library behavior, protocol constraint) is a defect signal: loop back and fix the spec, do not research ad hoc mid-implementation. Runtime diagnostics (errors, logs, failing tests) are debugging, not design research, and stay mid-task.
+Every non-trivial task starts with research and a spec, not code: `deep-research` when what to build is the question, `spec-driven-develop` (specify phase) when the task is known. Searching for a DESIGN fact mid-task (API shape, library behavior, protocol constraint) is a defect signal: loop back and fix the spec, do not research ad hoc mid-implementation. Runtime diagnostics (errors, logs, failing tests) are debugging, not design research, and stay mid-task.
 
 ## Branching and merge
 
@@ -46,7 +46,7 @@ Every non-trivial task starts with research and a spec, not code: `landscape-sca
 
 One rule: dispatch parallel agents whenever the work has 2+ independent units. A unit is independent if its inputs do not depend on another unit's output. Typical cases: multi-repo or multi-PR sweeps, fan-out investigations, self-contained batch edits, independent research or lookups, independent diagnostics on one repo, phased-plan tasks (`/parallel-phases`).
 
-One exemption: run inline when the whole task is under 3 reads and under 2 edits, or the combined expected output is under ~5k tokens. Single-unit work and strict sequential dependencies are not parallelizable by definition.
+One exemption: run inline when the whole task is under 3 reads and under 2 edits. Single-unit work and strict sequential dependencies are not parallelizable by definition.
 
 Running independent units sequentially in the main context is a contract violation. If you catch yourself about to run the second of N independent units serially, stop, re-dispatch the rest as parallel `Agent()` calls in one block, and tell the user. Never ask whether to parallelize.
 
@@ -61,16 +61,16 @@ Running independent units sequentially in the main context is a contract violati
 
 ### Worktrees
 
-A worktree is required only for write-capable agents when 2+ agents touch the same repo: one each, at `${DEV_ROOT}/.worktrees/<task>-<n>/` (via `EnterWorktree` or `git worktree add`). Read-only agents (`Explore`, `Plan`, `critic`, `code-reviewer`, `security-reviewer`, `document-specialist`, `explore`) share the checkout.
+A worktree is required only for write-capable agents when 2+ agents touch the same repo: one each, at `${DEV_ROOT:-$HOME/dev}/.worktrees/<task>-<n>/` (via `EnterWorktree` or `git worktree add`). Read-only agents (`Explore`, `Plan`, `critic`, `code-reviewer`, `security-reviewer`, `document-specialist`, `explore`) share the checkout.
 
-- Never use `~/.claude/worktrees/` or internal-disk paths. If `${DEV_ROOT}` is unmounted, halt and tell the user.
+- Never use `~/.claude/worktrees/` or internal-disk paths. If `${DEV_ROOT:-$HOME/dev}` is unmounted, halt and tell the user.
 - After agents finish, `git worktree remove` those merged or abandoned; keep only in-flight ones.
 
 ### Anti-patterns
 
 - Sequential Read() calls that could be one parallel batch.
 - Auditing N repos by `cd`-ing into each in turn.
-- Running independent diagnostics (`/test-health`, `/config-drift-detect`, `/coverage-gap`) in series.
+- Running independent diagnostics (`/test-health`, `/config-drift-detect`, `/mutation-test`) in series.
 - Two write-capable agents on the same checkout.
 
 ## Harness-native tools (prefer over skills/scripts)

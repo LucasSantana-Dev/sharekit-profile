@@ -1,0 +1,6 @@
+$ python3 harness-evals/swarm_state.py
+swarm: settings-migration-0610  (started 2026-10-06T18:21)
+  agent-a  DONE   checkpoint 18:47  commit 7e1a9b2
+  agent-b  LOST   last heartbeat 18:52  worktree .worktrees/settings-b-2  (uncommitted: src/settings/validate.ts)
+  agent-c  LOST   last heartbeat 18:55  worktree .worktrees/settings-c-3  (uncommitted: 4 test files)
+2 LOST in-flight agents. Re-dispatch or abandon explicitly.

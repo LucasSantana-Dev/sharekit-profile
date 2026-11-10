@@ -90,7 +90,7 @@ def main() -> None:
     elif cmd == "hook":
         recentes = [p for p in lista if time.time() - mtime(p) < 3 * 86400]
         if recentes:
-            print(f"HANDOFFS ABERTOS em {proj} (escolha com /resume N; nao assuma qual e o desta sessao):")
+            print(f"HANDOFFS ABERTOS em {proj} (escolha com /retomar N; nao assuma qual e o desta sessao):")
             for i, p in enumerate(recentes[:6], 1):
                 print(f"{i}) {rotulo(p)}{p.stem} | {titulo(p)}")
     elif cmd in ("path", "done"):

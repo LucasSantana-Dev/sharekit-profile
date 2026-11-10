@@ -25,7 +25,11 @@ fi
 # Committer diversity (multi-person-work-ethics 2.4: team behavior is the standing
 # default, and it outranks org ownership): >=2 non-operator, non-bot committers in
 # the last 180 days means other people work here, whatever the remote says.
-OTHERS=$(git -C "$TOP" shortlog -sne --since="180 days ago" 2>/dev/null \
+# Explicit HEAD + </dev/null: with no revision, git shortlog reads a log from stdin
+# when stdin is not a tty and blocks forever on an open pipe. No commits => 0.
+OTHERS=0
+git -C "$TOP" rev-parse -q --verify HEAD >/dev/null 2>&1 && \
+OTHERS=$(git -C "$TOP" shortlog -sne --since="180 days ago" HEAD </dev/null 2>/dev/null \
   | grep -viE "lucas|bot|dependabot|renovate|github-actions|coderabbit|greptile" \
   | wc -l | tr -d ' ')
 [ "${OTHERS:-0}" -ge 2 ] && { echo "cooperative"; exit 0; }

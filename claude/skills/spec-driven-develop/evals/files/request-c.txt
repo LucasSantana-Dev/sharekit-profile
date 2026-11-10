@@ -1,0 +1,4 @@
+Two requests arrived, both with the router hook hint "Composite match: /spec-driven-develop":
+(1) "Fix the typo 'recieve' in README.md line 12."
+(2) "Checkout is returning 500 for every customer since the 14:05 deploy. Fix it now."
+Say how you handle each, and what you output.

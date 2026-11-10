@@ -155,7 +155,7 @@ Rules:
 
 - Sub-skills inside a composite MUST be invoked via the Skill tool (not
   emulated inline) so their guidelines run. Exception: pure shell phases
-  (e.g., `git switch` in `/pr-to-release` Phase 2) which are too thin to wrap.
+  (e.g., `git switch` in `/merge-confidently --open` Phase 0) which are too thin to wrap.
 - Output of phase N feeds phase N+1 explicitly — name what passes through (PR
   URL, ADR path, test path, memory file, etc.). "Implicit context" doesn't
   count.
@@ -199,13 +199,21 @@ When a composite reads a config file (e.g., `dep-sweep-config.json`), it must:
 
 ## Versioning + deprecation
 
-When a composite is replaced by a more specific one (e.g., `/merge-confidently`
-→ `/pr-to-release` in release-branch repos), the older composite is NOT deleted
-— it keeps its trigger for repos where the new one doesn't apply. The router
-must branch on environment (presence of `release` branch, monorepo flag, etc.)
-to pick.
+When a composite is replaced by a more specific one (e.g., a repo-specific
+variant for a monorepo), the older composite is NOT deleted — it keeps its
+trigger for repos where the new one doesn't apply. The router must branch on
+environment (monorepo flag, etc.) to pick.
 
-Deletion only happens when:
+Exception (2026-10-07 portfolio plan phase 3, `plugin-eval/PORTFOLIO-PLAN-2026-10-07.md`):
+a fold (the retired skill becomes a mode of a surviving one, e.g. `pr-to-release`
+→ `merge-confidently --open`, `ship` → `ship-it --from tag`) supersedes the
+deletion rule below. A fold may archive the old skill to
+`~/.agents/skills-archive/` (per `ARCHIVAL_POLICY.md`) when it ships with a
+redirect entry in `redirects.yaml` and before/after evals showing the surviving
+skill covers the old trigger set. The 90-day and ADR requirements still govern
+deletions that are not folds.
+
+Deletion otherwise only happens when:
 - The composite has had zero invocations across all tracked repos for ≥90 days
   (check `skill-effectiveness-audit` output)
 - AND a replacement covers every documented trigger phrase

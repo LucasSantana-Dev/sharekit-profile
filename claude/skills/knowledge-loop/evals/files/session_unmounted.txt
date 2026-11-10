@@ -1,0 +1,5 @@
+# Session facts (captured; nothing can be run)
+Project: ledgerly. Work: PR #92 merged. New durable knowledge: decision to move cron jobs to queue workers (reason: duplicate runs on 2 pods).
+Unfinished: branch feat/queue-workers is mid-refactor, 4 commits pushed, not merged; next step is migrating the invoice-reminder job.
+$ mount | grep "${DEV_ROOT:-$HOME/dev}"   -> (no output; External HD is NOT mounted)
+User message: "sign off, save everything and push the brain"

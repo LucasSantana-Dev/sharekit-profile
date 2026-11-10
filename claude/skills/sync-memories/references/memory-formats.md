@@ -41,7 +41,7 @@ serena.update_memory("<key>", """
 ## Gotchas
 - Adapter init runs async; event bus must be booted before adapter load
 - Config merges shallow, not deep; environment overrides only 1 level
-- Claude-mem ingestion is broken (Jun 2026) — use RAG vault for durable memory
+- Use the RAG vault (rag_query / search_knowledge) for durable memory
 ```
 
 ### `development_workflow` Example

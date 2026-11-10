@@ -10,6 +10,7 @@ triggers:
   - pair programming
   - extreme programming
   - continuous refactoring
+disable-model-invocation: true
 ---
 
 # XP — Extreme Programming with AI Agents

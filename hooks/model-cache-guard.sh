@@ -96,7 +96,7 @@ turn=0
 last_model=""
 last_event_was_compact=0
 if [[ -f "$SESSIONS" ]]; then
-  turn="$(jq -r 'select(.event=="user-turn")' "$SESSIONS" 2>/dev/null | wc -l | tr -d ' ')"
+  turn="$(jq -c 'select(.event=="user-turn")' "$SESSIONS" 2>/dev/null | wc -l | tr -d ' ')"
   last_model="$(jq -r 'select(.event=="user-turn") | .model' "$SESSIONS" 2>/dev/null | tail -1)"
   # Check if the most recent event in the session log was a compact-boundary.
   # If so, this turn is immediately post-compaction — a cache-safe switch point.

@@ -1,6 +1,6 @@
 ---
 name: dep-sweep
-description: "Batch-process Dependabot/Renovate PRs by risk: auto-merge safe ones (devDeps, patches) into the configured base branch (main by default), surface risky ones for human review. Chains PR enumeration, risk classification, merge-readiness checks, and changelog batching. Use when bot PRs pile up; reduces a 20-PR queue to actionable groups."
+description: "Batch-process Dependabot/Renovate PRs by risk: auto-merge safe ones, surface risky ones for review. Use when bot PRs pile up."
 user-invocable: true
 auto-invoke: >-
   "dependabot PRs", "renovate queue", "clean up bot PRs", "update deps", weekly if ≥10 open bot PRs
@@ -194,10 +194,10 @@ NOT configured here — it's resolved from `.claude/release-cadence-config.json`
 ## What this composite is NOT
 
 - Not a security-vuln workflow → use `/security-sweep` for advisories
-- Not a single-PR review tool → use `/pr-to-release` for one PR at a time
+- Not a single-PR review tool → use `/merge-confidently` for one PR at a time
 - Not a release cut → release-please (or `/ship-it`) ships the accumulated batch
 
 ## Pairs with
 
-- `/pr-to-release` — for non-bot PRs that pile up
+- `/merge-confidently` — for non-bot PRs that pile up
 - `/security-sweep` — when bumps are security-driven

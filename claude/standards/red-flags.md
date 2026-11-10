@@ -36,7 +36,7 @@ Action: halt. Unclear state means risk was never assessed. Verify this change be
 
 ### Tag / Release Pushed Without Gate
 Trigger: tag pushed without a version bump commit or changelog update; semver violated; release cut from a branch other than `release/*` or `main`.
-Action: do not tag. Run the version-bump and changelog gate first.
+Action: do not tag. Run the `changelog-update --bump` gate first.
 
 ---
 
@@ -172,7 +172,7 @@ Action: write a durable checkpoint before compressing or ending the session.
 
 ## How to Use This Standard
 
-1. Skills cite specific flags in `hard-rules` (e.g. `/ship`: "Merging PR with failing CI").
+1. Skills cite specific flags in `hard-rules` (e.g. `/merge-confidently`: "Merging PR with failing CI").
 2. Use as a pre-merge checklist in code review.
 3. After a failure, identify the crossed flag and add a prevention rule to the ADR.
 4. `/skill-effectiveness-audit` scans session logs monthly for violations.

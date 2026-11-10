@@ -42,7 +42,7 @@ Key facts: 78% of notes never-retrieved, BUT 80% are <30 days old (recently crea
 
 ## Execution result (2026-05-29, operator-approved)
 
-- **Backup first**: full memory tree (590 files) → `${DEV_ROOT}/.memory-backups/memory-full-2026-05-29.tar.gz` (632 K). Restore: `tar xzf <tarball> -C /`. Delete-targets verified present in backup before deletion.
+- **Backup first**: full memory tree (590 files) → `${DEV_ROOT:-$HOME/dev}/.memory-backups/memory-full-2026-05-29.tar.gz` (632 K). Restore: `tar xzf <tarball> -C /`. Delete-targets verified present in backup before deletion.
 - **Purged**: exactly 219 transient files (208 `precompact_snapshot_*` + 11 `session_end_*`). Notes **587 → 368** (−37%), residual transient = 0, zero collateral (removed == delete-set).
 - **Validated**: RAG eval **unchanged** — `MRR=0.47 / hit@1=0.408 / hit@3=0.531 / hit@5=0.573` (identical to pre-merge baseline). Only 1 deleted file was in the RAG-indexed dir → 1 stale chunk of 8,372, auto-cleared by the sessionstart drift-reindex hook.
 - **Repeatable**: this is now the defined transient-purge op — re-run when `precompact_snapshot_*` count exceeds ~50.

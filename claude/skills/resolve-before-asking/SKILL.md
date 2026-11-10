@@ -1,6 +1,6 @@
 ---
 name: resolve-before-asking
-description: Answer a would-be clarifying question yourself instead of stopping, when it's researchable, reversible, and not T3 — run deep-research then debate then grill-with-docs, commit to the best option, and park residual doubt in the handoff. Use when about to reach for AskUserQuestion on an ambiguous requirement, scope, or preference under full autonomy. Never for destructive, irreversible, production, money, or other-author-PR actions — always ask, no bypass.
+description: "Answer a would-be clarifying question yourself when researchable, reversible, not T3. Never for destructive, prod, money or other-author-PR actions: ask."
 triggers:
   - resolve before asking
   - don't ask me, just decide
@@ -10,6 +10,7 @@ metadata:
   owner: global-agents
   tier: contextual
   canonical_source: ~/.agents/skills/resolve-before-asking
+disable-model-invocation: true
 ---
 
 # Resolve Before Asking
@@ -30,9 +31,9 @@ questions that evidence, not the operator's presence, would answer.
 
 | Situation | Use instead |
 |---|---|
-| Already deliberated 3+ turns with no new evidence, going in circles | `decide-now` |
-| A named tech/library/architecture adoption choice that should end in a durable record | `research-and-decide` / `decide` |
-| Challenging a plan against domain docs as a standalone step (not part of resolving a blocked question) | `grill-with-docs` directly |
+| Already deliberated 3+ turns with no new evidence, going in circles | `research-and-decide` (now mode) |
+| A named tech/library/architecture adoption choice that should end in a durable record | `research-and-decide` (full mode) |
+| Challenging a plan against domain docs as a standalone step (not part of resolving a blocked question) | `grill-with-options` (docs mode) directly |
 | Repeating the same action/fix without progress | `loop` |
 | A preferred tool/path failed | `fallback` |
 | Pure taste/bikeshed with no research surface (naming, tabs vs spaces) | Pick a sensible default silently, no skill needed |
@@ -74,7 +75,7 @@ escalate per debate's own failure conditions.
 ### 3. Grill-with-docs — challenge against existing docs (conditional)
 
 If the question touches domain terminology, `CONTEXT.md`, or an existing ADR: invoke
-`grill-with-docs` against debate's synthesis, self-answering each challenge round (no
+`grill-with-options` (docs mode) against debate's synthesis, self-answering each challenge round (no
 human is present in full-autonomy mode — do not pause waiting for one). If no doc surface
 is relevant to a purely mechanical/internal question, skip this phase and say so
 explicitly in your output. Never fabricate a self-answer against nothing.
@@ -92,8 +93,8 @@ you stopped at.
   — never leave the turn blocked on a question this skill exists to avoid asking. Append
   a `## Parked Questions` section to the active handoff file (create one via `handoff` if
   none exists yet) with: the question, the option chosen and why, the evidence for it,
-  and the reversal cost. This is the resurfacing mechanism — `wake-up`/session-bootstrap
-  already reads the latest handoff at next session start, so nothing further is needed to
+  and the reversal cost. This is the resurfacing mechanism: `resume --brief`/session-bootstrap
+  already reads the most recent open handoff at next session start, so nothing further is needed to
   make it reappear.
 - **Repo mandates issue capture** (e.g. this repo's CLAUDE.md §5, "Map Every Finding to a
   GitHub Issue"): also file a `needs-info`-labeled issue for the parked question, deduped

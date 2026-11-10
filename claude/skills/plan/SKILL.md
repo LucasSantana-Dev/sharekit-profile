@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Create a structured implementation plan before starting complex work. Breaks work into small phases, each with exact file paths, a runnable verification command, a checkable done-condition, and replanning triggers, plus explicit goal and in/out-of-scope boundaries. Use when the user says "plan this", "create a plan", "break this down", "phase this work", or when a task has multiple phases or unknowns. Also use when the agent needs to think before acting on complex tasks.
+description: Create a structured implementation plan with phases, file paths, and checks. Use for "plan this", "create a plan", "break this down", "phase this work".
 triggers:
   - create a plan
   - plan this
@@ -67,7 +67,7 @@ Do not skip Phase 0 for perceived urgency. The gate exists because "incremental 
 - ≤2 files touched AND edit is obvious from the request → just do it, no plan
 - Pure investigation / "where is X" → dispatch the `Explore` agent
 - Bug root-cause hunt → dispatch the `tracer` agent
-- Open-ended ideation → use `brainstorming`
+- Open-ended ideation → use `grill-with-options` (explore mode)
 - Plan needs visual review (diagrams, mockups, annotated code) → use `/visual-plan`
 - Strategic/product planning needing a user interview → dispatch the `planner` agent
 

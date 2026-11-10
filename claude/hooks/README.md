@@ -59,7 +59,7 @@ Not bound in `settings.json`; each has a live caller or an open decision. Delete
 | `session-budget-guard.sh`, `rate-limit-watch.sh` | Pair; calibrated by `scripts/session-budget-guard.calib.py` |
 | `skill-index.sh` | Referenced by `scripts/skill-prune.sh` |
 | `grep-before-rag-nudge.sh` | Has 3 selftest checks; decide re-wire or drop with its tests |
-| `auto-context-pack.sh`, `complexity-classifier.sh` | Conflicting docs (a 2026-05-13 rescue decision, `session-health.md`); owner decision pending |
+| `auto-context-pack.sh`, `complexity-classifier.sh` | Conflicting docs (a 2026-05-13 rescue decision, ``); owner decision pending |
 | `eval-run.sh`, `eval-tasks.sh`, `eval-baseline.sh`, `check-idempotency.sh` | Eval cluster, possibly in use by another session |
 
 Deleted in Wave B (recoverable from `~/.claude-env` git history): `tool-shortlist`, `cycle` and its callees (`deploy-watch`, `diagnose`, `distill`, `propose`, `memory-consolidate`, `dispatch`), `session-token-stop`, `message-counter`, `turn-counter`, `snapshot-compact`, `trajectory-log`, `skill-outcome-logger` and `rtk-miss-detector` (merged into tool-logger), `main-release-drift-nudge` and `memory-index-size-alert` (folded into harness-vitals), `sessionend-rag-sync`, `bash-repeat-cache`, `check-stuck-loop`, `compaction-guard`, `harness-drift-nudge`, `hotfix-followup-tracker`, `multiedit-nudge`, `post-compact-reset`, `rag-usage-tracker`, `release-branch-detector`, `repeat-read-guard`, `session-start-load`, and the inert `updatedToolOutput` hooks.

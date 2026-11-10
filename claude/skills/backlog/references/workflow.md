@@ -25,7 +25,7 @@ This script collects:
   - INFO → low
 
 - `audit-deep` source_skill → category mapping:
-  - `test-health`, `coverage-gap`, `mutation-test` → test
+  - `test-health`, `mutation-test` → test
   - `config-drift`, `dep-sweep` → tech-debt
   - `secure` (formerly `code-security`), `security-audit`, `socket-audit`, `semgrep` → security
   - `performance-audit`, `performance-test` → perf

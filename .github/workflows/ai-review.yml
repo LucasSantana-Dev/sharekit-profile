@@ -2,9 +2,9 @@ name: AI Review
 
 # CI-native review pack (spec: .claude/plans/spec-ci-review-pack.md).
 # Risk-tiered reviewer fan-out + coordinator, one batched review per PR.
+# Manual only (owner, 2026-10-07): PR reviews run on demand via the
+# /claude-review comment (claude-review.yml); dispatch this with a PR number.
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
       pr_number:

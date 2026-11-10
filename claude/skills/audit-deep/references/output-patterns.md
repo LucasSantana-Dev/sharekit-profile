@@ -8,11 +8,12 @@ Full reconciliation format when N > 3 findings or NEEDS_REVIEW sections are subs
 AUDIT DEEP — <repo> — <date>
 
 VERDICT: <SCORE/100> <STATUS>
-  SCORE: Sum of non-INFO findings severity weights:
-    CRITICAL: -30 each
-    HIGH: -10 each
-    MEDIUM: -3 each
+  SCORE: 100 minus the penalties below, floored at 0:
+    CRITICAL: 30 each
+    HIGH: 10 each
+    MEDIUM: 3 each
     INFO: 0 each
+    e.g. 1 HIGH + 2 MEDIUM -> 100 - 10 - 6 = 84 HEALTHY
   STATUS: CLEAN (100), HEALTHY (80–99), DEGRADED (60–79), CRITICAL (<60)
 
 CRITICAL (N):
@@ -102,7 +103,7 @@ Findings from completed audits: <verdict + top-3>
 
 Next steps:
   1. Rerun failed audits via `/audit-deep` or individual skills
-  2. Reconcile recall (Phase 2.5) once all audits complete
+  2. Reconcile recall (Phase 3) once all audits complete
 ```
 
 ## Memory file naming

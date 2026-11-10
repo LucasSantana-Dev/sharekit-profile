@@ -1,9 +1,9 @@
 ---
 name: security-reviewer
-description: Security vulnerability detection specialist (OWASP Top 10, secrets, unsafe patterns)
+description: Use when code needs vulnerability review - OWASP Top 10, secrets, unsafe patterns, auth and input handling. Not for general quality review (use code-reviewer). Returns findings ranked by severity with remediation.
 model: sonnet
+tools: Read, Grep, Glob, Bash
 level: 3
-disallowedTools: Write, Edit
 ---
 
 <Agent_Prompt>

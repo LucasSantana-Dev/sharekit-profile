@@ -1,0 +1,18 @@
+REPO: notes-cli  BRANCH: fix/trim-title  HEAD SHA: 9d03a7f
+
+=== git diff main...HEAD (1 file) ===
+--- a/src/title.ts
++++ b/src/title.ts
+@@ -3,5 +3,5 @@ export function normalizeTitle(raw: string): string {
+-  return raw.trim();
++  return raw.trim().replace(/\s+/g, " ");
+ }
+
+=== latest CI run (GitHub Actions run 8841) ===
+commit: 9d03a7f (same as HEAD)
+status: completed, conclusion: success
+required gates: lint success, typecheck success, test success, build success
+no commits after this run; working tree clean
+
+=== package.json scripts ===
+lint, typecheck, test, test:unit, build

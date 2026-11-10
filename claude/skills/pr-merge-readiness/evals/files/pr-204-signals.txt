@@ -1,0 +1,13 @@
+# Facts collected for acme/widgets PR #204 "Add rate limiting to public API" (author alex-dev)
+Signal 1 draft:        isDraft=false
+Signal 2 mergeability: mergeable=MERGEABLE, mergeStateStatus=CLEAN
+Signal 3 CI:           gh pr checks: 9 SUCCESS, 0 FAILURE, 0 pending
+Signal 4 reviews:      reviewDecision=APPROVED (by @maria-r)
+Signal 5 staleness:    base is 4 commits ahead of the branch
+Signal 6 third-party:  CodeRabbit comment fetch failed: "HTTP 502 Bad Gateway".
+                       Sonar check: not configured in this repo.
+Signal 7 size:         additions=118, deletions=22, changedFiles=6
+Signal 8 age:          createdAt 2 days ago, updatedAt 3 hours ago
+Signal 9 card fidelity: body says "Closes #77"; gh issue view 77 failed:
+                       "error connecting to api.github.com" (state unknown)
+Branch: feat/rate-limit -> main

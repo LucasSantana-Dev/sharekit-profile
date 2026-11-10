@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: Coordinate multi-agent teams, multi-step or multi-repo work across plans, skills, worktrees, and parallel investigations. Use when the task is large enough to benefit from parallel work, independent workstreams, and one lead agent owning synthesis.
+description: Coordinate multi-agent teams and multi-step or multi-repo work across plans, worktrees, and parallel investigations. Use for large parallelizable tasks.
 triggers:
   - orchestrate
   - coordinate this

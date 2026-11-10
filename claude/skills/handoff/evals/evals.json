@@ -1,0 +1,73 @@
+{
+  "skill_name": "handoff",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Handoff please for the lumen-web session in the attached transcript. Write the handoff document and show me its full content in your reply, plus the path you saved it to.",
+      "expected_output": "Handoff doc saved under the OS temp dir (not workspace), has a suggested skills section, redacts the key and password, references plan/ADR/PR by path, adds a P2 flake memory note.",
+      "files": [
+        "evals/files/transcript-p2.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Write",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response states the handoff was saved in the OS temporary directory (such as /tmp or a temp path) and not in the current workspace.",
+        "The handoff content has a 'suggested skills' section listing skills the next agent should invoke.",
+        "The handoff content does not contain the Stripe key value or the staging password (they are redacted or omitted).",
+        "The handoff references docs/plans/2026-10-date-picker.md and docs/adr/0042-store-utc.md by path instead of re-explaining their contents at length.",
+        "The response treats the e2e-checkout flake as a P2 or P3 failure and writes or includes a brief memory note about it (or lists it as a note to write).",
+        "The handoff lists the remaining work: the regression test in DatePicker.test.tsx, then waiting on CI for PR #231 and merging."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Out of budget. Write the handoff for the ledgerly session in the attached transcript and show me its full content in your reply.",
+      "expected_output": "Handoff flags the missing root cause artifact as an OPEN action, flags the repeat root cause as needing an ADR plus prevention rule, tailored to post-mortem cleanup.",
+      "files": [
+        "evals/files/transcript-p0.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Write",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The handoff contains an OPEN item saying incident capture is required before the next task, including root cause, fix applied and preventive action.",
+        "The handoff identifies the double-charge as a P0 or P1 level incident (production, customer money impact).",
+        "The handoff flags that the same root cause (missing idempotency key) recurred within 14 days and therefore needs an ADR plus a prevention rule, not only a memory note.",
+        "The handoff is tailored to the stated next-session focus of post-mortem cleanup.",
+        "The handoff references PR #512 and commit a91f3be rather than pasting the diff or full code.",
+        "The handoff includes a suggested skills section."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Handoff, with the argument given in the transcript. Show the full handoff content in your reply.",
+      "expected_output": "No invented incident flags, tailored to tasks 4 and 5 only, does not duplicate the spec/tasks content, references them by path.",
+      "files": [
+        "evals/files/transcript-clean.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Write",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The handoff focuses on tasks 4 (lazy loading in src/gallery/Grid.tsx) and 5 (keyboard navigation in src/gallery/useKeyNav.ts).",
+        "The handoff references docs/specs/2026-10-gallery/spec.md and tasks.md by path and does not reproduce their contents.",
+        "The handoff states that tasks 6 and 7 are out of scope for the next session, or omits them.",
+        "The handoff does not contain an OPEN incident capture item, since no failures occurred.",
+        "The handoff includes a suggested skills section."
+      ]
+    }
+  ]
+}

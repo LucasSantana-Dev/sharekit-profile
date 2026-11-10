@@ -1,6 +1,6 @@
 ---
 name: rag-curate
-description: "Improve RAG corpus quality by adding missing docs, rewriting weak chunks, and filling retrieval gaps. Use after a diagnostic skill (rag-quality, adt-rag-coverage, adt-rag-drift) flags a coverage gap or when the index returns poor/irrelevant results for a known query."
+description: Improve RAG corpus quality by adding missing docs, rewriting weak chunks, filling gaps. Use after a diagnostic flags a gap or when the index returns poor hits.
 triggers:
   - rag curate
   - curate corpus
@@ -12,7 +12,7 @@ invocation_type: internal
 
 # RAG Curate
 
-Add missing docs or rewrite weak chunks after a diagnostic (`rag-quality`, `adt-rag-coverage`, `adt-rag-drift`) identifies a gap. Surgical alternative to a full rebuild.
+Add missing docs or rewrite weak chunks after a diagnostic (`adt-rag`, `adt-rag-drift`, `rag-evaluator` agent) identifies a gap. Surgical alternative to a full rebuild.
 
 ## Corpus directories
 
@@ -30,7 +30,7 @@ Add missing docs or rewrite weak chunks after a diagnostic (`rag-quality`, `adt-
 ### A. Missing doc → write + incremental reindex
 
 ```bash
-mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: External HD unmounted — RAG index unreachable"; exit 1; }
+mount | grep -q "${DEV_ROOT:-$HOME/dev}" || { echo "BLOCKED: External HD unmounted — RAG index unreachable"; exit 1; }
 
 cat > ~/.claude/standards/new-pattern.md <<'EOF'
 # New Pattern Name
@@ -49,7 +49,7 @@ sqlite3 index.sqlite "SELECT COUNT(*) FROM chunks WHERE path LIKE '%new-pattern.
 ### B. Weak retrieval (cos <0.40) → rewrite
 
 ```bash
-mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: External HD unmounted — RAG index unreachable"; exit 1; }
+mount | grep -q "${DEV_ROOT:-$HOME/dev}" || { echo "BLOCKED: External HD unmounted — RAG index unreachable"; exit 1; }
 
 cd ~/.claude/rag-index
 venv/bin/python query.py "your weak query" --top 3
@@ -65,7 +65,7 @@ venv/bin/python query.py "your weak query" --top 3   # cosine should rise
 ### C. Undercovered repo → widen globs in build.py
 
 ```bash
-mount | grep -q "${DEV_ROOT}" || { echo "BLOCKED: External HD unmounted — RAG index unreachable"; exit 1; }
+mount | grep -q "${DEV_ROOT:-$HOME/dev}" || { echo "BLOCKED: External HD unmounted — RAG index unreachable"; exit 1; }
 
 sqlite3 ~/.claude/rag-index/index.sqlite \
   "SELECT repo, COUNT(*) FROM chunks WHERE repo='your-repo' GROUP BY repo;"
@@ -109,7 +109,6 @@ Commit any doc edits or new standards files to the appropriate repo.
 
 ## See also
 
-- `adt-rag-coverage` — find gaps
-- `rag-quality` — confirm curation worked (also checks chunk shape/quality)
+- `rag-evaluator` agent — confirm curation worked (Hit@5, MRR regression gate)
 - `adt-rag-drift` — detect stale chunks
 - `~/.claude/rag-index/build.py` (full run, no `--incremental`) — full rebuild fallback

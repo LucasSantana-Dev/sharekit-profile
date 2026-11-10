@@ -43,7 +43,7 @@ Windows notes (see [`docs/troubleshooting.md`](docs/troubleshooting.md#windows-h
 npx @lucassantana/sharekit install LucasSantana-Dev
 ```
 
-What lands where: `claude/` → `~/.claude/` (47 skill folders, 55 agents, 78 hooks, 61 standards, CLAUDE.md), plus `cursor/`, `gjc/` → `~/.gjc/`, and `warp/` as portable defaults.
+What lands where: `claude/` → `~/.claude/` (52 skill folders, 55 agents, 78 hooks, 61 standards, CLAUDE.md), plus `cursor/`, `gjc/` → `~/.gjc/`, and `warp/` as portable defaults.
 
 Fresh-machine caveats:
 
@@ -84,14 +84,14 @@ Every user prompt triggers `UserPromptSubmit` hooks (0-overhead):
 
 | Task | Use This | Why |
 |------|----------|-----|
-| Start day, understand blocking work | `/session-bootstrap` | Chains wake-up → next-priority → pr-snapshot → context-pack |
+| Start day, understand blocking work | `/session-bootstrap` | Chains wake-up → next-priority → pr-merge-readiness --batch → context-pack |
 | Plan before coding | `/plan` | Validation-gated plan for multi-step work |
 | Implement independently-parallelizable tasks | `/dispatch` or `/orchestrate` | Fans out parallel agents, reconciles results |
 | Review code before merge | `/review` | Severity-rated findings (bugs, regressions, security > style) |
 | Debug a failing test or prod error | `/debug` | Systematic root-cause analysis |
-| Full project health check | `/verify` + `/secure` | Validation gates + security-first assessment |
+| Full project health check | `/verify-before-done` + `/secure` | Validation gates + security-first assessment |
 | Refactor a module end-to-end | `/refactor` or `/plan` + `/orchestrate` | Surgical refactoring or scoped team work |
-| Ship work + capture memory | `/ship` + `/knowledge-loop` | Releases work, syncs memory, and writes handoff when needed |
+| Ship work + capture memory | `/ship-it` + `/knowledge-loop` | Releases work, syncs memory, and writes handoff when needed |
 
 ### When to use composites vs. individual skills
 
@@ -235,12 +235,13 @@ Hooks are registered to lifecycle events in [`claude/settings.json`](claude/sett
 - `PreToolUse` (Bash): `check-pr-automation-halt.sh` (no force-push, no push to main, no AI-attribution in commits, halt on human-commented PRs), `check-stuck-loop.sh` (Stuck protocol), `check-idempotency.sh` (state-check-before-mutation hint). Exit 2 blocks.
 - `PreToolUse` (Write/Edit) — idempotency hint (logged to trajectory).
 - `SubagentStart` — `check-read-only-subagent.sh` blocks analysis subagents spawned with write tools (read-only-by-construction).
-- `PostToolUse` — `trajectory-log.sh` appends every tool call to `.harness/runtime/trajectory.jsonl` (the observe half of the flywheel), then `context-guard.sh` writes compact digests for >2KB responses (tool-result firewall) + surfaces buried constraints (lost-in-the-middle audit), then `observe-otel.sh` emits a GenAI span + scans for context breaches.
+- `PostToolUse` — `context-guard.sh` writes compact digests for >2KB responses (tool-result firewall) + surfaces buried constraints (lost-in-the-middle audit).
 - `PreCompact` / `PostCompact` — snapshot pre-compaction state + re-inject CORE memory so hard rules survive compaction.
-- `Stop` — `post-incident-adr.sh` reminds on P0/P1 error spikes.
 - `SessionEnd` — `session-end-flush.sh` writes a session record and queues it for the nightly distill.
 
 The runtime log directory (`.harness/runtime/`) is gitignored — it is append-only fuel for the self-improvement loop, not source of truth. See [`docs/flywheel.md`](docs/flywheel.md) for the full observe → evaluate → optimize loop and [`claude/memory-structure/SELF_IMPROVEMENT.md`](claude/memory-structure/SELF_IMPROVEMENT.md) for the memory promotion ladder, staleness scoring, and nightly distill protocol.
+
+> **Experimental, opt-in.** The flywheel sections below describe an experiment, not a default feature. `trajectory-log.sh` (the observe hook) is not registered by default: it was retired from the runtime in Wave B, and telemetry now lives in the global `tool-logger`. The scheduler is not installed unless you run `scripts/install-scheduler.sh`. Nothing feeds the loop until you wire it yourself.
 
 ### Self-improvement flywheel (evaluate half — P1)
 
@@ -251,7 +252,7 @@ The evaluate/optimize scripts that consume the trajectory log. They are run on-d
 - `hooks/eval-baseline.sh` — with-skill vs no-skill baseline gate: `init`, `record`, `compare`, `gate <name> <threshold>`. Gates on measurable lift (selftune `baseline` pattern).
 - `hooks/diagnose.sh` — self-diagnosis: clusters failures in the trajectory log, detects repeated errors / tool overuse / blind retries / token-waste patterns (SkillForge + AHE Agent Debugger). Writes a digest + machine-readable clusters.
 - `hooks/transcript-scanner.sh` (P8.3) — post-hoc transcript scanners (inspect-ai): scans the trajectory for systemic patterns per-task evals miss — refusals, evaluation-awareness, environment-drift, hallucination signals, excessive-agency, prompt-injection tells. Complements `diagnose.sh` (failure clustering). Stages findings to `.harness/forge/`; never blocks. CLI: `--since <iso>`, `--status`.
-- `hooks/observe-otel.sh` — two-knob observability (pdhoolia): level (off/metrics/trace) + destination (jsonl/stderr/otel). GenAI semantic span names, context-breach scanning, idempotent ±1 feedback scores. Local JSONL by default.
+- `hooks/observe-otel.sh` — two-knob observability (pdhoolia): level (off/metrics/trace) + destination (jsonl/stderr/otel). GenAI semantic span names, context-breach scanning, idempotent ±1 feedback scores. Local JSONL by default. Opt-in: not wired in the shipped settings, add it to a hook event to enable.
 
 ### Self-improvement flywheel (optimize half — P2)
 
@@ -261,7 +262,7 @@ The optimize half closes the loop: a proposer reads the full non-Markovian itera
 - `hooks/propose.sh` — evolutionary proposer: assembles a non-Markovian proposal context (iteration history + diagnosis + distill candidates + current file content + gate checklist) for the proposing model to fill in. NEVER commits directly.
 - `hooks/gate.sh` — constraint gate: tests pass, skill size ≤15KB, cache compatibility, semantic preservation (held-out eval lift ≥ 0), Pareto selection. The gate auto-runs the held-out bench via `eval-run.sh --gate-authority` before reading the lift, so it populates its own results — the proposer never authors the held-out runs (evaluator-not-agent invariant).
 - `hooks/deploy-watch.sh` — auto-rollback: monitors post-deploy metrics, auto-backs-up before any revert, reverts to git HEAD on regression, records the regression in history so the proposer learns from it.
-- `hooks/repo-map.sh` — bounded, cache-stable structural map (file tree + symbol index, ≤8KB) so the proposer targets edits without flooding context.
+- `hooks/repo-map.sh` — bounded, cache-stable structural map (file tree + symbol index, ≤8KB) so the proposer targets edits without flooding context. Opt-in: not wired in the shipped settings, add it to a hook event to enable.
 
 ### Self-improvement flywheel (exercise the loop — P3)
 
@@ -269,7 +270,7 @@ P3 makes the loop runnable as one command, ships the last two context-engineerin
 
 - `hooks/cycle.sh` — end-to-end cycle runner: chains diagnose → distill → propose → gate → report in a single command, skipping steps gracefully from a cold start. NEVER commits — it writes a cycle report the host agent reviews. `--dry-run` previews, `--status` re-reads the last report, `--target <file>` anchors the proposal. This is the command that makes the flywheel exercisable on demand or on a schedule.
 - `hooks/tool-shortlist.sh` (UserPromptSubmit) — surfaces only the tools whose keywords match the prompt instead of the full catalog, cutting system-prompt context (contextweaver 92.2% route-prompt reduction, agentforge deferred-tools 60-70% cut). CLI: `suggest "<prompt>"`, `--status`.
-- `hooks/model-cache-guard.sh` (UserPromptSubmit + PostCompact) — flags mid-conversation model switches as cache-unsafe (switching mid-stream discards the cached prompt prefix). The only cache-safe switch boundaries are first-turn and post-compaction (Copilot pattern). CLI: `--status`, `--reset`.
+- `hooks/model-cache-guard.sh` (UserPromptSubmit + PostCompact) — flags mid-conversation model switches as cache-unsafe (switching mid-stream discards the cached prompt prefix). The only cache-safe switch boundaries are first-turn and post-compaction (Copilot pattern). CLI: `--status`, `--reset`. Opt-in: not wired in the shipped settings, add it to a hook event to enable.
 - `hooks/eval-tasks.sh` — deterministic eval task catalog: 20 harness-behavior tasks (synthetic tool-call event + expected verdict + owning hook) split into **seen** (proposer trains on) and **heldout** (gate evaluates on; proposer never sees the per-task expected verdicts). The split is the overfitting defense — a harness edit that hard-codes the seen cases fails on held-out. CLI: `list [--split seen|heldout|all]`, `show <id>`, `count [--split ...]`.
 - `hooks/eval-run.sh` — A/B task runner: runs each task in with/without variants and records to `eval-baseline.sh`. `with` invokes the target hook and checks the exit code matches the expected verdict; `without` simulates the harness absent. Enforces the held-out split — refuses `--split heldout` unless `--gate-authority` is passed, which only `gate.sh` supplies (evaluator-not-agent invariant). CLI: `--eval <name> --variant with|without [--split seen|heldout|all] [--gate-authority]`.
 
@@ -336,13 +337,13 @@ P9 lands the three higher-value/higher-risk cherrypicks the synthesis deferred a
 
 ## Agents: Specialized Worker Types
 
-~40 agent types for different tasks. Invoke via Agent tool or skills that dispatch them.
+~33 agent types for different tasks. Invoke via Agent tool or skills that dispatch them.
 
 **Analysis agents** (read-only): architect, code-reviewer, critic, decision-critic, document-specialist, efficiency-advisor, explore, scientist, security-reviewer
 
-**Execution agents** (write files): backlog-manager, ci-fixer, code-simplifier, debugger, deep-auditor, designer, git-master, handoff-writer, issue-triager, mcp-tool-dev, mutation-tester, parallel-implementer, phase-runner, pr-reviewer, rag-evaluator, refactor-orchestrator, research-decider, systematic-debugger, tdd-practitioner, team-coordinator, test-engineer, tracer, writer, xp-navigator
+**Execution agents** (write files): ci-fixer, code-simplifier, debugger, deep-auditor, designer, git-master, issue-triager, mcp-tool-dev, mutation-tester, parallel-implementer, rag-evaluator, refactor-orchestrator, tdd-practitioner, test-engineer, tracer, writer, xp-navigator
 
-**Forge ecosystem**: ecosystem-coordinator, forge-patterns-expert, mcp-gateway-specialist, uiforge-mcp-architect, webapp-developer
+**Forge ecosystem**: ecosystem-coordinator, forge-patterns-expert, mcp-gateway-specialist, uiforge-mcp-architect
 
 See `~/.claude/agents/` for full definitions.
 
@@ -354,9 +355,9 @@ Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete r
 
 **Consolidated catalog**: the skill catalog was reduced from 103 repo-tracked skills to 50 (wave 1), then further pruned to 39 active (wave 2, 2026-07-01) by merging skill families, removing zero-use wrappers (ponytail, quality-gates, quality-assurance, rag-maintenance, scope-it, architecture-patterns, codebase-design, context-save, domain-modeling, request-refactor-plan, setup-pre-commit), and consolidating RAG operations. 64 skills archived in `claude/skills/.archive/` (recoverable). See `/docs/composites.md` for archived skill replacements.
 
-**Core Development** (13): add, debug, fallback, impeccable, loop, plan, refactor, review, ship, tdd, test-driven-development, verify, xp
+**Core Development** (13): add, debug, fallback, impeccable, loop, plan, refactor, review, ship, tdd, test-driven-development, verify-before-done, xp
 
-**Architecture & Design** (4): decide, decide-now, frontend-design, prototype
+**Architecture & Design** (3): frontend-design, prototype, research-and-decide
 
 **Context & Memory** (6): codebase-memory, context-pack, graphify, handoff, knowledge-loop, memory-prune
 
@@ -364,11 +365,11 @@ Skills are autonomous entry points. See `~/.claude/SKILLS.md` for the complete r
 
 **Session** (1): session-bootstrap
 
-**Quality & Release** (7): changelog-update, ci-watch, dep-sweep, pr-merge-readiness, version-bump, verify, xp
+**Quality & Release** (7): changelog-update, dep-sweep, gh-fix-ci, pr-merge-readiness, ship-it, verify-before-done, xp
 
 **RAG** (4): adt-rag, adt-rag-drift, rag-curate, recall
 
-**Planning & Meta** (3): brainstorming, secure, skill-creator-plugin
+**Planning & Meta** (3): grill-with-options, secure, skill-creator-plugin
 
 
 The full catalog with triggers and frontmatter details is indexed by `hooks/skill-index.sh` and listed in `~/.claude/SKILLS.md`. Archived skills can be restored from `claude/skills/.archive/`.
@@ -407,6 +408,7 @@ Key policy documents in `~/.agents/skills/standards/`:
 - **agent-routing.md** — when to use which agent type, read-only enforcement
 - **composite-contract.md** — composite-first principle, bail-out detection
 - **pr-conventions.md** — PR title/body/attribution standards
+- **voice-and-approach.md**: chat language, reply shape, no em or en dashes, humanizer pass, no AI or agent markers on GitHub, default modes
 - **graphify-discipline.md** — graph-first token discipline
 - **decision-discipline.md** — research-before-deciding rules
 - **artifact-schema.md** — structured artifact formats
@@ -466,8 +468,8 @@ Key policy documents in `~/.agents/skills/standards/`:
 1. /session-bootstrap (chains resume/priority/context-pack)
 2. /plan or /dispatch for complex work
 3. /dispatch or /orchestrate (≥2 independent tasks) or /loop (single task)
-4. /review + /quality-gates or /verify (before merge)
-5. /ship + /knowledge-loop (release, memory, handoff)
+4. /review + /quality-gates or /verify-before-done (before merge)
+5. /ship-it + /knowledge-loop (release, memory, handoff)
 ```
 
 ### Using Composites
@@ -476,9 +478,9 @@ When composite-router emits `🎯 Composite match: /<name>`: invoke that composi
 | Task | Use Composite | Why |
 |------|---------------|-----|
 | Refactor a module | `/refactor` or `/plan` + `/orchestrate` | Preserves plan → team → validation → decision capture without restoring archived wrapper names |
-| Onboard repo | `/session-bootstrap` + `/verify` + `/secure` | Intake, context, gates, and first safe action |
+| Onboard repo | `/session-bootstrap` + `/verify-before-done` + `/secure` | Intake, context, gates, and first safe action |
 | Build feature from scratch | `/plan` + `/frontend-design`/`tdd`/`ship` | Research, scope, design, test, and release through active skills |
-| Health check | `/verify` + `/secure` | Composes tests, config, security, MCP, and release evidence |
+| Health check | `/verify-before-done` + `/secure` | Composes tests, config, security, MCP, and release evidence |
 | End session | `/knowledge-loop` | Captures memory, curates weak recall, and writes handoff |
 
 ### Model Selection
@@ -507,8 +509,8 @@ If context bloat builds: `/compact` (saves ~30-40% tokens)
 | Goal | Skill | What it does |
 |------|-------|--------------|
 | ~75% token compression | Caveman mode (default, hook-enforced) | Default behavior that drops filler/articles/pleasantries while keeping full technical accuracy. Toggle off with "stop caveman" or "normal mode". |
-| Minimal solutions | `/ponytail` | Forces simplest, shortest, most minimal solution (YAGNI, stdlib before deps, one line before fifty). |
-| Audit repo or diff for bloat | `/ponytail` | Built-in audit/review mode for over-engineering, ranked by evidence and size of cut. |
+| Minimal solutions | Ponytail mode (default, hook-enforced) | YAGNI, reuse before writing, stdlib before new deps, smallest change that solves the real problem. Never trims validation, error handling or security. Toggle off with "stop ponytail". |
+| Lean subagents | Agent-econ mode (default, hook-enforced) | Recall before searching, grep-first briefs, subagent reports of 200 lines or fewer. Toggle off with "stop agent-econ". |
 | Historical token spend | hook reports | Analyze session JSONLs, cache hit rates, and weekly trends through diagnostics. |
 | Context bloat | `/context-pack` | Build focused context before large changes; compact when needed. |
 | Load only relevant context | `/context-pack` | Build a task-aware context bundle before large changes or unfamiliar work. |
@@ -547,7 +549,7 @@ The profile ships a **Ledger** system: one vault for all projects (memory + grap
 - **Policy questions:** check `~/.agents/skills/standards/` for decision rules
 - **Hook debugging:** inspect `~/.claude/tool-failures.log`
 - **Token analysis:** use diagnostics/flywheel reports for weekly spend review
-- **System health:** `/quality-assurance` + `/verify` for project checks
+- **System health:** `/quality-assurance` + `/verify-before-done` for project checks
 - **Stuck:** `/fallback` to recover or `/plan` to reframe unclear work
 
 ---

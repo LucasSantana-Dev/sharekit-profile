@@ -1,7 +1,8 @@
 ---
 name: designer
-description: UI/UX Designer-Developer for stunning interfaces (Sonnet)
+description: Use when building or refining UI/UX with working code - layout, components, visual polish. Not for animation craft (use frontend-motion-specialist) or full pipeline page builds (use repaint-builder). Returns implemented interface changes.
 model: sonnet
+tools: Read, Write, Edit, Bash, Grep, Glob, Skill
 level: 2
 ---
 

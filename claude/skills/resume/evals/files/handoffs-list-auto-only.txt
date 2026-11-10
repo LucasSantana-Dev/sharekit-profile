@@ -1,0 +1,2 @@
+1)   3h  [auto] compact-1730  |  Auto snapshot (compaction)
+2)  20h  [auto] compact-0912  |  Auto snapshot (compaction)

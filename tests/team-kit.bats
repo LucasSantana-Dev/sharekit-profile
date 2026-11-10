@@ -47,6 +47,26 @@ setup() {
   [ "$(bash "$REPO_ROOT/scripts/repo-mode.sh" "$TEST_TMP/repo")" = "solo" ]
 }
 
+@test "repo-mode: open non-tty stdin does not block git shortlog" {
+  # Without an explicit revision, git shortlog reads a log from a non-tty stdin and
+  # hangs until EOF. Feed an open pipe that stays open 20s; both copies must return fast.
+  git commit -q --allow-empty -m init
+  for script in scripts/repo-mode.sh claude/scripts/repo-mode.sh; do
+    start=$SECONDS
+    out=$(bash "$REPO_ROOT/$script" "$TEST_TMP/repo" < <(sleep 20))
+    [ "$out" = "solo" ]
+    [ $((SECONDS - start)) -lt 10 ]
+  done
+}
+
+@test "repo-mode: two other recent committers means cooperative" {
+  for who in "Alice:alice@corp.com" "Bob:bob@corp.com"; do
+    GIT_AUTHOR_NAME="${who%%:*}" GIT_AUTHOR_EMAIL="${who#*:}" \
+      git commit -q --allow-empty -m "work by ${who%%:*}"
+  done
+  [ "$(bash "$REPO_ROOT/scripts/repo-mode.sh" "$TEST_TMP/repo" </dev/null)" = "cooperative" ]
+}
+
 @test "repo-mode: unknown org remote defaults to cooperative" {
   git remote add origin "git@github.com:some-corp/team-repo.git"
   [ "$(bash "$REPO_ROOT/scripts/repo-mode.sh" "$TEST_TMP/repo")" = "cooperative" ]

@@ -5,6 +5,7 @@
 - Prefer repo-native test commands and realistic fixtures.
 - Fix flaky tests instead of normalizing them.
 - Coverage is a signal, not the goal; protect critical paths first.
+- Case-based metrics (evals, A/B): decide on a held-out set with a minimum effect or paired McNemar (`rag-index/eval/check.sh`); 1-3pp gains are often 1-2 cases (memory note `finding_eval_rag_nao_enxerga_abaixo_de_5pp`).
 
 ## Proportionality
 

@@ -1,0 +1,8 @@
+# Session facts (captured; nothing can be run)
+Project: ledgerly. Work this session: PR #88 (csv export) merged to main at SHA e4f5a6b, branch deleted, tree clean, no open branches of mine.
+Decisions made this session: (1) use streaming CSV writer rather than buffering; (2) keep export limit at 50k rows.
+Discovered: Sonar flagged S5852 regex in report parser, fixed in the same PR.
+Existing memory file .agents/memory/ledgerly.md already contains the line "Export limit 50k rows (decided 2026-10-05)" but NOT the streaming-writer decision or the S5852 finding.
+$ mount | grep "${DEV_ROOT:-$HOME/dev}"  -> /dev/disk4s2 on ${DEV_ROOT:-$HOME/dev} (apfs)   (MOUNTED)
+Brain repo has uncommitted changes only if memory is written this session (clean now).
+User message: "wrap up, we are done for the day"

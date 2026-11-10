@@ -12,6 +12,7 @@ triggers:
   - test driven development
   - tdd
   - behavior driven testing
+disable-model-invocation: true
 ---
 
 # Test-Driven Development (TDD)

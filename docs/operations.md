@@ -63,10 +63,25 @@ the flywheel to improve — do not install globally.**
 (nightly 02:00).
 
 Windows has no installer script. Create the task by hand with Task Scheduler, running
-the cycle from Git Bash or WSL:
+the cycle from Git Bash or WSL. Do not use a bare `bash`: Task Scheduler resolves it
+through the Windows PATH to `WindowsApps\bash.exe` (the WSL launcher), which fails with
+"Windows Subsystem for Linux has no installed distributions" when no distro is installed.
+
+Git Bash (use the absolute path):
 
 ```bat
-schtasks /Create /SC DAILY /ST 02:00 /TN "sharekit-flywheel" /TR "bash -lc \"cd /c/path/to/project && ~/.claude/hooks/cycle.sh --no-maintain --eval harness\""
+schtasks /Create /SC DAILY /ST 02:00 /TN "sharekit-flywheel" /TR "\"C:\Program Files\Git\bin\bash.exe\" -lc \"cd /c/path/to/project && ~/.claude/hooks/cycle.sh --no-maintain --eval harness\""
+```
+
+WSL (only if the profile is installed inside the WSL distro):
+
+```bat
+schtasks /Create /SC DAILY /ST 02:00 /TN "sharekit-flywheel" /TR "wsl.exe -e bash -lc \"cd /mnt/c/path/to/project && ~/.claude/hooks/cycle.sh --no-maintain --eval harness\""
+```
+
+Remove either task:
+
+```bat
 schtasks /Delete /TN "sharekit-flywheel" /F
 ```
 
@@ -173,3 +188,21 @@ This is the proof the loop works: the eval bench found a real gap, the cycle
 proposed a fix, the gate validated it on held-out data the proposer never saw,
 and the report instructed the host to pass `merge_gate` and open a PR. Every
 load-bearing subsystem fired in sequence.
+
+## Merging a release PR
+
+`main` requires the eight `Harness Gates` checks (`harness-boundary`, `coauthor-trailers`, `harness-manifest`, `marketplace`, `bats`, `gitleaks`, `shellcheck`, `hooks-bash32`). release-please opens its PR with `GITHUB_TOKEN`, so `release-please.yml` dispatches the gates on the release branch. The dispatched run alone does not unblock the merge: the `pull_request` run of Harness Gates waits at `action_required` and must be approved once per release PR.
+
+```bash
+# 1. Find the waiting run on the release branch
+gh run list --branch release-please--branches--main --workflow harness-gates.yml \
+  --event pull_request --limit 1 --json databaseId,conclusion
+
+# 2. Approve it (only when conclusion is action_required)
+gh api -X POST repos/LucasSantana-Dev/sharekit-profile/actions/runs/<databaseId>/approve
+
+# 3. Merge once the run passes (mergeStateStatus leaves BLOCKED)
+gh pr merge <pr-number> --squash --delete-branch
+```
+
+Do not use `--admin` to skip this. Observed on #219 (release 0.14.1).

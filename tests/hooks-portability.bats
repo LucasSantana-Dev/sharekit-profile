@@ -110,6 +110,15 @@ Co-Authored-By: Jane Talbot <jane@example.com>"')"
   [ -s "$TMP_HOME/dev/harness-evals/metrics/skill_invocations.jsonl" ]
 }
 
+@test "harness-vitals: RAG_ROOT resolves to \$DEV_ROOT/rag-index, not \$DEV_ROOT/Desenvolvimento/rag-index" {
+  dev="$BATS_TEST_TMPDIR/dev"; mkdir -p "$dev/rag-index/eval"
+  echo "[t] EVAL GATE REGRESSION marker" > "$dev/rag-index/eval/REGRESSION-ALERTS.log"
+  run bash -c "printf '{}' | env -i HOME='$TMP_HOME' PATH='$GH_PATH' DEV_ROOT='$dev' '$SH' '$H/harness-vitals.sh'"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"EVAL GATE REGRESSION marker"* ]] || { echo "$output"; false; }
+  [[ "$output" != *"NOT MOUNTED"* ]] || { echo "$output"; false; }
+}
+
 # --- #192: python3 may be a broken Windows Store stub; resolve a working interpreter ---
 
 @test "py-resolve: skips a python3 that exits 49 and falls back to python" {

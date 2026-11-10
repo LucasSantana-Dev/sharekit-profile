@@ -1,6 +1,6 @@
 ---
 name: memory-prune
-description: Audit project memory files for stale entries — when cited PRs merge, bugs fix, or files disappear. Proposes archival or deletion per entry. Read-only by default; prompts before changing. Use periodically (monthly) or when memory recall contradicts current code. Pairs with sync-memories (fresh notes) and adt-rag-drift (RAG index handling).
+description: Audit project memory for stale entries (merged PRs, fixed bugs, missing files); propose archival or deletion. Read-only. Use monthly or on memory/code conflict.
 triggers:
   - prune memory
   - audit memory
@@ -11,6 +11,7 @@ metadata:
   owner: global-agents
   tier: contextual
   canonical_source: ~/.claude/skills/memory-prune
+disable-model-invocation: true
 ---
 
 # memory-prune

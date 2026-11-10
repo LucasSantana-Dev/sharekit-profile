@@ -1,0 +1,10 @@
+Repo: acme/tools-cli (git repo OK). Date 2026-10-06.
+Audit results:
+test-health: OK, MEDIUM: coverage 61% vs threshold 80%.
+config-drift-detect: OK, no findings.
+hook-effectiveness: OK, INFO: 1 hook never fires.
+security-audit: ERROR "semgrep binary not found, exit 127".
+mcp-audit: ERROR "transcript dir unreadable (EACCES)".
+plugin-audit: OK, no findings.
+socket-audit: OK, no findings.
+Recall: External HD is mounted; RAG available; no memory hits for the test-health finding.

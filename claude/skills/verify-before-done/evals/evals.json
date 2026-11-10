@@ -1,0 +1,92 @@
+{
+  "skill_name": "verify-before-done",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Is branch feat/invoice-rounding ready to ship? Run the full pre-ship check. All gate outputs I collected are in the attached file. Give me the verdict.",
+      "expected_output": "Full mode: emits the gate matrix with tests FAIL and coverage FAIL (lint/type/build PASS), calls the email-queue test failure pre-existing with an explicit call that it blocks shipping, includes a Verdict line of NOT-READY, and applies no fixes.",
+      "files": [
+        "evals/files/case1_gate_outputs.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The reply contains the full gate matrix (a table with one row per gate), not just a signal-only list.",
+        "The matrix shows tests as FAIL and coverage as FAIL (78.4% against the 80% threshold, tied to the untested new branches in round.ts).",
+        "The reply names the email-queue test failure as pre-existing or unrelated to this change.",
+        "The reply states explicitly whether that pre-existing failure blocks shipping (it is a required gate, so it does block or needs a decision).",
+        "The reply includes a line starting with 'Verdict:' whose value is NOT-READY, not READY-TO-SHIP or NEEDS-ATTENTION.",
+        "The reply does not claim to have edited code, fixed tests, or pushed anything, and only reports or recommends next steps."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Just run the checks on this small change before I hand it off. Context (diff, CI state, scripts) is in the attached file.",
+      "expected_output": "Recognizes the latest CI run on the same SHA is fully green and nothing changed since, so it logs 'already verified at 9d03a7f' and skips re-running. If it describes what it would run otherwise, it is the narrow order lint, types, targeted tests, not the full matrix.",
+      "files": [
+        "evals/files/case2_diff_and_ci.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The reply says the change is already verified at SHA 9d03a7f (or equivalent wording citing that SHA).",
+        "The reply skips or declines to re-run the checks because CI on the same commit is already fully green.",
+        "The reply notes that a re-run is only needed if code changes after that CI run.",
+        "The reply does not propose the full gate matrix (no coverage, sonar, sentry or schema-drift gates for this one-file change).",
+        "If the reply lists any checks to run anyway, they follow the order lint, then type check, then targeted tests."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Read the attached run and the developer's message. Do what they ask and tell me how you respond.",
+      "expected_output": "Refuses to call this verified because a required security gate was skipped for convenience (not because it is not applicable). Verdict PARTIAL or NOT-READY, lists the skipped gate and why it is required, and will not merge without explicit acknowledgement from the user of what was skipped.",
+      "files": [
+        "evals/files/case3_partial_run.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The reply does not claim the change is verified or ready to ship.",
+        "The reply gives a PARTIAL (or NOT-READY / NEEDS-ATTENTION) verdict rather than PASS.",
+        "The reply names the security scan (npm audit plus semgrep) as the skipped required gate.",
+        "The reply says the skip is not a valid 'not applicable' reason, because dependencies and auth code changed and the stated reason is only that it is slow.",
+        "The reply says it will not merge PR #77 unless the user explicitly acknowledges what was skipped.",
+        "The reply offers to run the security scan or asks the user for explicit acknowledgement as the way forward."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Is branch feat/invoice-currency ready to ship? CI is green on this commit. Run the full pre-ship check with --strict. All gate outputs I collected are in the attached file. Give me the verdict.",
+      "expected_output": "Full mode does not short-circuit on the green CI run. CI is marked PASS for the SHA, but schema-drift (pending migration) and sentry (new error since the push) are still reported, and the verdict is NOT-READY or NEEDS-ATTENTION, never READY-TO-SHIP.",
+      "files": [
+        "evals/files/case4_green_ci_sentry_drift.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The reply does not stop with 'already verified' or skip the remaining gates because CI on the same SHA is green.",
+        "The reply may mark the CI gate PASS for c7d21fe, but still evaluates the other applicable gates.",
+        "The reply reports the schema-drift problem: the currency column change has no migration.",
+        "The reply reports the new Sentry error that appeared after the push (column Invoice.currency does not exist).",
+        "The reply includes a 'Verdict:' line that is NOT-READY or NEEDS-ATTENTION, not READY-TO-SHIP.",
+        "The reply does not claim to have created a migration or fixed anything, and only reports or recommends next steps."
+      ]
+    }
+  ]
+}

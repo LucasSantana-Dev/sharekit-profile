@@ -1,6 +1,6 @@
 ---
 name: dispatch
-description: "Parallelize independent evidence-gathering or audit work into ≥2 concurrent agent tracks; reconcile into a single verdict and action. Also dispatches named agent-box task scripts or ad-hoc prompts to remote <homelab> infrastructure over SSH. Use when sub-tasks are cleanly separable with no output dependencies and running serially wastes turns. Examples: multi-repo scans, concurrent CI/lint/test audits, N-package dependency sweeps. Skip when tasks depend on prior output."
+description: Parallelize independent audit or evidence-gathering work into 2+ concurrent agent tracks and reconcile into one verdict; also dispatches to <homelab> over SSH.
 triggers:
   - dispatch
   - parallelize this

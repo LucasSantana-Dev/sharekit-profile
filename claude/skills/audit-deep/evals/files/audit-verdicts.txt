@@ -1,0 +1,16 @@
+Repo: acme/storefront (git repo OK). Date 2026-10-06. All 7 audits completed.
+
+test-health: CRITICAL: 1467 tests for a 9k-LOC app (target 40-150); suite runtime 14 min.
+config-drift-detect: HIGH: jest coverageThreshold functions=99% (root cause of over-testing). MEDIUM: Dockerfile pins base image node:18-alpine (EOL).
+hook-effectiveness: MEDIUM: pre-commit hook adds 40s p95. INFO: 2 hooks never fire.
+security-audit: HIGH: 2 high-severity vulns in transitive deps (lodash 4.17.15 via build-tool). 
+mcp-audit: INFO: 3 MCP servers with zero use in 30 days.
+plugin-audit: INFO: 1 plugin enabled but unused.
+socket-audit: MEDIUM: typosquat-looking package "reqeusts-lite" in devDependencies.
+
+Recall results (memory search by item):
+- "node:18-alpine": memory note 2026-08-02 "Pinned node:18-alpine deliberately: native module X breaks on 20 until vendor ships fix; revisit Q1 2027. Do not bump."
+- "coverageThreshold functions 99": no hits.
+- "lodash 4.17.15": no hits.
+- "reqeusts-lite": no hits.
+- "pre-commit hook": no hits.

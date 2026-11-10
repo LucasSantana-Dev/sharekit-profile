@@ -1,0 +1,121 @@
+{
+  "skill_name": "research-and-decide",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Should I use Array.find() or _.find() from lodash to filter a user object in a single React component? It's a simple lookup, just need to grab one element.",
+      "expected_output": "Quick Decision Mode: short inline verdict under 200 words, recommends one option, states the key tradeoff, does NOT mention creating an ADR, does NOT invoke multi-phase research pipeline.",
+      "files": [],
+      "assertions": [
+        "The reply recommends exactly one option (Array.find or lodash _.find) and does not present an open-ended menu.",
+        "The reply states the key tradeoff, such as native Array.find needing no dependency versus lodash adding bundle weight for no gain here.",
+        "The reply is a short inline verdict of under 200 words.",
+        "The reply does not mention creating an ADR, a DECISIONS.md line, or writing any decision record.",
+        "The reply does not show a multi-phase pipeline, a DECISION BRIEF, or a reconciliation block."
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We need to pick a date/time library for our Node.js REST API. I'm considering date-fns, dayjs, and native Intl.DateTimeFormat. We have a team of 4, ship to 8 locales, and do a lot of date arithmetic (business day calculations, timezone conversions). Please decide and document it.",
+      "expected_output": "Full Decision Mode (MED/HIGH stake), researches ≥2 alternatives with tradeoffs, emits a DECISION BRIEF checkpoint with all required fields (Recommendation, Confidence, Evidence, Alternatives, Switch triggers: which must be specific and concrete, not vague), then proceeds to ADR creation. Reconciliation block emitted at end.",
+      "files": [],
+      "assertions": [
+        "The reply compares at least two of date-fns, dayjs and native Intl.DateTimeFormat with a tradeoff for each.",
+        "The reply contains a DECISION BRIEF checkpoint with labelled fields: Recommendation, Confidence, Evidence, Alternatives and Switch triggers.",
+        "The Switch triggers are specific and observable (a named metric, threshold or event), not vague phrases like 'when requirements change'.",
+        "The reply proceeds to record the decision (an ADR or a DECISIONS.md line) after the brief, rather than stopping at the recommendation.",
+        "The reply ends with a reconciliation block showing the phase status of the decision pipeline.",
+        "The recommendation addresses the stated constraints: business-day arithmetic, timezone conversions and 8 locales."
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "We need to decide between Redis and Memcached for our session caching layer. We're a 3-person team with a Node.js backend, 50k DAU, expecting 3-5x growth in 12 months. Sessions are user auth tokens, ~2KB each.",
+      "expected_output": "Full Decision Mode (MED/HIGH stake), considers both options with tradeoffs, Decision Brief includes at least 1 concrete/observable switch trigger (not 'when requirements change' or 'when the team grows'), reconciliation block emitted at end with Mode/Stake/Confidence fields populated.",
+      "files": [],
+      "assertions": [
+        "The reply compares Redis and Memcached with tradeoffs tied to the stated context (2KB auth-token sessions, 50k DAU, 3-5x growth, 3-person team).",
+        "The reply gives one clear recommendation, not a hedged 'either works'.",
+        "The Decision Brief lists at least one switch trigger that is concrete and observable, such as a measured number, and not 'when requirements change' or 'when the team grows'.",
+        "The reply includes a Confidence value in the brief.",
+        "The reply ends with a reconciliation block whose Mode, Stake and Confidence fields are all populated."
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Should I merge PR #45 into main now, or wait for CodeRabbit to finish reviewing it? CI is all green.",
+      "expected_output": "Clear merge/wait verdict with reasoning from PR state and CLAUDE.md rules. Should cite CI status. Should mention CodeRabbit status as a factor. No wishy-washy 'both options have merits'. When the PR author and comments cannot be checked, 'Decision: escalate to owner' with merge as the recommended option in Why is also correct (owner/T3 carve-out).",
+      "files": [],
+      "assertions": [
+        "Output contains 'Decision:' header or label",
+        "Output contains 'Why:' with cited evidence (PR number, CI status, or specific rule)",
+        "Output contains 'Next step:' with a concrete command or action",
+        "Output does NOT contain 'it depends' without also giving a final verdict",
+        "Output is a single clear verdict (merge, wait, or escalate to owner with one recommended option), not 'you could do either'",
+        "For PR merge decisions: treats CodeRabbit/bots as non-blocking (a pending bot review is not the reason to wait); only human reviewer comments or another human's authorship block or escalate"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I have two open tasks: fix the flaky test in tests/test_smoke_harness.py, or work on the new pipeline feature. What should I tackle first?",
+      "expected_output": "Clear prioritization verdict. Should attempt to load memory/plans/CI context to justify. Should cite something from current state, not just generic 'fix tests first' advice.",
+      "files": [],
+      "assertions": [
+        "Output contains 'Decision:' header or label",
+        "Output names exactly one task to do first (not 'do both' or 'either works')",
+        "Output contains 'Why:' with reasoning that references project context or priorities",
+        "Output contains explicit 'Tradeoff:' label (not just tradeoff content buried in prose) acknowledging what's deferred",
+        "Output contains 'Next step:' with a concrete action"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Should I add LC_NUMERIC=C to the render_master.sh script as an inline export, or set it in the calling pipeline script instead?",
+      "expected_output": "Clear location verdict for where to put LC_NUMERIC=C. Should check existing code context if possible. Should cite a reason grounded in the codebase (consistency with other scripts, blast radius, etc.).",
+      "files": [],
+      "assertions": [
+        "Output contains 'Decision:' header or label",
+        "Output picks one location (inline in render_master.sh OR in the caller), not 'it depends on your preference'",
+        "Output contains 'Why:' with at least one reason grounded in code or project conventions",
+        "Output contains 'Tradeoff:' acknowledging the downside of the chosen approach",
+        "Output contains 'Next step:' with a specific action"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ]
+    }
+  ]
+}

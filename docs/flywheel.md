@@ -29,7 +29,7 @@ Session runs (any harness: OpenCode / Claude Code / Codex / Warp)
   ↓ PostCompact         — re-inject CORE memory (reinject-compact.sh)
 SessionEnd
   ↓ flush trajectory + write session record + queue for distill (session-end-flush.sh)
-  ↓ Stop                — post-incident ADR reminder if errors spiked (post-incident-adr.sh)
+  ↓ Stop                — post-incident ADR reminder if errors spiked (post-incident-adr.sh, opt-in, not wired by default)
 Nightly distill (auto_dream)
   ↓ cluster + heuristic prefilter + decay
   ↓ stage candidate learnings (confidence-scored)

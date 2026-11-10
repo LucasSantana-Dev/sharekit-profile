@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck source=py-resolve.sh
-. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
-[ -n "$PY" ] || exit 0
 # session-cost-telemetry.sh — SessionEnd. Captures THIS session's real token usage + estimated cost
 # from the transcript and appends one row to ~/.claude/metrics/sessions.jsonl (the cost time-series
 # harness-metrics.py rolls up into 7-day spend). You can't optimize cost you don't measure — this is
@@ -11,7 +8,7 @@ HOOK_JSON=$(cat); [ -n "$HOOK_JSON" ] || exit 0   # robust to no-trailing-newlin
 OUT="$HOME/.claude/metrics/sessions.jsonl"
 mkdir -p "$HOME/.claude/metrics"
 
-printf '%s' "$HOOK_JSON" | "$PY" -c '
+printf '%s' "$HOOK_JSON" | python3 -c '
 import sys, json, os, time
 try:
     d = json.load(sys.stdin)

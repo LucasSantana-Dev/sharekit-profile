@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck source=py-resolve.sh
-. "$(dirname "${BASH_SOURCE[0]}")/py-resolve.sh" 2>/dev/null || PY=""
 # PreToolUse hook: block reads of secret-bearing files (<project-a>, local-only).
 # Rationale: 2026-05-31 a secret file was read into the transcript, leaking keys.
 # Blocks Read/Grep/Bash access to ~/.zshrc, secrets.zsh, .env*, *.pem, id_*.
@@ -25,7 +23,7 @@
 set -euo pipefail
 
 payload="$(cat)"
-[ -n "$PY" ] || { echo "block-secret-reads: python3 missing, gate inactive" >&2; exit 0; }
+command -v python3 >/dev/null 2>&1 || { echo "block-secret-reads: python3 missing, gate inactive" >&2; exit 0; }
 
 # Extract the fields we care about without requiring jq.
 #
@@ -89,7 +87,7 @@ def d_(v):
 def s(v): return CTRL.sub(' ', v if isinstance(v,str) else '')
 
 # TOKENISE RESPECTING QUOTES, NOT BY SPLITTING ON SPACES. Splitting on spaces cut
-#   cat "${DEV_ROOT}/x/<long name>"
+#   cat "${DEV_ROOT:-$HOME/dev}/x/<long name>"
 # into `/Volumes/External` and `HD/x/<long name>`; the second fragment does not start with a
 # slash, does not exist relative to the cwd, so the existence exemption never applied and an
 # ordinary read of this machine's own working directory was refused as a credential. On this
@@ -102,7 +100,7 @@ def s(v): return CTRL.sub(' ', v if isinstance(v,str) else '')
 # parse, so this is a regex that cannot raise: a double-quoted run, a single-quoted run, or a
 # stretch of non-whitespace, in that order.
 # ...AND THE REGEX ONLY HELD A QUOTED RUN TOGETHER WHEN THE TOKEN STARTED WITH THE QUOTE.
-# `F="${DEV_ROOT}/..."` starts with `F=`, so `\S+` won took over and cut at the
+# `F="${DEV_ROOT:-$HOME/dev}/..."` starts with `F=`, so `\S+` won took over and cut at the
 # space again — the same bug, one character to the right, and it blocked five reads before
 # it was named (2026-08-29). Scan instead: whitespace separates only OUTSIDE quotes. An
 # unterminated quote swallows the rest of the line, which is the safe direction: the joined
@@ -172,15 +170,40 @@ try:
     spliced = d_(ti.get('command','')) + ' ' + d_(ti.get('pattern',''))
     print(prefilter(plain, cwd, home))
     print(prefilter(spliced, cwd, home))
+    # Grep's glob selects WHICH files are read (`glob: ".env*"` under a repo), so it is a
+    # path, not content. Index 8, appended so the earlier field positions do not move.
+    print(s(ti.get('glob','')))
+    # Index 9: does the glob, read as a GLOB, select a secret file? A text regex on the glob
+    # missed `.e?v`, `.en[v]` and `*nv` (critic pass 2). Expand {a,b}, take each last segment
+    # and fnmatch it against real secret names. Segments with fewer than 2 literal alnum
+    # characters (`*`, `*.*`, `*s`) are skipped: they select everything, not secrets, and rg
+    # skips hidden files unless asked.
+    import fnmatch
+    SECRET_NAMES = ['.env', '.env.local', '.env.production', '.env.development', 'id_rsa',
+                    'id_ed25519', 'id_ecdsa', 'server.pem', 'server.key', '.npmrc', '.netrc',
+                    'credentials', 'credentials.json', 'secrets.zsh', '.zshrc']
+    def expand(g, n=0):
+        m = re.search(r'\{([^{}]*)\}', g)
+        if not m or n > 8: return [g]
+        return [x for alt in m.group(1).split(',')
+                for x in expand(g[:m.start()] + alt + g[m.end():], n + 1)]
+    hit = ''
+    for g in expand(s(ti.get('glob',''))):
+        seg = g.rstrip('/').rsplit('/', 1)[-1]
+        if len(re.findall(r'[A-Za-z0-9]', re.sub(r'\[[^]]*\]', '', seg))) < 2: continue
+        if any(fnmatch.fnmatchcase(nm, seg) for nm in SECRET_NAMES): hit = '1'; break
+    print(hit)
 except Exception:
     pass
 PYEOF
-field() { printf '%s' "$payload" | "$PY" -c "$PYSRC" 2>/dev/null; }
+field() { printf '%s' "$payload" | python3 -c "$PYSRC" 2>/dev/null; }
 
 f=()
 while IFS= read -r _line || [ -n "$_line" ]; do f+=("$_line"); done < <(field)
 tool="${f[0]:-}"; haystack="${f[1]:-} ${f[2]:-} ${f[3]:-} ${f[4]:-}"
 hook_cwd="${f[5]:-}"
+grep_glob="${f[8]:-}"
+grep_glob_hit="${f[9]:-}"
 
 # Secret-bearing path patterns (extended regex). Covers shell rc/profile, .env,
 # private keys, npm/netrc, and cloud credential stores (AWS / GCP / kube / docker).
@@ -194,8 +217,32 @@ if printf '%s' "$haystack" | grep -qE "$safe_re"; then
 fi
 
 if printf '%s' "$haystack" | grep -qE "$secret_re"; then
-    echo "BLOCKED: '$tool' targets a secret-bearing file. Reading it would leak credentials into the transcript (see ~/.claude/standards/shell-secret-management.md). If you genuinely need a value, ask the operator to provide it — do not read the file." >&2
+    echo "BLOCKED: '$tool' targets a secret-bearing file. Reading it would leak credentials into the transcript (see ~/.claude/standards/security.md). If you genuinely need a value, ask the operator to provide it — do not read the file." >&2
     exit 2
+fi
+
+# GREP (matcher widened 2026-10-06; the fields above were always parsed, the matcher never
+# sent Grep here). Two differences from Read/Bash, both measured by a critic pass:
+#   1. A glob or a credential DIRECTORY reads secrets without naming a secret file:
+#      `glob: ".env*"`, `path: ~/.ssh`. Templates (.env.example etc.) stay allowed.
+#   2. The pattern is code to FIND, and code is full of 40+ char identifiers, which is exactly
+#      what maskSecret's LONG_TOKEN length rule flags. So for Grep the content scan is limited
+#      to unambiguous credential prefixes, and the length and header rules below are skipped.
+if [ "$tool" = "Grep" ]; then
+    if [ "$grep_glob_hit" = 1 ] || { printf '%s' "$grep_glob" | grep -qiE '\.env|\.pem|\.key([^a-z]|$)|id_(rsa|ed25519|ecdsa)|\.netrc|\.npmrc|credentials|secrets\.zsh|\.zshrc' \
+       && ! printf '%s' "$grep_glob" | grep -qiE '\.env\.(example|sample|template|dist|defaults)'; }; then
+        echo "BLOCKED: 'Grep' glob '$grep_glob' selects secret-bearing files. Searching them would leak credentials into the transcript. Ask the operator for the value instead." >&2
+        exit 2
+    fi
+    if printf '%s' "${f[2]:-}" | grep -qE '(^|/)\.(ssh|aws|kube|gnupg|docker)(/|$)|(^|/)\.config/gcloud(/|$)'; then
+        echo "BLOCKED: 'Grep' path '${f[2]:-}' is a credential directory. Ask the operator for the value instead." >&2
+        exit 2
+    fi
+    if printf '%s' "${f[4]:-}" | grep -qE '(sk-(ant-|proj-)?[A-Za-z0-9_-]{16,}|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|xox[abposr]-[A-Za-z0-9-]{10,}|Bearer [A-Za-z0-9._~+/-]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY)'; then
+        echo "BLOCKED: 'Grep' pattern contains a credential-shaped literal. Do not paste credentials into tool calls. Search for a prefix or a variable name instead." >&2
+        exit 2
+    fi
+    exit 0
 fi
 
 # Content check (distinct from the path check above): catches a secret VALUE
@@ -234,7 +281,7 @@ mask_script="$HOME/.claude/scripts/omniroute-mask-secrets.mjs"
 # Both copies arrive already tokenised and path-exempted from `field()`. This used to be a
 # bash `while read` loop that split on spaces and spawned a subshell per word; it now lives
 # in the python that already parses the payload, because splitting on spaces cut every path
-# on this machine in half at `${DEV_ROOT}/`.
+# on this machine in half at `${DEV_ROOT:-$HOME/dev}/`.
 flags() {       # 0 = the mask changed it, i.e. a secret-shaped literal is in there
   local t="$1" m
   [ -n "${t// /}" ] || return 1

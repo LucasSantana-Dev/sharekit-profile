@@ -1,0 +1,72 @@
+{
+  "skill_name": "spec-driven-develop",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Follow the fixture instructions.",
+      "expected_output": "Full phase order 0 to 6 with sub-skills, spec path, T2 critic for wide implement and migration, T3 ask for merge, write-incapable agents in analysis phases, complete reconciliation block.",
+      "files": [
+        "evals/files/request-a.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "Runs the phases in the order constitution, specify, clarify, plan, tasks, implement, converge",
+        "Treats .harness/constitution.json as the authoritative constitution source in Phase 0",
+        "Writes the spec to docs/specs/<date>-<slug>/spec.md",
+        "Classifies the wide implementation (9 files, 3 modules, schema migration) as T2 and runs one adversarial critic pass before proceeding",
+        "Says the T2 gate is logged to ~/.claude/autonomy-gates.jsonl",
+        "Treats the merge to main as T3 and asks the user instead of merging",
+        "Ends with a reconciliation block that lists all seven phases with a status"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Follow the fixture instructions.",
+      "expected_output": "Bails mid-composite correctly: marks Phase 2 incomplete, surfaces the blocker as output, prints reconciliation block with later phases SKIPPED, no silent ad-hoc coding, no guessing the answer.",
+      "files": [
+        "evals/files/request-b.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "Surfaces the unanswered email-destination question as the blocker in its output",
+        "Marks Phase 2 clarify as incomplete or failed rather than DONE",
+        "Does not write any implementation code or drop into ad-hoc editing",
+        "Does not guess an answer to the email destination question on the user's behalf",
+        "Prints the reconciliation block even though the run stopped early",
+        "Marks the later phases as SKIPPED with a stated unmet precondition rather than omitting them",
+        "Gives a smallest concrete Next action to resume once the user answers"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Follow the fixture instructions.",
+      "expected_output": "Typo: skip pipeline, direct edit. Prod outage: defer to hotfix or incident-response, not the spec pipeline.",
+      "files": [
+        "evals/files/request-c.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "Handles the README typo as a trivial edit by skipping the seven-phase pipeline",
+        "Gives a direct one-line edit as the action for the typo, with no spec or plan files",
+        "Defers the checkout 500 outage to hotfix or incident-response instead of spec-driven-develop",
+        "Gives production breakage as the reason a narrower composite takes precedence",
+        "Does not write a spec or plan before fixing the outage"
+      ]
+    }
+  ]
+}

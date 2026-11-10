@@ -1,0 +1,63 @@
+{
+  "skill_name": "changelog-update",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Fixture: the state of the acme/widgets npm monorepo (root plus two packages) since v1.3.2. I want the next release prepared as a PR. Nothing can be run here, so tell me the version you would pick and the exact steps and file changes, based only on the fixture.",
+      "expected_output": "Picks 1.4.0 (one feat, no breaking). Updates version to 1.4.0 in root, packages/core and packages/cli package.json. Promotes [Unreleased] to [1.4.0] - <today's date> keeping an empty [Unreleased] on top. Branch chore/bump-1.4.0, commit, push, gh pr create. autoMergeAllowed is false so no gh pr merge --auto: leaves the PR open and reports it. Never merges directly, no force push.",
+      "assertions": [
+        "The reply chooses version 1.4.0 (minor, because of the feat commit and no breaking change).",
+        "The reply updates the version in all three package.json files (root, packages/core, packages/cli).",
+        "The reply promotes [Unreleased] to a [1.4.0] section with a date and leaves an empty [Unreleased] heading above it.",
+        "The reply opens a PR from a branch (for example chore/bump-1.4.0) and does not push to main or force push.",
+        "Because autoMergeAllowed is false, the reply does not enable auto-merge or merge directly; it leaves the PR open and reports that."
+      ],
+      "files": [
+        "evals/files/monorepo-state.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Fixture: acme/widgets monorepo state after an earlier release attempt. I want version 1.4.0 prepared as a PR. Nothing can be run here, so tell me what you would change and what you would skip, based only on the fixture.",
+      "expected_output": "Sees CHANGELOG already has [1.4.0] - 2026-10-06 and skips promotion: no second [1.4.0] section, no moving of content again. Still bumps the three package.json files from 1.3.2 to 1.4.0, opens a PR, and since autoMergeAllowed is true may arm auto-merge with gh pr merge --auto --squash. No force push.",
+      "assertions": [
+        "The reply notices that CHANGELOG.md already has a [1.4.0] section and skips the promotion step.",
+        "The reply does not create a duplicate [1.4.0] heading or re-move content from [Unreleased].",
+        "The reply still updates the version from 1.3.2 to 1.4.0 in root, packages/core and packages/cli package.json, since those still read 1.3.2.",
+        "The reply opens a PR and, because autoMergeAllowed is true, may enable auto-merge via gh pr merge --auto --squash; it never merges directly or force pushes."
+      ],
+      "files": [
+        "evals/files/changelog-already-promoted.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Fixture: acme/widgets monorepo state. I ran `/changelog-update --bump 1.4.0`. Nothing can be run here, so tell me what you would do, based only on the fixture.",
+      "expected_output": "Sees tag v1.4.0 already exists on origin (ls-remote exit 0), stops before any file edit, branch, push, tag or PR, cites the existing tag, and suggests the next free version (e.g. 1.4.1 or 1.5.0) or running ship-it if 1.4.0 is simply unreleased in the manifest.",
+      "assertions": [
+        "The reply stops before making any edit and cites the existing remote tag v1.4.0 (ls-remote exit 0).",
+        "The reply does not edit package.json or CHANGELOG.md, create a branch, push, create a tag, or open a PR.",
+        "The reply does not retag or force anything.",
+        "The reply suggests the next free version or ship-it as the way forward."
+      ],
+      "files": [
+        "evals/files/tag-exists.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    }
+  ]
+}

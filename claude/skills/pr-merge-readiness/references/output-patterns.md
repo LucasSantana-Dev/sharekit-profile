@@ -124,6 +124,6 @@ Reason: CI status could not be determined due to network error. Wait for CI to c
 then re-run this skill to confirm all checks pass.
 
 Suggested next action:
-  ci-watch 1234  (monitor CI status)
+  gh-fix-ci 1234 report-only  (watch required checks, no edits)
   Then re-run this skill.
 ```

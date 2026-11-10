@@ -1,0 +1,4 @@
+rag_query top 3 for "billing retry queue" (scope: billing-svc)
+1. docs/adr/0021-retry-backoff.md:12  "Backoff doubles from 5s up to a 5 minute cap; jitter 10%."
+2. memory/gotcha_redis_service_container.md:3  "GitHub Actions redis:latest changed default protected-mode; pin 7.2."
+3. CHANGELOG.md:9  "0.14.0: webhook delivery now idempotent via event id."

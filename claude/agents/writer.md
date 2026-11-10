@@ -1,7 +1,8 @@
 ---
 name: writer
-description: Technical documentation writer for README, API docs, and comments (Haiku)
-model: haiku
+description: Use when you need technical documentation written or revised - README, API docs, code comments, verified against the real code. Not for external research (use document-specialist). Returns the updated docs and what was verified.
+model: sonnet
+tools: Read, Write, Edit, Bash, Grep, Glob, Skill
 level: 2
 ---
 

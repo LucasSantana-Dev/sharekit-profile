@@ -1,0 +1,70 @@
+{
+  "skill_name": "plan",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "plan this: add a Wake-on-LAN panel and a tabs layout to the dashboard. Look at the attached listing of the plans dir and repo facts first. Today is 2026-10-06.",
+      "expected_output": "Extend the existing fresh plan (same scope, 5 days old) instead of creating a second plan: append phases 6+, update status header with extension date, each phase with exact Files Touched and a runnable Verify, replanning triggers, Goal/scope.",
+      "files": [
+        "evals/files/plans-dir.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response decides to extend the existing homepage-customization plan (same scope, recent) and says it will not create a second plan file.",
+        "The response appends new phases numbered after Phase 5 (Phase 6 onward) rather than restarting numbering.",
+        "The response updates the status header to show partial completion and the extension date (for example 'Phases 1-5 done; Phases 6-8 added 2026-10-06').",
+        "Every new phase lists Files Touched with exact paths (for example server/lib/wol.ts or src/components/) and not just prose descriptions.",
+        "Every new phase has a runnable Verify command such as an npm test or npm run lint invocation.",
+        "The plan states goal, in-scope and out-of-scope, and notes at least one replanning trigger."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Plan the billing rewrite for me, details in the attached file. Be quick, we are in a hurry.",
+      "expected_output": "Plan that opens with Phase 0 prototype gate (1 hour max, first incremental unit only, thresholds >3 friction points or >2 shims, then /research-and-decide), does not skip it for urgency, uses exact paths and runnable verify commands from the fixture.",
+      "files": [
+        "evals/files/billing-layout.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The plan starts with a Phase 0 prototype gate before any implementation phase.",
+        "Phase 0 is time-boxed to one hour and covers only the first incremental unit (not the whole rewrite).",
+        "Phase 0 states the stop thresholds: more than 3 friction points or more than 2 temporary shims.",
+        "Phase 0 says that tripping a threshold means stopping and invoking research-and-decide to decide whether a big-bang rewrite is justified.",
+        "The response explicitly refuses to skip Phase 0 because of the Friday deadline or urgency.",
+        "Implementation phases list exact file paths from the fixture and the runnable verify command `npm test --workspace services/billing`."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Plan this: change the default request timeout from 30 to 45 seconds. Config is attached.",
+      "expected_output": "Skip-plan case: two files at most, obvious edit. Just do it: show the one-line change (requestTimeout: 45), no phased plan, no plan file.",
+      "files": [
+        "evals/files/config.md"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "assertions": [
+        "The response says no formal plan is needed because the change touches at most 2 files and is obvious.",
+        "The response gives the concrete edit: requestTimeout changed from 30 to 45 in src/config.ts.",
+        "The response does not contain Phase headings, a Files Touched list or a Replanning triggers section.",
+        "The response does not propose writing a plan file under .claude/plans or .agents/plans.",
+        "The response notes that src/http.ts multiplies the value by 1000 so no change is needed there."
+      ]
+    }
+  ]
+}

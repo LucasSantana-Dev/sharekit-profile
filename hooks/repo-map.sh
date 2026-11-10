@@ -61,7 +61,7 @@ symbols="$(
 
 # --- 3. Write machine-readable index -----------------------------------------
 {
-  printf '{"ts":"%s","file_count":%s,"symbols":"%s"}\n' \
+  printf '{"ts":"%s","file_count":%s,"symbols":%s}\n' \
     "$ts" \
     "$(printf '%s\n' "$tree_out" | rg -c '.')" \
     "$(printf '%s' "$symbols" | jq -Rs . 2>/dev/null || echo '""')"

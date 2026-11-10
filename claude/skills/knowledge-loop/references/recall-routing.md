@@ -6,10 +6,10 @@ The `recall` skill documents three knowledge sources + their decision table. Rat
 
 - **"What did we decide" (any project)** → use `search_knowledge` (vault-scoped, cross-project).
 - **"Why was this written this way" or repo-specific decision** → use `rag_query(scope_types=["memory","handoffs"])`.
-- **"Did we hit this bug before" or past reasoning** → parallel: `search_knowledge` + claude-mem in one call.
+- **"Did we hit this bug before" or past reasoning** → parallel: `search_knowledge` + `rag_query` in one call.
 - **"Where is function X defined" or call graph** → use Serena `find_symbol` + `find_referencing_symbols`.
 
-**Before any query:** Mount guard (references/mount-guard.sh). If External HD unmounted, `rag_query` and `search_knowledge` fail; fall back to claude-mem + grep only.
+**Before any query:** Mount guard (references/mount-guard.sh). If External HD unmounted, `rag_query` and `search_knowledge` fail; fall back to grep only.
 
 ## See also
 

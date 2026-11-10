@@ -1,6 +1,6 @@
 ---
 name: three-man-team
-description: "Parallel Architect→Builder→Reviewer pattern for complex multi-phase tasks. Dispatches 3 agents: Architect (Opus) reads codebase and writes a plan with phases; Builder (Sonnet) implements from plan and stages changes; Reviewer (Sonnet) validates diff and runs tests. Cuts turnaround on 3+ phase features and big PRs from 6+ turns to 1-turn dispatch. Use when phases justify the overhead; when CRITICAL-flagged; or for large PRs touching >5 files."
+description: Parallel Architect (Opus), Builder, Reviewer (Sonnet) dispatch for complex multi-phase tasks. Use for 3+ phase features, CRITICAL work, or PRs over 5 files.
 tags:
 - parallel-dispatch
 - architecture

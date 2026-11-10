@@ -1,0 +1,3 @@
+User request: "Add per-tenant rate limiting to our API: new middleware, a rate_limits table (schema migration), config in 3 services, tests, and docs. Then get it merged to main."
+Repo facts: git repo acme/gateway. CLAUDE.md exists. No CONTEXT.md. .harness/constitution.json exists. No .specify/ dir. Work will touch ~9 files across 3 modules including a DB schema migration. The router hook emitted: Composite match: /spec-driven-develop.
+You cannot execute anything: describe what you would do phase by phase, what agent types and tiers are involved, and print the final block the skill requires, marking phases as they would stand after a full successful run.

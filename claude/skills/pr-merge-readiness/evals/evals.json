@@ -1,0 +1,65 @@
+{
+  "skill_name": "pr-merge-readiness",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Here are the gh pr list and gh pr view outputs for four of my open PRs in acme/widgets (fixture). Nothing can be run, so work only from the fixture. Give me one status table for all four PRs, one row per PR, and tell me which ones are mergeable right now and which are blocked and why.",
+      "expected_output": "One table with exactly four rows (101, 102, 103, 104) with title, checks, review and mergeability. 101 is the only mergeable one. 102 blocked by failing ci / test. 103 blocked by merge conflicts (DIRTY). 104 blocked by changes requested and pending ci / test. Read-only, no merge or mutation.",
+      "assertions": [
+        "The reply presents a table (or one line per PR) covering exactly PRs 101, 102, 103 and 104, one row each.",
+        "The reply marks #101 as the only mergeable PR (checks green, approved, clean).",
+        "The reply says #102 is blocked because ci / test fails, and #103 is blocked because of merge conflicts.",
+        "The reply says #104 is blocked by changes requested and/or the ci / test check still running.",
+        "The reply stays read-only: it does not merge, rebase, comment on or change any PR, and does not claim to have run commands."
+      ],
+      "files": [
+        "evals/files/prs-batch.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I have the collected merge facts for PR #204 in the fixture (nine signals). Nothing can be run. Tell me whether I should merge it, wait or fix first, and list how each signal reads.",
+      "expected_output": "Verdict WAIT, not MERGE. Signals 1-5, 7, 8 pass. Sonar not configured is SKIP. CodeRabbit fetch failed (502) and card fidelity lookup failed are unknown, so they count as warnings and never as pass. Does not merge; suggests re-checking those signals first, then merge command only as a suggestion.",
+      "assertions": [
+        "The reply gives a single verdict of WAIT (not MERGE and not FIX).",
+        "The reply treats the failed CodeRabbit fetch and the failed issue #77 lookup as unknown/could-not-check warnings, and explicitly does not count them as pass.",
+        "The reply lists all nine signals (draft, mergeability, CI, reviews, staleness, third-party, size, age, card fidelity) with a status each.",
+        "The reply shows Sonar as not configured (skip) rather than as a pass or failure.",
+        "The reply does not perform or claim to perform the merge; at most it suggests a gh pr merge command for later, after re-checking."
+      ],
+      "files": [
+        "evals/files/pr-204-signals.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Run `/pr-merge-readiness --batch` for my open PRs in acme/widgets. The fixture holds the batched GraphQL result. Nothing can be run, so work only from the fixture. Give me the batch table and totals.",
+      "expected_output": "Table with three rows ordered MERGE, WAIT, FIX: 301 MERGE, 302 WAIT (could not check, HTTP 502 on its node), 303 FIX (ci / test failing). A totals line. Read-only, no merge or comment.",
+      "assertions": [
+        "The reply presents a table with one row each for PRs 301, 302 and 303.",
+        "The row for #302 is WAIT with the reason 'could not check' (the 502 error), not MERGE and not FIX.",
+        "Rows are ordered MERGE (#301), then WAIT (#302), then FIX (#303).",
+        "The reply includes a totals line (1 MERGE, 1 WAIT, 1 FIX).",
+        "The reply stays read-only: it does not merge, comment on or change any PR, and any merge command is only a suggestion."
+      ],
+      "files": [
+        "evals/files/prs-batch-502.txt"
+      ],
+      "allowed_tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ]
+    }
+  ]
+}

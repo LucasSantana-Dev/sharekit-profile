@@ -44,6 +44,19 @@ setup() {
   [[ "$result" == *"OK"* ]] || [[ "$result" == *"FAIL"* ]]
 }
 
+@test "check-harness-boundary: skips skill eval fixtures, still flags skill code" {
+  tmp="$BATS_TEST_TMPDIR/boundary"
+  mkdir -p "$tmp/scripts" "$tmp/claude/skills/demo/evals"
+  cp "$REPO_ROOT/scripts/check-harness-boundary.sh" "$tmp/scripts/"
+  echo '{"evals": [{"prompt": "plan edits to server/lib/wol.ts"}]}' > "$tmp/claude/skills/demo/evals/evals.json"
+  run bash "$tmp/scripts/check-harness-boundary.sh"
+  [ "$status" -eq 0 ]
+  echo 'source lib/helpers.sh' > "$tmp/claude/skills/demo/run.sh"
+  run bash "$tmp/scripts/check-harness-boundary.sh"
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"claude/skills/demo/run.sh"* ]]
+}
+
 # =============================================================================
 # TEST GROUP 3: check-catalog-canonical.sh (local-only test)
 # =============================================================================
