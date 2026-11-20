@@ -11,48 +11,63 @@
 set -uo pipefail
 command -v jq >/dev/null 2>&1 || exit 0
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-RUNTIME="$ROOT/.harness/runtime"
-mkdir -p "$RUNTIME"
+# Fork budget: every process spawn costs 50-150 ms under Git Bash on Windows, so
+# this path sticks to bash builtins and a handful of external calls.
+HOOK_DIR="${BASH_SOURCE[0]%/*}"
+RUNTIME="$HOOK_DIR/../.harness/runtime"
+[[ -d "$RUNTIME" ]] || mkdir -p "$RUNTIME"
 
-input="$(cat)"
-# State is keyed by session_id so one session (or project) never inherits another's tally.
-sid="$(printf '%s' "$input" | jq -r '.session_id // empty' 2>/dev/null || true)"
-sid="$(printf '%s' "${sid:-nosession}" | tr -c 'A-Za-z0-9_-' '_' | cut -c1-64)"
-STATE="$RUNTIME/stuck-state-${sid}.jsonl"
-# Drop per-session state files untouched for over 7 days.
-find "$RUNTIME" -name 'stuck-state-*.jsonl' -mtime +7 -delete 2>/dev/null || true
-tool_name="$(printf '%s' "$input" | jq -r '.tool_name // empty' 2>/dev/null || true)"
+# Slurp the hook payload once with a builtin (no cat fork).
+IFS= read -r -d '' input || true
+# One jq call yields session id, tool name and the whitespace-normalized command.
+{ IFS= read -r sid; IFS= read -r tool_name; IFS= read -r key; } < <(
+  jq -r '(.session_id // "" | tostring),
+         (.tool_name // "" | tostring),
+         (.tool_input.command // .command // "" | tostring | gsub("[[:space:]]+"; " ") | sub("^ "; "") | sub(" $"; ""))' <<<"$input" 2>/dev/null
+)
+sid="${sid%$'\r'}"; tool_name="${tool_name%$'\r'}"; key="${key%$'\r'}"
 [[ "$tool_name" == "Bash" || "$tool_name" == "bash" ]] || exit 0
+[[ -n "$key" ]] || exit 0
 
-command="$(printf '%s' "$input" | jq -r '.tool_input.command // .command // empty' 2>/dev/null || true)"
-[[ -n "$command" ]] || exit 0
+# State is keyed by session_id so one session (or project) never inherits another's tally.
+sid="${sid:-nosession}"; sid="${sid//[^A-Za-z0-9_-]/_}"; sid="${sid:0:64}"
+STATE="$RUNTIME/stuck-state-${sid}.jsonl"
 
-# Normalize whitespace for stable matching.
-key="$(printf '%s' "$command" | tr -s '[:space:]' ' ' | sed 's/^ //;s/ $//')"
-# Skip trivial / read-only commands — they repeat legitimately.
+# Skip trivial / read-only commands: they repeat legitimately.
 case "$key" in
-  ls|pwd|clear|"") exit 0 ;;
+  ls|pwd|clear) exit 0 ;;
 esac
-if printf '%s' "$key" | grep -Eq '^(git[[:space:]]+(status|log|diff|branch|show)|rg[[:space:]]|fd[[:space:]]|cat[[:space:]]|bat[[:space:]]|head[[:space:]]|tail[[:space:]]|wc[[:space:]])'; then
+if [[ "$key" =~ ^(git[[:space:]]+(status|log|diff|branch|show)|rg[[:space:]]|fd[[:space:]]|cat[[:space:]]|bat[[:space:]]|head[[:space:]]|tail[[:space:]]|wc[[:space:]]) ]]; then
   exit 0
 fi
 # VCS sync and test runners repeat legitimately (retry after a fix, re-run until green),
 # so they get a higher threshold instead of an exemption: a truly stuck push or test
 # loop still stops.
 limit=3
-if printf '%s' "$key" | grep -Eq '^(git[[:space:]]+(add|commit|push|pull|fetch)([[:space:]]|$)|npm[[:space:]]+(run[[:space:]]+)?test|pytest|python3?[[:space:]]+-m[[:space:]]+pytest|bats([[:space:]]|$)|go[[:space:]]+test|cargo[[:space:]]+test)'; then
+if [[ "$key" =~ ^(git[[:space:]]+(add|commit|push|pull|fetch)([[:space:]]|$)|npm[[:space:]]+(run[[:space:]]+)?test|pytest|python3?[[:space:]]+-m[[:space:]]+pytest|bats([[:space:]]|$)|go[[:space:]]+test|cargo[[:space:]]+test) ]]; then
   limit=8
 fi
 
+# Drop per-session state files untouched for over 7 days. Once per session is enough.
+[[ -e "$STATE" ]] || find "$RUNTIME" -name 'stuck-state-*.jsonl' -mtime +7 -delete 2>/dev/null || true
+
 # Tally identical attempts in this session window (last 20 entries).
-hash="$(printf '%s' "$key" | shasum -a 256 | awk '{print $1}')"
-ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-jq -nc --arg h "$hash" --arg ts "$ts" --arg cmd "$key" \
-  '{hash: $h, ts: $ts, cmd: $cmd}' >> "$STATE"
+# sha256sum (Git Bash/Linux) or shasum (macOS); without either every command would
+# hash to "" and collide, so fail open instead of blocking unrelated commands.
+if command -v sha256sum >/dev/null 2>&1; then
+  read -r hash _ < <(printf '%s' "$key" | sha256sum)
+elif command -v shasum >/dev/null 2>&1; then
+  read -r hash _ < <(printf '%s' "$key" | shasum -a 256)
+else
+  exit 0
+fi
+[[ -n "${hash:-}" ]] || exit 0
+jq -nc --arg h "$hash" --arg cmd "$key" \
+  '{hash: $h, ts: (now | todate), cmd: $cmd}' >> "$STATE"
 
 # Count occurrences of this hash in the trailing window.
-count="$(tail -n 20 "$STATE" 2>/dev/null | jq -r --arg h "$hash" 'select(.hash==$h) | .hash' | wc -l | tr -d ' ')"
+count="$(tail -n 20 "$STATE" 2>/dev/null | grep -c "\"hash\":\"$hash\"")"
+count="${count:-0}"
 
 if [[ "$count" -ge "$limit" ]]; then
   echo "BLOCKED — Stuck protocol (RULES.md):" >&2
