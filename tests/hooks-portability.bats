@@ -98,6 +98,11 @@ Co-Authored-By: Jane Talbot <jane@example.com>"')"
       run hook check-stuck-loop.sh "$(bash_payload "$cmd" T)"; [ "$status" -eq 0 ]
     done
   done
+  # npx vitest run is the newest in the 20-entry window: runs 5-7 pass, the 8th blocks.
+  for i in 5 6 7; do
+    run hook check-stuck-loop.sh "$(bash_payload 'npx vitest run' T)"; [ "$status" -eq 0 ]
+  done
+  run hook check-stuck-loop.sh "$(bash_payload 'npx vitest run' T)"; [ "$status" -eq 2 ]
 }
 
 @test "check-stuck-loop: works when invoked by bare filename from its own directory" {
