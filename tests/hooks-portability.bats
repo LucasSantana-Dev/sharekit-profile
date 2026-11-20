@@ -74,6 +74,46 @@ Co-Authored-By: Jane Talbot <jane@example.com>"')"
   [ "$status" -eq 0 ]
 }
 
+@test "check-stuck-loop: read-only commands never block, git show-ref is not one of them" {
+  for i in 1 2 3 4; do
+    run hook check-stuck-loop.sh "$(bash_payload 'git status' R)"; [ "$status" -eq 0 ]
+    run hook check-stuck-loop.sh "$(bash_payload 'cat README.md' R)"; [ "$status" -eq 0 ]
+  done
+  run hook check-stuck-loop.sh "$(bash_payload 'git show-ref' R)"; [ "$status" -eq 0 ]
+  run hook check-stuck-loop.sh "$(bash_payload 'git show-ref' R)"; [ "$status" -eq 0 ]
+  run hook check-stuck-loop.sh "$(bash_payload 'git show-ref' R)"; [ "$status" -eq 2 ]
+}
+
+@test "check-stuck-loop: a repeated cat heredoc write counts, whitespace and quotes normalized" {
+  one="$(printf 'cat > out.txt <<EOF\nsay "hi"\nEOF')"
+  two="$(printf 'cat > out.txt   <<EOF\n\nsay "hi"\nEOF')"
+  run hook check-stuck-loop.sh "$(bash_payload "$one" 'odd id/with spaces')"; [ "$status" -eq 0 ]
+  run hook check-stuck-loop.sh "$(bash_payload "$two" 'odd id/with spaces')"; [ "$status" -eq 0 ]
+  run hook check-stuck-loop.sh "$(bash_payload "$one" 'odd id/with spaces')"; [ "$status" -eq 2 ]
+}
+
+@test "check-stuck-loop: pnpm test and make test get the test-runner limit" {
+  for cmd in 'pnpm test' 'make test' 'npx vitest run'; do
+    for i in 1 2 3 4; do
+      run hook check-stuck-loop.sh "$(bash_payload "$cmd" T)"; [ "$status" -eq 0 ]
+    done
+  done
+  # npx vitest run is the newest in the 20-entry window: runs 5-7 pass, the 8th blocks.
+  for i in 5 6 7; do
+    run hook check-stuck-loop.sh "$(bash_payload 'npx vitest run' T)"; [ "$status" -eq 0 ]
+  done
+  run hook check-stuck-loop.sh "$(bash_payload 'npx vitest run' T)"; [ "$status" -eq 2 ]
+}
+
+@test "check-stuck-loop: works when invoked by bare filename from its own directory" {
+  cd "$H"
+  for want in 0 0 2; do
+    run bash -c 'printf "%s" "$1" | env -i HOME="$2" PATH="$3" "$4" check-stuck-loop.sh' _ \
+      "$(bash_payload 'make build' BARE)" "$TMP_HOME" "$GH_PATH" "$SH"
+    [ "$status" -eq "$want" ]
+  done
+}
+
 @test "eval-run: skips a task whose hook file is not installed" {
   [ ! -f "$H/check-dangerous-patterns.sh" ]
   run env -i HOME="$TMP_HOME" PATH="$GH_PATH" "$SH" "$H/eval-run.sh" --eval portability --variant with --split seen
