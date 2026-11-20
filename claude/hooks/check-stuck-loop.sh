@@ -6,14 +6,16 @@
 #
 # This hook detects the most reliable stuck signal available to a stateless
 # per-call hook: repeated identical Bash commands within the current session.
-# It maintains a per-session counter in .harness/runtime/stuck-state.json and
-# blocks (exit 2) on the 3rd identical attempt, surfacing the Stuck banner.
+# It appends each command hash to .harness/runtime/stuck-state-<session>.jsonl and
+# blocks (exit 2) on the 3rd identical attempt in the last 20 entries (the 8th for
+# VCS sync and test runners), surfacing the Stuck banner.
 set -uo pipefail
 command -v jq >/dev/null 2>&1 || exit 0
 
 # Fork budget: every process spawn costs 50-150 ms under Git Bash on Windows, so
 # this path sticks to bash builtins and a handful of external calls.
 HOOK_DIR="${BASH_SOURCE[0]%/*}"
+[[ "$HOOK_DIR" == "${BASH_SOURCE[0]}" ]] && HOOK_DIR=.   # invoked with no slash in the path
 RUNTIME="$HOOK_DIR/../.harness/runtime"
 [[ -d "$RUNTIME" ]] || mkdir -p "$RUNTIME"
 
@@ -37,14 +39,18 @@ STATE="$RUNTIME/stuck-state-${sid}.jsonl"
 case "$key" in
   ls|pwd|clear) exit 0 ;;
 esac
-if [[ "$key" =~ ^(git[[:space:]]+(status|log|diff|branch|show)|rg[[:space:]]|fd[[:space:]]|cat[[:space:]]|bat[[:space:]]|head[[:space:]]|tail[[:space:]]|wc[[:space:]]) ]]; then
+if [[ "$key" =~ ^(git[[:space:]]+(status|log|diff|branch|show)([[:space:]]|$)|rg[[:space:]]|fd[[:space:]]|bat[[:space:]]|head[[:space:]]|tail[[:space:]]|wc[[:space:]]) ]]; then
+  exit 0
+fi
+# cat reads, except with a heredoc, where it is a file write and counts like any other.
+if [[ "$key" =~ ^cat[[:space:]] && "$key" != *"<<"* ]]; then
   exit 0
 fi
 # VCS sync and test runners repeat legitimately (retry after a fix, re-run until green),
 # so they get a higher threshold instead of an exemption: a truly stuck push or test
 # loop still stops.
 limit=3
-if [[ "$key" =~ ^(git[[:space:]]+(add|commit|push|pull|fetch)([[:space:]]|$)|npm[[:space:]]+(run[[:space:]]+)?test|pytest|python3?[[:space:]]+-m[[:space:]]+pytest|bats([[:space:]]|$)|go[[:space:]]+test|cargo[[:space:]]+test) ]]; then
+if [[ "$key" =~ ^(git[[:space:]]+(add|commit|push|pull|fetch)([[:space:]]|$)|(npm|pnpm|yarn|bun)[[:space:]]+(run[[:space:]]+)?test|(npx[[:space:]]+)?(vitest|jest)([[:space:]]|$)|make[[:space:]]+test|mvn[[:space:]]+test|(\./)?gradlew?[[:space:]]+test|pytest|python3?[[:space:]]+-m[[:space:]]+pytest|bats([[:space:]]|$)|go[[:space:]]+test|cargo[[:space:]]+test) ]]; then
   limit=8
 fi
 
