@@ -9,5 +9,16 @@
   "attribution": {
     "commit": "",
     "pr": ""
+  },
+  "extraKnownMarketplaces": {
+    "sharekit-profile": {
+      "source": {
+        "source": "github",
+        "repo": "LucasSantana-Dev/sharekit-profile"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "sharekit@sharekit-profile": true
   }
 }
