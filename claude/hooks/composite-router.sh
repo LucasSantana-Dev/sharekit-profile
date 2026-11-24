@@ -56,6 +56,11 @@ LEN=${#PROMPT}
 # Lowercase for matching
 P=$(printf '%s' "$PROMPT" | tr '[:upper:]' '[:lower:]')
 
+# A prompt that starts with /name is a slash command the user already invoked.
+# Since Claude Code 2.1.299 this hook runs before that command expands, so
+# matching it here would ask for the same skill a second time.
+case "$P" in /[a-z]*) exit 0 ;; esac
+
 # Match a composite. Order matters: more specific matches first.
 # Each line: regex pattern → composite name → why
 match_composite() {
