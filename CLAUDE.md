@@ -25,7 +25,7 @@ The skill/agent/hook library is the source of truth and is harness-agnostic — 
 
 Match model strength to task — high result per token:
 
-- **Haiku** — mechanical work: formatting, symbol lookups, grep, simple renames, exploration, planning drafts.
+- **Sonnet, low effort** — mechanical work: formatting, symbol lookups, grep, simple renames, exploration, planning drafts. Haiku is retired in this profile (`claude/standards/model-tiering.md`).
 - **Sonnet** — implementation, feature work, code review, single-phase dispatch.
 - **Opus** — only deep reasoning: critic role, architecture review, cross-session synthesis, ADRs, >=5-step reasoning.
 
@@ -35,7 +35,7 @@ Do not override tier for speculative speed. When ambiguous, choose the lightest 
 
 | Complexity | Signals | Model tier |
 |-----------|---------|------------|
-| **Low** | Single-file edit, grep, config change | Haiku |
+| **Low** | Single-file edit, grep, config change | Sonnet (`effort: low`) |
 | **Medium** | Multi-file feature, bug fix, test writing | Sonnet |
 | **High** | Architecture, cross-repo, security audit | Opus |
 
@@ -55,10 +55,8 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
 
 ## Session budget
 
-- `model_reasoning_effort = "medium"` is the default — only escalate for genuinely complex tasks
-- After every 12 messages: warn "Context at ~45%"
-- After every 18 messages: warn "Context ~70% — compact immediately"
-- After every 22 messages: auto-generate a handoff file at `~/.claude/handoffs/<project>/latest.md`
+- Medium effort is the default; raise it only for genuinely complex tasks
+- Context is managed by Claude Code's automatic and idle compaction; `session-length-guard.sh` warns when a long or idle session gets expensive to keep (cache TTL), so there is no message-count rule
 - Commit after each functional step — smaller commits mean less re-work if a session ends
 
 ## Harness files
@@ -97,5 +95,4 @@ Live harness lives at `~/.claude/` (runtime) with tracked source at `~/.claude-e
 
 - **Pre-commit hooks**: Always run before commits — use `HUSKY=0` prefix to skip only for non-code changes
 - **Branch protection**: Cannot push directly to `main` — all changes must go through PR
-- **Context limits**: At 20+ messages, save state to handoff and start a fresh session
 - **Catalog counts**: index.html skill/agent/category counts are gated by `scripts/check-catalog.sh` against the `SKILLS`/`AGENTS` arrays; update the array entry, not just the displayed number, or the count silently drifts.

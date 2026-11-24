@@ -67,10 +67,11 @@ an autonomous agent did it:
 - Private channels (local notes, a private chat notifier) may say "agent"; GitHub
   may not.
 
-## 6. Modes on by default
+## 6. Modes
 
-Three modes are on in every session. The `mode-reminder.sh` UserPromptSubmit
-hook re-anchors them each turn.
+Three modes. They are on by default only where `mode-reminder.sh` is wired as a
+UserPromptSubmit hook (it re-anchors them each turn); the published profile does
+not wire it, so there you turn a mode on by asking for it.
 
 | Mode | What it does | Turn off (that session only) |
 |---|---|---|
