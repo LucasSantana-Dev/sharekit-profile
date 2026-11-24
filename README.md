@@ -57,8 +57,8 @@ What lands where with npx: `claude/` → `~/.claude/` (skill folders, agents, ho
 Fresh-machine caveats:
 
 - **Hook wiring is opt-in.** By default `settings.json` is skipped because it registers shell hooks. Re-run with `--include-hooks` to wire the hook pipeline (you get one explicit confirmation prompt); without it, skills and agents work but nothing fires automatically, including the client-memory gate (`memory-scope-gate.sh`) below. With sharekit 0.6.4 or later the flag merges only the `hooks` key into an existing `settings.json` and leaves your other settings alone; on older versions it overwrites the file, so merge the hook entries by hand instead.
-- **Client work needs one more step.** The install does not scaffold a client for you. Run the `client-offboard` skill's `init <slug>` mode once per client engagement: it registers the client, creates its vault, and wires the Claude Code project symlink so that client's ordinary memory writes land in its own vault instead of your general one. `clients.json` (the client registry) is private: it never ships with this profile, is never published, and lives under `$RAG_HOME` (default `~/.shelfmark`), not in any repo.
-- **External tool dependencies.** Some hooks assume tools that are not part of this profile: `rtk` (output compression), a RAG index + memory vault on an external drive, and `claude-mem`. On a machine without them the affected hooks degrade to no-ops or a one-line warning; nothing breaks, but auto-recall and token compression stay off until those exist.
+- **Client work needs one more step.** The install does not scaffold a client for you. Run the `client-offboard` skill's `init <slug>` mode once per client engagement: it registers the client, creates its vault, and wires the Claude Code project symlink so that client's ordinary memory writes land in its own vault instead of your general one. `clients.json` (the client registry) is private: it never ships with this profile, is never published, and lives under `$RAG_HOME` (default `~/.sqlrecall`; `~/.shelfmark` is still read when it is the only one present), not in any repo.
+- **External tool dependencies.** Some hooks assume tools that are not part of this profile: `rtk` (output compression), and a RAG index + memory vault on an external drive ([sqlrecall](https://github.com/LucasSantana-Dev/sqlrecall), formerly shelfmark). On a machine without them the affected hooks degrade to no-ops or a one-line warning; nothing breaks, but auto-recall and token compression stay off until those exist.
 - **Trunk-based repos and the push gate.** `check-pr-automation-halt.sh` blocks direct pushes to protected branches (main, master, release) and halts automation on PRs by other authors. To exempt a repo that legitimately pushes to main, list its GitHub `owner/name`, one per line, in `~/.claude/push-exemptions.txt` (blank lines and `#` comments are ignored; `PUSH_EXEMPTIONS_FILE` overrides the path). The gate needs `python3`; without it the gate logs a note and stays inactive.
 - **Hook requirements.** Hooks run under stock macOS `/bin/bash` 3.2 and need only POSIX tools plus `python3`. `jq` is optional: hooks that need it exit 0 (inactive) when it is missing.
 - **Provider keys come from env.** Your normal Claude Code login (and `OPENROUTER_API_KEY` if you run the routing eval gate). No keys ship in the profile.
@@ -388,7 +388,7 @@ The full catalog with triggers and frontmatter details is indexed by `hooks/skil
 ## MCP Servers
 
 ### Local
-- **rag-index** — semantic search on local knowledge base, powered by the open-source [shelfmark](https://github.com/LucasSantana-Dev/shelfmark) engine (eval methodology: [hitgate](https://github.com/LucasSantana-Dev/hitgate))
+- **rag-index** — semantic search on local knowledge base, powered by the open-source [sqlrecall](https://github.com/LucasSantana-Dev/sqlrecall) engine (formerly shelfmark) (eval methodology: [hitgate](https://github.com/LucasSantana-Dev/hitgate))
 - **tavily** — web search
 - **fetch** — fetch URLs
 - **firecrawl** — web scraping/crawling
@@ -396,7 +396,7 @@ The full catalog with triggers and frontmatter details is indexed by `hooks/skil
 - **graphify** — knowledge graph queries
 
 ### Cloud (via claude.ai)
-Context7, Gmail, Google Calendar, Google Drive, Hugging Face, Jam, Linear, Sentry, Vercel, Cloudflare, GitHub, Playwright, Supabase, Serena, claude-mem
+Context7, Gmail, Google Calendar, Google Drive, Hugging Face, Jam, Linear, Sentry, Vercel, Cloudflare, GitHub, Playwright, Supabase, Serena
 
 > CLI-first policy (2026-07-30): local `github`, `filesystem`, and `codebase-memory-mcp` MCP servers were removed — `gh` CLI and native file tools cover those capabilities at zero per-request schema cost. See `.harness/mcp-policy.json` → `cliFirst`.
 

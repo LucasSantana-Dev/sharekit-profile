@@ -77,29 +77,15 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
 - `evals/routing/` — LLM-behavioral skill-routing eval gate (ported from harness-evals Phase 0, 2026-07-30): 40 frozen tasks, OpenRouter-pinned model, gate = accuracy drop >5pp vs fingerprinted baseline. `--validate-only` runs offline in CI; full gate needs `OPENROUTER_API_KEY`. Tasks expecting skills outside the listing under test are SKIPped, not scored.
 - `~/.claude/settings.json` sets `skillListingBudgetFraction: 0.015` and `skillListingMaxDescChars: 160` to keep the per-request skill listing small; rarely used skills carry `disable-model-invocation: true` (still usable as `/name`). If count grows past 350, run `skill-maintainer` to prune duplicates.
 
-## Current state (2026-08-04)
+## Counts and inventory
 
-**Schema validation:** `hooks/skill-validate.sh` reports `errors=0` after PRs #13-14 fixed 55 frontmatter errors (28 block-scalar descriptions → single-line, 2 missing `description:` fields inserted). 3 non-blocking warnings remain (per `hooks/skill-validate.sh --dir claude/skills`, 2026-08-04) — these are tracked in [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) but do not fail CI.
+Counts are not kept in this file: they drifted every week. Get them from the scripts that CI already runs:
 
-**Hook count:** 50 top-level `.sh` hook scripts in `hooks/` (this repo's own dev-governance tree)
-plus 71 in `claude/hooks/` (the distributable product tree) — see "Harness files" above for why
-these are two separate counts, not one drifted number. This section drifts fast (was 49 a day
-after being corrected in #125); don't trust it without re-running `git ls-files hooks/ | grep '.sh$' | wc -l`.
+- `bash scripts/check-catalog.sh`: skills and agents listed on the site vs on disk
+- `bash scripts/check-marketplace.sh`: plugins, curated entries, hooks wired in `claude/settings.json`
+- `claude/hooks/README.md`: the hooks the profile wires (keep it in step with `claude/hooks/hooks.json`)
 
-**Skill count:** 50 skills listed in `index.html`'s `SKILLS` array (per `scripts/check-catalog.sh` 2026-08-02 canonical count; down from 103 via consolidation). `claude/skills/` itself holds 52 skill folders (`fd -t f '^SKILL\.md$' claude/skills`) — the array is now 2 *under* the folder count: folders without an array entry are on-demand publish (ADR 0002), and `add`/`debug`/`fallback` are listed built-in/composite entries with no dedicated folder. `check-catalog.sh` WARNs (non-blocking) if this gap ever changes shape. Archived skills live in `claude/skills/.archive/` for recoverability. Runtime skills are reconciled through canonical `~/.agents/skills`; `~/.claude/skills` is the symlinked runtime view and `~/.claude-env/skills` is a downstream mirror.
-
-**P8+P9 hooks shipped:**
-- `hooks/reorder-context.sh` — post-compaction attention reordering (LlamaIndex-style)
-- `hooks/checklist-gate.sh` — binary security/release checklist enforcement
-- `hooks/transcript-scanner.sh` — 6 pattern scanners (refusals, eval-awareness, env-drift, hallucination, excessive-agency, injection tells)
-- `hooks/trial-apply.sh` — materializes candidate hook edits into `.harness/forge/trial/` for isolated gating
-- `hooks/gate.sh` — gains `--proposal` + `--candidate` modes
-- `hooks/eval-run.sh` — gains `--seed` parameter for stateful hooks
-- `hooks/cycle.sh` — wires deploy-watch post-merge hook
-- `hooks/check-stuck-loop.sh` — gains real state file
-- `hooks/reflect-retry.sh` + `hooks/textgrad.sh` — advisory reflection + textual gradient
-
-**Known limitation:** `hooks/skill-validate.sh` grep-based extractor cannot parse YAML block scalars (`|`, `>`, `>-`). Accepted as-is — block scalars are valid YAML but fail the validator; skill authors should use single-line descriptions.
+Skill frontmatter: `description` must be a single line. `hooks/skill-validate.sh` cannot parse YAML block scalars (`|`, `>`, `>-`).
 
 ## Storage
 

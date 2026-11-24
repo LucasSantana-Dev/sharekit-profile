@@ -29,7 +29,7 @@ Minimal example:
 model_list:
   - model_name: sonnet-tier
     litellm_params:
-      model: anthropic/claude-sonnet-4-5
+      model: anthropic/claude-sonnet-5-5
   - model_name: free-fallback
     litellm_params:
       model: ollama/qwen3

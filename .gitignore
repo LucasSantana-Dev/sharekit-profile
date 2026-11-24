@@ -48,8 +48,8 @@ claude/.harness/
 # gap fix): clients.json holds real client slugs and absolute repo paths, and
 # .client/ holds a client's lexicon, origin id and manifest. Neither ships with
 # this profile or belongs in any repo's history; the registry itself lives
-# under $RAG_HOME (default ~/.shelfmark), this rule is a backstop for anyone
-# who points SHELFMARK_CLIENTS at a path inside a tracked repo.
+# under $RAG_HOME (default ~/.sqlrecall, formerly ~/.shelfmark), this rule is a backstop for anyone
+# who points SQLRECALL_CLIENTS (or SHELFMARK_CLIENTS) at a path inside a tracked repo.
 clients.json
 .client/
 

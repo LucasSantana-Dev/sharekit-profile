@@ -239,6 +239,6 @@ When enabled, PostCompact additionally runs `model-cache-guard.sh` (with `OBSERV
 - Exit code 2 is the only blocking code; every other exit is advisory or log-only.
 - Runtime dir: `.harness/runtime` holds the append-only trajectory, session records, compaction snapshots, incident stubs, and the distill pending queue. Gitignored.
 - Only hooks listed in `curated-hooks.txt` and present in `claude/hooks/` may be registered (enforced by `scripts/check-settings-hooks.py`). Dev-governance hooks under the repo-root `hooks/` (constitution-injection-guard, check-dangerous-patterns, check-session-lock) are not shipped to installers.
-- `memory-scope-gate.sh` is inert without a shelfmark client registry: general notes need a knowledge tag while a client is active.
+- `memory-scope-gate.sh` is inert without a sqlrecall (formerly shelfmark) client registry: general notes need a knowledge tag while a client is active.
 - `policy-gate.sh` gives deterministic ALLOW/DENY/REQUIRE_APPROVAL verdicts from `mcp-policy.json`, outside the model. Exit 2 on DENY.
 - `compaction-guard.sh` audits tool-call/result adjacency, budget warnings and cache-prefix stability. Advisory.
