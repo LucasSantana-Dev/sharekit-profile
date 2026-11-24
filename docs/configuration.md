@@ -333,8 +333,8 @@ opencode.ai/docs/config (verified 2026-07-29/30).
 
 This repo ships `.claude-plugin/marketplace.json`, so an org can add it as a
 Claude Code marketplace (`/plugin marketplace add LucasSantana-Dev/sharekit-profile`)
-and install one plugin per concern (`core-skills`, `security-hooks`,
-`role-agents`, `standards`). For fleet rollout, pin the marketplace in
+and install `sharekit` (skills, agents and hooks) or `core-skills` (skills
+only); install one of the two, not both. For fleet rollout, pin the marketplace in
 `managed-settings.json` with `strictKnownMarketplaces` so users can only add
 the allowlisted sources, and pair it with `strictPluginOnlyCustomization` so
 skills, agents, hooks, and MCP servers load only from plugins or managed
@@ -353,8 +353,7 @@ adopters:
   ],
   "strictPluginOnlyCustomization": ["skills", "hooks"],
   "enabledPlugins": {
-    "core-skills@sharekit-profile": true,
-    "security-hooks@sharekit-profile": true
+    "sharekit@sharekit-profile": true
   }
 }
 ```

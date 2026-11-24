@@ -43,7 +43,16 @@ Windows notes (see [`docs/troubleshooting.md`](docs/troubleshooting.md#windows-h
 npx @lucassantana/sharekit install LucasSantana-Dev
 ```
 
-What lands where: `claude/` → `~/.claude/` (52 skill folders, 55 agents, 78 hooks, 61 standards, CLAUDE.md), plus `cursor/`, `gjc/` → `~/.gjc/`, and `warp/` as portable defaults.
+Or, inside Claude Code, install it as a plugin (skills, agents and hooks, updated through the marketplace; no `settings.json` merge):
+
+```text
+/plugin marketplace add LucasSantana-Dev/sharekit-profile
+/plugin install sharekit@sharekit-profile
+```
+
+Use `core-skills@sharekit-profile` instead for skills only. Pick one route: the plugin and the npx install both wire the same hooks, so running both fires each hook twice.
+
+What lands where with npx: `claude/` → `~/.claude/` (skill folders, agents, hooks, standards and CLAUDE.md; `bash scripts/check-catalog.sh` prints the current counts), plus `cursor/`, `gjc/` → `~/.gjc/`, and `warp/` as portable defaults.
 
 Fresh-machine caveats:
 

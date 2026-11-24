@@ -1510,13 +1510,9 @@ const MCP_SERVERS = [
 ];
 
 const PLUGINS = [
-  { name: 'core-skills', desc: 'Curated portable skills (curated-skills.txt): workflows, composites, and operator utilities.', tags: ['Skills'] },
-  { name: 'security-hooks', desc: 'Curated portable hooks (curated-hooks.txt): policy gates, drift checks, and session guards that ship to installers.', tags: ['Hooks'] },
-  { name: 'gate-hooks', desc: 'Repo governance hooks: constitution gates, catalog guards, and CI drift checks for the profile itself.', tags: ['Hooks', 'Repo CI'] },
-  { name: 'role-agents', desc: 'Curated portable agents (curated-agents.txt): critic, reviewer, debugger, and specialist roles.', tags: ['Agents'] },
+  { name: 'sharekit', desc: 'Full profile: curated skills, role agents, and portable hooks (secret-read gate, protected files, PR automation halt, loop and idempotency checks).', tags: ['Skills', 'Agents', 'Hooks'] },
+  { name: 'core-skills', desc: 'Skills only (curated-skills.txt): workflows, composites, and operator utilities. Install this or sharekit, not both.', tags: ['Skills'] },
   { name: 'review-pack', desc: 'CI-native multi-agent review pack: risk-tiered reviewer fan-out plus a coordinator judge pass emitting one severity-rated review (critical-only blocking).', tags: ['Agents', 'CI'] },
-  { name: 'standards', desc: 'Operator standards and decision records (curated-standards.txt): routing, testing, security, workflow.', tags: ['Standards'] },
-  { name: 'typed-schemas', desc: 'Shared schema contracts (typed-result-schema.md) kept at the repo root for cross-harness reuse.', tags: ['Schemas'] },
 ];
 
 // ══ STATE ═══════════════════════════════════════════════════════════════════

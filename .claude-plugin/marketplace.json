@@ -5,15 +5,33 @@
     "url": "https://github.com/LucasSantana-Dev/sharekit-profile"
   },
   "metadata": {
-    "description": "Sharekit operator harness profile: curated skills, hooks, agents, and standards packaged as a Claude Code marketplace, one plugin per concern.",
+    "description": "Sharekit operator harness profile: curated skills, hooks, agents, and standards packaged as a Claude Code marketplace: the full profile, a skills-only plugin, and the CI review pack.",
     "version": "0.14.1"
   },
   "plugins": [
     {
+      "name": "sharekit",
+      "source": "./claude",
+      "description": "Full sharekit profile: curated skills, role agents (critic, reviewer, debugger, specialists) and portable hooks (secret-read gate, protected files, PR automation halt, loop and idempotency checks).",
+      "version": "0.12.0",
+      "author": {
+        "name": "Sharekit Maintainers"
+      },
+      "license": "MIT",
+      "keywords": [
+        "skills",
+        "agents",
+        "hooks",
+        "harness"
+      ],
+      "category": "productivity",
+      "strict": false
+    },
+    {
       "name": "core-skills",
       "source": "./claude/skills",
-      "description": "Curated portable skills (curated-skills.txt): workflows, composites, and operator utilities.",
-      "version": "0.11.0",
+      "description": "Skills only (curated-skills.txt): workflows, composites, and operator utilities. Install this or sharekit, not both.",
+      "version": "0.12.0",
       "author": {
         "name": "Sharekit Maintainers"
       },
@@ -24,64 +42,16 @@
         "harness"
       ],
       "category": "productivity",
-      "strict": false
-    },
-    {
-      "name": "security-hooks",
-      "source": "./claude/hooks",
-      "description": "Curated portable hooks (curated-hooks.txt): policy gates, drift checks, and session guards that ship to installers.",
-      "version": "0.11.0",
-      "author": {
-        "name": "Sharekit Maintainers"
-      },
-      "license": "MIT",
-      "keywords": [
-        "hooks",
-        "security",
-        "gates"
-      ],
-      "category": "security",
-      "strict": false
-    },
-    {
-      "name": "gate-hooks",
-      "source": "./hooks",
-      "description": "Repo governance hooks: constitution gates, catalog guards, and CI drift checks for the profile itself.",
-      "version": "0.11.0",
-      "author": {
-        "name": "Sharekit Maintainers"
-      },
-      "license": "MIT",
-      "keywords": [
-        "hooks",
-        "governance",
-        "ci"
-      ],
-      "category": "governance",
-      "strict": false
-    },
-    {
-      "name": "role-agents",
-      "source": "./claude/agents",
-      "description": "Curated portable agents (curated-agents.txt): critic, reviewer, debugger, and specialist roles.",
-      "version": "0.11.0",
-      "author": {
-        "name": "Sharekit Maintainers"
-      },
-      "license": "MIT",
-      "keywords": [
-        "agents",
-        "subagents",
-        "roles"
-      ],
-      "category": "productivity",
-      "strict": false
+      "strict": false,
+      "skills": [
+        "./"
+      ]
     },
     {
       "name": "review-pack",
-      "source": "./claude/agents/review",
+      "source": "./plugins/review-pack",
       "description": "CI-native multi-agent review pack: risk-tiered reviewer fan-out plus a coordinator judge pass emitting one severity-rated review (critical-only blocking).",
-      "version": "0.11.0",
+      "version": "0.12.0",
       "author": {
         "name": "Sharekit Maintainers"
       },
@@ -92,39 +62,6 @@
         "ci"
       ],
       "category": "productivity",
-      "strict": false
-    },
-    {
-      "name": "standards",
-      "source": "./claude/standards",
-      "description": "Operator standards and decision records (curated-standards.txt): routing, testing, security, workflow.",
-      "version": "0.11.0",
-      "author": {
-        "name": "Sharekit Maintainers"
-      },
-      "license": "MIT",
-      "keywords": [
-        "standards",
-        "policy",
-        "decisions"
-      ],
-      "category": "governance",
-      "strict": false
-    },
-    {
-      "name": "typed-schemas",
-      "source": "./standards",
-      "description": "Shared schema contracts (typed-result-schema.md) kept at the repo root for cross-harness reuse.",
-      "version": "0.11.0",
-      "author": {
-        "name": "Sharekit Maintainers"
-      },
-      "license": "MIT",
-      "keywords": [
-        "standards",
-        "schema"
-      ],
-      "category": "governance",
       "strict": false
     }
   ]

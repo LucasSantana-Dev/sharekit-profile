@@ -13,8 +13,9 @@ setup() {
 mk_fixture() { # $1 = fixture root
   mkdir -p "$1/.claude-plugin" "$1/claude/skills/demo-skill" "$1/claude/hooks"
   touch "$1/claude/hooks/demo-hook.sh"
+  printf '{"hooks":{}}\n' > "$1/claude/hooks/hooks.json"
   printf 'demo-skill\n' > "$1/curated-skills.txt"
-  printf 'demo-hook.sh\n' > "$1/curated-hooks.txt"
+  printf 'demo-hook.sh\nhooks.json\n' > "$1/curated-hooks.txt"
   cat > "$1/.claude-plugin/marketplace.json" <<'EOF'
 {
   "name": "fixture",
@@ -23,13 +24,14 @@ mk_fixture() { # $1 = fixture root
     {
       "name": "core-skills",
       "source": "./claude/skills",
+      "skills": ["./"],
       "description": "Fixture skills plugin",
       "version": "1.0.0"
     },
     {
-      "name": "security-hooks",
-      "source": "./claude/hooks",
-      "description": "Fixture hooks plugin",
+      "name": "sharekit",
+      "source": "./claude",
+      "description": "Fixture full plugin",
       "version": "1.0.0"
     }
   ]
@@ -68,7 +70,7 @@ EOF
 import json, sys
 p = sys.argv[1]
 data = json.load(open(p))
-data["plugins"] = [pl for pl in data["plugins"] if pl["source"] != "./claude/hooks"]
+data["plugins"] = [pl for pl in data["plugins"] if pl["source"] != "./claude"]
 json.dump(data, open(p, "w"))
 EOF
   result=$( bash "$REPO_ROOT/scripts/check-marketplace.sh" "$TEST_TMP/noplugin" 2>&1 || true )
@@ -146,4 +148,18 @@ json.dump(d, open(p, "w"), indent=2)
 PY
   echo '{"." : "1.0.0"}' > "$TEST_TMP/channel-ok/.release-please-manifest.json"
   bash "$REPO_ROOT/scripts/check-marketplace.sh" "$TEST_TMP/channel-ok"
+}
+
+@test "check-marketplace: plugin source with no component layout fails" {
+  mk_fixture "$TEST_TMP/empty"
+  python3 - "$TEST_TMP/empty/.claude-plugin/marketplace.json" <<'PY'
+import json, sys
+p = sys.argv[1]
+data = json.load(open(p))
+for pl in data["plugins"]:
+    pl.pop("skills", None)
+json.dump(data, open(p, "w"))
+PY
+  result=$( bash "$REPO_ROOT/scripts/check-marketplace.sh" "$TEST_TMP/empty" 2>&1 || true )
+  [[ "$result" == *"installs empty"* ]]
 }

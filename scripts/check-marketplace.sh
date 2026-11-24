@@ -56,6 +56,13 @@ for p in plugins:
         print(f"ERR\tplugin {label} source must be a relative path starting with ./")
     elif name:
         print(f"SRC\t{name}\t{src}")
+        # A source dir with no component layout installs fine and loads nothing
+        # (0 skills/agents/hooks): require one, or an explicit skills path.
+        import os
+        root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(path))), src[2:])
+        layout = ("skills", "agents", "commands", "hooks/hooks.json", ".mcp.json")
+        if not p.get("skills") and not any(os.path.exists(os.path.join(root, x)) for x in layout):
+            print(f"ERR\tplugin {label} source {src} has no skills/, agents/, commands/, hooks/hooks.json or .mcp.json (installs empty)")
 PY
 )
 
@@ -81,7 +88,12 @@ curated_count=0
 sync_pair() { # curated file, source dir
   local list="$ROOT/$1" dir="$2"
   [ -f "$list" ] || return 0
-  if ! printf '%s' "$sources" | grep -Fxq "$dir"; then
+  local covered=0 src
+  while IFS= read -r src; do
+    [ -n "$src" ] || continue
+    case "$dir/" in "${src%/}/"*) covered=1 ;; esac
+  done <<< "$sources"
+  if [ "$covered" = 0 ]; then
     err "$1 has no marketplace plugin covering $dir"
     return
   fi
