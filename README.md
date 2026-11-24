@@ -157,6 +157,8 @@ sharekit-profile/
 ├── scripts/                  # Repo maintenance scripts (catalog checks, manifest
 │                             #   regen, harness-boundary checks)
 ├── evals/                    # Behavioral routing eval gate (40 frozen tasks)
+│                             #   Per-skill evals: python3 scripts/gen-plugin-evals.py, then
+│                             #   claude plugin eval ./claude --runs 1 --trust-plugin
 ├── .harness/                 # Governance config: constitution.json, mcp-policy.json,
 │                             #   manifest.json (tracked-file fingerprints)
 ├── .github/workflows/        # CI: harness-gates (bats + eval-gate), release-please
