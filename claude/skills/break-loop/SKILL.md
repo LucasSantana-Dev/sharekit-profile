@@ -1,5 +1,5 @@
 ---
-name: loop
+name: break-loop
 description: Detect when the agent repeats the same action without progress and break the cycle. Use when stuck, "you're going in circles", or an error recurs 3+ times.
 triggers:
   - loop
@@ -11,7 +11,7 @@ triggers:
   - run iteratively
 ---
 
-# loop
+# break-loop
 
 ## Cycle
 

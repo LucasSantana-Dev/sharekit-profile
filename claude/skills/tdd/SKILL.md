@@ -6,6 +6,7 @@ triggers:
   - red green refactor
   - test first
   - behavior driven
+disable-model-invocation: true
 ---
 
 # Test-Driven Development (Short)
