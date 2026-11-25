@@ -5,5 +5,20 @@
   "hook_firing_order_doc": "docs/hook-firing-order.md",
   "runtime_dir": ".harness/runtime",
   "runtime_dir_note": "Append-only trajectory, session records, compaction snapshots, incident stubs, and the distill pending queue. Gitignored — see .gitignore.",
-  "hooks_note": "Empty on purpose: trajectory telemetry moved into tool-logger (global settings); trajectory-log.sh was retired from the runtime in Wave B."
+  "hooks_note": "Empty on purpose: trajectory telemetry moved into tool-logger (global settings); trajectory-log.sh was retired from the runtime in Wave B.",
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "extraKnownMarketplaces": {
+    "sharekit-profile": {
+      "source": {
+        "source": "github",
+        "repo": "LucasSantana-Dev/sharekit-profile"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "sharekit@sharekit-profile": true
+  }
 }
