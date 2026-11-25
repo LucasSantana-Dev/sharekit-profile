@@ -18,6 +18,16 @@ jobs:
       # setting it here would make the action ignore the config + manifest files.
       - uses: googleapis/release-please-action@v5
         id: rp
+      - uses: actions/checkout@v7
+        if: ${{ steps.rp.outputs.release_created == 'true' }}
+      - name: Attach sharekit-plugin.zip to the release
+        if: ${{ steps.rp.outputs.release_created == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.rp.outputs.tag_name }}
+        run: |
+          bash scripts/build-plugin-zip.sh dist/sharekit-plugin.zip
+          gh release upload "$TAG" dist/sharekit-plugin.zip --clobber
       # Release PRs opened with GITHUB_TOKEN do not trigger pull_request
       # workflows, so no required check would ever report on them. workflow_dispatch
       # started with GITHUB_TOKEN does run, and attaches the checks to the branch head.
