@@ -1,0 +1,29 @@
+name: Plugin zip
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "claude/skills/**"
+      - "claude/agents/**"
+      - "claude/hooks/**"
+      - ".claude-plugin/marketplace.json"
+      - "scripts/build-plugin-zip.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build sharekit-plugin.zip
+        run: bash scripts/build-plugin-zip.sh dist/sharekit-plugin.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sharekit-plugin
+          path: dist/sharekit-plugin.zip
+          retention-days: 90
