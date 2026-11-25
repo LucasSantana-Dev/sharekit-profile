@@ -74,5 +74,6 @@ characterization to set user expectations.
 5. **Escape hatch tuning** — 3 retries is usually enough. More than 5 retries
    without progress is almost always a design problem, not a token problem.
 
-6. **Haiku for mechanical phases** — discovery/search phases that just grep or
-   list files can use claude-haiku-4-5 instead of Sonnet. 10× cheaper per token.
+6. **Low effort for mechanical phases**: discovery/search phases that just grep or
+   list files run on Sonnet with `effort: low` (agent frontmatter) instead of a
+   cheaper tier. Haiku is retired in this profile (standards/model-tiering.md).

@@ -25,7 +25,7 @@ The skill/agent/hook library is the source of truth and is harness-agnostic — 
 
 Match model strength to task — high result per token:
 
-- **Haiku** — mechanical work: formatting, symbol lookups, grep, simple renames, exploration, planning drafts.
+- **Sonnet, low effort** — mechanical work: formatting, symbol lookups, grep, simple renames, exploration, planning drafts. Haiku is retired in this profile (`claude/standards/model-tiering.md`).
 - **Sonnet** — implementation, feature work, code review, single-phase dispatch.
 - **Opus** — only deep reasoning: critic role, architecture review, cross-session synthesis, ADRs, >=5-step reasoning.
 
@@ -35,7 +35,7 @@ Do not override tier for speculative speed. When ambiguous, choose the lightest 
 
 | Complexity | Signals | Model tier |
 |-----------|---------|------------|
-| **Low** | Single-file edit, grep, config change | Haiku |
+| **Low** | Single-file edit, grep, config change | Sonnet (`effort: low`) |
 | **Medium** | Multi-file feature, bug fix, test writing | Sonnet |
 | **High** | Architecture, cross-repo, security audit | Opus |
 
@@ -55,10 +55,8 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
 
 ## Session budget
 
-- `model_reasoning_effort = "medium"` is the default — only escalate for genuinely complex tasks
-- After every 12 messages: warn "Context at ~45%"
-- After every 18 messages: warn "Context ~70% — compact immediately"
-- After every 22 messages: auto-generate a handoff file at `~/.claude/handoffs/<project>/latest.md`
+- Medium effort is the default; raise it only for genuinely complex tasks
+- Context is managed by Claude Code's automatic and idle compaction; `session-length-guard.sh` warns when a long or idle session gets expensive to keep (cache TTL), so there is no message-count rule
 - Commit after each functional step — smaller commits mean less re-work if a session ends
 
 ## Harness files
@@ -79,29 +77,15 @@ When the user's intent matches a composite skill, ALWAYS invoke the composite �
 - `evals/routing/` — LLM-behavioral skill-routing eval gate (ported from harness-evals Phase 0, 2026-07-30): 40 frozen tasks, OpenRouter-pinned model, gate = accuracy drop >5pp vs fingerprinted baseline. `--validate-only` runs offline in CI; full gate needs `OPENROUTER_API_KEY`. Tasks expecting skills outside the listing under test are SKIPped, not scored.
 - `~/.claude/settings.json` sets `skillListingBudgetFraction: 0.015` and `skillListingMaxDescChars: 160` to keep the per-request skill listing small; rarely used skills carry `disable-model-invocation: true` (still usable as `/name`). If count grows past 350, run `skill-maintainer` to prune duplicates.
 
-## Current state (2026-08-04)
+## Counts and inventory
 
-**Schema validation:** `hooks/skill-validate.sh` reports `errors=0` after PRs #13-14 fixed 55 frontmatter errors (28 block-scalar descriptions → single-line, 2 missing `description:` fields inserted). 3 non-blocking warnings remain (per `hooks/skill-validate.sh --dir claude/skills`, 2026-08-04) — these are tracked in [`docs/skill-catalog-efficiency.md`](docs/skill-catalog-efficiency.md) but do not fail CI.
+Counts are not kept in this file: they drifted every week. Get them from the scripts that CI already runs:
 
-**Hook count:** 50 top-level `.sh` hook scripts in `hooks/` (this repo's own dev-governance tree)
-plus 71 in `claude/hooks/` (the distributable product tree) — see "Harness files" above for why
-these are two separate counts, not one drifted number. This section drifts fast (was 49 a day
-after being corrected in #125); don't trust it without re-running `git ls-files hooks/ | grep '.sh$' | wc -l`.
+- `bash scripts/check-catalog.sh`: skills and agents listed on the site vs on disk
+- `bash scripts/check-marketplace.sh`: plugins, curated entries, hooks wired in `claude/settings.json`
+- `claude/hooks/README.md`: the hooks the profile wires (keep it in step with `claude/hooks/hooks.json`)
 
-**Skill count:** 50 skills listed in `index.html`'s `SKILLS` array (per `scripts/check-catalog.sh` 2026-08-02 canonical count; down from 103 via consolidation). `claude/skills/` itself holds 52 skill folders (`fd -t f '^SKILL\.md$' claude/skills`) — the array is now 2 *under* the folder count: folders without an array entry are on-demand publish (ADR 0002), and `add`/`debug`/`fallback` are listed built-in/composite entries with no dedicated folder. `check-catalog.sh` WARNs (non-blocking) if this gap ever changes shape. Archived skills live in `claude/skills/.archive/` for recoverability. Runtime skills are reconciled through canonical `~/.agents/skills`; `~/.claude/skills` is the symlinked runtime view and `~/.claude-env/skills` is a downstream mirror.
-
-**P8+P9 hooks shipped:**
-- `hooks/reorder-context.sh` — post-compaction attention reordering (LlamaIndex-style)
-- `hooks/checklist-gate.sh` — binary security/release checklist enforcement
-- `hooks/transcript-scanner.sh` — 6 pattern scanners (refusals, eval-awareness, env-drift, hallucination, excessive-agency, injection tells)
-- `hooks/trial-apply.sh` — materializes candidate hook edits into `.harness/forge/trial/` for isolated gating
-- `hooks/gate.sh` — gains `--proposal` + `--candidate` modes
-- `hooks/eval-run.sh` — gains `--seed` parameter for stateful hooks
-- `hooks/cycle.sh` — wires deploy-watch post-merge hook
-- `hooks/check-stuck-loop.sh` — gains real state file
-- `hooks/reflect-retry.sh` + `hooks/textgrad.sh` — advisory reflection + textual gradient
-
-**Known limitation:** `hooks/skill-validate.sh` grep-based extractor cannot parse YAML block scalars (`|`, `>`, `>-`). Accepted as-is — block scalars are valid YAML but fail the validator; skill authors should use single-line descriptions.
+Skill frontmatter: `description` must be a single line. `hooks/skill-validate.sh` cannot parse YAML block scalars (`|`, `>`, `>-`).
 
 ## Storage
 
@@ -111,5 +95,4 @@ Live harness lives at `~/.claude/` (runtime) with tracked source at `~/.claude-e
 
 - **Pre-commit hooks**: Always run before commits — use `HUSKY=0` prefix to skip only for non-code changes
 - **Branch protection**: Cannot push directly to `main` — all changes must go through PR
-- **Context limits**: At 20+ messages, save state to handoff and start a fresh session
 - **Catalog counts**: index.html skill/agent/category counts are gated by `scripts/check-catalog.sh` against the `SKILLS`/`AGENTS` arrays; update the array entry, not just the displayed number, or the count silently drifts.

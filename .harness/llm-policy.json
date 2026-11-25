@@ -15,7 +15,7 @@
     "haiku": {
       "description": "Mechanical work: formatting, symbol lookups, grep, simple renames, exploration, planning drafts.",
       "models": [
-        "anthropic/claude-haiku-4-5",
+        "anthropic/claude-haiku-5-5",
         "opencode-go/deepseek-v4-flash",
         "opencode-go/mimo-v2.5"
       ]
@@ -23,7 +23,7 @@
     "sonnet": {
       "description": "Implementation, feature work, code review, single-phase dispatch.",
       "models": [
-        "anthropic/claude-sonnet-4-5",
+        "anthropic/claude-sonnet-5-5",
         "opencode-go/glm-5.2",
         "opencode-go/deepseek-v4-pro",
         "opencode-go/qwen3.7-max",
@@ -33,7 +33,7 @@
     "opus": {
       "description": "Deep reasoning only: critic role, architecture review, cross-session synthesis, ADRs, >=5-step reasoning.",
       "models": [
-        "anthropic/claude-opus-4-8"
+        "anthropic/claude-opus-5-5"
       ]
     }
   },

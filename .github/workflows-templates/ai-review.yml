@@ -79,7 +79,7 @@ jobs:
             Review context is in review-context/. Findings only on diff lines.
           claude_args: >-
             --model ${{ needs.tier.outputs.coordinator_model }}
-            --json-schema "$(cat .harness-profile/claude/agents/review/coordinator-schema.json)"
+            --json-schema "$(cat .harness-profile/plugins/review-pack/agents/coordinator-schema.json)"
           plugin_marketplaces: LucasSantana-Dev/sharekit-profile
           plugins: review-pack@sharekit-profile
           use_sticky_comment: true

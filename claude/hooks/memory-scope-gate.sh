@@ -14,7 +14,7 @@
 #   org:       paths declared under scopes.org in the policy (reserved)
 #
 # Client rules (independent of the scope policy): clients come from the
-# shelfmark registry ($SHELFMARK_CLIENTS, default $RAG_HOME/clients.json,
+# sqlrecall registry ($SQLRECALL_CLIENTS or $SHELFMARK_CLIENTS, default $RAG_HOME/clients.json,
 # {slug: {db, roots}}), so the index and this gate share one client list.
 # While a client is active (RAG_CLIENT, or cwd under a client root):
 #   - a note (.md under a memory/ dir) outside every client root is GENERAL
@@ -37,7 +37,10 @@ command -v jq >/dev/null 2>&1 || exit 0  # jq absent (stock macOS <= 14): gate i
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 POLICY="$ROOT/.harness/memory-scopes.json"
-CLIENTS_FILE="${SHELFMARK_CLIENTS:-${RAG_HOME:-$HOME/.shelfmark}/clients.json}"
+# sqlrecall (formerly shelfmark): new names first, old ones still honored.
+RAG_DIR="${RAG_HOME:-$HOME/.sqlrecall}"
+[[ -z "${RAG_HOME:-}" && ! -d "$RAG_DIR" && -d "$HOME/.shelfmark" ]] && RAG_DIR="$HOME/.shelfmark"
+CLIENTS_FILE="${SQLRECALL_CLIENTS:-${SHELFMARK_CLIENTS:-$RAG_DIR/clients.json}}"
 
 payload="$(cat)"
 tool="$(printf '%s' "$payload" | jq -r '.tool_name // empty')"
@@ -178,7 +181,7 @@ if $is_note && [[ -e "$CLIENTS_FILE" ]]; then
     done < <(jq -r --arg s "$active" '.[$s].roots[]?' "$CLIENTS_FILE")
     (( lexicons == 0 )) && echo "memory-scope-gate: warning - client '$active' has no .client/lexicon.txt; no term check ran." >&2
     if [[ -n "$hits" ]]; then
-      queue="${queue:-${RAG_HOME:-$HOME/.shelfmark}/review-queue.jsonl}"
+      queue="${queue:-$RAG_DIR/review-queue.jsonl}"
       mkdir -p "$(dirname "$queue")"
       jq -cn --arg c "$active" --arg p "${abs_target:-$tool}" --arg t "$hits" \
         '{ts: (now|floor), client: $c, path: $p, terms: ($t | split(", "))}' >> "$queue"

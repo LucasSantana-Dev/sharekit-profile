@@ -755,7 +755,7 @@
       Hooks <span class="tab-count" id="tc-hooks">9</span>
     </button>
     <button class="nav-tab" data-panel="mcp">
-      MCP Servers <span class="tab-count" id="tc-mcp">15</span>
+      MCP Servers <span class="tab-count" id="tc-mcp">14</span>
     </button>
     <button class="nav-tab" data-panel="plugins">
       Plugins <span class="tab-count" id="tc-plugins">7</span>
@@ -1317,7 +1317,7 @@ const SKILLS = [
   { name: 'grill-with-options', cat: 'architecture', composite: false, desc: 'Interview skill with four modes: options (default, bounded 2-4 option AskUserQuestion forks), open (Q plus GUESS), docs (vs CONTEXT.md and ADRs), explore (2-3 approaches, no code). Use for grill me, help me decide, brainstorm.' },
   { name: 'handoff', cat: 'session', composite: false, desc: 'Compact the current conversation into a handoff document for another agent to pick up.' },
   { name: 'knowledge-loop', cat: 'rag', composite: true, desc: 'Composite (recall, sync-memories, rag-curate, handoff) to persist knowledge mid-session: "what did we decide", "remember this". Session end: session-close.' },
-  { name: 'loop', cat: 'planning', composite: false, desc: 'Detect when the agent repeats the same action without progress and break the cycle. Use when stuck, "you\'re going in circles", or an error recurs 3+ times.' },
+  { name: 'break-loop', cat: 'planning', composite: false, desc: 'Detect when the agent repeats the same action without progress and break the cycle. Use when stuck, "you\'re going in circles", or an error recurs 3+ times.' },
   { name: 'loop-engineer', cat: 'planning', composite: false, desc: 'Designs and builds autonomous agent loops. Use for "design a loop", "build an agent loop", "I want this to run automatically", or self-running feedback cycles.' },
   { name: 'memory-prune', cat: 'rag', composite: false, desc: 'Audit project memory for stale entries (merged PRs, fixed bugs, missing files); propose archival or deletion. Read-only. Use monthly or on memory/code conflict.' },
   { name: 'next-priority', cat: 'planning', composite: false, desc: 'Decide the highest-value safe thing to do right now in the active repo or workspace.' },
@@ -1506,17 +1506,12 @@ const MCP_SERVERS = [
   { name: 'Playwright',    type: 'cloud', desc: 'Browser automation: navigate, click, fill forms, screenshot, evaluate JS.' },
   { name: 'Serena',        type: 'cloud', desc: 'Symbol-level code navigation: declarations, implementations, references, renames.' },
   { name: 'codebase-memory', type: 'cloud', desc: 'Index and query codebase architecture, trace call paths, and find dead code.' },
-  { name: 'claude-mem',    type: 'cloud', desc: 'Persistent cross-session memory: save, search, and retrieve observations across projects.' },
 ];
 
 const PLUGINS = [
-  { name: 'core-skills', desc: 'Curated portable skills (curated-skills.txt): workflows, composites, and operator utilities.', tags: ['Skills'] },
-  { name: 'security-hooks', desc: 'Curated portable hooks (curated-hooks.txt): policy gates, drift checks, and session guards that ship to installers.', tags: ['Hooks'] },
-  { name: 'gate-hooks', desc: 'Repo governance hooks: constitution gates, catalog guards, and CI drift checks for the profile itself.', tags: ['Hooks', 'Repo CI'] },
-  { name: 'role-agents', desc: 'Curated portable agents (curated-agents.txt): critic, reviewer, debugger, and specialist roles.', tags: ['Agents'] },
+  { name: 'sharekit', desc: 'Full profile: curated skills, role agents, and portable hooks (secret-read gate, protected files, PR automation halt, loop and idempotency checks).', tags: ['Skills', 'Agents', 'Hooks'] },
+  { name: 'core-skills', desc: 'Skills only (curated-skills.txt): workflows, composites, and operator utilities. Install this or sharekit, not both.', tags: ['Skills'] },
   { name: 'review-pack', desc: 'CI-native multi-agent review pack: risk-tiered reviewer fan-out plus a coordinator judge pass emitting one severity-rated review (critical-only blocking).', tags: ['Agents', 'CI'] },
-  { name: 'standards', desc: 'Operator standards and decision records (curated-standards.txt): routing, testing, security, workflow.', tags: ['Standards'] },
-  { name: 'typed-schemas', desc: 'Shared schema contracts (typed-result-schema.md) kept at the repo root for cross-harness reuse.', tags: ['Schemas'] },
 ];
 
 // ══ STATE ═══════════════════════════════════════════════════════════════════

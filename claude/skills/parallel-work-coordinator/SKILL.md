@@ -1,10 +1,6 @@
 ---
 name: parallel-work-coordinator
-description: >
-  Governance layer for small (≤5-unit) parallel batches that MIX read-only and write-capable
-  agents — autonomy-tier gating (T0-T3) and worktree/merge discipline for the writes. Thin
-  wrapper over dispatch; use parallel-investigate instead when every unit is read-only.
-  Invoke on "do all these", "audit and fix in parallel", "handle independently".
+description: "Governance layer for small (≤5-unit) parallel batches that MIX read-only and write-capable agents — autonomy-tier gating (T0-T3) and worktree/merge discipline for the writes. Thin wrapper over dispatch; use parallel-investigate instead when every unit is read-only. Invoke on \"do all these\", \"audit and fix in parallel\", \"handle independently\"."
 triggers:
   - parallel work
   - do all these

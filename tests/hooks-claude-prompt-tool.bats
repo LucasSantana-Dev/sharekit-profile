@@ -277,6 +277,12 @@ prompt_json() { printf '{"prompt":"%s","session_id":"%s"}' "$1" "${2:-s1}"; }
 
 # ---------- composite-router ----------
 
+@test "composite-router: a prompt that starts with a slash command adds nothing" {
+  run hook composite-router.sh "$(prompt_json '/incident-response prod is down and users are reporting errors')"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
 @test "composite-router: prod outage routes to incident-response" {
   run hook composite-router.sh "$(prompt_json 'prod is down and users are reporting errors')"
   [ "$status" -eq 0 ]

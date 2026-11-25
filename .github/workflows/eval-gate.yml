@@ -19,6 +19,8 @@ jobs:
         run: python3 evals/routing/router_eval.py --validate-only
       - name: Validate per-skill eval fixtures (offline)
         run: python3 evals/skills/validate_fixtures.py
+      - name: Generate claude plugin eval cases (offline)
+        run: python3 scripts/gen-plugin-evals.py
 
   routing-gate:
     # Full gate: needs OPENROUTER_API_KEY. Skips gracefully on forks/PRs

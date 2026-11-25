@@ -1,4 +1,34 @@
-# `~/.claude/hooks/` — inventory
+# `claude/hooks/` (published hooks)
+
+## What this profile ships
+
+Install as a plugin (Claude Code 2.1.275 or later):
+
+```text
+/plugin marketplace add LucasSantana-Dev/sharekit-profile
+/plugin install sharekit@sharekit-profile
+```
+
+The plugin wires the hooks below from `hooks.json`. `npx @lucassantana/sharekit install --include-hooks` wires the same set from `claude/settings.json`; use one route, not both. "On failure" says what happens when the hook crashes or times out.
+
+| Event | Matcher | Script | On failure |
+|---|---|---|---|
+| UserPromptSubmit | * | `session-length-guard.sh` | allow |
+| PreToolUse | Read\|Grep\|Bash | `block-secret-reads.sh` | block |
+| PreToolUse | Write\|Edit\|MultiEdit\|NotebookEdit | `protect-files.sh` | block |
+| PreToolUse | Bash | `check-pr-automation-halt.sh` | block |
+| PreToolUse | Bash | `check-stuck-loop.sh` | allow |
+| PreToolUse | Bash | `check-idempotency.sh` | allow |
+| PreToolUse | Write\|Edit\|NotebookEdit | `check-idempotency.sh` | allow |
+| PreToolUse | Write\|Edit\|MultiEdit\|mcp__.*memory.* | `memory-scope-gate.sh` | block |
+| SubagentStart | * | `check-read-only-subagent.sh` | allow |
+| PostCompact | * | `reinject-compact.sh` | allow |
+
+Every other script in this folder ships unwired: it is called by a wired hook, by a skill, or is there for you to bind yourself. `scripts/check-marketplace.sh` fails CI if `settings.json` names a script that does not ship.
+
+The rest of this file is the maintainer's live inventory (`~/.claude/hooks/`), which wires more hooks than the profile publishes. Scripts it names may not exist here.
+
+## Maintainer live inventory (`~/.claude/hooks/`)
 
 Last updated: 2026-10-02 (after Wave B lean-out: 23 bindings over 23 scripts, 38 scripts on disk)
 

@@ -2,7 +2,7 @@
 
 Use `recall` for semantic lookup, `rag-maintenance` for index health, `knowledge-loop` for capture/curation/handoff, and `memory-prune` for stale memory cleanup. Archived narrow RAG commands are folded into `rag-maintenance`.
 
-The underlying retrieval engine (hybrid BM25 + embeddings + RRF fusion, MCP server, code-symbol-aware tokenization) is open source: [**shelfmark**](https://github.com/LucasSantana-Dev/shelfmark). The label-free eval methodology that gates retrieval quality is [**hitgate**](https://github.com/LucasSantana-Dev/hitgate) (also on PyPI).
+The underlying retrieval engine (hybrid BM25 + embeddings + RRF fusion, MCP server, code-symbol-aware tokenization) is open source: [**sqlrecall**](https://github.com/LucasSantana-Dev/sqlrecall) (formerly shelfmark). The label-free eval methodology that gates retrieval quality is [**hitgate**](https://github.com/LucasSantana-Dev/hitgate) (also on PyPI).
 
 ---
 

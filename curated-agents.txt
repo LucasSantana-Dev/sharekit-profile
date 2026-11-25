@@ -25,12 +25,6 @@ rag-evaluator.md
 refactor-orchestrator.md
 release-ci-engineer.md
 repaint-builder.md
-review/coordinator-schema.json
-review/coordinator.md
-review/reviewer-docs.md
-review/reviewer-general.md
-review/reviewer-quality.md
-review/reviewer-security.md
 scientist.md
 security-reviewer.md
 skill-eval-reviewer.md

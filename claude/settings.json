@@ -13,12 +13,35 @@
     ],
     "PreToolUse": [
       {
+        "matcher": "Read|Grep|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/block-secret-reads.sh\"",
+            "timeout": 10,
+            "onFailure": "block"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/protect-files.sh\"",
+            "timeout": 5,
+            "onFailure": "block"
+          }
+        ]
+      },
+      {
         "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/check-pr-automation-halt.sh\"",
-            "timeout": 15
+            "timeout": 15,
+            "onFailure": "block"
           },
           {
             "type": "command",
@@ -48,7 +71,8 @@
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/memory-scope-gate.sh\"",
-            "timeout": 5
+            "timeout": 5,
+            "onFailure": "block"
           }
         ]
       }

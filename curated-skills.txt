@@ -22,7 +22,7 @@ handoff
 humanizer
 humanizer-pt-br
 knowledge-loop
-loop
+break-loop
 loop-engineer
 memory-prune
 next-priority

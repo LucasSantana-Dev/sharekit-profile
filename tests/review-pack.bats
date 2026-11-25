@@ -1,12 +1,12 @@
 #!/usr/bin/env bats
 # tests for the review-pack output contract:
-#   claude/agents/review/coordinator-schema.json + scripts/review-fingerprint.sh
+#   plugins/review-pack/agents/coordinator-schema.json + scripts/review-fingerprint.sh
 
 setup() {
   export REPO_ROOT="$(cd "${BATS_TEST_DIRNAME}/.." && pwd)"
   export TEST_TMP="$BATS_TEST_TMPDIR/review-pack-$$"
   mkdir -p "$TEST_TMP"
-  export SCHEMA="$REPO_ROOT/claude/agents/review/coordinator-schema.json"
+  export SCHEMA="$REPO_ROOT/plugins/review-pack/agents/coordinator-schema.json"
   export FINGERPRINT="$REPO_ROOT/scripts/review-fingerprint.sh"
 }
 

@@ -14,8 +14,12 @@ Two supported paths:
 
   ```json
   {
-    "extraKnownMarketplaces": ["LucasSantana-Dev/sharekit-profile"],
-    "enabledPlugins": ["core-skills@sharekit-profile", "security-hooks@sharekit-profile"]
+    "extraKnownMarketplaces": {
+      "sharekit-profile": {
+        "source": { "source": "github", "repo": "LucasSantana-Dev/sharekit-profile" }
+      }
+    },
+    "enabledPlugins": { "sharekit@sharekit-profile": true }
   }
   ```
 

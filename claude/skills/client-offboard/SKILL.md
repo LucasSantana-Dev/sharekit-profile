@@ -23,7 +23,7 @@ Two invariants, in this order:
 
 | What | Where |
 |---|---|
-| Clients | shelfmark registry: `$SHELFMARK_CLIENTS` or `$RAG_HOME/clients.json`, as `{slug: {db, roots}}` |
+| Clients | sqlrecall registry: `$SQLRECALL_CLIENTS` (or legacy `$SHELFMARK_CLIENTS`) or `$RAG_HOME/clients.json`, as `{slug: {db, roots}}` |
 | Client vault | any `memory/` dir under the client's roots (the client's own repo) |
 | General vault | the operator's cross-project memory dir (ask once if unclear) |
 | Lexicon | `<root>/.client/lexicon.txt`: names, people, acronyms, IDs, one per line |
@@ -62,9 +62,9 @@ Order matters. Stop at the first failure.
 
 1. **Final harvest.** Run `harvest` until there are no candidates left. Deferred candidates must survive the vault leaving: put their files in an encrypted archive, `tar czf - <files> | age -r <recipient> > "$RAG_HOME/archive/client-<slug>-deferred-$(date +%F).tar.gz.age"`, and write only the count and the archive path in the handoff (never titles, they carry client business).
 2. **Recall baseline.** Run the retrieval eval gate on the general layer and record hit@5/MRR (e.g. `bash eval/check.sh` in the index repo).
-3. **Dry run.** Run `shelfmark-purge <slug> --lexicon <root>/.client/lexicon.txt`. Show the counts: client files, residue paths, query-log rows, canary hits.
+3. **Dry run.** Run `sqlrecall-purge <slug> --lexicon <root>/.client/lexicon.txt`. Show the counts: client files, residue paths, query-log rows, canary hits.
 4. **Confirm (T3, destructive).** Show the dry-run output and the archive recipient, then ask the operator explicitly. Do not proceed without a yes in this turn.
-5. **Purge.** Run `shelfmark-purge <slug> --apply --archive <age-recipient> --lexicon <lexicon>`. Exit 1 with `PARTIAL` means re-run the same command until it exits 0: every step is idempotent, and the tombstone (written before the first deletion) already keeps the client's files out of the general index. Do not go to step 6 until the purge printed `verified` and `$RAG_HOME/index.client-<slug>.purged` exists.
+5. **Purge.** Run `sqlrecall-purge <slug> --apply --archive <age-recipient> --lexicon <lexicon>`. Exit 1 with `PARTIAL` means re-run the same command until it exits 0: every step is idempotent, and the tombstone (written before the first deletion) already keeps the client's files out of the general index. Do not go to step 6 until the purge printed `verified` and `$RAG_HOME/index.client-<slug>.purged` exists.
 6. **Config.** Remove the client from `sources.yaml` together with its globs and `repos:` entries, then rebuild the index. The build stops on orphans, and the tombstone skips the client's files.
 7. **Verify.**
    - The purge printed `verified`.

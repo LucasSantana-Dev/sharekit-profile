@@ -210,7 +210,7 @@ Running independent work sequentially is a contract violation.
 - **graphify** — knowledge graph queries
 
 ### Cloud (via claude.ai)
-Context7, Gmail, Google Calendar, Google Drive, Hugging Face, Jam, Linear, Sentry, Vercel, Cloudflare, GitHub, Playwright, Supabase, Serena, codebase-memory-mcp, filesystem, claude-mem
+Context7, Gmail, Google Calendar, Google Drive, Hugging Face, Jam, Linear, Sentry, Vercel, Cloudflare, GitHub, Playwright, Supabase, Serena, codebase-memory-mcp, filesystem
 
 ### Plugins Installed
 Vercel, GitHub, Firecrawl, Supabase, CodeRabbit, Skill Creator, Claude Code Setup, Claude MD Management, Claude Mem, LLM Docs Optimizer, Plugin Dev

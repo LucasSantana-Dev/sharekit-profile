@@ -250,7 +250,7 @@ fi
 # sk-/ak-/pk- key pasted inline into a curl command) rather than a read of a
 # secret-bearing file. Reuses omniroute-mask-secrets.mjs's maskSecret() —
 # masking changed the text = a secret-shaped literal was present.
-mask_script="$HOME/.claude/scripts/omniroute-mask-secrets.mjs"
+mask_script="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude}/scripts/omniroute-mask-secrets.mjs"
 # maskSecret's LONG_TOKEN rule is /\b[A-Za-z0-9_-]{40,}\b/, which also matches a long
 # FILENAME or path component. A memory note named
 # gotcha_rag_nightly_regression_false_positive_launchd_fda_2026-08-15.md and a session dir
@@ -303,7 +303,7 @@ fi
 # "session=abc123" isn't Bearer/sk-/40-char-shaped, so the check above misses
 # it), by header NAME instead. Reuses the same CLI mode wired into
 # memory-write-guard.sh.
-header_script="$HOME/.claude/scripts/omniroute-sanitize-headers.mjs"
+header_script="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude}/scripts/omniroute-sanitize-headers.mjs"
 if [ -n "${content// /}" ] && command -v node >/dev/null 2>&1 && [ -f "$header_script" ]; then
     header_masked="$(printf '%s' "$content" | node "$header_script" 2>/dev/null || printf '%s' "$content")"
     if [ "$header_masked" != "$content" ]; then
