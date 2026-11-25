@@ -1,6 +1,6 @@
 ---
 name: dispatch
-description: Parallelize independent audit or evidence-gathering work into 2+ concurrent agent tracks and reconcile into one verdict; also dispatches to <homelab> over SSH.
+description: Parallelize independent audit or evidence-gathering work into 2+ concurrent agent tracks and reconcile into one verdict; also dispatches to the homelab host over SSH.
 triggers:
   - dispatch
   - parallelize this

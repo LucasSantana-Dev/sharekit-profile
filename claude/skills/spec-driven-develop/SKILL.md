@@ -1,6 +1,6 @@
 ---
 name: spec-driven-develop
-description: "Default entry for non-trivial build/add/fix/refactor: specify, plan, tasks, implement, verify. Not if a narrower composite (hotfix etc) fits; skip <3 files."
+description: "Default entry for non-trivial build/add/fix/refactor: specify, plan, tasks, implement, verify. Not if a narrower composite (hotfix etc) fits; skip under 3 files."
 user-invocable: true
 auto-invoke: build X, add X, implement X, fix X, refactor X, ship this feature, non-trivial change with no more specific composite matching
 metadata:
