@@ -19,7 +19,7 @@ Stdlib only; needs `node` and Google Chrome for --shot.
 """
 import argparse, json, os, pathlib, re, subprocess, sys, tempfile
 
-CHROME = os.environ.get('CHROME', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome')
+CHROME = os.environ.get('CHROME', '/Applications/Google Chrome.app' '/Contents/MacOS/Google Chrome')
 
 
 def render_vals(src, props):

@@ -36,10 +36,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import svglib  # noqa: E402,F401  (sets UTF-8 console output)
 
 CHROME_CANDIDATES = [
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    "/Applications/Chromium.app/Contents/MacOS/Chromium",
-    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-    "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+    "/Applications/Google Chrome.app" "/Contents/MacOS/Google Chrome",
+    "/Applications/Chromium.app" "/Contents/MacOS/Chromium",
+    "/Applications/Microsoft Edge.app" "/Contents/MacOS/Microsoft Edge",
+    "/Applications/Brave Browser.app" "/Contents/MacOS/Brave Browser",
     "google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge", "brave-browser",
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
