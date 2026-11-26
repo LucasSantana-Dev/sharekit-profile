@@ -94,6 +94,17 @@ prompt_json() { printf '{"prompt":"%s","session_id":"%s"}' "$1" "${2:-s1}"; }
   [[ "$output" == *BLOCKED* ]]
 }
 
+@test "protect-files: blocks a .env given as a Windows backslash path" {
+  run hook protect-files.sh '{"tool_input":{"file_path":"C:\\repo\\.env"}}'
+  [ "$status" -eq 2 ]
+  [[ "$output" == *BLOCKED* ]]
+}
+
+@test "protect-files: allows an ordinary Windows backslash path" {
+  run hook protect-files.sh '{"tool_input":{"file_path":"C:\\repo\\src\\app.ts"}}'
+  [ "$status" -eq 0 ]
+}
+
 @test "protect-files: blocks .env.production" {
   run hook protect-files.sh '{"tool_input":{"file_path":"/repo/.env.production"}}'
   [ "$status" -eq 2 ]
