@@ -3,6 +3,8 @@ set -euo pipefail
 INPUT=$(cat)
 FILE_PATH=$(printf '%s' "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null || true)
 [ -z "$FILE_PATH" ] && exit 0
+# Windows sends backslash paths: normalize so every pattern below matches.
+FILE_PATH=$(printf '%s' "$FILE_PATH" | tr '\134' '/')
 block() { echo "BLOCKED: $1" >&2; exit 2; }
 # Allowlist: template/placeholder files are committed examples with no real
 # secrets (gitleaks still scans them). Exempt them BEFORE the protective case so
