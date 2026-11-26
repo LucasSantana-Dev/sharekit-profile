@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Generate ~/.claude/CLAUDE.md from claude/CLAUDE.md on origin/main of this repo.
+# Generate ~/.claude/CLAUDE.md from claude/CLAUDE.md on origin/main of this repo,
+# and install claude/rules/*.md and claude/scripts/* into ~/.claude.
 # The repo is the single source; this file only flows repo -> ~/.claude.
 #
 # Personal or machine-only rules go in ~/.claude/CLAUDE.local.md (never in this
@@ -23,6 +24,24 @@ local_layer="$dest/CLAUDE.local.md"
 stamp="$dest/.claude-md-sync.sha"
 
 git -C "$repo" fetch -q origin main
+
+# Path rules (claude/rules/*.md) and operator scripts (claude/scripts/*) also flow
+# repo -> ~/.claude. Files only change when their content differs.
+for tree in rules scripts; do
+  for f in $(git -C "$repo" ls-tree --name-only "origin/main:claude/$tree" 2>/dev/null); do
+    want="$(git -C "$repo" show "origin/main:claude/$tree/$f")"
+    have="$(cat "$dest/$tree/$f" 2>/dev/null || true)"
+    [ "$want" = "$have" ] && continue
+    if [ "${1:-}" = "--check" ]; then
+      echo "out of step: $tree/$f"
+    else
+      mkdir -p "$dest/$tree"
+      printf '%s\n' "$want" > "$dest/$tree/$f"
+      echo "installed: $tree/$f"
+    fi
+  done
+done
+
 tmp="$(mktemp)"
 trap 'rm -f "$tmp"' EXIT
 git -C "$repo" show origin/main:claude/CLAUDE.md > "$tmp"
