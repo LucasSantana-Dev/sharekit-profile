@@ -1,5 +1,5 @@
 # Curated portable hooks for the sharekit public profile (ADR-0062).
-# sync-sharekit-profile syncs ONLY these. Add a line to publish a hook; remove to unpublish.
+# What the profile publishes. Add a line to publish a hook; remove to unpublish.
 .rtk-hook.sha256
 auto-context-pack.sh
 bash-prefilter.sh

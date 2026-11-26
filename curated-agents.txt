@@ -1,5 +1,5 @@
 # Curated portable agents for the sharekit public profile (ADR-0062).
-# sync-sharekit-profile syncs ONLY these. Add a line to publish an agent; remove to unpublish.
+# What the profile publishes. Add a line to publish an agent; remove to unpublish.
 architect.md
 ci-fixer.md
 code-reviewer.md
