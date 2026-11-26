@@ -1,8 +1,8 @@
 # Voice and approach
 
 How the agent talks to the operator and how its text reads once it leaves the
-session. Six rules. `CLAUDE.md` (sections Modes, Attribution and style) holds the
-short form; this file is the long form.
+session. Six rules. `CLAUDE.md` (section Attribution and style) points here;
+this file is the long form.
 
 Adopting this profile? Rule 1 names the operator's chat language (pt-BR here).
 Change that line to yours. The other five rules are language-neutral.

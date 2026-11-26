@@ -18,6 +18,14 @@ jobs:
       - name: Check harness/app boundary
         run: bash scripts/check-harness-boundary.sh
 
+  claude-md-refs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Every standard and hook cited by claude/CLAUDE.md exists
+        run: bash scripts/check-claude-md-refs.sh
+
   coauthor-trailers:
     runs-on: ubuntu-latest
     timeout-minutes: 10

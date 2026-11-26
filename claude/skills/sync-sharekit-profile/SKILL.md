@@ -1,6 +1,6 @@
 ---
 name: sync-sharekit-profile
-description: 'Sync ~/.claude/ (skills, hooks, standards, CLAUDE.md, agents) into the public sharekit profile repo, sanitize personal paths/identity, scan for secrets, show diff, and commit+push. Invoke whenever: "sync my sharekit profile", "update sharekit", "push my latest skills to sharekit", "sharekit is out of date", or after a session that significantly expanded the skill or agent library. For reconciling LOCAL mirrors (~/.claude-env, ~/.claude, ~/.agents drift), use docs-sync instead.'
+description: 'Sync ~/.claude/ (skills, hooks, standards, agents; CLAUDE.md flows the other way) into the public sharekit profile repo, sanitize personal paths/identity, scan for secrets, show diff, and commit+push. Invoke whenever: "sync my sharekit profile", "update sharekit", "push my latest skills to sharekit", "sharekit is out of date", or after a session that significantly expanded the skill or agent library. For reconciling LOCAL mirrors (~/.claude-env, ~/.claude, ~/.agents drift), use docs-sync instead.'
 triggers:
   - sync-sharekit-profile
   - sync sharekit profile
@@ -73,8 +73,7 @@ Surface: last sync commit + date, any uncommitted profile changes already presen
 > **Publishing a new skill = add a line to `curated-skills.txt`** (a deliberate curation act). If the
 > allowlist is missing, this phase REFUSES to run (no silent full-mirror).
 
-Sync each allowlisted skill from source; unpublish profile skills no longer in the allowlist; copy
-`CLAUDE.md`. Skills in the allowlist but NOT in source (e.g. plugin-native) are kept, not removed.
+Sync each allowlisted skill from source; unpublish profile skills no longer in the allowlist. `CLAUDE.md` is NOT copied: the repo is its source. Skills in the allowlist but NOT in source (e.g. plugin-native) are kept, not removed.
 
 ```bash
 # plugin-eval-last-run.json is a local run artifact (date, cost, scores), not a fixture: it fails the
@@ -94,7 +93,9 @@ for d in "$PROFILE_DIR/skills"/*/; do
   n="$(basename "$d")"; grep -qxF "$n" "$ALLOWLIST" || rm -rf "$d"
 done
 
-cmp -s "$SOURCE_DIR/CLAUDE.md" "$PROFILE_DIR/CLAUDE.md" 2>/dev/null && echo "CLAUDE.md: already done - skipping" || cp "$SOURCE_DIR/CLAUDE.md" "$PROFILE_DIR/CLAUDE.md"
+# CLAUDE.md is canonical in this repo (claude/CLAUDE.md on main) and flows repo -> ~/.claude via
+# scripts/sync-claude-md.sh. Never copy it back from ~/.claude.
+echo "CLAUDE.md: repo is the source, not synced from ~/.claude"
 ```
 
 > ✅ **CURATION ALLOWLIST for agents/hooks/standards (ADR-0062).** agents/hooks/standards were
@@ -499,7 +500,7 @@ cd "$PROFILE_REPO"
 BRANCH="sync/profile-$(date +%Y%m%d-%H%M%S)"
 git checkout -b "$BRANCH"
 git add claude/
-git commit -m "chore(profile): sync skills, CLAUDE.md, $(date +%Y-%m-%d)"
+git commit -m "chore(profile): sync skills, $(date +%Y-%m-%d)"
 git push -u origin "$BRANCH"
 
 PR_URL=$(gh pr create --title "chore(profile): sync, $(date +%Y-%m-%d)" \
