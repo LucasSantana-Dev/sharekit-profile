@@ -113,7 +113,7 @@ sync_pair curated-agents.txt     ./claude/agents
 
 # Reverse check: every file (or, for skills, every top-level directory) on
 # disk must also be curated, not just every curated entry present on disk.
-# An entry missing from a list gets deleted by sync-sharekit-profile's
+# An entry missing from a list used to get deleted by the (retired) sync-sharekit-profile
 # unpublish step even while something else still wires it in - this is how
 # memory-scope-gate.sh went missing from curated-hooks.txt while
 # claude/settings.json still called it. Runs over every sync_pair target, not

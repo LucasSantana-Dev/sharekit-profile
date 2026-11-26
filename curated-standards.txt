@@ -1,5 +1,5 @@
 # Curated portable standards for the sharekit public profile (ADR-0062).
-# sync-sharekit-profile syncs ONLY these. Add a line to publish a standard; remove to unpublish.
+# What the profile publishes. Add a line to publish a standard; remove to unpublish.
 # decisions/<file> entries include the subdirectory prefix.
 agent-routing.md
 artifact-schema.md

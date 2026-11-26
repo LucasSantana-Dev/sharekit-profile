@@ -85,7 +85,7 @@ Not bound in `settings.json`; each has a live caller or an open decision. Delete
 |---|---|
 | `rtk-rewrite.sh` | Called by `bash-prefilter.sh`, `rtk-miss-detector.sh`, `harness-vitals.sh` |
 | `gate.sh`, `history.sh` | Called by `skill-quality-gate.sh`, the scorecard and the roadmap-aggregate launchd job |
-| `check-harness-drift.sh` | Used by the `sync-sharekit-profile` skill |
+| `check-harness-drift.sh` | Drift check between harness mirrors |
 | `session-budget-guard.sh`, `rate-limit-watch.sh` | Pair; calibrated by `scripts/session-budget-guard.calib.py` |
 | `skill-index.sh` | Referenced by `scripts/skill-prune.sh` |
 | `grep-before-rag-nudge.sh` | Has 3 selftest checks; decide re-wire or drop with its tests |
