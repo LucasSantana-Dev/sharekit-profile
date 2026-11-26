@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.15.0](https://github.com/LucasSantana-Dev/sharekit-profile/compare/v0.14.1...v0.15.0) (2026-11-26)
+
+
+### Features
+
+* **harness:** ship path rules and operator scripts, sync them to ~/.claude ([#256](https://github.com/LucasSantana-Dev/sharekit-profile/issues/256)) ([56c8e3f](https://github.com/LucasSantana-Dev/sharekit-profile/commit/56c8e3f7805072384c522c7f6ee507151f7a9f5f))
+* **skills:** publish identity-studio, repaint, logo-design and adr-write ([#252](https://github.com/LucasSantana-Dev/sharekit-profile/issues/252)) ([3c6d9fa](https://github.com/LucasSantana-Dev/sharekit-profile/commit/3c6d9fa26fbe4c59ef57c36d631d02a327741304))
+
+
+### Bug Fixes
+
+* **claude-md:** make the repo the single source of CLAUDE.md ([#253](https://github.com/LucasSantana-Dev/sharekit-profile/issues/253)) ([4af7a96](https://github.com/LucasSantana-Dev/sharekit-profile/commit/4af7a966de2d9613ee18933beb51ca5160c273e1))
+* **gates:** skip skill eval fixtures in harness boundary check ([#228](https://github.com/LucasSantana-Dev/sharekit-profile/issues/228)) ([778dc04](https://github.com/LucasSantana-Dev/sharekit-profile/commit/778dc0480e1134e0573a136acab9026023642c49))
+* harness refresh with working marketplace plugins and leaner context ([#248](https://github.com/LucasSantana-Dev/sharekit-profile/issues/248)) ([cb7906e](https://github.com/LucasSantana-Dev/sharekit-profile/commit/cb7906e488da4e360f94bb13a3ec5fcfd92037c3))
+* **hooks:** cut check-stuck-loop latency on Windows and widen 2s timeouts ([#243](https://github.com/LucasSantana-Dev/sharekit-profile/issues/243)) ([c2bced4](https://github.com/LucasSantana-Dev/sharekit-profile/commit/c2bced42f9412592cb68656a4c4242b31ead3f46))
+* **hooks:** protect-files matches Windows backslash paths ([#255](https://github.com/LucasSantana-Dev/sharekit-profile/issues/255)) ([c0fffad](https://github.com/LucasSantana-Dev/sharekit-profile/commit/c0fffadc144f34b29ae0808f2dc018a1e4a9aafd))
+* **hooks:** resolve vitals RAG_ROOT under DEV_ROOT, not DEV_ROOT/Desenvolvimento ([#226](https://github.com/LucasSantana-Dev/sharekit-profile/issues/226)) ([adeac2c](https://github.com/LucasSantana-Dev/sharekit-profile/commit/adeac2c11ebbc31546b5712f0d582716276a0741))
+* **hooks:** tighten check-stuck-loop exemptions and widen test-runner limit ([#244](https://github.com/LucasSantana-Dev/sharekit-profile/issues/244)) ([c4b3ba4](https://github.com/LucasSantana-Dev/sharekit-profile/commit/c4b3ba4a7c187a4b3c06929d23f9e5480524acfa))
+* **knowledge-loop:** copy project memory into the brain before push ([#242](https://github.com/LucasSantana-Dev/sharekit-profile/issues/242)) ([37a7653](https://github.com/LucasSantana-Dev/sharekit-profile/commit/37a7653cd91e09c67e6481b64e462b3dd6e612c3))
+* **repo-mode:** stop git shortlog blocking on non-tty stdin ([#230](https://github.com/LucasSantana-Dev/sharekit-profile/issues/230)) ([648131f](https://github.com/LucasSantana-Dev/sharekit-profile/commit/648131ff449d1bbfd82e0dad3aba5833d5da6548))
+* **skills:** drop angle brackets from skill descriptions ([#249](https://github.com/LucasSantana-Dev/sharekit-profile/issues/249)) ([cd6e1a3](https://github.com/LucasSantana-Dev/sharekit-profile/commit/cd6e1a3a5ea03d9f33ef37a40d59b340f06ba277))
+
 ## [0.14.1](https://github.com/LucasSantana-Dev/sharekit-profile/compare/v0.14.0...v0.14.1) (2026-10-03)
 
 
