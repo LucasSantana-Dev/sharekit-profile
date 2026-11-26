@@ -746,7 +746,7 @@
       Guide
     </button>
     <button class="nav-tab" data-panel="skills">
-      Skills <span class="tab-count" id="tc-skills">47</span>
+      Skills <span class="tab-count" id="tc-skills">51</span>
     </button>
     <button class="nav-tab" data-panel="agents">
       Agents <span class="tab-count" id="tc-agents">33</span>
@@ -826,7 +826,7 @@
 <span class="c-cmd">&gt; /next-priority</span>
 <span class="c-out">→ scans active repo, open PRs, CI, memory</span>
 <span class="c-ok">✓ ranked list: start at #1</span></div>
-            <div class="term-status"><b id="st-skills">47</b> skills<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">33</b> agents<span class="sep">·</span><b>4</b> hook events wired<span class="sep">·</span><b id="st-mcp">15</b> MCP servers<span class="sep">·</span><b>22</b> standards</div>
+            <div class="term-status"><b id="st-skills">51</b> skills<span class="sep">·</span><b id="st-composites">10</b> composites<span class="sep">·</span><b id="st-agents">33</b> agents<span class="sep">·</span><b>4</b> hook events wired<span class="sep">·</span><b id="st-mcp">15</b> MCP servers<span class="sep">·</span><b>22</b> standards</div>
           </div>
 
           <div class="g-proof">
@@ -1138,7 +1138,7 @@
       <div class="grid-header">
         <div>
           <div class="grid-header-title" id="grid-title">All Skills</div>
-          <div class="grid-header-sub" id="grid-sub">47 skills across 11 categories: invoke autonomously or with /<i>name</i></div>
+          <div class="grid-header-sub" id="grid-sub">51 skills across 12 categories: invoke autonomously or with /<i>name</i></div>
         </div>
         <div class="result-count" id="result-count"></div>
       </div>
@@ -1245,9 +1245,11 @@ const CATEGORIES = [
   { id: 'rag',          label: 'RAG & Memory',                color: 'var(--kind-agent)', guide: 'Use recall for semantic lookup, codebase-memory for structural queries, memory-prune for stale memory cleanup, rag-curate and adt-rag-drift for index health, and client-offboard to keep client knowledge scoped.' },
   { id: 'sync-docs',    label: 'Sync & Documentation',        color: 'var(--kind-tool)', guide: 'Use graphify to query a codebase knowledge graph and sync-sharekit-profile to publish your own harness profile.' },
   { id: 'cicd',         label: 'CI/CD',                       color: 'var(--kind-hook)', guide: 'Use gh-fix-ci to diagnose red checks and dep-sweep to process dependency-update PRs safely.' },
+  { id: 'design',       label: 'Design & Identity',           color: 'var(--kind-skill)', guide: 'Use identity-studio when a product has no visual identity or only a logo, repaint for any non-trivial UI build or restyle once the identity exists, and logo-design for a new mark.' },
 ];
 
 const TRANSLATIONS = {
+  "adr-write": "Registra uma decisão técnica como linha no DECISIONS.md, ou como ADR completo quando a decisão pede contexto, alternativas e consequências.",
   "adt-rag-drift": "Detecta e corrige chunks defasados no índice RAG (arquivos alterados ou apagados desde a última indexação).",
   "app-teardown": "Faz engenharia reversa de um app ao vivo percorrendo os fluxos reais e mapeia cada ideia aproveitável num relatório, com evidência e veredito adotar/adaptar/já-temos/rejeitar.",
   "audit-deep": "Composite de saúde do projeto (testes, config, hooks, segurança, MCP, plugins) em um único relatório ordenado por severidade. Use semanalmente ou antes de releases grandes.",
@@ -1266,7 +1268,9 @@ const TRANSLATIONS = {
   "graphify": "Responde perguntas de codebase, arquitetura e relação entre arquivos via grafo de conhecimento do graphify, principalmente quando existe graphify-out/.",
   "grill-with-options": "Entrevista em quatro modos: options (forks limitados de 2 a 4 opções), open (pergunta mais palpite), docs (contra CONTEXT.md e ADRs) e explore (2 a 3 abordagens, sem código).",
   "handoff": "Compacta a conversa atual num documento de handoff para outro agente continuar.",
+  "identity-studio": "Leva um produto sem identidade visual, ou só com logo, do diagnóstico do dono à UI publicada: quadro de reconhecimento, marca se faltar, duas direções no canvas, guia de linguagem, revisão tela a tela, ADR e build via repaint.",
   "knowledge-loop": "Composite (recall, sync-memories, rag-curate, handoff) para persistir conhecimento no meio da sessão: \"o que decidimos\", \"lembra disso\".",
+  "logo-design": "Cria logos e marcas do briefing ao SVG: conceitos, tipo de marca, refinamento e checagens contra uma biblioteca de referência.",
   "loop": "Detecta quando o agente repete a mesma ação sem progresso e quebra o ciclo. Use quando travar ou um erro voltar 3+ vezes.",
   "loop-engineer": "Projeta e constrói loops autônomos de agente e ciclos de feedback que rodam sozinhos.",
   "memory-prune": "Audita a memória do projeto atrás de entradas obsoletas (PRs mergeados, bugs corrigidos, arquivos sumidos) e propõe arquivar ou apagar. Somente leitura.",
@@ -1279,6 +1283,7 @@ const TRANSLATIONS = {
   "rag-curate": "Melhora a qualidade do corpus RAG adicionando docs faltantes, reescrevendo chunks fracos e cobrindo lacunas.",
   "recall": "Busca semântica one-shot no índice RAG local: \"o que decidimos sobre X\", \"onde já vimos esse bug\".",
   "refactor": "Refatoração cirúrgica sem mudar comportamento: extrair funções, limpar código, corrigir code smells.",
+  "repaint": "Constrói UI de produção que não parece feita por IA nem emprestada: identidade do mundo do cliente, tokens, build, auditoria de slop e verificação no navegador.",
   "research-and-decide": "Decide em três modos: quick (escolha pequena e reversível), full (pesquisa, critic, plano, ADR) e now (destrava a paralisia de análise: \"só decide\").",
   "resolve-before-asking": "Responde por conta própria uma pergunta de esclarecimento quando ela é pesquisável, reversível e não é T3. Nunca para ações destrutivas, de produção, dinheiro ou PR de outra pessoa: aí pergunta.",
   "resume": "Reidrata a tarefa atual a partir de handoffs, planos, tarefas, notas de memória e estado do git.",
@@ -1298,10 +1303,12 @@ const TRANSLATIONS = {
 };
 
 const SKILLS = [
+  { name: 'adr-write', cat: 'architecture', composite: false, desc: 'Record a technical decision as a DECISIONS.md line, or a full ADR when a record gate trips. Use for \'record this decision\', \'write an ADR\'.' },
   { name: 'adt-rag-drift', cat: 'rag', composite: false, desc: 'Detect and fix stale chunks (files that changed or were deleted since last indexing)' },
   { name: 'app-teardown', cat: 'architecture', composite: false, desc: 'Reverse-engineer a live application (web app, SaaS, mobile) by walking its real flows in the browser and map every idea worth taking (UX patterns, features, visual design, copy, growth mechanics) into a teardown report where each finding carries evidence, an adopt/adapt/already-have/reject verdict, and a constraint rationale for our context. Use when asked "faz um teardown do app X", "analisa esse app e mapeia ideias", "what can we steal from X", "reverse-engineer this product", "competitive teardown", "o que dá pra aproveitar do app Y". For a codebase or repository use code-teardown; for purely visual reference boards from design platforms use frontend-reference-hunt.' },
   { name: 'audit-deep', cat: 'quality', composite: true, desc: 'Composite project health check (testing, config, hooks, security, MCP, plugins) into one severity-ranked report. Use weekly or before major releases.' },
   { name: 'backlog', cat: 'planning', composite: true, desc: 'Composite backlog builder for one repo: scores findings by ROI, groups themes, creates GitHub issues on a Project board. Use to build a backlog or plan sprints.' },
+  { name: 'break-loop', cat: 'planning', composite: false, desc: 'Detect when the agent repeats the same action without progress and break the cycle. Use when stuck, "you\'re going in circles", or an error recurs 3+ times.' },
   { name: 'changelog-update', cat: 'release', composite: false, desc: 'Updates CHANGELOG.md from recent commits, grouping entries by type (feat/fix/docs/breaking) with semantic version headings. Update CHANGELOG.md by promoting [Unreleased] content to a versioned section and bumping the package version. Follows Keep a Changelog format. Use when preparing a release or when [Unreleased] has accumulated work that needs to be captured under a version.' },
   { name: 'client-offboard', cat: 'rag', composite: false, desc: 'Keep the technical and behavioral lessons from a client engagement and remove that client\'s business knowledge from memory and the RAG index. Modes - harvest (batch-promote pending lessons to general memory), promote-now NOTE (one lesson), offboard SLUG (final harvest, purge, verification). Use for "offboard client", "trocar de cliente", "encerrar cliente", "harvest lessons", "purge client", or at session close in a client repo.' },
   { name: 'code-teardown', cat: 'architecture', composite: false, desc: 'Reverse-engineer an external repository or codebase (competitor OSS, reference implementation, trending project) and map every adoptable idea (architecture, code patterns, DX, tooling, testing, docs conventions) into a teardown report where each finding carries evidence (file:line), an adopt/adapt/already-have/reject verdict, and a constraint rationale for our context. Use when asked "faz um teardown desse repo", "analisa esse repositório pra ideias", "o que dá pra aproveitar desse projeto open-source", "evaluate X repo for insights", "what can we learn from this codebase". Read-only toward the target; clones to a scratch directory. For live apps use app-teardown; to onboard for contributing use adt-repo-intake; to document our own architecture use doc-and-modernize.' },
@@ -1316,8 +1323,9 @@ const SKILLS = [
   { name: 'graphify', cat: 'sync-docs', composite: false, desc: 'Answer codebase, architecture and file-relationship questions via a graphify knowledge graph (query/path/explain), especially when graphify-out/ exists.' },
   { name: 'grill-with-options', cat: 'architecture', composite: false, desc: 'Interview skill with four modes: options (default, bounded 2-4 option AskUserQuestion forks), open (Q plus GUESS), docs (vs CONTEXT.md and ADRs), explore (2-3 approaches, no code). Use for grill me, help me decide, brainstorm.' },
   { name: 'handoff', cat: 'session', composite: false, desc: 'Compact the current conversation into a handoff document for another agent to pick up.' },
+  { name: 'identity-studio', cat: 'design', composite: true, desc: 'Take a product with a weak or partial visual identity from diagnosis to shipped UI: owner diagnosis, recognition board, a mark if missing, two directions on a design canvas, a language guide, surface-by-surface review, an ADR, then code through repaint. Use when an app has no identity or only a logo, looks generic or AI-made, or starts or rebrands its visual language.' },
   { name: 'knowledge-loop', cat: 'rag', composite: true, desc: 'Composite (recall, sync-memories, rag-curate, handoff) to persist knowledge mid-session: "what did we decide", "remember this". Session end: session-close.' },
-  { name: 'break-loop', cat: 'planning', composite: false, desc: 'Detect when the agent repeats the same action without progress and break the cycle. Use when stuck, "you\'re going in circles", or an error recurs 3+ times.' },
+  { name: 'logo-design', cat: 'design', composite: false, desc: 'Design logos and brand marks from brief to SVG files: concepts, mark type, refinement, testing, guidelines; 1,400+ reference logos. Use for any logo, wordmark, monogram, app icon, favicon or branding request, even without the word \\"logo\\".' },
   { name: 'loop-engineer', cat: 'planning', composite: false, desc: 'Designs and builds autonomous agent loops. Use for "design a loop", "build an agent loop", "I want this to run automatically", or self-running feedback cycles.' },
   { name: 'memory-prune', cat: 'rag', composite: false, desc: 'Audit project memory for stale entries (merged PRs, fixed bugs, missing files); propose archival or deletion. Read-only. Use monthly or on memory/code conflict.' },
   { name: 'next-priority', cat: 'planning', composite: false, desc: 'Decide the highest-value safe thing to do right now in the active repo or workspace.' },
@@ -1329,6 +1337,7 @@ const SKILLS = [
   { name: 'rag-curate', cat: 'rag', composite: false, desc: 'Improve RAG corpus quality by adding missing docs, rewriting weak chunks, filling gaps. Use after a diagnostic flags a gap or when the index returns poor hits.' },
   { name: 'recall', cat: 'rag', composite: false, desc: 'One-shot semantic lookup in the local RAG index. Use for "what did we decide about X", "where did we hit this bug before", "is there a memory note for Y".' },
   { name: 'refactor', cat: 'quality', composite: false, desc: 'Surgical refactoring without behavior change. Use for "refactor this", "clean up this code", "this is messy", "extract functions", "fix code smells".' },
+  { name: 'repaint', cat: 'design', composite: false, desc: 'Build production-grade frontend UI that does not look AI-made or borrowed: identity from the client\'\'s world, references, tokens, interaction, a11y/SEO, slop audit. Use when building any page, component or dashboard; when the owner says the result looks generic; or when a product needs a visual language of its own.' },
   { name: 'research-and-decide', cat: 'architecture', composite: true, desc: 'Decide with three modes: quick (small reversible pick), full (research, critic, plan, ADR), now (break analysis paralysis: "just decide"). Use to evaluate a library, pattern or architecture, or force a call.' },
   { name: 'resolve-before-asking', cat: 'planning', composite: false, desc: 'Answer a would-be clarifying question yourself when researchable, reversible, not T3. Never for destructive, prod, money or other-author-PR actions: ask.' },
   { name: 'resume', cat: 'session', composite: false, desc: 'Rehydrate the current task from handoffs, plans, tasks, memory notes, and git state.' },
@@ -1914,7 +1923,7 @@ const GUIDE_PT = {
     <div class="g-hero-badge"><span class="dot"></span> Harness operador · referência viva</div>
     <h1>Seu <span class="g-accent">operador</span> autônomo de engenharia.</h1>
     <p class="g-hero-sub">
-      Um ambiente operador de agentes totalmente conectado: 47 <strong>skills</strong> ativas repo-tracked que você invoca,
+      Um ambiente operador de agentes totalmente conectado: 51 <strong>skills</strong> ativas repo-tracked que você invoca,
       <strong>composites</strong> que as encadeiam com gates, <strong>sub-agentes</strong> que fazem trabalho
       isolado em paralelo e <strong>hooks</strong> que disparam automaticamente a cada prompt.
       Esta página é o mapa: comece aqui e depois mergulhe no catálogo.
@@ -1934,7 +1943,7 @@ const GUIDE_PT = {
 <span class="c-cmd">&gt; /next-priority</span>
 <span class="c-out">→ varre o repo ativo, PRs abertos, CI, memória</span>
 <span class="c-ok">✓ lista priorizada: comece pelo #1</span></div>
-      <div class="term-status"><b id="st-skills">47</b> skills ativas<span class="sep">·</span><b id="st-composites">9</b> composites<span class="sep">·</span><b id="st-agents">33</b> agentes<span class="sep">·</span><b>4</b> eventos de hook ligados<span class="sep">·</span><b id="st-mcp">15</b> servidores MCP<span class="sep">·</span><b>22</b> standards</div>
+      <div class="term-status"><b id="st-skills">51</b> skills ativas<span class="sep">·</span><b id="st-composites">10</b> composites<span class="sep">·</span><b id="st-agents">33</b> agentes<span class="sep">·</span><b>4</b> eventos de hook ligados<span class="sep">·</span><b id="st-mcp">15</b> servidores MCP<span class="sep">·</span><b>22</b> standards</div>
     </div>
 
     <div class="g-proof">

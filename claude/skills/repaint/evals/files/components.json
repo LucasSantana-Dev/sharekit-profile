@@ -1,0 +1,1 @@
+{ "style": "new-york", "tailwind": { "baseColor": "neutral", "cssVariables": true, "css": "app/globals.css" }, "aliases": { "ui": "@/components/ui", "utils": "@/lib/utils" }, "iconLibrary": "lucide" }
