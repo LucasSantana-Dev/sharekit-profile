@@ -1,0 +1,12 @@
+{
+  "name": "acme-app",
+  "private": true,
+  "dependencies": {
+    "react": "^18.3.0",
+    "next": "^15.0.0",
+    "@mui/material": "^6.1.0",
+    "@mui/icons-material": "^6.1.0",
+    "@emotion/react": "^11.13.0",
+    "@emotion/styled": "^11.13.0"
+  }
+}

@@ -51,3 +51,7 @@ test-driven-development
 three-man-team
 verify-before-done
 xp
+adr-write
+identity-studio
+logo-design
+repaint

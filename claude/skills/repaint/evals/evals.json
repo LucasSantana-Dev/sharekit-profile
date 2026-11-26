@@ -1,0 +1,459 @@
+{
+  "skill_name": "repaint",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Build a pricing page for my SaaS developer tool. I want it to look credible — not like every other startup landing page. Three tiers: Hobby (free), Pro ($29/mo), Team ($99/mo). The product is a code review tool for engineers.",
+      "expected_output": "A complete pricing page HTML/React implementation. Should: lock saas-landing register, pick a non-purple anchor (e.g. Linear/Vercel/Stripe), produce a token spec with specific OKLCH colors, avoid generic bento grid hero, avoid Inter as default body font, produce a slop audit verdict, show realistic pricing content not Lorem ipsum.",
+      "files": [],
+      "assertions": [
+        "Output explicitly identifies register as saas-landing",
+        "Output names at least one specific brand anchor (Linear/Vercel/Stripe/Notion/Raycast/etc.)",
+        "Output includes a token table with color, type, spacing values",
+        "No purple-to-pink/blue gradient in the implementation",
+        "Font choice is NOT Inter, Roboto, Arial, or system stack as default body",
+        "Pricing layout is NOT a generic 3-equal-column bento grid",
+        "Output includes slop audit verdict or references audit",
+        "Uses realistic pricing labels and feature descriptions, not Lorem ipsum or 'Feature 1'"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "I need a settings panel component for a developer tool web app. It should have sections for: API keys, notifications, account info, and danger zone (delete account). The app already uses Tailwind CSS.",
+      "expected_output": "A settings panel component. Should: lock product-app register (no SaaS marketing patterns), pick appropriate anchor (e.g. Linear or Raycast for dev-tool density), token spec with 4pt/8pt grid, all 8 component states designed for interactive elements, especially the danger zone destructive action.",
+      "files": [],
+      "assertions": [
+        "Register is identified as product-app (not saas-landing)",
+        "No hero sections, dual CTA, bento grid, or SaaS marketing patterns in the component",
+        "Output acknowledges the existing Tailwind CSS setup and adopts its token structure and primitives, rather than inventing a parallel OKLCH palette",
+        "Danger zone / destructive action has proper disabled/confirm state designed",
+        "Anchor references a developer-tool reference (Linear, Raycast, GitHub/Primer, or similar)",
+        "Implementation includes all 4 required sections: API keys, notifications, account info, danger zone"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create an experimental hero section for my personal portfolio. I'm a frontend engineer who loves creative code. I want something bold and memorable — not the generic dark + cyan SaaS look. Surprise me.",
+      "expected_output": "An art-direction mode hero section. Should: detect art-direction mode, commit to ONE bold named aesthetic direction from references/context-anchors.md §B (NOT cyan/violet on dark), use distinctive typography (not Inter), implement with real animations, and be unforgettable — passes the name-swap identity test.",
+      "files": [],
+      "assertions": [
+        "Output explicitly identifies art-direction mode (not production mode)",
+        "Color palette is NOT cyan/violet on dark background",
+        "Typography choice is NOT Inter, Roboto, or Arial",
+        "Output commits to a specific, named aesthetic direction (not just 'modern' or 'clean')",
+        "Register is identified as personal-portfolio (not saas-landing)",
+        "Hero content is specific to 'a frontend engineer who loves creative code' — not generic tech-professional copy"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Build a product launch announcement page for a new feature in our team-chat app — we are launching threaded replies. It needs a headline, a short narrative of why threads matter, two or three feature highlights with a screenshot placeholder, and a CTA to try it. This is a one-off campaign page, not our main marketing site.",
+      "expected_output": "A marketing-register launch page. Should: lock marketing register (not saas-landing, not product-app), pick an editorial/marketing-appropriate anchor (e.g. Stripe marketing, Medium, The Verge, Linear changelog), produce a token spec with editorial typography, use a narrative-led layout rather than a repeated feature-grid rhythm, write realistic launch copy, and produce a slop audit verdict.",
+      "files": [],
+      "assertions": [
+        "Output identifies the register as marketing (not saas-landing or product-app)",
+        "Does not apply default saas-landing patterns (dual-CTA hero, pricing tiers, generic bento feature grid) inappropriate to a single campaign page",
+        "Anchor is a marketing/editorial reference (Stripe marketing, Medium, The Verge, Linear changelog, or similar), not a generic dashboard anchor",
+        "Layout is narrative/announcement-led, not a repeated icon+heading feature-card rhythm",
+        "Includes a token table with color, type, and spacing values",
+        "Uses realistic launch copy about threaded replies, not Lorem ipsum or 'Feature 1'",
+        "Output includes a slop audit verdict or references the audit"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Create an API reference page for our REST endpoint POST /v1/messages. It should show the endpoint, the request parameters, an example request and response, and the error codes. Match the kind of docs developers actually read. We do not use any UI framework yet.",
+      "expected_output": "A docs-register reference page. Should: lock docs register, prioritize scannability and density over marketing flourish, treat code samples as first-class (monospace, distinct, copyable), name a developer-docs anchor (Stripe docs, Vercel docs, Twilio, Mintlify), avoid marketing hero/CTA patterns, and show realistic endpoint content.",
+      "files": [],
+      "assertions": [
+        "Output identifies the register as docs (not marketing or saas-landing)",
+        "No marketing hero, dual CTA, or conversion patterns — this is reference documentation",
+        "Request/response code samples are treated as first-class (monospace, distinct block, copy affordance)",
+        "Anchor references a developer-docs reference (Stripe docs, Vercel docs, Twilio, Mintlify, or similar)",
+        "Layout favors scannable density (a params table, an error-code list) over decorative whitespace",
+        "Shows realistic POST /v1/messages parameters, an example payload, and error codes, not placeholders"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Add a 'Create workspace' dialog to our app. It needs a name field, a slug field auto-derived from the name, a visibility radio (private/public), and Create/Cancel buttons. Name is required.",
+      "expected_output": "A dialog that DEFERS to the existing shadcn design system. Should: detect components.json, use shadcn semantic tokens (bg-primary, text-muted-foreground, border-input, bg-destructive) and NOT raw color classes (bg-red-50) and NOT a parallel custom OKLCH palette, use shadcn primitives (Dialog, Field/FieldLabel, Button variants, cn()), use lucide icons not emoji, and design the form's disabled/error/loading states. This is the documented case where the skill most often regresses below a no-skill baseline.",
+      "files": [
+        "evals/files/components.json"
+      ],
+      "assertions": [
+        "Output acknowledges the existing shadcn setup (components.json) and routes to the shadcn scaffold path",
+        "Uses shadcn semantic tokens (bg-primary, text-muted-foreground, border-input, bg-destructive) and not raw Tailwind color classes such as bg-red-50 or text-blue-600",
+        "Does not invent a parallel custom OKLCH token spec that competes with the design system's tokens",
+        "Uses shadcn primitives (Dialog, Field/FieldLabel or Label, Button variants) and cn() for conditional classes, not raw div plus template-literal ternaries",
+        "Any icons use lucide (the project's iconLibrary), never emoji as UI icons",
+        "Implements the required-name validation and designs disabled/error/loading states for the form"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Build a billing-history table for our app's account section — columns for date, description, amount, status, and an invoice download link. Paginated, ten rows per page.",
+      "expected_output": "A billing table that ADOPTS the existing DESIGN.md tokens verbatim. Should: load DESIGN.md, use its exact tokens (the oklch values, Geist/Geist Mono, 4pt base, 6px radius, green accent) rather than re-deriving a new token spec, take the product-app register from the file, follow the stated status-color rules (green for paid, muted for pending, red only for failed), and show realistic billing rows.",
+      "files": [
+        "evals/files/DESIGN.md"
+      ],
+      "assertions": [
+        "Output explicitly loads and honors the existing DESIGN.md rather than deriving fresh tokens",
+        "Uses the DESIGN.md tokens (Geist/Geist Mono, the specified oklch values, 4pt base, 6px radius); does not substitute Inter or a different palette",
+        "Register is taken as product-app from the DESIGN.md, not re-classified",
+        "Status styling follows the DESIGN.md rule (green accent for paid, muted for pending, red only for failed)",
+        "Does not emit a competing Gate-3 token table that contradicts DESIGN.md",
+        "Rows show realistic billing history (dates, descriptions, amounts, statuses), not placeholders"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Design a product detail page for an online eyewear store — a pair of glasses with photos, frame and lens options, price, an add-to-cart button, and a short description. Make it feel premium and trustworthy.",
+      "expected_output": "An e-commerce product page with a context-appropriate anchor. Should: recognize this is not a dev-tool brief, pick a retail/e-commerce anchor from references/context-anchors.md §A (Warby Parker, Aesop, or similar) rather than reflexively Linear/Vercel/Stripe-dev, produce a warm premium-retail token spec, use a product-photography-forward layout, write realistic eyewear product content, and run a slop audit.",
+      "files": [],
+      "assertions": [
+        "Anchor is not reflexively Linear/Vercel/Stripe-dev; it is a retail/e-commerce reference appropriate to the brief",
+        "Names a retail/e-commerce anchor (Warby Parker, Aesop, or a comparable premium retail brand)",
+        "Treats this as a marketing/commerce surface, not a dev-tool product-app",
+        "Includes a token table whose palette and type fit premium retail, not steely dev-tool grays",
+        "Layout is product-photography-forward, not a dense data/dashboard layout",
+        "Uses realistic eyewear product copy (frame, lens, price, description), not Lorem ipsum",
+        "No emoji used as UI icons"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Build an empty-state for a notifications inbox in our React app, shown when there are no notifications. Friendly, reassuring tone: tell the user they are all caught up and that we will let them know when something needs attention, plus a secondary link to notification settings.",
+      "expected_output": "A React empty-state whose contraction-heavy copy compiles. Should: render natural contractions (you're, we'll, don't) correctly — JSX text nodes left as written, string literals (aria-label, props, any data array) wrapped in double quotes or template literals, the apostrophe character itself never replaced with a double-quote or backtick — plus realistic reassuring copy and no emoji-as-icon.",
+      "files": [],
+      "assertions": [
+        "The generated JSX/TS compiles; contractions do not break any string literal",
+        "Apostrophes in contractions remain real apostrophes, never swapped for a double-quote or backtick character (the common over-correction)",
+        "Any contraction inside a string literal (aria-label, prop, data array) uses a double-quote or template-literal outer delimiter",
+        "Contractions in JSX text nodes are left exactly as written, not over-escaped",
+        "Copy is realistic and reassuring (you're all caught up, we'll notify you), not generic placeholder text",
+        "Any leading glyph or icon is a real icon, not emoji"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Build a banking dashboard home for our mobile-first fintech app — a balance summary, three account cards, a recent-transactions list, a spending-by-category chart, and a primary 'Send money' action. Dark theme.",
+      "expected_output": "A fintech product-app dashboard. Should: lock product-app register, pick a fintech anchor from references/context-anchors.md §A (Revolut, Monzo, Cash App, Robinhood, or YNAB) rather than a reflexive dev-tool anchor, apply semantic status colors consistently (green for up/positive, red for down/negative, amber for warning), keep the data visualization free of decorative gradients (a gradient fill inside a chart kills clarity), use a monospace or tabular-figure treatment for balances and amounts, and show realistic balance and transaction content.",
+      "files": [],
+      "assertions": [
+        "Register is identified as product-app (fintech), not saas-landing or marketing",
+        "Anchor is a fintech/banking reference (Revolut, Monzo, Cash App, Robinhood, or YNAB), not a reflexive Linear/Vercel/Stripe-dev anchor",
+        "Status colors are semantic and used consistently (e.g. green for positive/up, red for negative/down, amber for warning)",
+        "The chart or data visualization uses solid semantic color, not a decorative gradient fill",
+        "Numeric figures and balances use a monospace or tabular-figure treatment",
+        "Includes all requested elements: a balance summary, account cards, a transactions list, a chart, and a primary money action",
+        "Balance and transaction content is realistic, not Lorem ipsum or 'Item 1'"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Design a patient portal home screen for a telehealth app — upcoming appointments, current medications, recent lab results, and a 'Message your doctor' button. It should feel calm and trustworthy, and be usable by older patients.",
+      "expected_output": "A healthcare product-app surface that prioritizes accessibility and a calm register. Should: lock product-app register, pick a healthcare anchor from §A (Teladoc, b.well, Sidekick/Reframe), use a calm soft palette (soft green/blue, warm neutrals) that still meets WCAG AA contrast (4.5:1 text, 3:1 UI/large), size touch targets >=44px, show visible trust/privacy signals near sensitive data, avoid anxiety-inducing saturated reds and generic 'doctor in a white coat' stock imagery, and show realistic appointment, medication, and lab content.",
+      "files": [],
+      "assertions": [
+        "Register is product-app (healthcare), not marketing or saas-landing",
+        "Anchor is a healthcare/patient-portal reference (Teladoc, b.well, Sidekick/Reframe, or similar), not a dev-tool anchor",
+        "Palette is calm (soft green/blue or warm neutrals) and the token spec states WCAG AA contrast (4.5:1 text, 3:1 UI/large)",
+        "Interactive targets are sized >=44px (the output states touch-target sizing)",
+        "Includes visible trust/privacy signals near patient data and avoids saturated red as the dominant accent",
+        "Includes the requested sections: appointments, medications, lab results, and message-your-doctor",
+        "Content is realistic patient-portal data rather than placeholders, and no emoji are used as UI icons"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Build the home screen for our music app, designed for mobile at 390px wide — a now-playing area, two horizontal shelves (Recently played, Made for you), and a bottom navigation bar. Dark.",
+      "expected_output": "A mobile product-app home screen designed natively for the stated width. Should: lock product-app register, pick a mobile anchor from §A (Spotify, Apple Music, Telegram, Apple Maps), use bottom-centric navigation within the thumb zone, size touch targets >=44px, design at 390px rather than shrinking a desktop layout, commit to a single driving accent, and show realistic shelf and track content with specific (non-generic) shelf labels.",
+      "files": [],
+      "assertions": [
+        "Register is product-app (mobile) and the layout is designed for the stated mobile width (390px), not a shrunk desktop layout",
+        "Anchor is a mobile-app reference (Spotify, Apple Music, Telegram, Apple Maps, or similar)",
+        "Primary navigation is bottom-centric (a bottom tab bar or bottom sheet) within thumb reach",
+        "Touch targets are sized >=44px",
+        "Includes a now-playing area, at least two horizontal shelves, and a bottom navigation bar",
+        "Shelf labels and track content are specific and realistic, not generic ('Recommended') or placeholder"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Build the main 'Notes' page for Loop, our new product. It's a notes app, but this is also the page we'll point new visitors to from our launch tweet.",
+      "expected_output": "A response that surfaces the register ambiguity instead of silently committing to one and building it. The brief names two conflicting purposes — the in-product 'Notes' surface (product-app) and a page new visitors land on from a launch tweet (marketing / saas-landing) — which map to registers with opposite defaults. Per Gate 0.5 the skill must NOT silently pick one and emit a finished page; it should EITHER ask one focused clarifying question to lock the register, OR explicitly name the two competing interpretations and state which register it is assuming and why before proceeding.",
+      "files": [],
+      "assertions": [
+        "Output surfaces the register ambiguity rather than silently committing to one register and building it — it either asks a clarifying question OR explicitly states the assumed register and the reason",
+        "Output names the two competing interpretations (the in-product notes surface vs. a marketing/landing page for new visitors)",
+        "Output does not emit a full finished page for one register without acknowledging the dual-purpose conflict",
+        "If it asks a question, it asks one focused disambiguation question, not an extended questionnaire"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Build a chat interface for our AI research assistant — a scrollable message thread, a multiline composer at the bottom, streaming responses, per-message actions (copy, regenerate), and a left rail of past conversations. Dark.",
+      "expected_output": "An AI-chat product-app surface anchored to real chat-product references. Should: lock product-app register, pick an AI-chat anchor from references/context-anchors.md §A (ChatGPT, Claude.ai, Perplexity, Raycast AI, v0), include a streaming affordance (incremental/token-by-token rendering with a stop control), a multiline composer that grows and sends on Cmd/Ctrl+Enter, a per-message action row, markdown rendering with copy-able code blocks, and a left-rail conversation history; avoid the generic AI-slop tells (purple-to-blue gradient, the 'centered input + sparkle icon + How can I help you today?' template, chat bubbles forced everywhere, uniform 16px radius, Inter-by-default), and show realistic research-assistant content.",
+      "files": [],
+      "assertions": [
+        "Register is product-app and the surface is treated as a chat/agent interface, not a marketing landing",
+        "Anchor is a real AI-chat/agent product (ChatGPT, Claude.ai, Perplexity, Raycast AI, v0, or similar)",
+        "Includes a streaming affordance — incremental/token-by-token message rendering with a stop control — not a single post-completion render",
+        "Includes a multiline composer with a growth affordance and a per-message action row (copy/regenerate)",
+        "Includes a left-rail (or equivalent) conversation history",
+        "No purple-to-blue gradient and no 'centered input + sparkle icon + How can I help you today?' generic template",
+        "Typography is a committed typeface rather than Inter/system-by-default, and radius/padding is varied by role rather than a uniform 16px everywhere",
+        "Message content is realistic for a research assistant, with no emoji used as UI icons"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "Build a sign-in page for our B2B app Stratus, plus the error state for when the credentials are wrong. Email and password, with social sign-in too.",
+      "expected_output": "An auth utility surface with specific, non-generic error handling. Should: lock product-app (utility) register, pick an auth anchor from §A (Vercel, Stripe, Clerk), use a purposeful heading ('Sign in to continue to Stratus', not a bare 'Login'), be email-first, render an INLINE (not modal) error with specific copy ('Incorrect email or password', never 'Something went wrong'), order sign-in methods for a B2B audience (email/SSO ahead of consumer social), use a full-width CTA with >=44px targets on mobile, and design the field and button states.",
+      "files": [],
+      "assertions": [
+        "Register is product-app (utility/auth), not a marketing landing",
+        "Anchor is an auth reference (Vercel, Stripe, Clerk, or similar)",
+        "The heading is purposeful and product-specific (e.g. 'Sign in to continue to Stratus'), not a bare 'Login'",
+        "The wrong-credentials error is specific ('Incorrect email or password') and inline, never a generic 'Something went wrong' or a modal",
+        "The form is email-first and, for this B2B context, orders email/SSO ahead of consumer social options",
+        "Designs the field and button states (error, disabled, loading) and uses >=44px targets with a full-width mobile CTA"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "Build a 'Subscribe to newsletter' form — an email input and a Subscribe button. Submitting takes about 2 seconds. Show what the form looks like while the request is in flight and what the user sees after it succeeds.",
+      "expected_output": "A form whose async interaction is honest, not silent. Should: on submit, show a perceivable loading state (a spinner or 'Subscribing…' on the button) and disable the button to prevent a double-submit; on success, show explicit human-friendly confirmation ('Thanks — check your email to confirm.') rather than a silent reset or blank state; keep the input semantic with an associated label; and never leave the user unsure whether the click registered.",
+      "files": [],
+      "assertions": [
+        "On submit, the button shows a perceivable loading state (spinner or 'Subscribing…' text), not a silent/unchanged button",
+        "The submit button is disabled during the in-flight request to prevent a double-submit",
+        "The success state shows explicit, human-friendly confirmation (e.g. 'Check your email to confirm'), not a silent redirect or blank state",
+        "Success/confirmation copy is specific and actionable, not a generic 'Success' or 'Done'",
+        "The control is a semantic button and the email input has an associated label, not a placeholder used as the label",
+        "The loading and success states are reachable in the code (wired to submit), not only styled"
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "Build a 'Create project' form with a Name field (required), a Slug field auto-derived from the name, and a Create button. Show the error states for: (a) submitting with an empty name; (b) a slug that already exists.",
+      "expected_output": "A form with specific, inline, actionable error copy. Should: show an empty-name error that names the field ('Project name is required'), not a generic 'Required'/'Error'; show a slug-conflict error that explains the problem and offers a next step ('That slug is taken — try another or open the existing project'); render both errors inline next to their fields, not in a modal or a vanishing toast; and never use 'Something went wrong' or a bare 'Error'.",
+      "files": [],
+      "assertions": [
+        "The empty-name error names the field specifically ('Project name is required'), not 'Required field' / 'Error' / placeholder text",
+        "The slug-conflict error states the cause AND a next action (e.g. 'That slug is taken — try another or open the existing project')",
+        "Both errors render inline next to their fields, not in a modal or an auto-dismissing toast",
+        "No error text uses 'Something went wrong' or a bare 'Error' / 'Invalid input'",
+        "Each error message tells the user the specific next action without needing the surrounding prose",
+        "Required-name validation is wired (submitting empty actually surfaces the error), not merely styled"
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "Build a left sidebar navigation for a product-app dashboard with five items (Dashboard, Settings, Team, Billing, Docs) and a user-avatar menu in the header that opens a dropdown (Profile, Sign out). Users must be able to operate all of it from the keyboard.",
+      "expected_output": "A keyboard-operable navigation. Should: render every interactive element with a visible :focus-visible ring (per Gate 3, >=2px at >=3:1); use semantic <button>/<a>, not <div onClick>; activate nav items on Enter and toggle the avatar menu on Enter/Space; manage focus when the dropdown opens (focus moves into it) and closes (focus returns to the avatar), with Esc to close; and keep Tab order logical (top-to-bottom). If any control is custom, document its interaction model in DESIGN.md.",
+      "files": [],
+      "assertions": [
+        "Every interactive element (nav items, avatar trigger, menu items) renders a visible focus indicator (a :focus-visible ring), not outline:none with no replacement",
+        "Interactive elements are semantic <button>/<a>, not <div>/<span> with only an onClick",
+        "Nav items activate on Enter and the avatar menu toggles on Enter/Space, not mouse-only",
+        "Focus is managed on the dropdown: it moves into the menu on open and returns to the avatar trigger on close, with Esc closing it (no focus trap or lost focus)",
+        "Tab order is logical (top-to-bottom, matching the visual order)",
+        "Any custom (non-native) control has its interaction model (focus order, keys, states) documented in DESIGN.md"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "Add a 'Delete workspace' action to our settings. Deleting is permanent and removes all the workspace's data. Build the action and whatever the user sees when they trigger it.",
+      "expected_output": "A destructive flow with real recovery, not a bare delete. Should: NOT fire deletion immediately on the first click; require an explicit confirmation step (a dialog naming the exact action — 'Delete this workspace?' / 'Delete [name] forever' — with the safe option focused by default, optionally a type-to-confirm for an irreversible action); show a loading state while the delete is in flight (no silent wait); use specific, non-generic copy; and use a semantic, keyboard-operable, Esc-closable dialog. (A live undo affordance is an acceptable alternative for a recoverable delete, but a permanent one needs explicit confirmation.)",
+      "files": [],
+      "assertions": [
+        "Deletion does NOT fire immediately on the first click; it requires an explicit confirmation step (or a live undo affordance)",
+        "The confirmation names the exact action ('Delete this workspace?' / 'Delete [name] forever'), not a generic 'Are you sure?'",
+        "The safe option (Cancel) is focused by default, or the destructive action requires typing a confirm word — the destructive button is not the default-focused action",
+        "A loading state is shown while the deletion is in flight, not a silent wait",
+        "The dialog is semantic and keyboard-operable: Esc closes it and focus returns to the trigger on close",
+        "Copy is specific and buttons are clearly labeled ('Delete' / 'Cancel'), never just 'Yes' / 'No'"
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "Build a blog article page for 'The Hidden Costs of Rushing a Software Project' — a header with site nav, the article (title, author, publish date, a featured chart image, a couple of section headings, and a decorative divider image), an inline 'Subscribe' form (email + button), and a footer. Use realistic content. Make it usable by screen-reader and keyboard users.",
+      "expected_output": "A marketing/editorial page built on a correct semantic foundation. Should: use landmark regions (<header>, <nav>, <main>, <footer>); have exactly one <h1> (the article title) with a logical heading order for the sections (no level skips); give the email input a real associated <label> (not placeholder-as-label); give the featured chart a descriptive alt that states its insight and the decorative divider alt=''; use a semantic <button> for Subscribe (not <div onClick>) with a visible focus ring; set lang on <html>; include a skip-to-main link; and announce the subscribe success/error in an aria-live region. Realistic content, not Lorem ipsum.",
+      "files": [],
+      "assertions": [
+        "Uses landmark regions: <header>, <nav>, <main>, and <footer> (not <div> soup)",
+        "Has exactly one <h1> (the article title) and a logical heading order for sections (no level skips like <h1> to <h3>)",
+        "The email input has a real, programmatically associated <label> (for/id or wrapping), not a placeholder used as the label",
+        "The featured/content image has descriptive alt conveying its meaning; the decorative divider image uses alt=\"\" (present but empty)",
+        "The Subscribe control is a semantic <button>/<a> (not <div onClick>) and shows a visible focus indicator",
+        "The <html> element has a lang attribute, and the page includes a skip-to-main-content link",
+        "The subscribe success/error status is exposed to screen readers via an aria-live region (or role=status/alert), not only visual text",
+        "Content is realistic (about rushing a software project), not Lorem ipsum"
+      ]
+    },
+    {
+      "id": 20,
+      "prompt": "Build a SaaS landing page for Beacon, a project-management tool: a hero (headline, subhead, primary CTA), a 3-feature section, a 3-tier pricing block, an FAQ, and a footer. It's a public marketing page — make it search-ready and shareable. Output the page including its document <head>.",
+      "expected_output": "A saas-landing page that is SEO-ready. Should: include a unique descriptive <title> (~50-60 chars) and a unique meta description (~120-160 chars); exactly one <h1> stating the product's purpose with <h2> sections; Open Graph tags (og:title, og:description, an absolute og:image URL, og:type) + twitter:card='summary_large_image'; a self-referential absolute canonical; semantic landmarks; JSON-LD structured data (Product/Offer for the tiers and/or Organization, ideally via @graph); descriptive link/CTA text ('Start free trial', not 'click here'); a viewport meta; and image alt text. It must NOT include a <meta keywords> tag or keyword-stuffed copy.",
+      "files": [],
+      "assertions": [
+        "Includes a unique, descriptive <title> roughly 50-60 characters stating the product's purpose (not 'Home' / 'Untitled')",
+        "Includes a unique <meta name=\"description\"> roughly 120-160 characters in plain language",
+        "Has exactly one <h1> matching the product's purpose, with <h2> section headings (Features, Pricing, FAQ)",
+        "Includes Open Graph tags (og:title, og:description, an absolute og:image URL, og:type) and twitter:card='summary_large_image'",
+        "Includes a self-referential, absolute <link rel=\"canonical\">",
+        "Includes JSON-LD structured data appropriate to the page (Product/Offer for the pricing tiers and/or Organization) as a valid <script type=\"application/ld+json\"> block",
+        "Uses semantic landmarks (<header>/<nav>/<main>/<footer>), descriptive CTA/link text ('Start free trial', not 'click here'), and a <meta name=\"viewport\">",
+        "Does NOT include a <meta name=\"keywords\"> tag and does not keyword-stuff the title or copy"
+      ]
+    },
+    {
+      "id": 21,
+      "prompt": "Add a 'Create project' settings form to our app — a Name field (required), a Description textarea, a visibility Select (Private/Public), and Save/Cancel buttons. Show validation for the required name.",
+      "expected_output": "A form that DEFERS to the project's existing MUI (Material UI) design system. Should: detect the established design-system library (@mui/material in package.json) and use its components (TextField, Select/MenuItem, Button variants) and its theme tokens (theme.palette, sx) — NOT raw color classes, NOT a parallel custom OKLCH palette, NOT hand-rolled <div> inputs; use MUI's error/helperText props for the required-name validation; and follow Material semantics (one accent, density). This is the design-system-defer regression generalized beyond shadcn.",
+      "files": [
+        "evals/files/package.json"
+      ],
+      "assertions": [
+        "Output detects the established design-system library (@mui/material in package.json) and routes to deferring to it",
+        "Uses MUI components (TextField, Select/MenuItem, Button) and its theme/sx tokens, not hand-rolled <div> inputs or raw Tailwind color classes",
+        "Does not invent a parallel custom OKLCH palette or a competing token spec alongside the MUI theme",
+        "Required-name validation uses MUI's error/helperText props (or equivalent), not a custom ad-hoc error UI inconsistent with the system",
+        "Includes all requested fields (Name required, Description, visibility Select) and Save/Cancel actions",
+        "Any icons use the system's icon set (@mui/icons-material), never emoji as UI icons"
+      ]
+    },
+    {
+      "id": 22,
+      "prompt": "Build a checkout / upgrade page for our SaaS Pro plan ($29/mo): a plan summary, an optional add-on (priority support, +$10/mo), a total, and a 'Complete upgrade' button. We want it to convert well.",
+      "expected_output": "A checkout that persuades ETHICALLY and contains NO dark patterns (§J). Should: show the full total (including any selected add-on) BEFORE the final 'Complete upgrade' button (no hidden costs); leave the optional add-on UNCHECKED by default (no preselected paid opt-in); use only social proof that is specific and named (not 'loved by millions'); use no fake-urgency countdown (or only a genuine, stated deadline); use positive, non-guilt copy for declining the add-on (no confirmshaming); make going back / canceling easy (no roach-motel); and show a specific declined-card error ('Card declined — try another card or contact your bank'), not 'Something went wrong'.",
+      "files": [],
+      "assertions": [
+        "The full total (including any selected add-on) is shown before the final 'Complete upgrade' button — no cost revealed only after submit",
+        "The optional add-on is unchecked by default; the user must actively opt in (no preselected paid opt-in)",
+        "Any social proof is specific/named (e.g. 'Trusted by 2,000+ teams'), not vague ('loved by millions') or fabricated",
+        "No fake-urgency countdown; if a deadline appears it is genuine and stated, not a reset-on-reload timer",
+        "Declining the add-on or not upgrading is presented neutrally, never with guilt-inducing confirmshaming copy",
+        "Going back or canceling the upgrade is easy and does not trap the user (no roach-motel)",
+        "A declined-card error is specific and actionable ('Card declined — try another card or contact your bank'), not 'Something went wrong'"
+      ]
+    },
+    {
+      "id": 23,
+      "prompt": "Build a small analytics widget card for our React dashboard — a title, a sparkline-style chart, a big metric number, and a trend arrow. It needs to drop into our existing app and just work; we use Tailwind.",
+      "expected_output": "A self-contained, compile-clean React component that runs on the first try. Should: import only allowlisted/installed packages (no phantom dependency), use a real charting approach (recharts or inline SVG) with correctly-named imports, use a real icon set (lucide-react) NOT an emoji for the trend arrow, default-export an entry that renders, and avoid sandbox-breaking patterns (top-level fetch/localStorage, external link/script).",
+      "files": [],
+      "assertions": [
+        "Does not import any package that is not a well-known installed/allowlisted dependency (no phantom or undeclared imports)",
+        "Every named import (icons, chart components) is a real export of its package — no invented symbols",
+        "Uses a real icon (e.g. lucide-react) or inline SVG for the trend indicator, NOT an emoji as a UI icon",
+        "The chart uses recharts or inline SVG, not an undeclared chart library",
+        "The component default-exports and renders without required props",
+        "No top-level fetch/localStorage or external <link>/<script src> that would break a sandbox; data is inlined or mocked",
+        "Output is compile-clean: className not class, closed tags, and apostrophes that do not break string literals"
+      ]
+    },
+    {
+      "id": 24,
+      "prompt": "I want a landing hero for my new developer-focused API product, but I'm not sure on the visual direction yet — show me 2-3 distinct options with quick trade-offs, then go ahead and build your strongest pick.",
+      "expected_output": "A design-then-code response that presents options AND delivers. Should: name 2-3 distinct candidate anchor/variant directions each with a one-line trade-off, pick the strongest, write the locked register/anchor/token table to a DESIGN.md, AND build that chosen hero in the same pass — not stop after presenting options, and not jump straight to a single generic hero.",
+      "files": [],
+      "assertions": [
+        "Presents 2-3 distinct, named candidate directions or anchors before committing, not a single take",
+        "Each candidate direction carries a brief trade-off or rationale, not just a label",
+        "Commits to ONE direction and builds that, rather than leaving the choice unresolved",
+        "Writes or updates a DESIGN.md capturing the locked register, anchor, and token table",
+        "The built hero's tokens match the selected direction, not a different or contradictory palette",
+        "Avoids generic AI-hero tells: no purple-to-pink/blue gradient, and Inter is not the default body font"
+      ]
+    },
+    {
+      "id": 25,
+      "prompt": "Refresh the visual design of our product-app's settings page. The codebase already has a tokens.css file where every color has a comment above it explaining where it came from (a brand guideline, a logo swatch, or a prior owner decision), a docs/design-decisions.md file recording why the current palette and type were chosen, an ornament/ folder with existing decorative SVG patterns used across the app, a logo.svg brand asset, and the settings page is already live in production. Make it look fresher.",
+      "expected_output": "A response that treats an identity inventory as the mandatory base of the brief, before any other research or asset. Should: read the tokens.css color-origin comments, docs/design-decisions.md, the existing ornament/theme components, and the currently published settings page first, and explicitly cite that inventory as the base of the brief; keep the existing palette and type pairing rather than proposing new ones, since tokens.css and docs/design-decisions.md already record them; and only look at the raw logo.svg, if at all, after reading the published page, never before it.",
+      "files": [],
+      "assertions": [
+        "Output explicitly cites the identity inventory (tokens.css comments, design-decisions.md, ornament components, published page) as the base of the brief, not as optional background reading",
+        "Output does not propose a new color palette or a new type pairing, given that tokens.css and docs/design-decisions.md already record the existing ones",
+        "If the raw logo.svg is examined at all, output reads or references the published settings page before it, not the other way around",
+        "Output explicitly reads or references the existing tokens.css color-origin comments before touching any color decision",
+        "Output explicitly reads or references docs/design-decisions.md as part of the brief's base, not as an afterthought",
+        "Output reuses or explicitly builds on the existing ornament/theme components rather than replacing them with newly invented decorative elements"
+      ]
+    },
+    {
+      "id": 26,
+      "prompt": "We've built this hero section twice now and the owner rejected both: the first felt off-brand, the second was rejected as 'still not it, just make it look good this time.' Go ahead and build a third version now.",
+      "expected_output": "A response that refuses to start a third blind build. Should: recognize 2 consecutive rejections as the stop-rule trigger; NOT ship a third build on a fresh guess; instead propose returning to a recognition board: assembling existing pieces (official brand art, the current live page, stakeholder mocks, the prior rejected builds as negative controls) and asking the owner to pick 'closest / farthest' by number rather than describing what they want; and note that a mechanical gate would also block dispatch here since no anchor postdates the second rejection.",
+      "files": [],
+      "assertions": [
+        "Output recognizes 2 consecutive rejections and treats it as a hard stop rather than continuing to iterate",
+        "Output does not produce or describe a third built version before addressing the missing anchor",
+        "Output proposes returning to a recognition board with existing pieces (brand art, live page, stakeholder mocks, a rejected build as negative control), not asking the owner to describe a new look",
+        "Output frames the owner's response as picking by number (closest/farthest), not open-ended descriptive feedback",
+        "Output references or implies a mechanical stop-rule check blocking dispatch without a fresh, later anchor",
+        "Output does not treat 'make it look good this time' as sufficient direction to proceed"
+      ]
+    },
+    {
+      "id": 27,
+      "prompt": "Add a cute mascot character to our onboarding flow, drawn in our brand's pixel-art style. It should wave at the user on the welcome screen.",
+      "expected_output": "A response that never draws the mascot in SVG or code. Should: state that a character or mascot is never generated as inline SVG paths or code-drawn shapes by the agent; source the mascot from the project's official pixel-art assets, or from an image-generation model given those official assets as reference (recolor, new pose, swap a head); checking first whether the project's imagery policy allows AI-generated imagery, asking the owner if that policy is unstated; and if generating, describe a chroma-key cutout plus a numbered contact sheet for the owner to pick from, rather than dropping in one unreviewed image. Code should only handle geometry or procedural ornament, never the character itself.",
+      "files": [],
+      "assertions": [
+        "Output does not implement the mascot as inline SVG paths/shapes or a hand-coded vector character",
+        "Output sources the mascot from the project's official art assets, or from an image-generation model explicitly given those official assets as reference",
+        "Output checks or asks about the project's imagery policy before assuming AI-generated character art is allowed",
+        "If an image model is used, output describes a chroma-key cutout and a numbered contact-sheet review step rather than dropping in one unreviewed image",
+        "Output does not claim that drawing the character directly in code is an acceptable approach",
+        "Any procedural or code-drawn elements mentioned are limited to geometry or ornament (gradients, patterns), not the mascot itself"
+      ]
+    },
+    {
+      "id": 28,
+      "prompt": "Here is our signup form component. Polish it and make it production ready, keep the visual style, and list each issue you fixed.\n\n```tsx\nexport default function Signup(){return(<form className=\"card\"><label>Email<input type=\"text\" onPaste={e=>e.preventDefault()} /></label><label>Password<input type=\"password\" /></label><button style={{transition:'all .3s'}}>Sign up...</button><img src=\"/hero.png\" alt=\"\" /></form>)}\n```",
+      "expected_output": "A rewrite that fixes the Vercel Web Interface Guidelines issues the base audits miss: correct input type and autocomplete, paste allowed, transition properties listed instead of transition: all, the ellipsis character, and explicit image dimensions, with an itemized list of the fixes.",
+      "files": [],
+      "assertions": [
+        "Output uses type=\"email\" for the email field",
+        "Output sets autocomplete attributes on the inputs (for example email and new-password)",
+        "Output removes the onPaste preventDefault so pasting into the inputs works",
+        "Output replaces transition: all with an explicit list of properties",
+        "Output gives the image explicit width and height or an aspect-ratio",
+        "Output replaces the three-dot \"...\" with the ellipsis character or removes it",
+        "Output includes an itemized list of the issues it fixed"
+      ]
+    },
+    {
+      "id": 29,
+      "prompt": "Redesign the home page of our guild site. We are a volunteer instructors' company inside a pixel-art hotel game. Leadership says: 'the company is lost on visual identity, our only reference is the logo and the blue'. Our media kit has the official logo PNG and members' avatars come from the game public API. Make it feel unique and professional, not like a generic AI site.",
+      "expected_output": "Gate 1 runs before any industry anchor: the identity source is the guild's own world (quoted diagnosis, official logo and avatars, game pixel grammar, a theme from their culture with one genre reference for form and written exclusions), a signature family is named, the palette is one hue in shades with meaningful exceptions, and the industry anchor only governs structure.",
+      "files": [],
+      "assertions": [
+        "Output quotes the leadership diagnosis or restates it as the brief before choosing a direction",
+        "Output names the official logo PNG and the game's avatar API as identity sources before naming any industry anchor such as Linear or Stripe",
+        "Output picks a theme drawn from the guild's own world",
+        "Output uses at most one outside genre reference and uses it for form, not as the whole identity",
+        "Output does not use glassmorphism, a bento grid, a purple gradient or warm earthy neutrals as the identity",
+        "Output does not resize game avatar images (native size or crop only)",
+        "Output records the identity source and signature family in DESIGN.md or an equivalent spec",
+        "Output builds the home page in the same response instead of stopping at a question or a BLOCKED line"
+      ]
+    },
+    {
+      "id": 30,
+      "prompt": "We run a small independent bakery app for pre-ordering bread at our two shops. We have no logo files or brand guide yet, just our name, Fermento. Build the landing page. It must not look like every other AI-generated startup site.",
+      "expected_output": "Gate 1 runs with no artifacts: the identity is derived from the product's domain and its users' craft (baking, fermentation, the two shops), stated as an assumption in one line, and the page is built in the same pass. No pixel or game rules are applied, and no trend is used as the identity.",
+      "files": [],
+      "assertions": [
+        "Output states an identity theme derived from baking or fermentation or the shops, as an assumption in one line",
+        "Output builds the landing page in the same response instead of stopping at a question or a BLOCKED line",
+        "Output does not apply pixel-art or game-sprite rules to the design",
+        "Output does not use glassmorphism, a bento grid or a purple gradient as the identity",
+        "Output records the identity theme in DESIGN.md or an equivalent spec"
+      ]
+    }
+  ]
+}
