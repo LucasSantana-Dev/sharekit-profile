@@ -84,8 +84,10 @@ scope_rank() {
 }
 
 # --- client rules -----------------------------------------------------------
-fold() {  # macOS/Windows paths compare case-insensitively
-  case "$(uname -s)" in Darwin|MINGW*|MSYS*|CYGWIN*) tr '[:upper:]' '[:lower:]' ;; *) cat ;; esac
+_FOLD=false  # macOS/Windows paths compare case-insensitively; decided once, not per call
+case "$(uname -s)" in Darwin|MINGW*|MSYS*|CYGWIN*) _FOLD=true ;; esac
+fold() {
+  if $_FOLD; then tr '[:upper:]' '[:lower:]'; else cat; fi
 }
 abspath() {  # resolve even when the file does not exist yet
   local d; d="$(cd "$(dirname "$1")" 2>/dev/null && pwd -P)" || d="$(dirname "$1")"
@@ -93,15 +95,17 @@ abspath() {  # resolve even when the file does not exist yet
   printf '%s/%s' "$d" "$(basename "$1")"
 }
 client_of() {  # client_of <abs path> -> slug whose root contains it (deepest wins)
-  local p best="" best_len=0 slug root r
+  local p best="" best_len=0 slug r
   p="$(printf '%s' "$1" | fold)"
-  while IFS=$'\t' read -r slug root; do
-    [[ -z "$root" ]] && continue
-    r="$(printf '%s' "${root%/}" | fold)"
+  # jq folds every root in one pass. A subshell per root cost ~0.3s each on
+  # Windows and pushed this hook past its 5s timeout with a 15-root registry.
+  while IFS=$'\t' read -r slug r; do
+    [[ -z "$r" ]] && continue
+    r="${r%/}"
     if [[ "$p" == "$r" || "$p" == "$r"/* ]] && (( ${#r} > best_len )); then
       best="$slug"; best_len=${#r}
     fi
-  done < <(jq -r 'to_entries[] | .key as $k | .value.roots[]? | "\($k)\t\(.)"' "$CLIENTS_FILE")
+  done < <(jq -r --argjson f "$_FOLD" 'to_entries[] | .key as $k | .value.roots[]? | "\($k)\t\(if $f then ascii_downcase else . end)"' "$CLIENTS_FILE")
   printf '%s' "$best"
 }
 post_edit() {  # the note as it will be after this tool call
